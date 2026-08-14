@@ -68,4 +68,43 @@ describe('computeFareBreakdown', () => {
     expect(result.hamaliFare).toBe(900);
     expect(result.total).toBe(900);
   });
+
+  it('keeps hamaliFare pre-surge in both combo and hamali-only bookings (same field, same meaning)', () => {
+    const surgedHamaliRule = { ...hamaliRule, surgeMultiplier: 2.0 };
+    const comboResult = computeFareBreakdown({
+      vehicleRule: truckRule, // surge 1.0
+      distanceKm: 20,
+      hamaliRule: surgedHamaliRule, // surge 2.0
+      hamaliCount: 2,
+    });
+    // hamaliFare must be the pre-surge per-worker amount (300*2=600), not
+    // scaled by either side's surge multiplier — total is where surge shows up.
+    expect(comboResult.hamaliFare).toBe(600);
+
+    const hamaliOnlyResult = computeFareBreakdown({ hamaliRule: surgedHamaliRule, hamaliCount: 2 });
+    // Same field, same booking-type-independent meaning: still pre-surge 600.
+    expect(hamaliOnlyResult.hamaliFare).toBe(600);
+  });
+
+  it('applies the HIGHER of the two surge multipliers when vehicle and hamali rules diverge on a combo booking', () => {
+    const surgedHamaliRule = { ...hamaliRule, surgeMultiplier: 2.0 };
+    const result = computeFareBreakdown({
+      vehicleRule: truckRule, // surge 1.0
+      distanceKm: 20,
+      hamaliRule: surgedHamaliRule, // surge 2.0 — the higher one
+      hamaliCount: 2,
+    });
+    // vehicleComponent 960 + hamaliFare 600 = 1560 pre-surge, * 2.0 (the max) = 3120.
+    expect(result.surgeMultiplier).toBe(2.0);
+    expect(result.total).toBe(3120);
+  });
+
+  it('rejects a negative or non-finite distanceKm', () => {
+    expect(() => computeFareBreakdown({ vehicleRule: truckRule, distanceKm: -5 })).toThrow();
+    expect(() => computeFareBreakdown({ vehicleRule: truckRule, distanceKm: NaN })).toThrow();
+  });
+
+  it('rejects a negative hamaliCount', () => {
+    expect(() => computeFareBreakdown({ hamaliRule, hamaliCount: -1 })).toThrow();
+  });
 });
