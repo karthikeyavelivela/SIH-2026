@@ -32,11 +32,15 @@ export function requirePermission(permission: string) {
       next(new ApiError(403, 'Forbidden: insufficient role'));
       return;
     }
-    const manager = await User.findById(req.user.id).select('permissions').lean();
-    if (!manager || !manager.permissions.includes(permission)) {
-      next(new ApiError(403, 'Forbidden: missing permission ' + permission));
-      return;
+    try {
+      const manager = await User.findById(req.user.id).select('permissions').lean();
+      if (!manager || !manager.permissions.includes(permission)) {
+        next(new ApiError(403, 'Forbidden: missing permission ' + permission));
+        return;
+      }
+      next();
+    } catch (err) {
+      next(err);
     }
-    next();
   };
 }
