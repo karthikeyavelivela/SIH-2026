@@ -1749,17 +1749,90 @@ describe('mutha leader requests and member assignment', () => {
     expect(res.status).toBe(400);
     void mutha;
   });
+
+  it('shows a nearby searching hamali booking to a leader whose group has enough online nearby members', async () => {
+    const { agent } = await makeMuthaWithOnlineMember('9840000006', '9840000007', [78.49, 17.39]);
+    await makeSearchingHamaliBooking(); // requiredHamaliCount: 1, one online member is enough
+
+    const res = await agent.get('/api/requests');
+    expect(res.status).toBe(200);
+    expect(res.body.bookings.length).toBe(1);
+  });
+
+  it('does not show a booking to a leader whose group lacks enough online nearby members', async () => {
+    const leaderHash = await bcrypt.hash('Passw0rd!', 12);
+    const leader = await User.create({ name: 'L2', phone: '9840000008', passwordHash: leaderHash, role: 'mutha_leader' });
+    const { Mutha } = await import('../src/models/Mutha');
+    await Mutha.create({ name: 'Empty Group', leaderId: leader._id, memberIds: [], inviteCode: 'EMPTYGRP1' });
+    // No online members at all — group can't fulfill even requiredHamaliCount: 1.
+    await makeSearchingHamaliBooking();
+
+    const agent = request.agent(app);
+    await agent.post('/api/auth/login').send({ phone: '9840000008', password: 'Passw0rd!' });
+
+    const res = await agent.get('/api/requests');
+    expect(res.status).toBe(200);
+    expect(res.body.bookings.length).toBe(0);
+  });
 });
 ```
 
 - [ ] **Step 2: Run test, verify it fails**
 
 Run: `npm test --workspace server -- requests.test.ts`
-Expected: FAIL — `assign-members` route doesn't exist yet; `accept` doesn't set `assignedMuthaId` for leaders yet.
+Expected: FAIL — `assign-members` route doesn't exist yet; `accept` doesn't set `assignedMuthaId` for leaders yet; `listPendingRequests` still returns `[]` unconditionally for `mutha_leader` (Task 8 stubbed this deliberately, deferring to this task — see Task 8's comment).
 
 - [ ] **Step 3: Extend the controller**
 
-In `server/src/controllers/requests.controller.ts`, replace the `acceptRequest` function's role check and assignment logic to also handle `mutha_leader`:
+In `server/src/controllers/requests.controller.ts`, first replace the `mutha_leader` branch of `listPendingRequests` (currently `res.status(200).json({ bookings: [] })` at the end of the function) with a real implementation using `matching.service`'s `findCandidateMuthas` — this is the piece Task 8 deferred and this task is responsible for closing, otherwise a Mutha leader would have no way to ever discover a pending hamali booking:
+
+```typescript
+import { findCandidateMuthas } from '../services/matching.service';
+
+// ... inside listPendingRequests, replace the final fallback block:
+
+  if (role === 'mutha_leader') {
+    const { Mutha } = await import('../models/Mutha');
+    const mutha = await Mutha.findOne({ leaderId: req.user!.id });
+    if (!mutha) {
+      res.status(200).json({ bookings: [] });
+      return;
+    }
+
+    // Only bookings this specific group can actually fulfill: at least
+    // `requiredHamaliCount` of the group's own members currently online
+    // and within range of the pickup point. Loop over open hamali/combo
+    // bookings and keep only those where findCandidateMuthas would surface
+    // this leader's own Mutha as a qualifying candidate.
+    const openBookings = await Booking.find({
+      status: 'searching',
+      type: { $in: ['hamali', 'combo'] },
+      rejectedByUserIds: { $ne: req.user!.id },
+    });
+
+    const qualifying = [];
+    for (const booking of openBookings) {
+      const candidates = await findCandidateMuthas({
+        pickup: booking.pickupLocation.coordinates as [number, number],
+        maxDistanceKm: MAX_MATCH_DISTANCE_KM,
+        requiredHamaliCount: booking.requiredHamaliCount,
+      });
+      if (candidates.some((m) => m._id.toString() === mutha._id.toString())) {
+        qualifying.push(booking);
+      }
+    }
+
+    res.status(200).json({ bookings: qualifying });
+    return;
+  }
+
+  res.status(200).json({ bookings: [] });
+});
+```
+
+This replaces the whole `mutha_leader` fallback path at the end of `listPendingRequests` (everything from the `// mutha_leader: matching against...` comment through the function's closing `});`) — the rest of `listPendingRequests` (the `driver` and `hamali_solo` branches above it) stays exactly as Task 8 left it.
+
+Second, replace the `acceptRequest` function's role check and assignment logic to also handle `mutha_leader`:
 ```typescript
 export const acceptRequest = asyncHandler(async (req: Request, res: Response) => {
   const role = req.user!.role;
@@ -1840,18 +1913,22 @@ requestsRouter.post(
 - [ ] **Step 5: Run test, verify it passes**
 
 Run: `npm test --workspace server -- requests.test.ts`
-Expected: PASS (6 tests total in this file).
+Expected: PASS (8 tests total in this file: the 4 from Task 8 plus 4 added here — accept-on-behalf, assign-members, reject-outsider, and the two listing tests).
 
 - [ ] **Step 6: Run full suite**
 
 Run: `npm test --workspace server`
 Expected: all suites pass.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 7: Note a known scaling tradeoff (not a blocker for Phase 2)**
+
+The `mutha_leader` branch of `listPendingRequests` calls `findCandidateMuthas` once per open hamali/combo booking (O(n) query fan-out) rather than a single query, because "is my specific Mutha among the qualifying candidates for this booking" isn't expressible as one Mongo query without restructuring `findCandidateMuthas`. Fine at Phase 2's expected booking volume (polling, no sockets yet); if this becomes a real bottleneck, the fix is a dedicated `findCandidateBookingsForMutha(muthaId, ...)` query rather than looping the existing one — flag for a later phase, not a Task 9 blocker.
+
+- [ ] **Step 8: Commit**
 
 ```bash
 git add server/src/controllers/requests.controller.ts server/src/routes/requests.routes.ts server/tests/requests.test.ts
-git commit -m "feat: let mutha leaders accept on behalf of their group and assign specific members"
+git commit -m "feat: let mutha leaders discover matchable bookings, accept on behalf of their group, and assign specific members"
 ```
 
 ---
