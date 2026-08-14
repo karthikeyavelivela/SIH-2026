@@ -5,6 +5,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/auth.routes';
+import { adminRouter } from './routes/admin.routes';
 import { ApiError } from './utils/ApiError';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -12,6 +13,7 @@ export const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 // Minimal error handler so ApiError instances produce the right status codes
 // in this task's tests. Task 11 replaces this app.ts with the full version
