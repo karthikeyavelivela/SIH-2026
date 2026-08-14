@@ -8,6 +8,7 @@ import { adminRouter } from './routes/admin.routes';
 import { fareRuleRouter } from './routes/fareRule.routes';
 import { geocodeRouter } from './routes/geocode.routes';
 import { bookingRouter } from './routes/booking.routes';
+import { availabilityRouter } from './routes/availability.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
@@ -33,6 +34,7 @@ app.use('/api/admin/fare-rules', fareRuleRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/geocode', geocodeRouter);
 app.use('/api/bookings', bookingRouter);
+app.use('/api/availability', availabilityRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
