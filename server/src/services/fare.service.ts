@@ -10,6 +10,28 @@ export function bucketVehicleCategory(vehicleType: string): VehicleCategory {
   throw new ApiError(400, `Unknown vehicle type: ${vehicleType}`);
 }
 
+/**
+ * Same three tiers as bucketVehicleCategory, bucketed directly from a
+ * requested capacityKg instead of round-tripping through a manufactured
+ * vehicleType string. This is what booking.controller.ts's createBooking
+ * actually needs: a customer's booking request carries a required
+ * capacity, not a real driver's vehicleType. An earlier version derived a
+ * fake vehicleType string (`capacityKg <= 1000 ? 'mini_truck' : ...`) just
+ * to feed bucketVehicleCategory, which added indirection with no benefit
+ * and, worse, meant a malformed capacityKg (null, undefined, NaN) never
+ * hit a validation guard — it just silently fell through the ternary
+ * chain to a plausible-looking-but-wrong tier. This function validates
+ * capacityKg directly instead.
+ */
+export function bucketVehicleCategoryFromCapacity(capacityKg: number): VehicleCategory {
+  if (!Number.isFinite(capacityKg) || capacityKg <= 0) {
+    throw new ApiError(400, `Invalid capacityKg: ${capacityKg}`);
+  }
+  if (capacityKg <= 1000) return 'vehicle_small';
+  if (capacityKg <= 5000) return 'vehicle_medium';
+  return 'vehicle_large';
+}
+
 interface RateComponent {
   baseFare: number;
   perKmRate: number;

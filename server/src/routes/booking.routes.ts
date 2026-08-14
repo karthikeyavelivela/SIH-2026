@@ -26,6 +26,14 @@ bookingRouter.post(
     ...pointRule('pickupLocation'),
     ...pointRule('dropLocation'),
     body('requiredVehicles').optional().isArray(),
+    // Validates item shape, not just "is an array" — a malformed
+    // capacityKg (null/NaN/missing) is now rejected at the edge instead of
+    // reaching bucketVehicleCategoryFromCapacity, which also guards it
+    // (defense in depth: the controller-level guard is what actually
+    // matters, this closes the same hole one layer earlier with a
+    // friendlier validation-error response shape).
+    body('requiredVehicles.*.capacityKg').optional().isFloat({ min: 1 }),
+    body('requiredVehicles.*.count').optional().isInt({ min: 1 }),
     body('requiredHamaliCount').optional().isInt({ min: 0 }),
   ],
   validate,

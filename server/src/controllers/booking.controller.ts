@@ -4,7 +4,7 @@ import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
 import { FareRule, IFareRule } from '../models/FareRule';
 import { haversineKm } from '../services/distance.service';
-import { bucketVehicleCategory, computeFareBreakdown } from '../services/fare.service';
+import { bucketVehicleCategoryFromCapacity, computeFareBreakdown } from '../services/fare.service';
 
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
@@ -28,9 +28,11 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   if (type === 'truck' || type === 'combo') {
     const vehicleSpec = requiredVehicles?.[0];
     if (!vehicleSpec) throw new ApiError(400, 'requiredVehicles is required for truck/combo bookings');
-    const category = bucketVehicleCategory(
-      vehicleSpec.capacityKg <= 1000 ? 'mini_truck' : vehicleSpec.capacityKg <= 5000 ? 'medium_truck' : 'large_truck'
-    );
+    // Validates capacityKg directly (throws ApiError(400) on null/NaN/<=0)
+    // rather than round-tripping through a manufactured vehicleType string
+    // — a malformed capacityKg used to silently fall through to a
+    // plausible-but-wrong tier instead of being rejected.
+    const category = bucketVehicleCategoryFromCapacity(vehicleSpec.capacityKg);
     const rule = await findActiveRule(region, category);
     if (!rule) throw new ApiError(422, `No active fare rule for ${region}/${category}`);
     vehicleRule = rule;
@@ -38,6 +40,12 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 
   let hamaliRule: IFareRule | null = null;
   if (type === 'hamali' || type === 'combo') {
+    // A hamali/combo booking with no actual workers requested would create
+    // a real, matchable, zero-fare booking — reject it the same way a
+    // truck/combo booking with no vehicle spec is already rejected above.
+    if (!requiredHamaliCount || requiredHamaliCount <= 0) {
+      throw new ApiError(400, 'requiredHamaliCount must be greater than 0 for hamali/combo bookings');
+    }
     const rule = await findActiveRule(region, 'hamali');
     if (!rule) throw new ApiError(422, `No active fare rule for ${region}/hamali`);
     hamaliRule = rule;
