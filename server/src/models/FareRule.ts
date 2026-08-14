@@ -34,4 +34,17 @@ const fareRuleSchema = new Schema<IFareRule>(
 
 fareRuleSchema.index({ region: 1, category: 1, active: 1 });
 
+// Enforces "at most one active rule per region+category" at the DB layer,
+// not just in application code. The controller's supersede-then-create
+// logic (fareRule.controller.ts) closes this for the sequential case, but
+// two concurrent creates can both pass the application-level check before
+// either write lands — this index is what actually makes the second one
+// fail instead of silently producing two active rows. Partial (only
+// active:true documents are constrained) so any number of superseded
+// (active:false) historical rows can coexist for the same region+category.
+fareRuleSchema.index(
+  { region: 1, category: 1 },
+  { unique: true, partialFilterExpression: { active: true } }
+);
+
 export const FareRule = model<IFareRule>('FareRule', fareRuleSchema);

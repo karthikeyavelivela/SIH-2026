@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
+import { rethrowAsConflict } from '../utils/mongoErrors';
 import { FareRule } from '../models/FareRule';
 import { writeAuditLog } from '../services/audit.service';
 
@@ -25,7 +26,17 @@ export const createFareRule = asyncHandler(async (req: Request, res: Response) =
   // would pick one by effectiveFrom with no signal anything's wrong, and
   // the orphaned duplicate would linger in listFareRules forever. So:
   // creating a new active rule for a region+category retires any existing
-  // one first, atomically with the create via an audit-logged deactivation.
+  // one first.
+  //
+  // This sequential supersede-then-create is NOT atomic across the pair —
+  // two near-simultaneous requests can both pass the findOneAndUpdate step
+  // before either create() lands. The actual guarantee comes from the
+  // partial unique index on FareRule ({region,category}, active:true only,
+  // see FareRule.ts) — the DB itself rejects a second concurrent active
+  // row with an E11000 error, which the catch block below turns into a
+  // clean 409 instead of a raw 500. The application-level supersede step
+  // handles the common sequential case cleanly (with an audit trail);
+  // the index is the real backstop for the race.
   const superseded = await FareRule.findOneAndUpdate(
     { region, category, active: true },
     { active: false },
@@ -42,16 +53,21 @@ export const createFareRule = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
-  const fareRule = await FareRule.create({
-    region,
-    category,
-    baseFare,
-    perKmRate,
-    minimumFare,
-    surgeMultiplier: 1.0,
-    setByAdminId: req.user!.id,
-    active: true,
-  });
+  let fareRule;
+  try {
+    fareRule = await FareRule.create({
+      region,
+      category,
+      baseFare,
+      perKmRate,
+      minimumFare,
+      surgeMultiplier: 1.0,
+      setByAdminId: req.user!.id,
+      active: true,
+    });
+  } catch (err) {
+    rethrowAsConflict(err, `An active fare rule for ${region}/${category}`);
+  }
 
   await writeAuditLog({
     actorId: req.user!.id,
@@ -86,7 +102,14 @@ export const updateFareRule = asyncHandler(async (req: Request, res: Response) =
   if (perKmRate !== undefined) fareRule.perKmRate = perKmRate;
   if (minimumFare !== undefined) fareRule.minimumFare = minimumFare;
   if (active !== undefined) fareRule.active = active;
-  await fareRule.save();
+  try {
+    await fareRule.save();
+  } catch (err) {
+    // Reactivating (active:false -> true) a rule can collide with the
+    // partial unique index if another rule for the same region+category
+    // is already active — same DB-layer backstop as createFareRule.
+    rethrowAsConflict(err, `An active fare rule for ${fareRule.region}/${fareRule.category}`);
+  }
 
   await writeAuditLog({
     actorId: req.user!.id,
