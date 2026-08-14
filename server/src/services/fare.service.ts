@@ -17,6 +17,17 @@ interface RateComponent {
   surgeMultiplier: number;
 }
 
+/**
+ * `total` is the sole authoritative charged amount. The individual
+ * components (baseFare/distanceFare/hamaliFare) are rounded independently
+ * for display and will NOT always sum exactly to `total` — by up to a
+ * paisa from rounding, or by a larger, deterministic amount whenever the
+ * minimum-fare clamp is active (baseFare+distanceFare stay as the raw
+ * pre-clamp figures even when the clamp raises the actual charged
+ * component above their sum). A receipt/breakdown UI should render
+ * `total` as-is and, if it needs the components to visually sum, scale
+ * them proportionally at render time rather than trusting a raw sum.
+ */
 export interface FareBreakdown {
   baseFare: number;
   distanceFare: number;
