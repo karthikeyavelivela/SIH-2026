@@ -25,17 +25,25 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
   const [pendingAction, setPendingAction] = useState<
     { userId: string; kind: 'role' | 'suspend' | 'delete'; value?: string } | null
   >(null);
+  // Guards against a fast double-click firing the mutation (and its audit
+  // log write) twice while the first PATCH is still in flight.
+  const [confirming, setConfirming] = useState(false);
 
   async function confirmAction() {
-    if (!pendingAction) return;
-    if (pendingAction.kind === 'role' && pendingAction.value) {
-      await onRoleChange(pendingAction.userId, pendingAction.value);
-    } else if (pendingAction.kind === 'suspend') {
-      await onStatusChange(pendingAction.userId, 'suspended');
-    } else if (pendingAction.kind === 'delete') {
-      await onStatusChange(pendingAction.userId, 'deleted');
+    if (!pendingAction || confirming) return;
+    setConfirming(true);
+    try {
+      if (pendingAction.kind === 'role' && pendingAction.value) {
+        await onRoleChange(pendingAction.userId, pendingAction.value);
+      } else if (pendingAction.kind === 'suspend') {
+        await onStatusChange(pendingAction.userId, 'suspended');
+      } else if (pendingAction.kind === 'delete') {
+        await onStatusChange(pendingAction.userId, 'deleted');
+      }
+      setPendingAction(null);
+    } finally {
+      setConfirming(false);
     }
-    setPendingAction(null);
   }
 
   return (
@@ -44,11 +52,11 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
         <table className="w-full text-sm">
           <thead className="bg-surface text-left">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-4 py-3">Name</th>
+              <th scope="col" className="px-4 py-3">Phone</th>
+              <th scope="col" className="px-4 py-3">Role</th>
+              <th scope="col" className="px-4 py-3">Status</th>
+              <th scope="col" className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -58,6 +66,7 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                 <td className="px-4 py-3">{u.phone}</td>
                 <td className="px-4 py-3">
                   <select
+                    aria-label={`Role for ${u.name}`}
                     // Controlled: while a change to THIS row is pending
                     // confirmation, show the pending value; otherwise show
                     // the server-confirmed role. Uncontrolled (defaultValue)
@@ -82,10 +91,18 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                   <Badge tone={u.accountStatus === 'active' ? 'secondary' : 'muted'}>{u.accountStatus}</Badge>
                 </td>
                 <td className="px-4 py-3 flex gap-2">
-                  <Button variant="ghost" onClick={() => setPendingAction({ userId: u._id, kind: 'suspend' })}>
+                  <Button
+                    variant="ghost"
+                    aria-label={`Suspend ${u.name}`}
+                    onClick={() => setPendingAction({ userId: u._id, kind: 'suspend' })}
+                  >
                     Suspend
                   </Button>
-                  <Button variant="danger" onClick={() => setPendingAction({ userId: u._id, kind: 'delete' })}>
+                  <Button
+                    variant="danger"
+                    aria-label={`Delete ${u.name}`}
+                    onClick={() => setPendingAction({ userId: u._id, kind: 'delete' })}
+                  >
                     Delete
                   </Button>
                 </td>
@@ -101,11 +118,11 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
         title="Confirm action"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setPendingAction(null)}>
+            <Button variant="ghost" onClick={() => setPendingAction(null)} disabled={confirming}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={confirmAction}>
-              Confirm
+            <Button variant="danger" onClick={confirmAction} disabled={confirming}>
+              {confirming ? 'Working…' : 'Confirm'}
             </Button>
           </>
         }

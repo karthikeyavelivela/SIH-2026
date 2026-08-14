@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { TreeView } from '@/components/admin/TreeView';
+import { PermissionPicker } from '@/components/admin/PermissionPicker';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
 import { useAuth } from '@/lib/auth-context';
-
-const PERMISSION_OPTIONS = ['verify_kyc', 'resolve_complaints', 'edit_fare_rules', 'view_analytics'];
 
 interface ManagerRow {
   _id: string;
@@ -21,8 +21,16 @@ export default function AdminManagersPage() {
   const [managers, setManagers] = useState<ManagerRow[]>([]);
   const [form, setForm] = useState({ name: '', phone: '', password: '' });
   const [permissions, setPermissions] = useState<string[]>([]);
-  const [regionInput, setRegionInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Edit-existing-manager flow. The spec requires an "edit-permissions
+  // action" for managers already in the tree — the backend has supported
+  // this since Task 10 (PATCH /api/admin/managers/:id/permissions,
+  // audit-logged), this page just didn't expose it until now.
+  const [editingManager, setEditingManager] = useState<ManagerRow | null>(null);
+  const [editPermissions, setEditPermissions] = useState<string[]>([]);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
 
   async function load() {
     const res = await api.get<{ managers: ManagerRow[] }>('/api/admin/managers');
@@ -32,16 +40,6 @@ export default function AdminManagersPage() {
   useEffect(() => {
     load();
   }, []);
-
-  function togglePermission(p: string) {
-    setPermissions((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
-  }
-
-  function addRegion() {
-    if (!regionInput.trim()) return;
-    setPermissions((prev) => [...prev, `manage_region:${regionInput.trim()}`]);
-    setRegionInput('');
-  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -56,11 +54,39 @@ export default function AdminManagersPage() {
     }
   }
 
+  function openEdit(manager: ManagerRow) {
+    setEditingManager(manager);
+    setEditPermissions(manager.permissions);
+    setEditError(null);
+  }
+
+  function closeEdit() {
+    setEditingManager(null);
+    setEditError(null);
+  }
+
+  async function handleSaveEdit() {
+    if (!editingManager) return;
+    setEditError(null);
+    setEditSaving(true);
+    try {
+      await api.patch(`/api/admin/managers/${editingManager._id}/permissions`, {
+        permissions: editPermissions,
+      });
+      await load();
+      closeEdit();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Failed to update permissions');
+    } finally {
+      setEditSaving(false);
+    }
+  }
+
   return (
     <div className="grid lg:grid-cols-2 gap-10">
       <div>
         <h1 className="font-heading text-2xl font-bold mb-6">Org tree</h1>
-        <TreeView adminName={user?.name ?? 'Admin'} managers={managers} />
+        <TreeView adminName={user?.name ?? 'Admin'} managers={managers} onEditManager={openEdit} />
       </div>
 
       <div>
@@ -69,6 +95,8 @@ export default function AdminManagersPage() {
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               placeholder="Name"
+              aria-label="Name"
+              autoComplete="name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -76,6 +104,8 @@ export default function AdminManagersPage() {
             />
             <input
               placeholder="Phone"
+              aria-label="Phone"
+              autoComplete="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -84,40 +114,15 @@ export default function AdminManagersPage() {
             <input
               type="password"
               placeholder="Password"
+              aria-label="Password"
+              autoComplete="new-password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
               required
               minLength={8}
             />
-            <div>
-              <p className="text-sm font-medium mb-2">Permissions</p>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {PERMISSION_OPTIONS.map((p) => (
-                  <button
-                    type="button"
-                    key={p}
-                    onClick={() => togglePermission(p)}
-                    className={`px-3 py-1.5 rounded-full text-xs border ${
-                      permissions.includes(p) ? 'bg-secondary text-white border-secondary' : 'border-black/10'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  placeholder="Region name (e.g. Visakhapatnam)"
-                  value={regionInput}
-                  onChange={(e) => setRegionInput(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-xl border border-black/10 bg-background text-sm"
-                />
-                <Button type="button" variant="ghost" onClick={addRegion}>
-                  Add region scope
-                </Button>
-              </div>
-            </div>
+            <PermissionPicker permissions={permissions} onChange={setPermissions} />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <Button type="submit" className="w-full">
               Create manager
@@ -125,6 +130,25 @@ export default function AdminManagersPage() {
           </form>
         </Card>
       </div>
+
+      <Modal
+        open={!!editingManager}
+        onClose={closeEdit}
+        title={editingManager ? `Edit permissions — ${editingManager.name}` : 'Edit permissions'}
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeEdit} disabled={editSaving}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={editSaving}>
+              {editSaving ? 'Saving…' : 'Save'}
+            </Button>
+          </>
+        }
+      >
+        <PermissionPicker permissions={editPermissions} onChange={setEditPermissions} />
+        {editError && <p className="text-sm text-red-600 mt-3">{editError}</p>}
+      </Modal>
     </div>
   );
 }
