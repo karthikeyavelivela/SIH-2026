@@ -18,14 +18,17 @@ export const authLimiter = rateLimit({
   keyGenerator: (req) => `${req.ip}:${req.path}`,
 });
 
-// Public geocode proxy — no auth required, so this is the only thing
-// standing between the endpoint and abuse (e.g. someone using it to
-// hammer Nominatim through our server). Keyed by IP + path like authLimiter.
+// Geocode proxy — auth-gated (verifyJwt runs before this middleware in
+// geocode.routes.ts), but keying by IP alone would undermine the reason
+// auth was required: a JWT cookie isn't IP-bound, so one account replayed
+// across rotating source IPs would still get a fresh 20/min bucket per IP
+// — unbounded aggregate throughput from a single signup. Keyed by the
+// authenticated user's id instead, so the cap is actually per-account.
 export const geocodeLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many geocode requests, try again in a minute.' },
-  keyGenerator: (req) => `${req.ip}:${req.path}`,
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
 });
