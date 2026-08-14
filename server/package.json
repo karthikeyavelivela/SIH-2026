@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest --runInBand",
-    "seed:admin": "ts-node src/scripts/seedAdmin.ts"
+    "seed:admin": "ts-node src/scripts/seedAdmin.ts",
+    "seed:demo": "ts-node src/scripts/seedDemoAccounts.ts"
   },
   "dependencies": {
     "@fyro/shared": "*",
