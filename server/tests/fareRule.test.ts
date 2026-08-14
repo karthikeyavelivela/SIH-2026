@@ -67,4 +67,36 @@ describe('fare rule admin CRUD', () => {
     });
     expect(res.status).toBe(400);
   });
+
+  it('creating a second active fare rule for the same region+category supersedes (deactivates) the first, leaving only one active', async () => {
+    const agent = await loginAsAdmin();
+
+    const first = await agent.post('/api/admin/fare-rules').send({
+      region: 'Guntur',
+      category: 'vehicle_medium',
+      baseFare: 300,
+      perKmRate: 20,
+      minimumFare: 400,
+    });
+    expect(first.status).toBe(201);
+    const firstId = first.body.fareRule._id;
+
+    const second = await agent.post('/api/admin/fare-rules').send({
+      region: 'Guntur',
+      category: 'vehicle_medium',
+      baseFare: 350,
+      perKmRate: 22,
+      minimumFare: 450,
+    });
+    expect(second.status).toBe(201);
+
+    // Task 6's booking-creation lookup depends on there being at most one
+    // active rule per region+category — this is the invariant that guards it.
+    const activeRules = await FareRule.find({ region: 'Guntur', category: 'vehicle_medium', active: true });
+    expect(activeRules.length).toBe(1);
+    expect(activeRules[0]._id.toString()).toBe(second.body.fareRule._id);
+
+    const firstReloaded = await FareRule.findById(firstId);
+    expect(firstReloaded?.active).toBe(false);
+  });
 });
