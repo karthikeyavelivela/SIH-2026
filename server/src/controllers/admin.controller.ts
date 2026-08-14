@@ -2,16 +2,11 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
+import { publicUser } from '../utils/publicUser';
 import { User } from '../models/User';
 import { writeAuditLog } from '../services/audit.service';
 
 const BCRYPT_COST = 12;
-
-function publicUser(user: { toObject: () => Record<string, unknown> }) {
-  const obj = user.toObject();
-  delete obj.passwordHash;
-  return obj;
-}
 
 export const listManagers = asyncHandler(async (_req: Request, res: Response) => {
   const managers = await User.find({ role: 'manager' }).sort({ createdAt: -1 });
@@ -65,14 +60,24 @@ export const updateManagerPermissions = asyncHandler(async (req: Request, res: R
   res.status(200).json({ manager: publicUser(manager) });
 });
 
+// Escapes regex metacharacters so `search` is matched as a literal substring,
+// not interpreted as a pattern — closes a ReDoS/CPU-exhaustion vector where
+// an adversarial pattern (nested quantifiers/alternation) run against every
+// name/phone value in the collection would multiply scan cost. The route
+// also caps `search` length (see admin.routes.ts) as a second guard.
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export const listUsers = asyncHandler(async (req: Request, res: Response) => {
   const { search, role, page = '1', limit = '20' } = req.query as Record<string, string>;
   const filter: Record<string, unknown> = { role: { $nin: ['admin', 'manager'] } };
   if (role) filter.role = role;
   if (search) {
+    const pattern = escapeRegex(search);
     filter.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } },
+      { name: { $regex: pattern, $options: 'i' } },
+      { phone: { $regex: pattern, $options: 'i' } },
     ];
   }
 

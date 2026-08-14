@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import { verifyJwt } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
@@ -45,7 +45,21 @@ adminRouter.patch(
   adminController.updateManagerPermissions
 );
 
-adminRouter.get('/users', adminController.listUsers);
+adminRouter.get(
+  '/users',
+  [
+    // Bounds req.query.search/role/page/limit to plain strings within sane
+    // limits before the controller touches them — closes both a CastError-
+    // triggered 500 (e.g. ?search[$ne]=1 arriving as an object, not a
+    // string) and an oversized-pattern DoS vector on the $regex search.
+    query('search').optional().isString().isLength({ max: 100 }),
+    query('role').optional().isIn(['customer', 'driver', 'hamali_solo', 'mutha_leader', 'mutha_member']),
+    query('page').optional().isInt({ min: 1 }),
+    query('limit').optional().isInt({ min: 1, max: 100 }),
+  ],
+  validate,
+  adminController.listUsers
+);
 adminRouter.patch(
   '/users/:id/role',
   [
