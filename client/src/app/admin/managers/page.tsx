@@ -16,6 +16,27 @@ interface ManagerRow {
   permissions: string[];
 }
 
+const inputClass =
+  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+
+function ErrorAlert({ message }: { message: string }) {
+  return (
+    <div
+      role="alert"
+      className="flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
+    >
+      <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path
+          fillRule="evenodd"
+          d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-4a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <p>{message}</p>
+    </div>
+  );
+}
+
 export default function AdminManagersPage() {
   const { user } = useAuth();
   const [managers, setManagers] = useState<ManagerRow[]>([]);
@@ -83,15 +104,19 @@ export default function AdminManagersPage() {
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-10">
+    <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div>
-        <h1 className="font-heading text-2xl font-bold mb-6">Org tree</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">Structure</p>
+        <h1 className="font-heading text-2xl font-bold mb-1">Org tree</h1>
+        <p className="text-sm text-text-muted mb-6">Admin at the root, managers and their granted permissions below.</p>
         <TreeView adminName={user?.name ?? 'Admin'} managers={managers} onEditManager={openEdit} />
       </div>
 
       <div>
-        <h2 className="font-heading text-xl font-bold mb-6">Create manager</h2>
-        <Card>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary-600 mb-2">Onboard</p>
+        <h2 className="font-heading text-xl font-bold mb-1">Create manager</h2>
+        <p className="text-sm text-text-muted mb-6">Grant a new manager access with scoped permissions.</p>
+        <Card elevation="raised">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               placeholder="Name"
@@ -99,7 +124,7 @@ export default function AdminManagersPage() {
               autoComplete="name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
+              className={inputClass}
               required
             />
             <input
@@ -108,7 +133,7 @@ export default function AdminManagersPage() {
               autoComplete="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
+              className={inputClass}
               required
             />
             <input
@@ -118,13 +143,15 @@ export default function AdminManagersPage() {
               autoComplete="new-password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
+              className={inputClass}
               required
               minLength={8}
             />
-            <PermissionPicker permissions={permissions} onChange={setPermissions} />
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <Button type="submit" className="w-full">
+            <div className="pt-2 border-t border-border">
+              <PermissionPicker permissions={permissions} onChange={setPermissions} />
+            </div>
+            {error && <ErrorAlert message={error} />}
+            <Button type="submit" className="w-full" size="lg">
               Create manager
             </Button>
           </form>
@@ -147,7 +174,11 @@ export default function AdminManagersPage() {
         }
       >
         <PermissionPicker permissions={editPermissions} onChange={setEditPermissions} />
-        {editError && <p className="text-sm text-red-600 mt-3">{editError}</p>}
+        {editError && (
+          <div className="mt-3">
+            <ErrorAlert message={editError} />
+          </div>
+        )}
       </Modal>
     </div>
   );

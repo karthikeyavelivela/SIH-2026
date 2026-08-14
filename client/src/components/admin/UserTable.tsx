@@ -15,6 +15,15 @@ export interface AdminUserRow {
 
 const ROLE_OPTIONS = ['customer', 'driver', 'hamali_solo', 'mutha_leader', 'mutha_member'];
 
+// Presentational-only tone mapping for the status Badge — purely cosmetic,
+// does not affect which status values exist or how they're stored/sent.
+function statusTone(status: string): 'success' | 'danger' | 'muted' | 'secondary' {
+  if (status === 'active') return 'success';
+  if (status === 'suspended') return 'danger';
+  if (status === 'deleted') return 'muted';
+  return 'secondary';
+}
+
 interface UserTableProps {
   users: AdminUserRow[];
   onRoleChange: (id: string, role: string) => Promise<void>;
@@ -48,23 +57,40 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
 
   return (
     <>
-      <div className="overflow-x-auto rounded-2xl border border-black/5">
+      <div className="overflow-x-auto rounded-lg border border-border bg-surface-raised shadow-md">
         <table className="w-full text-sm">
           <thead className="bg-surface text-left">
             <tr>
-              <th scope="col" className="px-4 py-3">Name</th>
-              <th scope="col" className="px-4 py-3">Phone</th>
-              <th scope="col" className="px-4 py-3">Role</th>
-              <th scope="col" className="px-4 py-3">Status</th>
-              <th scope="col" className="px-4 py-3">Actions</th>
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+                Name
+              </th>
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+                Phone
+              </th>
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+                Role
+              </th>
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+                Status
+              </th>
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
+            {users.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-5 py-10 text-center text-text-muted text-sm">
+                  No users found.
+                </td>
+              </tr>
+            )}
             {users.map((u) => (
-              <tr key={u._id} className="border-t border-black/5">
-                <td className="px-4 py-3">{u.name}</td>
-                <td className="px-4 py-3">{u.phone}</td>
-                <td className="px-4 py-3">
+              <tr key={u._id} className="border-t border-border transition-colors hover:bg-surface/60">
+                <td className="px-5 py-3.5 font-medium">{u.name}</td>
+                <td className="px-5 py-3.5 text-text-muted">{u.phone}</td>
+                <td className="px-5 py-3.5">
                   <select
                     aria-label={`Role for ${u.name}`}
                     // Controlled: while a change to THIS row is pending
@@ -78,7 +104,7 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                         : u.role
                     }
                     onChange={(e) => setPendingAction({ userId: u._id, kind: 'role', value: e.target.value })}
-                    className="border border-black/10 rounded-lg px-2 py-1 bg-background"
+                    className="border border-border rounded-md px-3 py-2 bg-background text-sm cursor-pointer transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
                   >
                     {ROLE_OPTIONS.map((r) => (
                       <option key={r} value={r}>
@@ -87,24 +113,26 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                     ))}
                   </select>
                 </td>
-                <td className="px-4 py-3">
-                  <Badge tone={u.accountStatus === 'active' ? 'secondary' : 'muted'}>{u.accountStatus}</Badge>
+                <td className="px-5 py-3.5">
+                  <Badge tone={statusTone(u.accountStatus)}>{u.accountStatus}</Badge>
                 </td>
-                <td className="px-4 py-3 flex gap-2">
-                  <Button
-                    variant="ghost"
-                    aria-label={`Suspend ${u.name}`}
-                    onClick={() => setPendingAction({ userId: u._id, kind: 'suspend' })}
-                  >
-                    Suspend
-                  </Button>
-                  <Button
-                    variant="danger"
-                    aria-label={`Delete ${u.name}`}
-                    onClick={() => setPendingAction({ userId: u._id, kind: 'delete' })}
-                  >
-                    Delete
-                  </Button>
+                <td className="px-5 py-3.5">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      aria-label={`Suspend ${u.name}`}
+                      onClick={() => setPendingAction({ userId: u._id, kind: 'suspend' })}
+                    >
+                      Suspend
+                    </Button>
+                    <Button
+                      variant="danger"
+                      aria-label={`Delete ${u.name}`}
+                      onClick={() => setPendingAction({ userId: u._id, kind: 'delete' })}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
