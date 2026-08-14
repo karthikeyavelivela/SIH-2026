@@ -30,6 +30,11 @@ function setAuthCookies(res: Response, userId: string, role: string, tokenVersio
   res.cookie('refreshToken', refreshToken, { ...cookieOpts, maxAge: REFRESH_TOKEN_MAX_AGE_MS });
 }
 
+// NOTE: this strip is load-bearing, not redundant. `select: false` on the
+// User schema only hides passwordHash from query results — it does NOT hide
+// it on a document just returned by `.create()`, nor after an explicit
+// `.select('+passwordHash')` (as `login` does below). Both paths flow
+// through here, so removing this line would leak the bcrypt hash.
 function publicUser(user: { toObject: () => Record<string, unknown> }) {
   const obj = user.toObject();
   delete obj.passwordHash;
