@@ -58,7 +58,16 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                 <td className="px-4 py-3">{u.phone}</td>
                 <td className="px-4 py-3">
                   <select
-                    defaultValue={u.role}
+                    // Controlled: while a change to THIS row is pending
+                    // confirmation, show the pending value; otherwise show
+                    // the server-confirmed role. Uncontrolled (defaultValue)
+                    // would leave the dropdown stuck on a cancelled pick
+                    // instead of reverting to the actual current role.
+                    value={
+                      pendingAction?.userId === u._id && pendingAction.kind === 'role'
+                        ? pendingAction.value
+                        : u.role
+                    }
                     onChange={(e) => setPendingAction({ userId: u._id, kind: 'role', value: e.target.value })}
                     className="border border-black/10 rounded-lg px-2 py-1 bg-background"
                   >
