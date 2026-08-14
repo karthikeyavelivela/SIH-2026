@@ -43,6 +43,8 @@ export default function SignupDriverPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             placeholder="Full name"
+            aria-label="Full name"
+            autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -51,6 +53,8 @@ export default function SignupDriverPage() {
           <input
             type="tel"
             placeholder="Phone number"
+            aria-label="Phone number"
+            autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -59,6 +63,8 @@ export default function SignupDriverPage() {
           <input
             type="password"
             placeholder="Password (min 8 characters)"
+            aria-label="Password (min 8 characters)"
+            autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -66,6 +72,7 @@ export default function SignupDriverPage() {
             minLength={8}
           />
           <select
+            aria-label="Vehicle type"
             value={form.vehicleType}
             onChange={(e) => setForm({ ...form, vehicleType: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -77,6 +84,7 @@ export default function SignupDriverPage() {
           <input
             type="number"
             placeholder="Capacity (kg)"
+            aria-label="Capacity in kilograms"
             value={form.capacityKg}
             onChange={(e) => setForm({ ...form, capacityKg: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -85,6 +93,7 @@ export default function SignupDriverPage() {
           />
           <input
             placeholder="Registration number"
+            aria-label="Vehicle registration number"
             value={form.registrationNumber}
             onChange={(e) => setForm({ ...form, registrationNumber: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"

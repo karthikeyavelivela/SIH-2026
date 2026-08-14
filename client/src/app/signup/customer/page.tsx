@@ -36,6 +36,8 @@ export default function SignupCustomerPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             placeholder="Full name"
+            aria-label="Full name"
+            autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -44,6 +46,8 @@ export default function SignupCustomerPage() {
           <input
             type="tel"
             placeholder="Phone number"
+            aria-label="Phone number"
+            autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -52,6 +56,8 @@ export default function SignupCustomerPage() {
           <input
             type="email"
             placeholder="Email (optional)"
+            aria-label="Email (optional)"
+            autoComplete="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -59,6 +65,8 @@ export default function SignupCustomerPage() {
           <input
             type="password"
             placeholder="Password (min 8 characters)"
+            aria-label="Password (min 8 characters)"
+            autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"

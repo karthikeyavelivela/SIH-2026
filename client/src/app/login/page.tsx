@@ -39,6 +39,8 @@ export default function LoginPage() {
           <input
             type="tel"
             placeholder="Phone number"
+            aria-label="Phone number"
+            autoComplete="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -47,6 +49,8 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="Password"
+            aria-label="Password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"

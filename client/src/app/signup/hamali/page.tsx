@@ -43,11 +43,13 @@ export default function SignupHamaliPage() {
       <Card className="w-full max-w-sm">
         <h1 className="font-heading text-2xl font-bold mb-6">Join FYRO as Hamali</h1>
 
-        <div className="grid grid-cols-3 gap-2 mb-6">
+        <div className="grid grid-cols-3 gap-2 mb-6" role="radiogroup" aria-label="How would you like to join?">
           {(['solo', 'leader', 'member'] as JoinType[]).map((t) => (
             <button
               key={t}
               type="button"
+              role="radio"
+              aria-checked={joinType === t}
               onClick={() => setJoinType(t)}
               className={`py-2 rounded-full text-sm font-medium border ${
                 joinType === t ? 'bg-secondary text-white border-secondary' : 'border-black/10 text-text-muted'
@@ -61,6 +63,8 @@ export default function SignupHamaliPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             placeholder="Full name"
+            aria-label="Full name"
+            autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -69,6 +73,8 @@ export default function SignupHamaliPage() {
           <input
             type="tel"
             placeholder="Phone number"
+            aria-label="Phone number"
+            autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -77,6 +83,8 @@ export default function SignupHamaliPage() {
           <input
             type="password"
             placeholder="Password (min 8 characters)"
+            aria-label="Password (min 8 characters)"
+            autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -86,6 +94,7 @@ export default function SignupHamaliPage() {
           {joinType === 'leader' && (
             <input
               placeholder="Mutha (group) name"
+              aria-label="Mutha (group) name"
               value={form.muthaName}
               onChange={(e) => setForm({ ...form, muthaName: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
@@ -95,6 +104,7 @@ export default function SignupHamaliPage() {
           {joinType === 'member' && (
             <input
               placeholder="Invite code from your leader"
+              aria-label="Invite code from your leader"
               value={form.inviteCode}
               onChange={(e) => setForm({ ...form, inviteCode: e.target.value.toUpperCase() })}
               className="w-full px-4 py-2.5 rounded-xl border border-black/10 bg-background"
