@@ -2,15 +2,24 @@
 
 Date: 2026-08-14
 Branch: `phase1-foundation` (worktree: `.worktrees/phase1-foundation`)
-Commits: 38
+Commits: 45
 Plan: `docs/superpowers/plans/2026-08-14-fyro-phase1-foundation.md` (18/18 tasks complete)
+
+## Post-Task-18 additions
+
+After the 18-task plan was declared complete, two more passes happened before this branch was finished:
+
+1. **A final holistic review** (reading the whole diff at once, not per-task) caught a **critical integration bug** invisible to every per-task check: `@fyro/shared`'s `package.json` pointed `main`/`types` at raw `.ts` source. `ts-jest`/`ts-node-dev` both register TypeScript require-hooks so they resolved it fine — but the actual **compiled** server (`node dist/server.js`, what `npm start` and a real deploy run) crashed immediately with `SyntaxError: Unexpected token 'export'`. Fixed: `shared` now has a real `tsc` build step, `main`/`types` point at compiled `dist/`, and every root script that builds/runs/tests server or client builds `shared` first (wired into `postinstall` too). Verified by actually running the compiled server after a clean rebuild — it now correctly reaches the MongoDB connection attempt instead of crashing on `require()`. Also fixed in the same pass: MongoDB duplicate-key races on signup (phone, and vehicle `registrationNumber` which had no pre-check at all) now return a clean 409 instead of a raw 500, and a secondary-write failure during driver signup now rolls back the just-created `User` instead of leaving a permanently orphaned account.
+2. **A full visual redesign**, on user feedback that the UI looked flat ("color on white paper"). Rebuilt the design system (real layered shadows, fluid typographic scale, elevated surfaces, motion tokens) and restyled every page against it — marketing site, auth pages, admin dashboard. Fixed the WCAG contrast failure flagged earlier (Task 15/16 reviews) along the way: added `-600` shade variants of the brand orange/teal for button fills and text-sized use (the base brand hexes stay untouched, reserved for large decorative fills — nothing about the specified brand identity changed). All data-fetching logic, API contracts, field names, validation, RBAC gating, and accessibility attributes were verified unchanged (diff read-through) — this was a visual pass only.
 
 ## Verification run just now
 
-- **Server tests:** `npm test --workspace server` → 6 suites, **26/26 passing** (models, token, rbac, validate, auth, admin).
-- **Server build:** `npm run build --workspace server` → clean, produces `server/dist/app.js`, `server/dist/server.js`.
+- **Server tests:** `npm test --workspace server` → 6 suites, **27/27 passing** (models, token, rbac, validate, auth, admin).
+- **Server build:** `npm run build:server` (builds `shared` first) → clean, produces `server/dist/app.js`, `server/dist/server.js`.
+- **Compiled server boot test:** `node dist/server.js` → correctly progresses past module resolution to the (expected, placeholder-URI) MongoDB connection failure — no longer crashes on `require()`.
 - **Client typecheck:** `npx tsc --noEmit` in `client/` → clean.
-- **Client build:** `npm run build --workspace client` → clean, all 11 routes produced.
+- **Client build:** `npm run build:client` → clean, all 11 routes produced.
+- **Manual browser check:** dev server started, `/`, `/login`, `/pricing`, and RBAC-redirect on `/admin/users` (unauthenticated → `/login`) all verified rendering correctly.
 - **Working tree:** clean, nothing uncommitted.
 
 ## Routes
@@ -66,9 +75,9 @@ Two-stage review (spec-compliance + code-quality, both by fresh subagents with n
 - **Gap — no mobile navigation.** The marketing nav hid all links below the `md` breakpoint with no alternative, violating the spec's explicit mobile-first requirement. Added a hamburger menu.
 - Various smaller fixes: `publicUser()` extracted to a shared util with a load-bearing-not-redundant comment (was duplicated, undocumented, in two controllers); `listUsers` search hardened against ReDoS (regex-escaped input, length cap, query validation); `Modal` got ESC-to-close/focus/ARIA semantics before being used for destructive admin actions; auth-context no longer silently swallows non-401 session-check failures; various `aria-label`/`autoComplete`/`scope="col"` accessibility fixes on forms and tables.
 
-## One thing flagged, not fixed — needs your decision
+## Resolved since the original report
 
-**Color contrast**: the brand accent colors you specified (`#FF6B2B` primary, `#0D9488` secondary) fail WCAG AA contrast as white-on-color button/text combinations (~2.7–3.8:1 against a 4.5:1 target for normal-size text). This is common in premium-brand products (many ride-hailing apps make the same trade-off) but is a real accessibility gap. I did not change your specified brand colors without asking — options if you want to address it: darken the tokens for text/button-label use while keeping the brighter shade for large decorative fills, increase button label font-weight/size, or accept the trade-off as-is. Let me know if you want this revisited.
+**Color contrast** (previously flagged, not fixed): the brand accent colors (`#FF6B2B` primary, `#0D9488` secondary) failed WCAG AA as white-on-color button/text combinations (~2.7–3.8:1 against a 4.5:1 target). Resolved during the design pass by adding `-600` shade variants (deepened, same hue family — `#BF5020`/`#0A6F66`, ~4.8:1/~6:1) used specifically for button fills and text-sized use. The original bright brand hexes are untouched and still used for large decorative fills/icons — nothing about the specified brand identity changed, just where each shade gets applied.
 
 ## Full feature checklist against the master prompt (Phase 1 scope only)
 
