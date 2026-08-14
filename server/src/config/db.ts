@@ -3,5 +3,5 @@ import { env } from './env';
 
 export async function connectDb(): Promise<typeof mongoose> {
   mongoose.set('strictQuery', true);
-  return mongoose.connect(env.MONGODB_URI);
+  return mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
 }
