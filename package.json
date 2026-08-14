@@ -1,0 +1,14 @@
+{
+  "name": "fyro",
+  "private": true,
+  "workspaces": ["shared", "server", "client"],
+  "scripts": {
+    "postinstall": "npm run build --workspace shared",
+    "build:shared": "npm run build --workspace shared",
+    "dev:server": "npm run build:shared && npm run dev --workspace server",
+    "dev:client": "npm run build:shared && npm run dev --workspace client",
+    "test:server": "npm run build:shared && npm test --workspace server",
+    "build:client": "npm run build:shared && npm run build --workspace client",
+    "build:server": "npm run build:shared && npm run build --workspace server"
+  }
+}

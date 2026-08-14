@@ -1,2 +1,11 @@
 .worktrees/
 .claude/
+node_modules/
+.env
+.env.local
+dist/
+*.tsbuildinfo
+next-env.d.ts
+.next/
+coverage/
+*.log
