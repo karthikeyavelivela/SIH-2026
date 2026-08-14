@@ -21,6 +21,7 @@ export interface IBooking {
   assignedDriverIds: Types.ObjectId[];
   assignedHamaliIds: Types.ObjectId[];
   assignedMuthaId?: Types.ObjectId;
+  rejectedByUserIds: Types.ObjectId[];
   status: BookingStatus;
   fareBreakdown: {
     baseFare: number;
@@ -58,6 +59,7 @@ const bookingSchema = new Schema<IBooking>(
     assignedDriverIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     assignedHamaliIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     assignedMuthaId: { type: Schema.Types.ObjectId, ref: 'Mutha' },
+    rejectedByUserIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     status: {
       type: String,
       enum: ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed', 'cancelled'],
