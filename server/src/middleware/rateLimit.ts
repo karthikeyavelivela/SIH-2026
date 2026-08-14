@@ -17,3 +17,15 @@ export const authLimiter = rateLimit({
   message: { error: 'Too many attempts, try again in a minute.' },
   keyGenerator: (req) => `${req.ip}:${req.path}`,
 });
+
+// Public geocode proxy — no auth required, so this is the only thing
+// standing between the endpoint and abuse (e.g. someone using it to
+// hammer Nominatim through our server). Keyed by IP + path like authLimiter.
+export const geocodeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many geocode requests, try again in a minute.' },
+  keyGenerator: (req) => `${req.ip}:${req.path}`,
+});
