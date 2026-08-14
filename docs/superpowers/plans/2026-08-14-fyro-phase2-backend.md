@@ -1920,9 +1920,14 @@ Expected: PASS (8 tests total in this file: the 4 from Task 8 plus 4 added here 
 Run: `npm test --workspace server`
 Expected: all suites pass.
 
-- [ ] **Step 7: Note a known scaling tradeoff (not a blocker for Phase 2)**
+- [ ] **Step 7: Note two known scaling tradeoffs (not a blocker for Phase 2, but real — don't understate them)**
 
-The `mutha_leader` branch of `listPendingRequests` calls `findCandidateMuthas` once per open hamali/combo booking (O(n) query fan-out) rather than a single query, because "is my specific Mutha among the qualifying candidates for this booking" isn't expressible as one Mongo query without restructuring `findCandidateMuthas`. Fine at Phase 2's expected booking volume (polling, no sockets yet); if this becomes a real bottleneck, the fix is a dedicated `findCandidateBookingsForMutha(muthaId, ...)` query rather than looping the existing one — flag for a later phase, not a Task 9 blocker.
+The `mutha_leader` branch of `listPendingRequests` has TWO unbounded-cost properties, not just one:
+
+1. It calls `findCandidateMuthas` once per open hamali/combo booking (O(n) query fan-out) rather than a single query, because "is my specific Mutha among the qualifying candidates for this booking" isn't expressible as one Mongo query without restructuring `findCandidateMuthas`.
+2. Unlike the sibling `driver`/`hamali_solo` branches (which both scope their initial `Booking.find` with a `$near` centered on the requester's own location), the outer `Booking.find({ status: 'searching', type: {...}, rejectedByUserIds: {...} })` scan here has **no geographic bound at all** — it's O(all open hamali/combo bookings platform-wide), not O(nearby ones). This is because a Mutha leader has no single tracked location (unlike a Vehicle or solo HamaliProfile) to `$near` against, and `Booking` doesn't currently persist the `region` string a customer submits at creation time (Task 6's controller only uses it to look up a `FareRule`, doesn't store it on the document) — so there's no cheap coarse filter available without a schema change.
+
+Both are acceptable for Phase 2's launch scope (single-region, AP-only, polling-based, no sockets), but property 2 is the more consequential one long-term — it's a full-table scan pattern, not just a per-row cost multiplier. If this needs fixing before it's a real bottleneck, the fix is adding a persisted `region` (or a real geo point) to `Booking` and to `Mutha`, then bounding both the outer scan and `findCandidateMuthas` by it — a small schema task, not a Task 9 blocker, but flag it explicitly rather than let only the milder "O(n) fan-out" framing survive in institutional memory.
 
 - [ ] **Step 8: Commit**
 
