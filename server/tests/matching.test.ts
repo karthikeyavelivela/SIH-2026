@@ -1,10 +1,12 @@
 import './setup';
 import { Vehicle } from '../src/models/Vehicle';
 import { HamaliProfile } from '../src/models/HamaliProfile';
+import { Mutha } from '../src/models/Mutha';
 import { User } from '../src/models/User';
 import {
   findCandidateVehicles,
   findCandidateHamaliSolos,
+  findCandidateMuthas,
 } from '../src/services/matching.service';
 
 async function makeDriver(phone: string) {
@@ -92,5 +94,93 @@ describe('findCandidateHamaliSolos', () => {
 
     expect(candidates.length).toBe(1);
     expect(candidates[0].userId.toString()).toBe(user1._id.toString());
+  });
+});
+
+describe('findCandidateMuthas', () => {
+  const pickup: [number, number] = [78.4867, 17.385];
+
+  async function makeLeader(phone: string) {
+    return User.create({ name: 'L', phone, passwordHash: 'x', role: 'mutha_leader' });
+  }
+
+  async function makeOnlineMember(muthaId: string, phone: string, coords: [number, number]) {
+    const user = await User.create({ name: 'M', phone, passwordHash: 'x', role: 'mutha_member' });
+    await HamaliProfile.create({
+      userId: user._id,
+      type: 'mutha_member',
+      muthaId,
+      availabilityStatus: 'online',
+      currentLocation: { type: 'Point', coordinates: coords },
+    });
+    return user;
+  }
+
+  it('excludes a Mutha with fewer qualifying online-nearby members than required', async () => {
+    const leader = await makeLeader('9700000006');
+    const mutha = await Mutha.create({
+      name: 'Small Group',
+      leaderId: leader._id,
+      memberIds: [],
+      inviteCode: 'SMALLGRP',
+    });
+    // Only 1 online member nearby, but the booking needs 2.
+    await makeOnlineMember(mutha._id.toString(), '9700000007', [78.49, 17.39]);
+
+    const candidates = await findCandidateMuthas({ pickup, maxDistanceKm: 50, requiredHamaliCount: 2 });
+    expect(candidates.length).toBe(0);
+  });
+
+  it('includes a Mutha with enough qualifying online-nearby members, ranked by count descending', async () => {
+    const leaderSmall = await makeLeader('9700000008');
+    const smallMutha = await Mutha.create({
+      name: 'Two Members',
+      leaderId: leaderSmall._id,
+      memberIds: [],
+      inviteCode: 'TWOMEM01',
+    });
+    await makeOnlineMember(smallMutha._id.toString(), '9700000009', [78.49, 17.39]);
+    await makeOnlineMember(smallMutha._id.toString(), '9700000010', [78.491, 17.391]);
+
+    const leaderBig = await makeLeader('9700000011');
+    const bigMutha = await Mutha.create({
+      name: 'Three Members',
+      leaderId: leaderBig._id,
+      memberIds: [],
+      inviteCode: 'THREEMEM1',
+    });
+    await makeOnlineMember(bigMutha._id.toString(), '9700000012', [78.492, 17.392]);
+    await makeOnlineMember(bigMutha._id.toString(), '9700000013', [78.493, 17.393]);
+    await makeOnlineMember(bigMutha._id.toString(), '9700000014', [78.494, 17.394]);
+
+    const candidates = await findCandidateMuthas({ pickup, maxDistanceKm: 50, requiredHamaliCount: 2 });
+
+    expect(candidates.length).toBe(2);
+    // Ranked by qualifying-member count descending: the 3-member group first.
+    expect(candidates[0]._id.toString()).toBe(bigMutha._id.toString());
+    expect(candidates[1]._id.toString()).toBe(smallMutha._id.toString());
+  });
+
+  it('does not count an offline member toward the qualifying threshold', async () => {
+    const leader = await makeLeader('9700000015');
+    const mutha = await Mutha.create({
+      name: 'One Online One Offline',
+      leaderId: leader._id,
+      memberIds: [],
+      inviteCode: 'MIXEDGRP1',
+    });
+    await makeOnlineMember(mutha._id.toString(), '9700000016', [78.49, 17.39]);
+
+    const offlineUser = await User.create({ name: 'Off', phone: '9700000017', passwordHash: 'x', role: 'mutha_member' });
+    await HamaliProfile.create({
+      userId: offlineUser._id,
+      type: 'mutha_member',
+      muthaId: mutha._id,
+      availabilityStatus: 'offline',
+      currentLocation: { type: 'Point', coordinates: [78.491, 17.391] },
+    });
+
+    const candidates = await findCandidateMuthas({ pickup, maxDistanceKm: 50, requiredHamaliCount: 2 });
+    expect(candidates.length).toBe(0);
   });
 });
