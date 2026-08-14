@@ -4,6 +4,7 @@ node_modules/
 .env.local
 dist/
 *.tsbuildinfo
+next-env.d.ts
 .next/
 coverage/
 *.log
