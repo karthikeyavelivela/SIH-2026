@@ -24,8 +24,7 @@ export async function uploadImage(buffer: Buffer, folder: string): Promise<Uploa
     api_secret: env.CLOUDINARY_API_SECRET,
   });
   const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stream = cloudinary.v2.uploader.upload_stream({ folder }, (err: any, res: any) => {
+    const stream = cloudinary.v2.uploader.upload_stream({ folder }, (err, res) => {
       if (err || !res) reject(err);
       else resolve(res as { secure_url: string; public_id: string });
     });
