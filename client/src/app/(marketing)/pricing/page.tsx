@@ -17,10 +17,10 @@ export default function PricingPage() {
         <table className="w-full text-sm">
           <thead className="bg-surface text-left">
             <tr>
-              <th className="px-5 py-3">Category</th>
-              <th className="px-5 py-3">Base fare</th>
-              <th className="px-5 py-3">Per km</th>
-              <th className="px-5 py-3">Minimum</th>
+              <th scope="col" className="px-5 py-3">Category</th>
+              <th scope="col" className="px-5 py-3">Base fare</th>
+              <th scope="col" className="px-5 py-3">Per km</th>
+              <th scope="col" className="px-5 py-3">Minimum</th>
             </tr>
           </thead>
           <tbody>
