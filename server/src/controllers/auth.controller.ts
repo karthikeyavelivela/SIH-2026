@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { publicUser } from '../utils/publicUser';
+import { rethrowAsConflict } from '../utils/mongoErrors';
 import { User } from '../models/User';
 import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
@@ -37,7 +38,14 @@ export const signupCustomer = asyncHandler(async (req: Request, res: Response) =
   if (existing) throw new ApiError(409, 'Phone already registered');
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
-  const user = await User.create({ name, phone, email, passwordHash, role: 'customer' });
+  let user;
+  try {
+    user = await User.create({ name, phone, email, passwordHash, role: 'customer' });
+  } catch (err) {
+    // The findOne check above narrows the race window but doesn't close it —
+    // two concurrent signups for the same phone can both pass it.
+    rethrowAsConflict(err, 'Phone number');
+  }
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
   res.status(201).json({ user: publicUser(user) });
 });
@@ -48,14 +56,28 @@ export const signupDriver = asyncHandler(async (req: Request, res: Response) => 
   if (existing) throw new ApiError(409, 'Phone already registered');
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
-  const user = await User.create({ name, phone, passwordHash, role: 'driver' });
-  await Vehicle.create({
-    ownerId: user._id,
-    type: vehicleType,
-    capacityKg,
-    registrationNumber,
-    verified: false,
-  });
+  let user;
+  try {
+    user = await User.create({ name, phone, passwordHash, role: 'driver' });
+  } catch (err) {
+    rethrowAsConflict(err, 'Phone number');
+  }
+  try {
+    await Vehicle.create({
+      ownerId: user._id,
+      type: vehicleType,
+      capacityKg,
+      registrationNumber,
+      verified: false,
+    });
+  } catch (err) {
+    // registrationNumber is unique with no pre-check. Roll back the User we
+    // just created so the phone isn't permanently stuck "already
+    // registered" with no working profile behind it — otherwise the only
+    // path forward for this phone number would be a broken account.
+    await User.findByIdAndDelete(user._id);
+    rethrowAsConflict(err, 'Vehicle registration number');
+  }
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
   res.status(201).json({ user: publicUser(user) });
 });
@@ -68,7 +90,12 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
 
   if (joinType === 'solo') {
-    const user = await User.create({ name, phone, passwordHash, role: 'hamali_solo' });
+    let user;
+    try {
+      user = await User.create({ name, phone, passwordHash, role: 'hamali_solo' });
+    } catch (err) {
+      rethrowAsConflict(err, 'Phone number');
+    }
     await HamaliProfile.create({ userId: user._id, type: 'solo' });
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
     res.status(201).json({ user: publicUser(user) });
@@ -76,7 +103,12 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   }
 
   if (joinType === 'leader') {
-    const user = await User.create({ name, phone, passwordHash, role: 'mutha_leader' });
+    let user;
+    try {
+      user = await User.create({ name, phone, passwordHash, role: 'mutha_leader' });
+    } catch (err) {
+      rethrowAsConflict(err, 'Phone number');
+    }
     const code = crypto.randomBytes(4).toString('hex').toUpperCase();
     const mutha = await Mutha.create({
       name: muthaName,
@@ -96,7 +128,12 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
     const mutha = await Mutha.findOne({ inviteCode });
     if (!mutha) throw new ApiError(400, 'Invalid invite code');
 
-    const user = await User.create({ name, phone, passwordHash, role: 'mutha_member' });
+    let user;
+    try {
+      user = await User.create({ name, phone, passwordHash, role: 'mutha_member' });
+    } catch (err) {
+      rethrowAsConflict(err, 'Phone number');
+    }
     await HamaliProfile.create({ userId: user._id, type: 'mutha_member', muthaId: mutha._id });
     mutha.memberIds.push(user._id);
     await mutha.save();

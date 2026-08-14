@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { publicUser } from '../utils/publicUser';
+import { rethrowAsConflict } from '../utils/mongoErrors';
 import { User } from '../models/User';
 import { writeAuditLog } from '../services/audit.service';
 
@@ -19,13 +20,18 @@ export const createManager = asyncHandler(async (req: Request, res: Response) =>
   if (existing) throw new ApiError(409, 'Phone already registered');
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
-  const manager = await User.create({
-    name,
-    phone,
-    passwordHash,
-    role: 'manager',
-    permissions: permissions ?? [],
-  });
+  let manager;
+  try {
+    manager = await User.create({
+      name,
+      phone,
+      passwordHash,
+      role: 'manager',
+      permissions: permissions ?? [],
+    });
+  } catch (err) {
+    rethrowAsConflict(err, 'Phone number');
+  }
 
   await writeAuditLog({
     actorId: req.user!.id,

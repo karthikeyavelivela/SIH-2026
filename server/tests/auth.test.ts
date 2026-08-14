@@ -2,6 +2,7 @@ import './setup';
 import request from 'supertest';
 import { app } from '../src/app';
 import { Mutha } from '../src/models/Mutha';
+import { User } from '../src/models/User';
 
 describe('auth flow', () => {
   it('signs up a customer, logs in, reads /me, refreshes, logs out', async () => {
@@ -112,5 +113,35 @@ describe('auth flow', () => {
       .post('/api/auth/signup/customer')
       .send({ name: 'x', phone: '9200000009', password: 'Passw0rd!' });
     expect(sixth.status).toBe(429);
+  });
+
+  it('rejects a duplicate vehicle registration number with 409 and rolls back the orphaned User', async () => {
+    const first = await request(app).post('/api/auth/signup/driver').send({
+      name: 'Driver A',
+      phone: '9300000001',
+      password: 'Passw0rd!',
+      vehicleType: 'mini_truck',
+      capacityKg: 1000,
+      registrationNumber: 'AP09XY9999',
+    });
+    expect(first.status).toBe(201);
+
+    // registrationNumber has no pre-check (unlike phone) — this is the gap
+    // rethrowAsConflict + the compensating User rollback exist to close.
+    const second = await request(app).post('/api/auth/signup/driver').send({
+      name: 'Driver B',
+      phone: '9300000002',
+      password: 'Passw0rd!',
+      vehicleType: 'mini_truck',
+      capacityKg: 1200,
+      registrationNumber: 'AP09XY9999',
+    });
+    expect(second.status).toBe(409);
+
+    // The User created for the failed second signup must have been rolled
+    // back — otherwise phone 9300000002 would be permanently stuck
+    // "registered" with no working Vehicle behind it, unable to ever retry.
+    const orphan = await User.findOne({ phone: '9300000002' });
+    expect(orphan).toBeNull();
   });
 });
