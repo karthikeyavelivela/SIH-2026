@@ -10,11 +10,25 @@ export const availabilityRouter = Router();
 availabilityRouter.patch(
   '/',
   verifyJwt,
-  requireRole('driver', 'hamali_solo', 'mutha_leader'),
+  // mutha_leader deliberately excluded — see the comment in
+  // availability.controller.ts explaining why leaders have nothing to
+  // toggle here (no HamaliProfile, no per-leader location concept; group
+  // matchability is driven entirely by members' own availability).
+  // mutha_member included — their HamaliProfile.availabilityStatus is
+  // exactly what matching.service's findCandidateMuthas queries on, so
+  // this is the endpoint that makes a member discoverable at all.
+  requireRole('driver', 'hamali_solo', 'mutha_member'),
   [
     body('status').isIn(['online', 'offline']),
-    body('location.lat').if(body('status').equals('online')).isFloat({ min: -90, max: 90 }),
-    body('location.lng').if(body('status').equals('online')).isFloat({ min: -180, max: 180 }),
+    // Bounds-checked whenever location is present, not only when going
+    // online — a client sending status:'offline' with an out-of-range
+    // location (e.g. lat:999) used to skip validation entirely, since the
+    // conditional-on-'online' check simply never ran for that request. The
+    // "location is REQUIRED for online" rule is enforced separately, in
+    // the controller (a missing location isn't a shape problem
+    // express-validator's .optional() semantics express cleanly here).
+    body('location.lat').optional().isFloat({ min: -90, max: 90 }),
+    body('location.lng').optional().isFloat({ min: -180, max: 180 }),
   ],
   validate,
   availabilityController.setAvailability

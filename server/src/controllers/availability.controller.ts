@@ -4,11 +4,38 @@ import { ApiError } from '../utils/ApiError';
 import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 
+const LAT_MIN = -90;
+const LAT_MAX = 90;
+const LNG_MIN = -180;
+const LNG_MAX = 180;
+
 export const setAvailability = asyncHandler(async (req: Request, res: Response) => {
   const { status, location } = req.body;
 
   if (status === 'online' && !location) {
     throw new ApiError(400, 'A location is required to go online');
+  }
+
+  // Bounds-check whenever a location is present, not only when going
+  // online — express-validator's route-level check is conditional on
+  // status:'online' (kept, since that's the only case where a MISSING
+  // location matters), so a client sending status:'offline' with an
+  // out-of-range location was previously writing bad coordinates straight
+  // to the DB unvalidated. This is the controller-level backstop.
+  if (location) {
+    const { lat, lng } = location;
+    if (
+      typeof lat !== 'number' ||
+      typeof lng !== 'number' ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng) ||
+      lat < LAT_MIN ||
+      lat > LAT_MAX ||
+      lng < LNG_MIN ||
+      lng > LNG_MAX
+    ) {
+      throw new ApiError(400, 'Invalid location: lat must be -90..90 and lng must be -180..180');
+    }
   }
 
   const update: Record<string, unknown> = { availabilityStatus: status };
@@ -23,17 +50,25 @@ export const setAvailability = asyncHandler(async (req: Request, res: Response) 
     return;
   }
 
-  if (req.user!.role === 'hamali_solo' || req.user!.role === 'mutha_leader') {
-    // Mutha leaders don't have their own HamaliProfile in Phase 1's scope
-    // (they're group admins, not laborers) — treat leader availability as
-    // "the group is accepting requests" by updating on their own behalf
-    // only if a profile exists; otherwise this is a no-op success for
-    // leaders until Phase 2's mutha-leader flow needs its own state.
+  // hamali_solo and mutha_member both have their own HamaliProfile
+  // (type:'solo' / type:'mutha_member' respectively) that
+  // matching.service's findCandidateHamaliSolos/findCandidateMuthas
+  // actually query on — this is the endpoint that makes them
+  // discoverable at all. mutha_leader is deliberately NOT included here:
+  // leaders have no HamaliProfile (they're group admins, not laborers)
+  // and no other per-leader location concept exists — group matchability
+  // is entirely member-driven (findCandidateMuthas counts online nearby
+  // MEMBERS, never the leader). An earlier version of this endpoint
+  // allowed mutha_leader and silently no-op'd (200 success, nothing
+  // persisted) when no profile existed, which is always the case for a
+  // leader — misleading. Removing the role entirely from this endpoint
+  // (see availability.routes.ts) is the honest fix: there's nothing for a
+  // leader to toggle here, so let RBAC reject it clearly instead of an API
+  // response that claims success for an action with no effect.
+  if (req.user!.role === 'hamali_solo' || req.user!.role === 'mutha_member') {
     const profile = await HamaliProfile.findOneAndUpdate({ userId: req.user!.id }, update, { new: true });
-    if (!profile && req.user!.role === 'hamali_solo') {
-      throw new ApiError(404, 'No hamali profile found for this user');
-    }
-    res.status(200).json({ availabilityStatus: profile?.availabilityStatus ?? status });
+    if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
+    res.status(200).json({ availabilityStatus: profile.availabilityStatus });
     return;
   }
 
