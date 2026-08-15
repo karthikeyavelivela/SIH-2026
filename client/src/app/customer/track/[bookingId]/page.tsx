@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { useBookingSocket } from '@/lib/useBookingSocket';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { TruckIcon, BoxIcon } from '@/components/ui/icons';
+import { ChatPanel } from '@/components/worker/ChatPanel';
+import { TruckIcon, BoxIcon, StarIcon } from '@/components/ui/icons';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -35,12 +38,44 @@ const waitingCopy: Record<string, string> = {
   searching: 'Waiting for a driver or Hamali to respond…',
 };
 
+interface AssignedPerson {
+  id: string;
+  name: string;
+  phone?: string;
+  ratingAvg: number;
+  ratingCount: number;
+  vehicle?: { type: string; capacityKg: number; registrationNumber: string } | null;
+}
+
+function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 'group' }) {
+  return (
+    <div className="flex items-center justify-between py-1.5">
+      <div>
+        <p className="text-sm font-semibold">{entry.name}</p>
+        {sub === 'vehicle' && entry.vehicle && (
+          <p className="text-xs text-text-muted">
+            {entry.vehicle.type.replace('_', ' ')} · {entry.vehicle.registrationNumber}
+          </p>
+        )}
+        {sub === 'group' && <p className="text-xs text-text-muted">Mutha group</p>}
+      </div>
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted">
+        <StarIcon className="w-3.5 h-3.5" />
+        {entry.ratingCount > 0 ? entry.ratingAvg.toFixed(1) : 'New'}
+      </span>
+    </div>
+  );
+}
+
 export default function TrackBookingPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
+  const { user } = useAuth();
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const { status: liveStatus, matched, liveLocation, messages, sendChat } = useBookingSocket(bookingId);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,14 +90,25 @@ export default function TrackBookingPage() {
     }
 
     load();
-    // Poll every 5s for status updates (Phase 2 is polling-based; live
-    // socket push is Phase 3).
-    const interval = setInterval(load, 5000);
+    // Poll every 8s as a fallback under the socket push above — a client
+    // that missed an event (dropped connection, tab was backgrounded)
+    // still self-heals within one poll interval instead of showing stale
+    // status indefinitely.
+    const interval = setInterval(load, 8000);
     return () => {
       cancelled = true;
       clearInterval(interval);
     };
   }, [bookingId]);
+
+  // Socket push is the freshest source of truth for status when both are
+  // available — merge it in without waiting for the next poll tick.
+  useEffect(() => {
+    if (liveStatus && booking && liveStatus !== booking.status) {
+      setBooking({ ...booking, status: liveStatus });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveStatus]);
 
   if (error) {
     return (
@@ -115,7 +161,12 @@ export default function TrackBookingPage() {
         </div>
       )}
 
-      <RouteMap pickup={{ lat: pLat, lng: pLng }} drop={{ lat: dLat, lng: dLng }} className="h-48 mb-6" />
+      <RouteMap
+        pickup={{ lat: pLat, lng: pLng }}
+        drop={{ lat: dLat, lng: dLng }}
+        liveMarker={liveLocation ? { lat: liveLocation.lat, lng: liveLocation.lng } : undefined}
+        className="h-48 mb-6"
+      />
 
       {stepIndex >= 0 && booking.status !== 'cancelled' && (
         <div className="flex items-center mb-8">
@@ -131,6 +182,27 @@ export default function TrackBookingPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {matched?.assigned && Object.keys(matched.assigned).length > 0 && (
+        <Card elevation="raised" className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Assigned to you</p>
+          {'driver' in matched.assigned && matched.assigned.driver != null && (
+            <AssignedRow entry={matched.assigned.driver as AssignedPerson} sub="vehicle" />
+          )}
+          {'mutha' in matched.assigned && matched.assigned.mutha != null && (
+            <AssignedRow entry={matched.assigned.mutha as AssignedPerson} sub="group" />
+          )}
+          {'hamalis' in matched.assigned &&
+            Array.isArray(matched.assigned.hamalis) &&
+            (matched.assigned.hamalis as AssignedPerson[]).map((h) => <AssignedRow key={h.id} entry={h} />)}
+        </Card>
+      )}
+
+      {!['requested', 'searching'].includes(booking.status) && (
+        <div className="mb-4">
+          <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="primary" />
         </div>
       )}
 

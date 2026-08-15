@@ -5,9 +5,11 @@ import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
+import { useBookingSocket } from '@/lib/useBookingSocket';
 import { Booking } from '@/lib/types';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { StatusPill } from '@/components/worker/StatusPill';
+import { ChatPanel } from '@/components/worker/ChatPanel';
 import { MapPinIcon, TruckIcon } from '@/components/ui/icons';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
@@ -27,6 +29,7 @@ export default function MuthaMemberJobPage() {
 
   const { data } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 6000);
   const activeJob = data?.bookings.find((b) => b.status === 'accepted' || b.status === 'in_progress');
+  const { messages, sendChat } = useBookingSocket(activeJob?._id);
 
   const firstName = user?.name?.split(' ')[0] ?? 'there';
 
@@ -67,9 +70,10 @@ export default function MuthaMemberJobPage() {
               <p className="text-sm text-text-muted">{activeJob.dropLocation.address}</p>
             </div>
           </div>
-          <p className="text-xs text-text-muted mt-4">
+          <p className="text-xs text-text-muted mt-4 mb-4">
             Your Mutha leader controls start/complete for this job.
           </p>
+          <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
         </>
       )}
     </div>

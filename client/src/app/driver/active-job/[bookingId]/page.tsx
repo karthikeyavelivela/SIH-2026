@@ -5,9 +5,13 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
+import { useAuth } from '@/lib/auth-context';
+import { useBookingSocket } from '@/lib/useBookingSocket';
+import { useLiveLocationBroadcast } from '@/lib/useLiveLocationBroadcast';
 import { Booking } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { StatusPill } from '@/components/worker/StatusPill';
+import { ChatPanel } from '@/components/worker/ChatPanel';
 import { MapPinIcon, CheckIcon } from '@/components/ui/icons';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
@@ -21,6 +25,7 @@ const STEPS: { status: Booking['status']; label: string }[] = [
 export default function DriverActiveJobPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -30,6 +35,8 @@ export default function DriverActiveJobPage() {
     [bookingId]
   );
   const booking = data?.bookings.find((b) => b._id === bookingId);
+  const { messages, sendChat } = useBookingSocket(bookingId);
+  useLiveLocationBroadcast(bookingId, booking?.status === 'in_progress');
 
   async function advance() {
     if (!booking) return;
@@ -100,6 +107,10 @@ export default function DriverActiveJobPage() {
             <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
             <p className="text-sm text-text-muted">{booking.dropLocation.address}</p>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="primary" />
         </div>
 
         {error && (

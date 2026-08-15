@@ -2,8 +2,10 @@
 
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
+import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking } from '@/lib/types';
 import { RequestCard } from '@/components/worker/RequestCard';
+import { OfferCard } from '@/components/worker/OfferCard';
 import { LayersIcon } from '@/components/ui/icons';
 
 export default function DriverRequestsPage() {
@@ -11,6 +13,12 @@ export default function DriverRequestsPage() {
     () => api.get<{ requests: Booking[] }>('/api/requests'),
     6000
   );
+  const { offer, responding, respond } = useIncomingOffer();
+
+  async function respondToOffer(accept: boolean) {
+    await respond(accept);
+    await reload();
+  }
 
   async function accept(bookingId: string) {
     await api.post(`/api/requests/${bookingId}/accept`);
@@ -28,6 +36,18 @@ export default function DriverRequestsPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <h1 className="font-heading text-2xl font-bold mb-1">Job requests</h1>
       <p className="text-sm text-text-muted mb-6">Nearby truck jobs matching your vehicle. Refreshes automatically.</p>
+
+      {offer && (
+        <div className="mb-6">
+          <OfferCard
+            offer={offer}
+            accent="primary"
+            responding={responding}
+            onAccept={() => respondToOffer(true)}
+            onReject={() => respondToOffer(false)}
+          />
+        </div>
+      )}
 
       {state === 'loading' && (
         <div className="space-y-3">

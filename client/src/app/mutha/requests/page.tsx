@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
+import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking, MuthaResponse } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
+import { OfferCard } from '@/components/worker/OfferCard';
 import { LayersIcon, MapPinIcon } from '@/components/ui/icons';
 
 function MemberPicker({
@@ -133,9 +135,15 @@ export default function MuthaRequestsPage() {
     6000
   );
   const { data: muthaData, reload: reloadMutha } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 6000);
+  const { offer, responding, respond } = useIncomingOffer();
 
   async function onAssigned() {
     await Promise.all([reloadRequests(), reloadMutha()]);
+  }
+
+  async function respondToOffer(accept: boolean) {
+    await respond(accept);
+    await reloadRequests();
   }
 
   const requests = requestsData?.requests ?? [];
@@ -145,6 +153,22 @@ export default function MuthaRequestsPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <h1 className="font-heading text-2xl font-bold mb-1">Job requests</h1>
       <p className="text-sm text-text-muted mb-6">Assign specific online members to each job.</p>
+
+      {offer && (
+        <div className="mb-6">
+          <OfferCard
+            offer={offer}
+            accent="secondary"
+            responding={responding}
+            acceptLabel="Accept & assign"
+            onAccept={() => respondToOffer(true)}
+            onReject={() => respondToOffer(false)}
+          />
+          <p className="text-xs text-text-muted mt-2">
+            Accepting holds this job for your group — pick members from the list below to confirm.
+          </p>
+        </div>
+      )}
 
       {state === 'loading' && (
         <div className="space-y-3">
