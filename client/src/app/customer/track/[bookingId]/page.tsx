@@ -1,19 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { TruckIcon, BoxIcon } from '@/components/ui/icons';
+
+// react-leaflet touches `window` at module load — must never run during
+// Next's server render pass.
+const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
 interface BookingDetail {
   _id: string;
   type: 'truck' | 'hamali' | 'combo';
   status: string;
   fareBreakdown: { baseFare: number; distanceFare: number; hamaliFare: number; total: number };
-  pickupLocation: { address: string };
-  dropLocation: { address: string };
+  pickupLocation: { address: string; coordinates: [number, number] };
+  dropLocation: { address: string; coordinates: [number, number] };
   statusHistory: { status: string; timestamp: string }[];
 }
 
@@ -24,10 +30,17 @@ const statusTone: Record<string, 'success' | 'secondary' | 'muted' | 'danger'> =
   cancelled: 'danger',
 };
 
+const waitingCopy: Record<string, string> = {
+  requested: 'Confirming your request…',
+  searching: 'Waiting for a driver or Hamali to respond…',
+};
+
 export default function TrackBookingPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +84,22 @@ export default function TrackBookingPage() {
   }
 
   const stepIndex = STEPS.indexOf(booking.status);
+  const canCancel = !['completed', 'cancelled'].includes(booking.status);
+  const [pLng, pLat] = booking.pickupLocation.coordinates;
+  const [dLng, dLat] = booking.dropLocation.coordinates;
+
+  async function handleCancel() {
+    setCancelError(null);
+    setCancelling(true);
+    try {
+      const res = await api.patch<{ booking: BookingDetail }>(`/api/bookings/${bookingId}/cancel`);
+      setBooking(res.booking);
+    } catch (err) {
+      setCancelError(err instanceof ApiClientError ? err.message : 'Could not cancel this booking.');
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
@@ -78,6 +107,15 @@ export default function TrackBookingPage() {
         <h1 className="font-heading text-2xl font-bold">Track booking</h1>
         <Badge tone={statusTone[booking.status] ?? 'secondary'}>{booking.status.replace('_', ' ')}</Badge>
       </div>
+
+      {waitingCopy[booking.status] && (
+        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-primary/10 text-sm text-primary-600">
+          <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-600/30 border-t-primary-600 animate-spin flex-shrink-0" />
+          {waitingCopy[booking.status]}
+        </div>
+      )}
+
+      <RouteMap pickup={{ lat: pLat, lng: pLng }} drop={{ lat: dLat, lng: dLng }} className="h-48 mb-6" />
 
       {stepIndex >= 0 && booking.status !== 'cancelled' && (
         <div className="flex items-center mb-8">
@@ -138,6 +176,23 @@ export default function TrackBookingPage() {
           </div>
         </div>
       </Card>
+
+      {cancelError && (
+        <div role="alert" className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {cancelError}
+        </div>
+      )}
+
+      {canCancel && (
+        <Button
+          variant="ghost"
+          className="w-full mt-4"
+          onClick={handleCancel}
+          disabled={cancelling}
+        >
+          {cancelling ? 'Cancelling…' : 'Cancel booking'}
+        </Button>
+      )}
     </div>
   );
 }

@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Leaflet's own stylesheet — required for tile/marker/control layout to
+   render correctly. Imported once, globally, rather than per-page, since
+   every map instance (book, track, future driver/hamali screens) needs it. */
+@import 'leaflet/dist/leaflet.css';
+
 :root {
   /* ---- Brand colors (fixed identity — do not change without sign-off) ---- */
   --color-background: #FAFAF8;
