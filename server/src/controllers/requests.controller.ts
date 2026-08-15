@@ -137,6 +137,9 @@ export const acceptRequest = asyncHandler(async (req: Request, res: Response) =>
   const role = req.user!.role;
   const bookingId = req.params.id;
 
+  // Mandatory-rating gate lives in bookingAssignment.service now (see
+  // assertNoUnratedCompletedBooking) so it applies uniformly to both this
+  // REST path and the Phase 3 offer-engine's socket accept path.
   let booking: IBooking;
   if (role === 'driver') {
     booking = await acceptAsDriver(userId, bookingId);

@@ -3,6 +3,22 @@ import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
 import { ApiError } from '../utils/ApiError';
+import { findUnratedCompletedBooking } from './ratingGate.service';
+
+/**
+ * Mandatory-rating gate (spec: "mandatory before either can start a new
+ * booking/accept a new job"), enforced HERE rather than only at the REST
+ * controller layer, so it applies uniformly regardless of which channel
+ * triggers an accept — a worker responding to a Phase 3 pushed offer over
+ * the socket goes through this exact same function and cannot bypass the
+ * gate that the REST browse-mode path also hits.
+ */
+async function assertNoUnratedCompletedBooking(userId: string, message: string): Promise<void> {
+  const unratedBookingId = await findUnratedCompletedBooking(userId);
+  if (unratedBookingId) {
+    throw new ApiError(403, message, { unratedBookingId });
+  }
+}
 
 const openStatus = { $in: ['requested', 'searching'] };
 
@@ -38,6 +54,7 @@ async function maybeAdvanceToAccepted(bookingId: string): Promise<void> {
 }
 
 export async function acceptAsDriver(userId: string, bookingId: string): Promise<IBooking> {
+  await assertNoUnratedCompletedBooking(userId, 'Please rate your last completed job before accepting a new one');
   const vehicle = await Vehicle.findOne({ ownerId: userId });
   if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
   if (vehicle.availabilityStatus !== 'online') throw new ApiError(400, 'Go online before accepting a job');
@@ -61,6 +78,7 @@ export async function acceptAsDriver(userId: string, bookingId: string): Promise
 }
 
 export async function acceptAsHamaliSolo(userId: string, bookingId: string): Promise<IBooking> {
+  await assertNoUnratedCompletedBooking(userId, 'Please rate your last completed job before accepting a new one');
   const profile = await HamaliProfile.findOne({ userId, type: 'solo' });
   if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
   if (profile.availabilityStatus !== 'online') throw new ApiError(400, 'Go online before accepting a job');
@@ -87,6 +105,7 @@ export async function acceptAsMuthaLeader(
   bookingId: string,
   memberIds: string[]
 ): Promise<IBooking> {
+  await assertNoUnratedCompletedBooking(userId, 'Please rate your last completed job before accepting a new one');
   const mutha = await Mutha.findOne({ leaderId: userId });
   if (!mutha) throw new ApiError(404, 'No Mutha found for this leader');
   if (memberIds.length === 0) throw new ApiError(400, 'memberIds is required to assign members to this job');

@@ -6,6 +6,7 @@ import { FareRule, IFareRule } from '../models/FareRule';
 import { haversineKm } from '../services/distance.service';
 import { bucketVehicleCategoryFromCapacity, computeFareBreakdown } from '../services/fare.service';
 import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
+import { findUnratedCompletedBooking } from '../services/ratingGate.service';
 
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
@@ -105,6 +106,17 @@ export const quoteBooking = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const createBooking = asyncHandler(async (req: Request, res: Response) => {
+  // Spec: rating is "mandatory before either can start a new booking/accept
+  // a new job, to keep rating coverage high". Checked before any other
+  // work so a customer with an unrated completed trip is blocked at the
+  // very first step, not partway through pricing/creation.
+  const unratedBookingId = await findUnratedCompletedBooking(req.user!.id);
+  if (unratedBookingId) {
+    throw new ApiError(403, 'Please rate your last completed booking before making a new one', {
+      unratedBookingId,
+    });
+  }
+
   // Only these fields are ever read from the body — fareBreakdown, status,
   // customerId, or anything else the client sends is silently ignored.
   const { type, region, cargoDetails, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } =

@@ -13,13 +13,25 @@ import { requestsRouter } from './routes/requests.routes';
 import { muthaRouter } from './routes/mutha.routes';
 import { earningsRouter } from './routes/earnings.routes';
 import { vehicleRouter } from './routes/vehicle.routes';
+import { paymentRouter } from './routes/payment.routes';
+import { ratingRouter } from './routes/rating.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
-app.use(express.json());
+// Captures the raw request body alongside Express's parsed JSON — the
+// Razorpay webhook handler needs the exact raw bytes to verify the HMAC
+// signature (parsed-then-restringified JSON is not guaranteed to match
+// byte-for-byte, which would break signature verification).
+app.use(
+  express.json({
+    verify: (req, _res, buf) => {
+      (req as Request & { rawBody?: string }).rawBody = buf.toString('utf8');
+    },
+  })
+);
 app.use(cookieParser());
 
 app.get('/api/health', (_req, res) => res.status(200).json({ ok: true }));
@@ -43,6 +55,8 @@ app.use('/api/requests', requestsRouter);
 app.use('/api/mutha', muthaRouter);
 app.use('/api/earnings', earningsRouter);
 app.use('/api/vehicles', vehicleRouter);
+app.use('/api/payments', paymentRouter);
+app.use('/api/ratings', ratingRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
