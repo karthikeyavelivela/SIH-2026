@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 
 type JoinType = 'solo' | 'leader' | 'member';
 
@@ -51,6 +53,13 @@ export default function SignupHamaliPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-background">
+      <Link
+        href="/"
+        aria-label="Back to home"
+        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-surface-raised border border-border shadow-sm hover:bg-surface transition-colors duration-fast"
+      >
+        <ChevronLeftIcon className="w-5 h-5" />
+      </Link>
       <div
         className="pointer-events-none absolute -top-32 -left-24 w-80 h-80 rounded-full bg-secondary/10 blur-3xl"
         aria-hidden="true"
@@ -159,6 +168,12 @@ export default function SignupHamaliPage() {
             {loading ? 'Creating account…' : 'Create account'}
           </Button>
         </form>
+        <p className="text-sm text-text-muted mt-7 pt-6 border-t border-border">
+          Already have an account?{' '}
+          <Link href="/login" className="text-secondary-600 font-semibold hover:underline">
+            Log in
+          </Link>
+        </p>
       </Card>
     </div>
   );

@@ -9,11 +9,13 @@ import { Booking } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { StatusPill } from '@/components/worker/StatusPill';
+import { RatingModal } from '@/components/worker/RatingModal';
 import { BoxIcon, WalletIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 export default function HamaliDashboardPage() {
   const { user } = useAuth();
   const [status, setStatus] = useState<'online' | 'offline' | 'on_job' | null>(null);
+  const [pendingRatingId, setPendingRatingId] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -22,6 +24,10 @@ export default function HamaliDashboardPage() {
       .catch((err) => {
         if (err instanceof ApiClientError) setStatus(null);
       });
+    api
+      .get<{ bookingId: string | null }>('/api/ratings/pending')
+      .then((res) => setPendingRatingId(res.bookingId))
+      .catch(() => {});
   }, []);
 
   const { data: mine } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 8000);
@@ -69,6 +75,16 @@ export default function HamaliDashboardPage() {
         </div>
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>
+
+      {pendingRatingId && (
+        <RatingModal
+          bookingId={pendingRatingId}
+          open
+          accent="secondary"
+          title="Rate your last customer"
+          onDone={() => setPendingRatingId(null)}
+        />
+      )}
     </div>
   );
 }

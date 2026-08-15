@@ -1,12 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking } from '@/lib/types';
 import { RequestCard } from '@/components/worker/RequestCard';
 import { OfferCard } from '@/components/worker/OfferCard';
-import { LayersIcon } from '@/components/ui/icons';
+import { LayersIcon, AlertIcon } from '@/components/ui/icons';
 
 export default function HamaliRequestsPage() {
   const { data, state, reload, setData } = usePolling(
@@ -14,9 +15,12 @@ export default function HamaliRequestsPage() {
     6000
   );
   const { offer, responding, respond } = useIncomingOffer();
+  const [offerError, setOfferError] = useState<string | null>(null);
 
   async function respondToOffer(accept: boolean) {
-    await respond(accept);
+    setOfferError(null);
+    const ack = await respond(accept);
+    if (!ack.ok && ack.error) setOfferError(ack.error);
     await reload();
   }
 
@@ -46,6 +50,12 @@ export default function HamaliRequestsPage() {
             onAccept={() => respondToOffer(true)}
             onReject={() => respondToOffer(false)}
           />
+          {offerError && (
+            <div role="alert" className="flex items-start gap-2 mt-2 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+              <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+              <p>{offerError}</p>
+            </div>
+          )}
         </div>
       )}
 

@@ -40,6 +40,20 @@ app.use(
 );
 app.use(cookieParser());
 
+// Every /api response is live, per-request app state (booking status,
+// availability, requests feed, earnings...), never something safe for a
+// browser to reuse from its disk cache on a plain GET. Without this,
+// nothing here sent an explicit Cache-Control, so a browser was free to
+// heuristically cache a GET and serve it stale later — confirmed live
+// (GET /api/vehicles/me returned pre-PATCH data well after the real
+// update landed). The client's fetch wrapper now also sets
+// cache:'no-store'; this is the server-side half of the same fix so any
+// other client (mobile app, future one) gets the same guarantee.
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
 app.get('/api/health', (_req, res) => res.status(200).json({ ok: true }));
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before

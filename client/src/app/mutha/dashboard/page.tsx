@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
@@ -7,6 +8,7 @@ import { usePolling } from '@/lib/usePolling';
 import { MuthaResponse } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { RatingModal } from '@/components/worker/RatingModal';
 import { StarIcon, UsersIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 const dotColor: Record<string, string> = {
@@ -18,6 +20,14 @@ const dotColor: Record<string, string> = {
 export default function MuthaDashboardPage() {
   const { user } = useAuth();
   const { data, state } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
+  const [pendingRatingId, setPendingRatingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .get<{ bookingId: string | null }>('/api/ratings/pending')
+      .then((res) => setPendingRatingId(res.bookingId))
+      .catch(() => {});
+  }, []);
 
   const onlineCount = data?.members.filter((m) => m.availabilityStatus === 'online').length ?? 0;
   const firstName = user?.name?.split(' ')[0] ?? 'there';
@@ -81,6 +91,16 @@ export default function MuthaDashboardPage() {
         <p className="text-sm font-semibold">View open job requests</p>
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>
+
+      {pendingRatingId && (
+        <RatingModal
+          bookingId={pendingRatingId}
+          open
+          accent="secondary"
+          title="Rate your last customer"
+          onDone={() => setPendingRatingId(null)}
+        />
+      )}
     </div>
   );
 }

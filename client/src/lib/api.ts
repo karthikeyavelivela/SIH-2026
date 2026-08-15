@@ -14,6 +14,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     credentials: 'include',
+    // Every response here is live app state (availability, booking status,
+    // requests feed...) — a browser serving a heuristically-cached GET from
+    // its disk cache (no explicit Cache-Control from the server = fair game
+    // for the browser to reuse) shows a driver as offline right after they
+    // went online, an empty request feed after a real booking exists, etc.
+    // Found live: GET /api/vehicles/me returned a stale cached body after a
+    // real PATCH had already updated it.
+    cache: 'no-store',
     headers: { 'Content-Type': 'application/json', ...options.headers },
   });
 

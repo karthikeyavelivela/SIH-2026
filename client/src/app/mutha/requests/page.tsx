@@ -7,7 +7,7 @@ import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking, MuthaResponse } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { OfferCard } from '@/components/worker/OfferCard';
-import { LayersIcon, MapPinIcon } from '@/components/ui/icons';
+import { LayersIcon, MapPinIcon, AlertIcon } from '@/components/ui/icons';
 
 function MemberPicker({
   booking,
@@ -136,13 +136,16 @@ export default function MuthaRequestsPage() {
   );
   const { data: muthaData, reload: reloadMutha } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 6000);
   const { offer, responding, respond } = useIncomingOffer();
+  const [offerError, setOfferError] = useState<string | null>(null);
 
   async function onAssigned() {
     await Promise.all([reloadRequests(), reloadMutha()]);
   }
 
   async function respondToOffer(accept: boolean) {
-    await respond(accept);
+    setOfferError(null);
+    const ack = await respond(accept);
+    if (!ack.ok && ack.error) setOfferError(ack.error);
     await reloadRequests();
   }
 
@@ -167,6 +170,12 @@ export default function MuthaRequestsPage() {
           <p className="text-xs text-text-muted mt-2">
             Accepting holds this job for your group — pick members from the list below to confirm.
           </p>
+          {offerError && (
+            <div role="alert" className="flex items-start gap-2 mt-2 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+              <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+              <p>{offerError}</p>
+            </div>
+          )}
         </div>
       )}
 

@@ -9,11 +9,18 @@ import { Booking } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { StatusPill } from '@/components/worker/StatusPill';
+import { RatingModal } from '@/components/worker/RatingModal';
 import { TruckIcon, WalletIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 export default function DriverDashboardPage() {
   const { user } = useAuth();
   const [status, setStatus] = useState<'online' | 'offline' | 'on_job' | null>(null);
+  // Proactive mandatory-rating prompt — otherwise a driver only discovers
+  // they're blocked when Accept fails with a 403 they have to decode. Found
+  // live: a driver who completed a job outside the normal "Mark delivered"
+  // flow (e.g. via an earlier test session) had no way to know why every
+  // subsequent Accept was silently rejected.
+  const [pendingRatingId, setPendingRatingId] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -24,6 +31,10 @@ export default function DriverDashboardPage() {
         // still sees a working dashboard — just without a toggle.
         if (err instanceof ApiClientError) setStatus(null);
       });
+    api
+      .get<{ bookingId: string | null }>('/api/ratings/pending')
+      .then((res) => setPendingRatingId(res.bookingId))
+      .catch(() => {});
   }, []);
 
   const { data: mine } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 8000);
@@ -71,6 +82,16 @@ export default function DriverDashboardPage() {
         </div>
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>
+
+      {pendingRatingId && (
+        <RatingModal
+          bookingId={pendingRatingId}
+          open
+          accent="primary"
+          title="Rate your last customer"
+          onDone={() => setPendingRatingId(null)}
+        />
+      )}
     </div>
   );
 }

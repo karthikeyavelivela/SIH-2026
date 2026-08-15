@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { Booking } from '@/lib/types';
+import { ApiClientError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
-import { TruckIcon, BoxIcon, LayersIcon, MapPinIcon } from '@/components/ui/icons';
+import { TruckIcon, BoxIcon, LayersIcon, MapPinIcon, AlertIcon } from '@/components/ui/icons';
 
 const typeIcon = { truck: TruckIcon, hamali: BoxIcon, combo: LayersIcon };
 
@@ -22,14 +23,23 @@ interface RequestCardProps {
 // of them accepts (server-side atomic accept decides the real winner).
 export function RequestCard({ booking, accent = 'primary', onAccept, onReject, hamaliSlotsNote }: RequestCardProps) {
   const [pending, setPending] = useState<'accept' | 'reject' | null>(null);
+  // Was previously unhandled — an accept/reject failure (lost the race to
+  // another worker, went offline mid-request, the mandatory-rating gate)
+  // threw straight into the console as an unhandled rejection with no
+  // feedback at all: the button just silently stopped working. Caught here
+  // now, at the one place both driver and hamali_solo /requests share it.
+  const [error, setError] = useState<string | null>(null);
   const Icon = typeIcon[booking.type];
   const accentText = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
   const accentBg = accent === 'primary' ? 'bg-primary/10' : 'bg-secondary/10';
 
   async function handle(action: 'accept' | 'reject') {
     setPending(action);
+    setError(null);
     try {
       await (action === 'accept' ? onAccept(booking._id) : onReject(booking._id));
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Could not update this request — try again.');
     } finally {
       setPending(null);
     }
@@ -62,6 +72,13 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
       </div>
 
       {hamaliSlotsNote && <p className="text-xs text-text-muted mb-4">{hamaliSlotsNote}</p>}
+
+      {error && (
+        <div role="alert" className="flex items-start gap-2 mb-4 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+          <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
 
       <div className="flex gap-3">
         <Button

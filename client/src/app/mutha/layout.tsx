@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { BottomTabNav, TabItem } from '@/components/ui/BottomTabNav';
-import { HomeIcon, LayersIcon, UsersIcon, WalletIcon, TruckIcon } from '@/components/ui/icons';
+import { HomeIcon, LayersIcon, UsersIcon, WalletIcon, TruckIcon, UserIcon } from '@/components/ui/icons';
 
 const tabs: TabItem[] = [
   { href: '/mutha/dashboard', label: 'Group', icon: HomeIcon },
@@ -12,6 +12,7 @@ const tabs: TabItem[] = [
   { href: '/mutha/active-jobs', label: 'Jobs', icon: TruckIcon },
   { href: '/mutha/members', label: 'Members', icon: UsersIcon },
   { href: '/mutha/earnings', label: 'Earnings', icon: WalletIcon },
+  { href: '/mutha/profile', label: 'Profile', icon: UserIcon },
 ];
 
 export default function MuthaLayout({ children }: { children: React.ReactNode }) {
