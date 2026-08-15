@@ -6,8 +6,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
 const NAV_ITEMS = [
+  { href: '/admin/dashboard', label: 'Dashboard' },
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/managers', label: 'Managers' },
+  { href: '/admin/fares', label: 'Fares' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
