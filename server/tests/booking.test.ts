@@ -223,3 +223,91 @@ describe('booking lifecycle', () => {
     expect(secondCancel.status).toBe(400);
   });
 });
+
+describe('booking quote', () => {
+  it('returns the same fareBreakdown a create with identical inputs would produce, without persisting anything', async () => {
+    await seedTruckRule();
+    const { agent } = await loginAsCustomer('9810000011');
+
+    const payload = {
+      type: 'truck' as const,
+      region: 'Visakhapatnam',
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup St' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop Ave' },
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    };
+
+    const quote = await agent.post('/api/bookings/quote').send(payload);
+    expect(quote.status).toBe(200);
+    expect(quote.body.fareBreakdown.total).toBeGreaterThan(0);
+    expect(quote.body.distanceKm).toBeGreaterThan(0);
+
+    // Nothing written — a customer who abandons the form after quoting
+    // must not see a phantom booking in their history.
+    const history = await agent.get('/api/bookings');
+    expect(history.body.bookings.length).toBe(0);
+
+    const create = await agent.post('/api/bookings').send({
+      ...payload,
+      cargoDetails: { weightKg: 800 },
+    });
+    expect(create.status).toBe(201);
+    expect(create.body.booking.fareBreakdown).toEqual(quote.body.fareBreakdown);
+    expect(create.body.booking.distanceKm).toBe(quote.body.distanceKm);
+  });
+
+  it('quotes a combo booking (vehicle + hamali) itemized', async () => {
+    await seedTruckRule();
+    await seedHamaliRule();
+    const { agent } = await loginAsCustomer('9810000012');
+
+    const res = await agent.post('/api/bookings/quote').send({
+      type: 'combo',
+      region: 'Visakhapatnam',
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+      requiredHamaliCount: 2,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.fareBreakdown.hamaliFare).toBeGreaterThan(0);
+    expect(res.body.fareBreakdown.baseFare).toBeGreaterThan(0);
+  });
+
+  it('rejects a quote with no active FareRule for the region/category (422), same as create', async () => {
+    const { agent } = await loginAsCustomer('9810000013');
+    const res = await agent.post('/api/bookings/quote').send({
+      type: 'truck',
+      region: 'NoSuchRegion',
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    });
+    expect(res.status).toBe(422);
+  });
+
+  it('rejects a quote missing pickupLocation.coordinates (400) before ever touching pricing logic', async () => {
+    const { agent } = await loginAsCustomer('9810000014');
+    const res = await agent.post('/api/bookings/quote').send({
+      type: 'truck',
+      region: 'Visakhapatnam',
+      pickupLocation: { address: 'Pickup, no coordinates' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects a quote for hamali type with requiredHamaliCount of 0 (400)', async () => {
+    await seedHamaliRule();
+    const { agent } = await loginAsCustomer('9810000015');
+    const res = await agent.post('/api/bookings/quote').send({
+      type: 'hamali',
+      region: 'Visakhapatnam',
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      requiredHamaliCount: 0,
+    });
+    expect(res.status).toBe(400);
+  });
+});

@@ -13,11 +13,21 @@ async function findActiveRule(region: string, category: string) {
   return FareRule.findOne({ region, category, active: true }).sort({ effectiveFrom: -1 });
 }
 
-export const createBooking = asyncHandler(async (req: Request, res: Response) => {
-  // Only these fields are ever read from the body — fareBreakdown, status,
-  // customerId, or anything else the client sends is silently ignored.
-  const { type, region, cargoDetails, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } =
-    req.body;
+interface QuoteInput {
+  type: 'truck' | 'hamali' | 'combo';
+  region: string;
+  pickupLocation: { coordinates: [number, number] };
+  dropLocation: { coordinates: [number, number] };
+  requiredVehicles?: { capacityKg: number; count: number }[];
+  requiredHamaliCount?: number;
+}
+
+// Shared by both the quote (preview, no write) and create (persists) paths
+// so the two can never compute a different fare for the same inputs — the
+// client-facing "estimate" the customer confirms against is the exact same
+// code path that produces the fareBreakdown actually saved on the Booking.
+async function priceBooking(input: QuoteInput) {
+  const { type, region, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } = input;
 
   const distanceKm = haversineKm(
     { lat: pickupLocation.coordinates[1], lng: pickupLocation.coordinates[0] },
@@ -70,6 +80,42 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
         }
       : undefined,
     hamaliCount: requiredHamaliCount ?? 0,
+  });
+
+  return { fareBreakdown, distanceKm };
+}
+
+// Preview-only: prices a would-be booking without writing anything, so the
+// client can show an honest itemized total before the customer commits.
+// Takes the exact same shape as createBooking's pricing inputs (and the
+// exact same route-level validators) so a quote can never diverge from
+// what create would actually charge.
+export const quoteBooking = asyncHandler(async (req: Request, res: Response) => {
+  const { type, region, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } = req.body;
+  const { fareBreakdown, distanceKm } = await priceBooking({
+    type,
+    region,
+    pickupLocation,
+    dropLocation,
+    requiredVehicles,
+    requiredHamaliCount,
+  });
+  res.status(200).json({ fareBreakdown, distanceKm });
+});
+
+export const createBooking = asyncHandler(async (req: Request, res: Response) => {
+  // Only these fields are ever read from the body — fareBreakdown, status,
+  // customerId, or anything else the client sends is silently ignored.
+  const { type, region, cargoDetails, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } =
+    req.body;
+
+  const { fareBreakdown, distanceKm } = await priceBooking({
+    type,
+    region,
+    pickupLocation,
+    dropLocation,
+    requiredVehicles,
+    requiredHamaliCount,
   });
 
   const booking = await Booking.create({

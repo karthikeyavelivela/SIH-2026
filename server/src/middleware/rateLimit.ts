@@ -32,3 +32,32 @@ export const geocodeLimiter = rateLimit({
   message: { error: 'Too many geocode requests, try again in a minute.' },
   keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
 });
+
+// Booking creation — required by the spec's "rate limit ... booking
+// creation" security requirement, missed when the booking routes first
+// landed. Keyed by user id for the same reason as geocodeLimiter: a JWT
+// isn't IP-bound, so an IP-only key would let one account exhaust the
+// matching pipeline's candidate pool by spamming real, persisted Bookings
+// from rotating IPs. 10/min comfortably covers a customer retrying a
+// misfired address without capping legitimate use.
+export const bookingCreateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many booking attempts, try again in a minute.' },
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+});
+
+// Quote (fare preview) — no side effects, but it's designed to be called
+// repeatedly as a customer fills in the booking form (each address pick,
+// each weight/count change), so it needs real headroom over the create
+// limiter while still being bounded per-account.
+export const bookingQuoteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 40,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many fare-estimate requests, try again in a minute.' },
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+});
