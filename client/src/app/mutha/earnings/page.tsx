@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
+import { EarningLineCard } from '@/components/worker/EarningLineCard';
 import { WalletIcon, StarIcon } from '@/components/ui/icons';
 
 export default function MuthaEarningsPage() {
@@ -48,18 +49,10 @@ export default function MuthaEarningsPage() {
         ))}
       </div>
 
-      <h2 className="font-heading text-lg font-bold mb-3">Job history</h2>
+      <h2 className="font-heading text-lg font-bold mb-3">Order history</h2>
       <div className="space-y-3">
         {data?.lines.map((line) => (
-          <Card key={line.bookingId} elevation="raised" className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{line.dropAddress}</p>
-              <p className="text-xs text-text-muted">
-                {line.completedAt ? new Date(line.completedAt).toLocaleDateString() : ''}
-              </p>
-            </div>
-            <p className="font-heading font-bold whitespace-nowrap">₹{line.amount}</p>
-          </Card>
+          <EarningLineCard key={line.bookingId} line={line} />
         ))}
       </div>
     </div>

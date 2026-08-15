@@ -24,6 +24,7 @@ const config: Config = {
       fontFamily: {
         heading: ['var(--font-syne)'],
         body: ['var(--font-outfit)'],
+        accent: ['var(--font-accent)'],
       },
       fontSize: {
         xs: 'var(--text-xs)',

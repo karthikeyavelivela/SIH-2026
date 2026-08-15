@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
+import { BackHeader } from '@/components/ui/BackHeader';
 import { MapPinIcon, CheckIcon } from '@/components/ui/icons';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
@@ -60,13 +61,19 @@ export default function HamaliActiveJobPage() {
   }
 
   if (!booking) {
-    return <div className="max-w-lg mx-auto px-5 pt-6 text-sm text-text-muted">Loading job…</div>;
+    return (
+      <div className="max-w-lg mx-auto pb-6">
+        <BackHeader title="Active job" fallbackHref="/hamali/dashboard" />
+        <p className="px-5 pt-6 text-sm text-text-muted">Loading job…</p>
+      </div>
+    );
   }
 
   const stepIndex = STEPS.findIndex((s) => s.status === booking.status);
 
   return (
     <div className="max-w-lg mx-auto pb-6">
+      <BackHeader title="Active job" fallbackHref="/hamali/dashboard" />
       <RouteMap
         pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
         drop={{ lat: booking.dropLocation.coordinates[1], lng: booking.dropLocation.coordinates[0] }}
@@ -74,10 +81,17 @@ export default function HamaliActiveJobPage() {
       />
 
       <div className="px-5 pt-5">
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="font-heading text-xl font-bold">Active job</h1>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-text-muted">Job status</p>
           <StatusPill status={booking.status} />
         </div>
+        {booking.status === 'in_progress' && (
+          <p className="flex items-center gap-1.5 text-xs text-text-muted mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Sharing your live location with the customer
+          </p>
+        )}
+        {booking.status !== 'in_progress' && <div className="mb-5" />}
 
         <div className="flex items-center mb-6">
           {STEPS.map((step, i) => (

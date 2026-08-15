@@ -15,15 +15,21 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border shadow-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4 md:py-5">
+      {/* Floating pill nav — sits above the hero rather than spanning edge
+          to edge, so the hero's illustration reads as full-bleed behind it. */}
+      <header className="sticky top-4 z-40 px-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 rounded-full bg-surface-raised/90 backdrop-blur-md border border-border shadow-lg pl-5 pr-3 py-2.5">
           <Link
             href="/"
-            className="font-heading text-xl font-extrabold text-primary-600 tracking-tight transition-transform duration-base ease-out-expo hover:scale-[1.03]"
+            className="font-heading text-lg font-extrabold text-primary-600 tracking-tight transition-transform duration-base ease-out-expo hover:scale-[1.03] flex items-center gap-1.5"
           >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M3 12h4M3 7h9M3 17h6" strokeLinecap="round" />
+              <circle cx="19" cy="12" r="3" />
+            </svg>
             FYRO
           </Link>
-          <nav aria-label="Main" className="hidden md:flex gap-8 text-sm font-medium text-text-muted">
+          <nav aria-label="Main" className="hidden md:flex gap-7 text-sm font-medium text-text-muted">
             {navLinks.map((l) => (
               <Link
                 key={l.href}
@@ -35,12 +41,18 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               </Link>
             ))}
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className="text-sm font-semibold px-4 py-2 rounded-full text-text-primary hover:bg-surface transition-colors duration-base"
+              className="hidden sm:inline-flex text-sm font-semibold px-4 py-2 rounded-full text-text-primary hover:bg-surface transition-colors duration-base"
             >
               Log in
+            </Link>
+            <Link
+              href="/signup/customer"
+              className="text-sm font-semibold px-4 py-2.5 rounded-full bg-primary-600 text-white shadow-sm hover:shadow-glow-primary hover:-translate-y-0.5 transition-all duration-base"
+            >
+              Book a delivery
             </Link>
             {/* Mobile-only nav toggle. The four content links (nav above) are
                 hidden below md — this is the only way to reach them on a
@@ -48,17 +60,17 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <button
               type="button"
               onClick={() => setMobileNavOpen((open) => !open)}
-              className="md:hidden p-2 -mr-2 text-text-primary rounded-md hover:bg-surface transition-colors duration-base"
+              className="md:hidden p-2 text-text-primary rounded-full hover:bg-surface transition-colors duration-base"
               aria-expanded={mobileNavOpen}
               aria-controls="mobile-nav-panel"
               aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
             >
               {mobileNavOpen ? (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
                 </svg>
               ) : (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />
                 </svg>
               )}
@@ -69,7 +81,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           <nav
             id="mobile-nav-panel"
             aria-label="Main (mobile)"
-            className="md:hidden border-t border-border px-6 py-5 flex flex-col gap-1 text-base font-medium text-text-muted bg-surface-raised shadow-lg animate-[fadeIn_200ms_ease-out]"
+            className="md:hidden max-w-4xl mx-auto mt-2 rounded-2xl border border-border px-6 py-5 flex flex-col gap-1 text-base font-medium text-text-muted bg-surface-raised shadow-lg animate-[fadeIn_200ms_ease-out]"
           >
             {navLinks.map((l) => (
               <Link
@@ -81,6 +93,13 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                 {l.label}
               </Link>
             ))}
+            <Link
+              href="/login"
+              onClick={() => setMobileNavOpen(false)}
+              className="py-3 px-2 rounded-md hover:bg-surface hover:text-text-primary transition-colors duration-base sm:hidden"
+            >
+              Log in
+            </Link>
           </nav>
         )}
       </header>

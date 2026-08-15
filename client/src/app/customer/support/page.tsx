@@ -8,6 +8,7 @@ import { Complaint, COMPLAINT_CATEGORIES, ComplaintCategory, Booking } from '@/l
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { BackHeader } from '@/components/ui/BackHeader';
 import { AlertIcon } from '@/components/ui/icons';
 
 const inputClass =
@@ -70,8 +71,9 @@ function SupportForm() {
   const bookings = historyData?.bookings ?? [];
 
   return (
-    <div className="max-w-lg mx-auto px-5 pt-6 pb-4">
-      <h1 className="font-heading text-2xl font-bold mb-1">Support</h1>
+    <div className="max-w-lg mx-auto pb-4">
+      <BackHeader title="Support" fallbackHref="/customer/dashboard" />
+      <div className="px-5 pt-6">
       <p className="text-sm text-text-muted mb-6">Raise an issue tied to a booking, or browse common questions.</p>
 
       <Card elevation="raised" className="mb-8">
@@ -158,6 +160,7 @@ function SupportForm() {
             <p className="text-sm text-text-muted">{f.a}</p>
           </Card>
         ))}
+      </div>
       </div>
     </div>
   );

@@ -11,9 +11,10 @@ import { Payment } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { BackHeader } from '@/components/ui/BackHeader';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
-import { TruckIcon, BoxIcon, StarIcon, AlertIcon } from '@/components/ui/icons';
+import { TruckIcon, BoxIcon, StarIcon, AlertIcon, PhoneIcon, UsersIcon } from '@/components/ui/icons';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -50,22 +51,52 @@ interface AssignedPerson {
   vehicle?: { type: string; capacityKg: number; registrationNumber: string } | null;
 }
 
+// Full profile card, not a compact list row — this is what a customer
+// actually wants to see once matched: who's coming, what they're driving/
+// bringing, their track record, and a way to reach them.
 function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 'group' }) {
+  const initials = entry.name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
-    <div className="flex items-center justify-between py-1.5">
-      <div>
-        <p className="text-sm font-semibold">{entry.name}</p>
+    <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+      <div className="w-11 h-11 rounded-full bg-primary/15 text-primary-600 font-heading font-bold flex items-center justify-center flex-shrink-0 text-sm">
+        {sub === 'group' ? <UsersIcon className="w-5 h-5" /> : initials}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold truncate">{entry.name}</p>
         {sub === 'vehicle' && entry.vehicle && (
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-text-muted truncate">
             {entry.vehicle.type.replace('_', ' ')} · {entry.vehicle.registrationNumber}
           </p>
         )}
         {sub === 'group' && <p className="text-xs text-text-muted">Mutha group</p>}
+        <span className="inline-flex items-center gap-1 mt-0.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <StarIcon
+              key={i}
+              className={`w-3 h-3 ${i < Math.round(entry.ratingAvg) ? 'text-primary-600' : 'text-border-strong'}`}
+              fill={i < Math.round(entry.ratingAvg) ? 'currentColor' : 'none'}
+            />
+          ))}
+          <span className="text-[11px] text-text-muted ml-0.5">
+            {entry.ratingCount > 0 ? `${entry.ratingAvg.toFixed(1)} (${entry.ratingCount})` : 'New'}
+          </span>
+        </span>
       </div>
-      <span className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted">
-        <StarIcon className="w-3.5 h-3.5" />
-        {entry.ratingCount > 0 ? entry.ratingAvg.toFixed(1) : 'New'}
-      </span>
+      {entry.phone && (
+        <a
+          href={`tel:${entry.phone}`}
+          aria-label={`Call ${entry.name}`}
+          className="w-9 h-9 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/20 transition-colors duration-fast"
+        >
+          <PhoneIcon className="w-4 h-4" />
+        </a>
+      )}
     </div>
   );
 }
@@ -178,8 +209,9 @@ export default function TrackBookingPage() {
 
   if (error) {
     return (
-      <div className="max-w-lg mx-auto px-5 pt-6">
-        <Card elevation="raised" className="text-center py-10 text-sm text-text-muted">
+      <div className="max-w-lg mx-auto pb-6">
+        <BackHeader title="Track booking" fallbackHref="/customer/dashboard" />
+        <Card elevation="raised" className="text-center py-10 text-sm text-text-muted mx-5 mt-6">
           {error}
         </Card>
       </div>
@@ -188,9 +220,12 @@ export default function TrackBookingPage() {
 
   if (!booking) {
     return (
-      <div className="max-w-lg mx-auto px-5 pt-6 space-y-3">
-        <div className="h-8 w-1/2 rounded bg-surface animate-pulse" />
-        <div className="h-40 rounded-lg bg-surface animate-pulse" />
+      <div className="max-w-lg mx-auto pb-6">
+        <BackHeader title="Track booking" fallbackHref="/customer/dashboard" />
+        <div className="px-5 pt-6 space-y-3">
+          <div className="h-8 w-1/2 rounded bg-surface animate-pulse" />
+          <div className="h-40 rounded-lg bg-surface animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -214,9 +249,10 @@ export default function TrackBookingPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-5 pt-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-heading text-2xl font-bold">Track booking</h1>
+    <div className="max-w-lg mx-auto pb-6">
+      <BackHeader title="Track booking" fallbackHref="/customer/dashboard" />
+      <div className="px-5 pt-6">
+      <div className="flex items-center justify-end mb-6">
         <Badge tone={statusTone[booking.status] ?? 'secondary'}>{booking.status.replace('_', ' ')}</Badge>
       </div>
 
@@ -231,8 +267,29 @@ export default function TrackBookingPage() {
         pickup={{ lat: pLat, lng: pLng }}
         drop={{ lat: dLat, lng: dLng }}
         liveMarker={liveLocation ? { lat: liveLocation.lat, lng: liveLocation.lng } : undefined}
-        className="h-48 mb-6"
+        className="h-48 mb-3"
       />
+
+      {/* Honest GPS state — never implies live tracking that isn't
+          actually flowing. A driver/hamali only streams position once
+          they're in_progress AND their own device granted location
+          permission (see useLiveLocationBroadcast); until a ping actually
+          arrives this says so plainly instead of a silently frozen pin. */}
+      {booking.status === 'in_progress' && (
+        <p className="flex items-center gap-1.5 text-xs text-text-muted mb-6 -mt-1">
+          {liveLocation ? (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live location — updated {Math.max(0, Math.round((Date.now() - liveLocation.at) / 1000))}s ago
+            </>
+          ) : (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-text-muted/40" />
+              Waiting for their live location…
+            </>
+          )}
+        </p>
+      )}
 
       {stepIndex >= 0 && booking.status !== 'cancelled' && (
         <div className="flex items-center mb-8">
@@ -341,6 +398,7 @@ export default function TrackBookingPage() {
           {cancelling ? 'Cancelling…' : 'Cancel booking'}
         </Button>
       )}
+      </div>
 
       {pendingRatingId === bookingId && (
         <RatingModal
