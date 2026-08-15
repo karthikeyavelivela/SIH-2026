@@ -13,6 +13,13 @@ export interface IBooking {
   _id: Types.ObjectId;
   customerId: Types.ObjectId;
   type: 'truck' | 'hamali' | 'combo';
+  // Optional (not required) deliberately — many existing tests create a
+  // Booking directly without it, for scenarios unrelated to region/surge.
+  // Every REAL booking created via createBooking always sets it (region is
+  // a required body field on that route already); Phase 5's surge engine
+  // is the only reader, and simply treats a bookingless region as not
+  // counted, never a hard error.
+  region?: string;
   cargoDetails: { weightKg: number; description?: string };
   pickupLocation: { type: 'Point'; coordinates: [number, number]; address: string };
   dropLocation: { type: 'Point'; coordinates: [number, number]; address: string };
@@ -45,6 +52,7 @@ const bookingSchema = new Schema<IBooking>(
   {
     customerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     type: { type: String, enum: ['truck', 'hamali', 'combo'], required: true },
+    region: { type: String, trim: true },
     cargoDetails: {
       weightKg: { type: Number, required: true, min: 0 },
       description: { type: String },
@@ -84,5 +92,6 @@ const bookingSchema = new Schema<IBooking>(
 bookingSchema.index({ pickupLocation: '2dsphere' });
 bookingSchema.index({ dropLocation: '2dsphere' });
 bookingSchema.index({ customerId: 1, status: 1 });
+bookingSchema.index({ region: 1, status: 1 }); // surge.service's searching-count query
 
 export const Booking = model<IBooking>('Booking', bookingSchema);

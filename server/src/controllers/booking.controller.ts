@@ -5,6 +5,7 @@ import { Booking } from '../models/Booking';
 import { FareRule, IFareRule } from '../models/FareRule';
 import { haversineKm } from '../services/distance.service';
 import { bucketVehicleCategoryFromCapacity, computeFareBreakdown } from '../services/fare.service';
+import { getSurgeMultiplier } from '../services/surge.service';
 import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 import { findUnratedCompletedBooking } from '../services/ratingGate.service';
 
@@ -63,13 +64,23 @@ async function priceBooking(input: QuoteInput) {
     hamaliRule = rule;
   }
 
+  // Phase 5: the live region surge ratio REPLACES each rule's stored
+  // surgeMultiplier at pricing time — that stored field (admin-settable,
+  // always 1.0 by default) was Phase 2's placeholder until this existed.
+  // computeFareBreakdown's "higher of the two present components' surge
+  // wins" logic (see its own doc comment) still applies unchanged; both
+  // components now just get the same region-live value, so that rule is
+  // harmless here rather than meaningful, until vehicle/hamali surge is
+  // ever computed independently.
+  const liveSurge = await getSurgeMultiplier(region);
+
   const fareBreakdown = computeFareBreakdown({
     vehicleRule: vehicleRule
       ? {
           baseFare: vehicleRule.baseFare,
           perKmRate: vehicleRule.perKmRate,
           minimumFare: vehicleRule.minimumFare,
-          surgeMultiplier: vehicleRule.surgeMultiplier,
+          surgeMultiplier: liveSurge,
         }
       : undefined,
     distanceKm,
@@ -78,7 +89,7 @@ async function priceBooking(input: QuoteInput) {
           baseFare: hamaliRule.baseFare,
           perKmRate: hamaliRule.perKmRate,
           minimumFare: hamaliRule.minimumFare,
-          surgeMultiplier: hamaliRule.surgeMultiplier,
+          surgeMultiplier: liveSurge,
         }
       : undefined,
     hamaliCount: requiredHamaliCount ?? 0,
@@ -134,6 +145,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   const booking = await Booking.create({
     customerId: req.user!.id, // never trust a client-supplied customerId
     type,
+    region,
     cargoDetails,
     pickupLocation: { type: 'Point', coordinates: pickupLocation.coordinates, address: pickupLocation.address },
     dropLocation: { type: 'Point', coordinates: dropLocation.coordinates, address: dropLocation.address },
