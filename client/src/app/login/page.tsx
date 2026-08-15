@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, ApiClientError } from '@/lib/api';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, AuthUser } from '@/lib/auth-context';
+import { roleHome } from '@/lib/roleHome';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 
@@ -24,9 +25,9 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/auth/login', { phone, password });
+      const res = await api.post<{ user: AuthUser }>('/api/auth/login', { phone, password });
       await refetch();
-      router.push('/');
+      router.push(roleHome(res.user.role));
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : 'Login failed');
     } finally {

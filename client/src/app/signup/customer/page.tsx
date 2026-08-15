@@ -24,7 +24,7 @@ export default function SignupCustomerPage() {
     try {
       await api.post('/api/auth/signup/customer', form);
       await refetch();
-      router.push('/');
+      router.push('/customer/dashboard');
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : 'Signup failed');
     } finally {

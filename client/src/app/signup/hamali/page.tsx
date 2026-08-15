@@ -39,7 +39,9 @@ export default function SignupHamaliPage() {
     try {
       await api.post('/api/auth/signup/hamali', { ...form, joinType });
       await refetch();
-      router.push('/');
+      const home =
+        joinType === 'solo' ? '/hamali/dashboard' : joinType === 'leader' ? '/mutha/dashboard' : '/mutha-member/job';
+      router.push(home);
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : 'Signup failed');
     } finally {

@@ -12,6 +12,7 @@ import { availabilityRouter } from './routes/availability.routes';
 import { requestsRouter } from './routes/requests.routes';
 import { muthaRouter } from './routes/mutha.routes';
 import { earningsRouter } from './routes/earnings.routes';
+import { vehicleRouter } from './routes/vehicle.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
@@ -41,6 +42,7 @@ app.use('/api/availability', availabilityRouter);
 app.use('/api/requests', requestsRouter);
 app.use('/api/mutha', muthaRouter);
 app.use('/api/earnings', earningsRouter);
+app.use('/api/vehicles', vehicleRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

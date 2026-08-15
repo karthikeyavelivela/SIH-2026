@@ -37,7 +37,7 @@ export default function SignupDriverPage() {
     try {
       await api.post('/api/auth/signup/driver', { ...form, capacityKg: Number(form.capacityKg) });
       await refetch();
-      router.push('/');
+      router.push('/driver/dashboard');
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : 'Signup failed');
     } finally {

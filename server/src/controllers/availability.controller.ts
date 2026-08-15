@@ -9,6 +9,29 @@ const LAT_MAX = 90;
 const LNG_MIN = -180;
 const LNG_MAX = 180;
 
+/**
+ * GET /api/availability — the caller's own current status, so a client
+ * (e.g. the dashboard's online/offline toggle) can render the real state
+ * on load instead of assuming 'offline' and silently lying to the user
+ * for the first render, or worse, letting them flip a toggle that's
+ * actually already in the state they think they're switching to.
+ */
+export const getAvailability = asyncHandler(async (req: Request, res: Response) => {
+  if (req.user!.role === 'driver') {
+    const vehicle = await Vehicle.findOne({ ownerId: req.user!.id });
+    if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
+    res.status(200).json({ availabilityStatus: vehicle.availabilityStatus });
+    return;
+  }
+  if (req.user!.role === 'hamali_solo' || req.user!.role === 'mutha_member') {
+    const profile = await HamaliProfile.findOne({ userId: req.user!.id });
+    if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
+    res.status(200).json({ availabilityStatus: profile.availabilityStatus });
+    return;
+  }
+  throw new ApiError(403, 'This role does not have an availability toggle');
+});
+
 export const setAvailability = asyncHandler(async (req: Request, res: Response) => {
   const { status, location } = req.body;
 

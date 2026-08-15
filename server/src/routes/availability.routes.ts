@@ -7,6 +7,13 @@ import * as availabilityController from '../controllers/availability.controller'
 
 export const availabilityRouter = Router();
 
+availabilityRouter.get(
+  '/',
+  verifyJwt,
+  requireRole('driver', 'hamali_solo', 'mutha_member'),
+  availabilityController.getAvailability
+);
+
 availabilityRouter.patch(
   '/',
   verifyJwt,

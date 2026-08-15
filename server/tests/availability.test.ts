@@ -85,6 +85,24 @@ describe('availability toggle', () => {
     expect(profile?.availabilityStatus).toBe('online');
   });
 
+  it('GET returns the current status so a client can render real state on load', async () => {
+    const { agent, driver } = await loginAsDriver('9820000007');
+    const before = await agent.get('/api/availability');
+    expect(before.status).toBe(200);
+    expect(before.body.availabilityStatus).toBe('offline');
+
+    await agent.patch('/api/availability').send({ status: 'online', location: { lat: 17.4, lng: 78.5 } });
+    const after = await agent.get('/api/availability');
+    expect(after.body.availabilityStatus).toBe('online');
+    void driver;
+  });
+
+  it('GET 403s for a mutha_leader (same as PATCH — nothing to toggle)', async () => {
+    const { agent } = await loginAs('mutha_leader', '9820000008');
+    const res = await agent.get('/api/availability');
+    expect(res.status).toBe(403);
+  });
+
   it('rejects a mutha_leader entirely — there is nothing for a leader to toggle here', async () => {
     const { agent } = await loginAs('mutha_leader', '9820000005');
     const res = await agent
