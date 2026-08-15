@@ -61,3 +61,17 @@ export const bookingQuoteLimiter = rateLimit({
   message: { error: 'Too many fare-estimate requests, try again in a minute.' },
   keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
 });
+
+// Job requests feed/accept/reject/start/complete — polled by driver/hamali/
+// mutha-leader clients while online, so it needs real headroom (a poll
+// every few seconds is normal use), but still bounded per-account against
+// a runaway client or an accept/reject spam attempt against the same
+// booking id.
+export const requestsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, try again in a minute.' },
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+});
