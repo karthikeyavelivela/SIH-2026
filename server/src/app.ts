@@ -15,6 +15,9 @@ import { earningsRouter } from './routes/earnings.routes';
 import { vehicleRouter } from './routes/vehicle.routes';
 import { paymentRouter } from './routes/payment.routes';
 import { ratingRouter } from './routes/rating.routes';
+import { complaintRouter } from './routes/complaint.routes';
+import { adminComplaintRouter } from './routes/adminComplaint.routes';
+import { incentiveRouter } from './routes/incentive.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
@@ -47,6 +50,8 @@ app.use('/api/auth', authRouter);
 // accidentally match a sub-resource path first. Keep this ordering for any
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
+app.use('/api/admin/complaints', adminComplaintRouter);
+app.use('/api/admin/incentives', incentiveRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/geocode', geocodeRouter);
 app.use('/api/bookings', bookingRouter);
@@ -57,6 +62,7 @@ app.use('/api/earnings', earningsRouter);
 app.use('/api/vehicles', vehicleRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/ratings', ratingRouter);
+app.use('/api/complaints', complaintRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
