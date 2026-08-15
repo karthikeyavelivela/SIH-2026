@@ -4,6 +4,7 @@ import { ApiError } from '../utils/ApiError';
 import { Booking, IBooking } from '../models/Booking';
 import { Mutha } from '../models/Mutha';
 import { User } from '../models/User';
+import { Incentive } from '../models/Incentive';
 
 /**
  * A completed booking's fareBreakdown stores every component PRE-surge
@@ -56,6 +57,16 @@ function statusHistoryCompletedAt(booking: IBooking): Date | undefined {
   return booking.statusHistory.find((h) => h.status === 'completed')?.timestamp;
 }
 
+async function incentiveTotalForUser(userId: string): Promise<number> {
+  const incentives = await Incentive.find({ targetUserId: userId }).select('bonusAmount').lean();
+  return round2(incentives.reduce((s, i) => s + i.bonusAmount, 0));
+}
+
+async function incentiveTotalForMutha(muthaId: string): Promise<number> {
+  const incentives = await Incentive.find({ targetMuthaId: muthaId }).select('bonusAmount').lean();
+  return round2(incentives.reduce((s, i) => s + i.bonusAmount, 0));
+}
+
 export const getMyEarnings = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const role = req.user!.role;
@@ -69,7 +80,12 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       dropAddress: b.dropLocation.address,
       amount: round2(vehicleShare(b)),
     }));
-    res.status(200).json({ total: round2(lines.reduce((s, l) => s + l.amount, 0)), jobCount: lines.length, lines });
+    res.status(200).json({
+      total: round2(lines.reduce((s, l) => s + l.amount, 0)),
+      jobCount: lines.length,
+      lines,
+      incentiveTotal: await incentiveTotalForUser(userId),
+    });
     return;
   }
 
@@ -82,7 +98,12 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       dropAddress: b.dropLocation.address,
       amount: round2(perHamaliShare(b)),
     }));
-    res.status(200).json({ total: round2(lines.reduce((s, l) => s + l.amount, 0)), jobCount: lines.length, lines });
+    res.status(200).json({
+      total: round2(lines.reduce((s, l) => s + l.amount, 0)),
+      jobCount: lines.length,
+      lines,
+      incentiveTotal: await incentiveTotalForUser(userId),
+    });
     return;
   }
 
@@ -123,6 +144,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       jobCount: groupLines.length,
       lines: groupLines,
       perMember,
+      incentiveTotal: await incentiveTotalForMutha(mutha._id.toString()),
     });
     return;
   }

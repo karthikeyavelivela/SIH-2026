@@ -87,4 +87,29 @@ export interface EarningsResponse {
   jobCount: number;
   lines: EarningLine[];
   perMember?: { userId: string; name: string; phone: string; total: number }[];
+  incentiveTotal: number;
+}
+
+export interface Payment {
+  _id: string;
+  bookingId: string;
+  amount: number;
+  status: 'pending' | 'success' | 'failed' | 'refunded';
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+}
+
+export const COMPLAINT_CATEGORIES = ['no_show', 'damage', 'payment', 'misconduct', 'other'] as const;
+export type ComplaintCategory = (typeof COMPLAINT_CATEGORIES)[number];
+
+export interface Complaint {
+  _id: string;
+  bookingId: string;
+  raisedByUserId: string;
+  category: ComplaintCategory;
+  description: string;
+  status: 'open' | 'in_review' | 'resolved';
+  resolutionNote?: string;
+  createdAt: string;
+  resolvedAt?: string;
 }

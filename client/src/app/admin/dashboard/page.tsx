@@ -3,16 +3,17 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
-import { UsersIcon, LayersIcon, ChevronRightIcon } from '@/components/ui/icons';
+import { UsersIcon, LayersIcon, AlertIcon, WalletIcon, ChevronRightIcon } from '@/components/ui/icons';
 
-// Real KPI aggregation (active bookings, GMV, open complaints) is Phase 5
-// scope per the build plan — this is an honest console home, not a faked
-// metrics dashboard, until those data sources (booking volume reporting,
-// the complaints system) exist to back real numbers.
+// Real KPI aggregation (active bookings, GMV) is Phase 5 scope per the
+// build plan — this is an honest console home, not a faked metrics
+// dashboard, until a real bookings-reporting source exists.
 const LINKS = [
   { href: '/admin/users', label: 'Users', hint: 'Org tree, roles, suspend/delete', icon: UsersIcon },
   { href: '/admin/managers', label: 'Managers', hint: 'Create managers, scope permissions', icon: UsersIcon },
   { href: '/admin/fares', label: 'Fare rules', hint: 'Region × category rate cards', icon: LayersIcon },
+  { href: '/admin/complaints', label: 'Complaints', hint: 'Resolution queue', icon: AlertIcon },
+  { href: '/admin/incentives', label: 'Incentives', hint: 'Rating-threshold bonus rules', icon: WalletIcon },
 ];
 
 export default function AdminDashboardPage() {

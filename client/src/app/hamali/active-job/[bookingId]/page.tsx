@@ -12,6 +12,7 @@ import { Booking } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
+import { RatingModal } from '@/components/worker/RatingModal';
 import { MapPinIcon, CheckIcon } from '@/components/ui/icons';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
@@ -28,6 +29,7 @@ export default function HamaliActiveJobPage() {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [showRating, setShowRating] = useState(false);
 
   const { data, reload } = usePolling(
     () => api.get<{ bookings: Booking[] }>('/api/requests/mine'),
@@ -46,7 +48,7 @@ export default function HamaliActiveJobPage() {
       const action = booking.status === 'accepted' ? 'start' : 'complete';
       await api.post(`/api/requests/${booking._id}/${action}`);
       if (action === 'complete') {
-        router.push('/hamali/dashboard');
+        setShowRating(true);
       } else {
         await reload();
       }
@@ -124,6 +126,14 @@ export default function HamaliActiveJobPage() {
           </Button>
         )}
       </div>
+
+      <RatingModal
+        bookingId={booking._id}
+        open={showRating}
+        accent="secondary"
+        title="Rate the customer"
+        onDone={() => router.push('/hamali/dashboard')}
+      />
     </div>
   );
 }

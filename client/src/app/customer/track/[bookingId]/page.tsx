@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useBookingSocket } from '@/lib/useBookingSocket';
+import { Payment } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ChatPanel } from '@/components/worker/ChatPanel';
-import { TruckIcon, BoxIcon, StarIcon } from '@/components/ui/icons';
+import { RatingModal } from '@/components/worker/RatingModal';
+import { TruckIcon, BoxIcon, StarIcon, AlertIcon } from '@/components/ui/icons';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -67,6 +70,60 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
   );
 }
 
+function PaymentSection({ bookingId }: { bookingId: string }) {
+  const [payment, setPayment] = useState<Payment | null | undefined>(undefined); // undefined = loading
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    api
+      .get<{ payment: Payment | null }>(`/api/payments/${bookingId}`)
+      .then((res) => setPayment(res.payment))
+      .catch(() => setPayment(null));
+  }, [bookingId]);
+
+  async function payNow() {
+    setPending(true);
+    setError(null);
+    try {
+      const orderRes = await api.post<{ payment: Payment }>(`/api/payments/order/${bookingId}`);
+      // Mock mode only — a real deployment redirects into Razorpay's
+      // Checkout here instead and lets the webhook confirm success async.
+      const captured = await api.post<{ payment: Payment }>(`/api/payments/${bookingId}/mock-capture`);
+      setPayment(captured.payment ?? orderRes.payment);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Payment failed — try again.');
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (payment === undefined) return <div className="h-16 rounded-lg bg-surface animate-pulse mb-4" />;
+
+  return (
+    <Card elevation="raised" className="mb-4">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Payment</p>
+        {payment && (
+          <Badge tone={payment.status === 'success' ? 'success' : payment.status === 'failed' ? 'danger' : 'muted'}>
+            {payment.status}
+          </Badge>
+        )}
+      </div>
+      {payment?.status === 'success' ? (
+        <p className="text-sm text-text-muted">Paid ₹{payment.amount}.</p>
+      ) : (
+        <>
+          {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
+          <Button className="w-full mt-2" disabled={pending} onClick={payNow}>
+            {pending ? 'Processing…' : 'Pay now'}
+          </Button>
+        </>
+      )}
+    </Card>
+  );
+}
+
 export default function TrackBookingPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const { user } = useAuth();
@@ -76,6 +133,15 @@ export default function TrackBookingPage() {
   const [cancelError, setCancelError] = useState<string | null>(null);
 
   const { status: liveStatus, matched, liveLocation, messages, sendChat } = useBookingSocket(bookingId);
+  const [pendingRatingId, setPendingRatingId] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (booking?.status !== 'completed') return;
+    api
+      .get<{ bookingId: string | null }>('/api/ratings/pending')
+      .then((res) => setPendingRatingId(res.bookingId))
+      .catch(() => setPendingRatingId(null));
+  }, [booking?.status]);
 
   useEffect(() => {
     let cancelled = false;
@@ -249,6 +315,16 @@ export default function TrackBookingPage() {
         </div>
       </Card>
 
+      {booking.status === 'completed' && <PaymentSection bookingId={bookingId} />}
+
+      <Link
+        href={`/customer/support?bookingId=${bookingId}`}
+        className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary mb-4"
+      >
+        <AlertIcon className="w-4 h-4" />
+        Report an issue with this booking
+      </Link>
+
       {cancelError && (
         <div role="alert" className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {cancelError}
@@ -264,6 +340,15 @@ export default function TrackBookingPage() {
         >
           {cancelling ? 'Cancelling…' : 'Cancel booking'}
         </Button>
+      )}
+
+      {pendingRatingId === bookingId && (
+        <RatingModal
+          bookingId={bookingId}
+          open
+          accent="primary"
+          onDone={() => setPendingRatingId(null)}
+        />
       )}
     </div>
   );

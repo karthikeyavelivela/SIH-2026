@@ -1,10 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { UserIcon } from '@/components/ui/icons';
+import { UserIcon, AlertIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 export default function CustomerProfilePage() {
   const { user, logout } = useAuth();
@@ -26,6 +27,19 @@ export default function CustomerProfilePage() {
           </Badge>
         </div>
       </Card>
+
+      <Link
+        href="/customer/support"
+        className="flex items-center justify-between p-4 mb-6 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base"
+      >
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+            <AlertIcon className="w-5 h-5" />
+          </span>
+          <p className="text-sm font-semibold">Support</p>
+        </div>
+        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+      </Link>
 
       <Button variant="ghost" className="w-full" onClick={() => logout()}>
         Log out

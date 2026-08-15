@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
-import { WalletIcon } from '@/components/ui/icons';
+import { WalletIcon, StarIcon } from '@/components/ui/icons';
 
 export default function HamaliEarningsPage() {
   const { data, state } = usePolling(() => api.get<EarningsResponse>('/api/earnings/me'), 30000);
@@ -18,6 +18,13 @@ export default function HamaliEarningsPage() {
         <p className="font-heading text-3xl font-extrabold">₹{data?.total ?? 0}</p>
         <p className="text-sm text-white/80 mt-1">{data?.jobCount ?? 0} completed jobs</p>
       </div>
+
+      {!!data?.incentiveTotal && (
+        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-secondary/10 text-sm text-secondary-600">
+          <StarIcon className="w-4 h-4 flex-shrink-0" />
+          ₹{data.incentiveTotal} in rating-based bonuses earned
+        </div>
+      )}
 
       <h2 className="font-heading text-lg font-bold mb-3">History</h2>
 
