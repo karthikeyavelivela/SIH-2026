@@ -13,6 +13,11 @@ export interface IUser {
   kycDocs: string[];
   profilePhoto?: string;
   accountStatus: AccountStatus;
+  // Aggregate rating (driver/hamali_solo/mutha_member/customer can all be
+  // rated). Updated by rating.service whenever a new Rating is submitted —
+  // never written directly anywhere else.
+  ratingAvg: number;
+  ratingCount: number;
   // Manager-only; empty for every other role.
   permissions: string[];
   // Bumped on refresh-token rotation and logout to invalidate prior refresh tokens.
@@ -45,6 +50,8 @@ const userSchema = new Schema<IUser>(
     kycDocs: { type: [String], default: [] },
     profilePhoto: { type: String },
     accountStatus: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
+    ratingAvg: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
     permissions: { type: [String], default: [] },
     tokenVersion: { type: Number, default: 0 },
   },

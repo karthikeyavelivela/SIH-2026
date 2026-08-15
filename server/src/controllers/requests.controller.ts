@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking, IBooking } from '../models/Booking';
@@ -7,13 +6,23 @@ import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
 import { findCandidateMuthas } from '../services/matching.service';
+import {
+  acceptAsDriver,
+  acceptAsHamaliSolo,
+  acceptAsMuthaLeader,
+  rejectBooking,
+} from '../services/bookingAssignment.service';
+import { emitBookingMatched, emitBookingStatus } from '../realtime/emitters';
+import { notifyMuthaOfferSettled } from '../realtime/offerEngine';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
 // meaningfully tied to the sequential-timed-offer flow (Phase 3, sockets),
 // where "no response" is an observable event. Polling has no such signal
 // to widen on, so a single generous radius is the honest Phase 2 stand-in.
-const SEARCH_RADIUS_KM = 25;
+// Phase 3's offer engine (realtime/offerEngine.ts) reuses this same
+// constant for its own candidate search.
+export const SEARCH_RADIUS_KM = 25;
 
 // How many of the most-recently-created open bookings a Mutha leader's feed
 // will consider. findCandidateMuthas answers "which groups qualify for THIS
@@ -29,31 +38,6 @@ const MUTHA_FEED_SCAN_LIMIT = 50;
 
 const openStatus = { $in: ['requested', 'searching'] };
 
-/**
- * status flips from requested/searching straight to 'accepted' the moment
- * every required slot (vehicle and/or hamali headcount) is filled — Phase 2
- * has no real-time customer confirmation step to insert a separate
- * 'matched' pause at (that's what Phase 3's booking:matched/booking:confirm
- * socket exchange formalizes). Collapsing the two here is a deliberate,
- * documented simplification, not an oversight.
- */
-async function maybeAdvanceToAccepted(bookingId: Types.ObjectId): Promise<void> {
-  const booking = await Booking.findById(bookingId);
-  if (!booking) return;
-  if (!['requested', 'searching'].includes(booking.status)) return;
-
-  const needsVehicle = booking.type === 'truck' || booking.type === 'combo';
-  const needsHamali = booking.type === 'hamali' || booking.type === 'combo';
-  const vehicleFulfilled = !needsVehicle || booking.assignedDriverIds.length >= 1;
-  const hamaliFulfilled = !needsHamali || booking.assignedHamaliIds.length >= booking.requiredHamaliCount;
-
-  if (vehicleFulfilled && hamaliFulfilled) {
-    booking.status = 'accepted';
-    booking.statusHistory.push({ status: 'accepted', timestamp: new Date() });
-    await booking.save();
-  }
-}
-
 function assertAssignedToBooking(booking: IBooking, userId: string, role: string, muthaId?: string): void {
   const isDriver = role === 'driver' && booking.assignedDriverIds.some((id) => id.toString() === userId);
   const isHamaliSolo = role === 'hamali_solo' && booking.assignedHamaliIds.some((id) => id.toString() === userId);
@@ -65,6 +49,9 @@ function assertAssignedToBooking(booking: IBooking, userId: string, role: string
 }
 
 // ---- GET /api/requests — candidate open bookings for the caller's role ----
+// Still the browse/poll surface even with Phase 3's push offers layered on
+// top — a worker can always look at everything open near them, not just
+// whatever they were most recently pushed.
 
 export const listRequests = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
@@ -150,109 +137,29 @@ export const acceptRequest = asyncHandler(async (req: Request, res: Response) =>
   const role = req.user!.role;
   const bookingId = req.params.id;
 
+  let booking: IBooking;
   if (role === 'driver') {
-    const vehicle = await Vehicle.findOne({ ownerId: userId });
-    if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
-    if (vehicle.availabilityStatus !== 'online') throw new ApiError(400, 'Go online before accepting a job');
-
-    const booking = await Booking.findOneAndUpdate(
-      {
-        _id: bookingId,
-        status: openStatus,
-        type: { $in: ['truck', 'combo'] },
-        assignedDriverIds: { $size: 0 },
-        'requiredVehicles.0.capacityKg': { $lte: vehicle.capacityKg },
-      },
-      { $push: { assignedDriverIds: userId } },
-      { new: true }
-    );
-    // A null result is ambiguous by design (already taken vs. never
-    // existed vs. capacity mismatch) — 409 is deliberately generic rather
-    // than leaking which, since distinguishing them would mean running the
-    // same query again just to explain a race that's already lost.
-    if (!booking) throw new ApiError(409, 'This job is no longer available');
-
-    await Vehicle.updateOne({ _id: vehicle._id }, { availabilityStatus: 'on_job' });
-    await maybeAdvanceToAccepted(booking._id);
-    res.status(200).json({ booking: await Booking.findById(booking._id) });
-    return;
-  }
-
-  if (role === 'hamali_solo') {
-    const profile = await HamaliProfile.findOne({ userId, type: 'solo' });
-    if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
-    if (profile.availabilityStatus !== 'online') throw new ApiError(400, 'Go online before accepting a job');
-
-    const booking = await Booking.findOneAndUpdate(
-      {
-        _id: bookingId,
-        status: openStatus,
-        type: { $in: ['hamali', 'combo'] },
-        $expr: { $lt: [{ $size: '$assignedHamaliIds' }, '$requiredHamaliCount'] },
-      },
-      { $push: { assignedHamaliIds: userId } },
-      { new: true }
-    );
-    if (!booking) throw new ApiError(409, 'This job is no longer available');
-
-    await HamaliProfile.updateOne({ _id: profile._id }, { availabilityStatus: 'on_job' });
-    await maybeAdvanceToAccepted(booking._id);
-    res.status(200).json({ booking: await Booking.findById(booking._id) });
-    return;
-  }
-
-  if (role === 'mutha_leader') {
-    const mutha = await Mutha.findOne({ leaderId: userId });
-    if (!mutha) throw new ApiError(404, 'No Mutha found for this leader');
-
+    booking = await acceptAsDriver(userId, bookingId);
+  } else if (role === 'hamali_solo') {
+    booking = await acceptAsHamaliSolo(userId, bookingId);
+  } else if (role === 'mutha_leader') {
     const memberIds: string[] = Array.isArray(req.body.memberIds) ? req.body.memberIds : [];
-    if (memberIds.length === 0) throw new ApiError(400, 'memberIds is required to assign members to this job');
-
-    const myMemberIds = new Set(mutha.memberIds.map((id) => id.toString()));
-    for (const id of memberIds) {
-      if (!myMemberIds.has(id)) throw new ApiError(403, `${id} is not a member of your Mutha`);
-    }
-
-    const profiles = await HamaliProfile.find({
-      userId: { $in: memberIds },
-      type: 'mutha_member',
-      muthaId: mutha._id,
-    });
-    if (profiles.length !== memberIds.length) {
-      throw new ApiError(400, 'One or more members do not have a valid Hamali profile in this Mutha');
-    }
-    const notOnline = profiles.filter((p) => p.availabilityStatus !== 'online');
-    if (notOnline.length > 0) {
-      throw new ApiError(400, 'One or more selected members are not online/available');
-    }
-
-    // $expr guard re-checks remaining capacity at write time (not just at
-    // the read above) — this is what makes the accept atomic against a
-    // second leader/solo hamali racing to fill the same remaining slots.
-    const booking = await Booking.findOneAndUpdate(
-      {
-        _id: bookingId,
-        status: openStatus,
-        type: { $in: ['hamali', 'combo'] },
-        $expr: {
-          $lte: [{ $add: [{ $size: '$assignedHamaliIds' }, memberIds.length] }, '$requiredHamaliCount'],
-        },
-      },
-      {
-        $push: { assignedHamaliIds: { $each: memberIds } },
-        $set: { assignedMuthaId: mutha._id },
-      },
-      { new: true }
-    );
-    if (!booking) throw new ApiError(409, 'This job no longer has room for that many members');
-
-    await HamaliProfile.updateMany({ userId: { $in: memberIds } }, { availabilityStatus: 'on_job' });
-    await maybeAdvanceToAccepted(booking._id);
-    res.status(200).json({ booking: await Booking.findById(booking._id) });
-    return;
+    booking = await acceptAsMuthaLeader(userId, bookingId, memberIds);
+    // Settles (clears or advances) any pending Phase 3 offer-engine state
+    // for this leader — see notifyMuthaOfferSettled's doc comment for why
+    // a Mutha leader's assignment can't be settled inline in
+    // respondToMuthaHamaliOffer the way a solo hamali's/driver's can.
+    await notifyMuthaOfferSettled(bookingId, userId, booking);
+  } else {
+    throw new ApiError(403, 'This role does not receive job requests');
   }
 
-  throw new ApiError(403, 'This role does not receive job requests');
+  // Push the same "you've been matched" event a Phase 3 offer-engine accept
+  // would emit — a worker who accepted via the browse list (rather than a
+  // pushed offer) still notifies the customer's live track screen instantly
+  // instead of the customer having to wait for their next poll.
+  await emitBookingMatched(booking);
+  res.status(200).json({ booking });
 });
 
 // ---- POST /api/requests/:id/reject ----
@@ -263,14 +170,7 @@ export const rejectRequest = asyncHandler(async (req: Request, res: Response) =>
   if (!['driver', 'hamali_solo', 'mutha_leader'].includes(role)) {
     throw new ApiError(403, 'This role does not receive job requests');
   }
-  // Idempotent — $addToSet, not $push, so rejecting twice (e.g. a retried
-  // request) doesn't grow rejectedByUserIds unboundedly.
-  const booking = await Booking.findOneAndUpdate(
-    { _id: req.params.id, status: openStatus },
-    { $addToSet: { rejectedByUserIds: userId } },
-    { new: true }
-  );
-  if (!booking) throw new ApiError(404, 'Booking not found or no longer open');
+  const booking = await rejectBooking(userId, req.params.id);
   res.status(200).json({ booking });
 });
 
@@ -295,6 +195,7 @@ export const startJob = asyncHandler(async (req: Request, res: Response) => {
   booking.status = 'in_progress';
   booking.statusHistory.push({ status: 'in_progress', timestamp: new Date() });
   await booking.save();
+  emitBookingStatus(booking);
   res.status(200).json({ booking });
 });
 
@@ -332,6 +233,7 @@ export const completeJob = asyncHandler(async (req: Request, res: Response) => {
     );
   }
 
+  emitBookingStatus(booking);
   res.status(200).json({ booking });
 });
 

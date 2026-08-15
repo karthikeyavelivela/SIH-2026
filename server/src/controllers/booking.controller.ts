@@ -5,6 +5,7 @@ import { Booking } from '../models/Booking';
 import { FareRule, IFareRule } from '../models/FareRule';
 import { haversineKm } from '../services/distance.service';
 import { bucketVehicleCategoryFromCapacity, computeFareBreakdown } from '../services/fare.service';
+import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
@@ -131,6 +132,26 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     distanceKm,
     statusHistory: [{ status: 'searching', timestamp: new Date() }],
   });
+
+  // Kick off Phase 3's sequential-timed-offer flow immediately — fire and
+  // forget from the HTTP handler's perspective (the booking is already
+  // created and returned to the customer regardless of matching progress;
+  // matching itself is inherently async and observed via socket pushes /
+  // the existing poll endpoints, never blocks the create response). Errors
+  // here are the same "best-effort push" class as every realtime emitter —
+  // logged, not surfaced to the customer as a booking-creation failure.
+  if (booking.type === 'truck' || booking.type === 'combo') {
+    startVehicleOffers(booking).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('startVehicleOffers failed:', err);
+    });
+  }
+  if (booking.type === 'hamali' || booking.type === 'combo') {
+    startHamaliOffers(booking).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('startHamaliOffers failed:', err);
+    });
+  }
 
   res.status(201).json({ booking });
 });
