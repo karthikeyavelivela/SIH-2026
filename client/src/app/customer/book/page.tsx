@@ -138,6 +138,16 @@ function BookForm() {
   const initialType = (params.get('type') as BookingType) ?? 'truck';
 
   const [type, setType] = useState<BookingType>(initialType);
+  // Next's App Router soft-navigates within the same route on a
+  // search-param-only URL change, so it does NOT remount this component —
+  // useState's initial value only applies on first mount. Without this,
+  // clicking "Hamali" from the dashboard after already having visited
+  // /customer/book this session silently kept whatever type tab was last
+  // selected: the URL said ?type=hamali, the UI showed a stale tab.
+  useEffect(() => {
+    setType(initialType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialType]);
   const [pickup, setPickup] = useState<GeoPoint | null>(null);
   const [drop, setDrop] = useState<GeoPoint | null>(null);
   const [weightKg, setWeightKg] = useState('');

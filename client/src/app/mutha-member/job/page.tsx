@@ -10,6 +10,7 @@ import { Booking } from '@/lib/types';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
+import { RatingModal } from '@/components/worker/RatingModal';
 import { MapPinIcon, TruckIcon } from '@/components/ui/icons';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
@@ -17,6 +18,13 @@ const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false
 export default function MuthaMemberJobPage() {
   const { user } = useAuth();
   const [status, setStatus] = useState<'online' | 'offline' | 'on_job' | null>(null);
+  // The mandatory rating gate actually blocks the *leader* from re-assigning
+  // this member to a new job (see bookingAssignment.service.ts), not
+  // anything the member does directly — so without this, a member has no
+  // way to discover they owe a rating at all until their leader hits a
+  // cryptic 403 trying to assign them. Mirrors driver/hamali/mutha-leader
+  // dashboards, which already prompt proactively on mount.
+  const [pendingRatingId, setPendingRatingId] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -25,6 +33,10 @@ export default function MuthaMemberJobPage() {
       .catch((err) => {
         if (err instanceof ApiClientError) setStatus(null);
       });
+    api
+      .get<{ bookingId: string | null }>('/api/ratings/pending')
+      .then((res) => setPendingRatingId(res.bookingId))
+      .catch(() => {});
   }, []);
 
   const { data } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 6000);
@@ -75,6 +87,16 @@ export default function MuthaMemberJobPage() {
           </p>
           <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
         </>
+      )}
+
+      {pendingRatingId && (
+        <RatingModal
+          bookingId={pendingRatingId}
+          open
+          accent="secondary"
+          title="Rate your last customer"
+          onDone={() => setPendingRatingId(null)}
+        />
       )}
     </div>
   );
