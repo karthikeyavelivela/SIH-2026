@@ -22,3 +22,12 @@ geocodeRouter.get(
   validate,
   geocodeController.geocode
 );
+
+geocodeRouter.get(
+  '/reverse',
+  verifyJwt,
+  geocodeLimiter,
+  [query('lat').isFloat({ min: -90, max: 90 }), query('lng').isFloat({ min: -180, max: 180 })],
+  validate,
+  geocodeController.reverseGeocodeHandler
+);

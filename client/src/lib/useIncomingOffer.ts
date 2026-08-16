@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getSocket } from './socket';
+import { notifyUser } from './notify';
 
 export interface IncomingOffer {
   bookingId: string;
@@ -30,6 +31,7 @@ export function useIncomingOffer() {
 
     function onOffer(payload: IncomingOffer) {
       setOffer(payload);
+      notifyUser('New job request', `₹${payload.total} · ${payload.distanceKm.toFixed(1)} km — respond fast, it expires soon.`);
     }
     function onClosed(payload: { bookingId: string }) {
       setOffer((current) => (current?.bookingId === payload.bookingId ? null : current));

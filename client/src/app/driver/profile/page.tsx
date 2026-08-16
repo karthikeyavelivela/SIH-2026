@@ -8,7 +8,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
-import { UserIcon, TruckIcon } from '@/components/ui/icons';
+import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import { TruckIcon } from '@/components/ui/icons';
 
 interface Vehicle {
   type: string;
@@ -19,7 +20,7 @@ interface Vehicle {
 }
 
 export default function DriverProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, refetch } = useAuth();
   const { data, state } = usePolling(() => api.get<{ vehicle: Vehicle }>('/api/vehicles/me').catch((err) => {
     if (err instanceof ApiClientError && err.status === 404) return { vehicle: null as unknown as Vehicle };
     throw err;
@@ -38,9 +39,7 @@ export default function DriverProfilePage() {
       <h1 className="font-heading text-2xl font-bold mb-6">Profile</h1>
 
       <Card elevation="raised" className="flex items-center gap-4 mb-6">
-        <div className="w-16 h-16 rounded-full bg-primary/15 text-primary-600 flex items-center justify-center flex-shrink-0">
-          <UserIcon className="w-7 h-7" />
-        </div>
+        <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-text-muted">{user.phone}</p>

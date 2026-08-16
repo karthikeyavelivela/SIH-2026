@@ -15,7 +15,7 @@ export const getMyMutha = asyncHandler(async (req: Request, res: Response) => {
   if (!mutha) throw new ApiError(404, 'No Mutha found for this leader');
 
   const members = await User.find({ _id: { $in: mutha.memberIds } })
-    .select('name phone accountStatus')
+    .select('name phone accountStatus profilePhoto')
     .lean();
   const profiles = await HamaliProfile.find({ userId: { $in: mutha.memberIds } })
     .select('userId availabilityStatus')

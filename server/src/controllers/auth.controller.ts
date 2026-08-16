@@ -7,6 +7,7 @@ import { publicUser } from '../utils/publicUser';
 import { rethrowAsConflict } from '../utils/mongoErrors';
 import { User } from '../models/User';
 import { Vehicle } from '../models/Vehicle';
+import { uploadImage } from '../services/cloudinary.service';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
 import {
@@ -194,6 +195,25 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
 export const me = asyncHandler(async (req: Request, res: Response) => {
   // req.user.id comes only from the verified JWT, never from a param/query.
   const user = await User.findById(req.user!.id);
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ user: publicUser(user) });
+});
+
+// ---- PATCH /api/auth/me/photo ----
+// Same base64-data-URL-in-JSON-body pattern as requests.controller's
+// proof-photo upload (no multer dependency in this codebase) — every
+// role's profile page gets an editable avatar out of this one endpoint.
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
+export const updateMyPhoto = asyncHandler(async (req: Request, res: Response) => {
+  const { imageBase64 } = req.body as { imageBase64: string };
+  const match = /^data:image\/(png|jpe?g|webp);base64,(.+)$/.exec(imageBase64 ?? '');
+  if (!match) throw new ApiError(400, 'imageBase64 must be a data:image/(png|jpeg|webp);base64,... URL');
+  const buffer = Buffer.from(match[2], 'base64');
+  if (buffer.byteLength > MAX_PHOTO_BYTES) throw new ApiError(400, 'Photo too large (max 5MB)');
+
+  const { url } = await uploadImage(buffer, `users/${req.user!.id}/avatar`);
+  const user = await User.findByIdAndUpdate(req.user!.id, { profilePhoto: url }, { new: true });
   if (!user) throw new ApiError(401, 'User not found');
   res.status(200).json({ user: publicUser(user) });
 });

@@ -20,6 +20,8 @@ interface RouteMapProps {
   drop: LatLng;
   /** Assigned driver/hamali's current position, once matched — omit before then. */
   liveMarker?: LatLng;
+  /** Which glyph the live marker renders as — truck for a vehicle, a walking-person glyph for a hamali. Defaults to 'truck'. */
+  liveMarkerType?: 'truck' | 'hamali';
   className?: string;
 }
 
@@ -42,12 +44,33 @@ function pinIcon(color: string) {
 const pickupIcon = pinIcon('#BF5020');
 const dropIcon = pinIcon('#0A6F66');
 
-const liveIcon = L.divIcon({
-  className: '',
-  html: `<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#BF5020;border:3px solid white;box-shadow:0 2px 8px rgba(15,14,12,.4)"></span>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-});
+// Real vehicle/person glyphs, not a plain dot — "the pin should glide, not
+// jump" per DESIGN.md. The pulsing ring behind the glyph is what actually
+// reads as "live" at a glance on a small embedded map; the glide itself
+// comes from the global .leaflet-marker-icon transition below, since
+// Leaflet repositions markers via an inline CSS transform on every
+// setLatLng and a plain CSS transition on that property animates it for
+// free, no per-frame JS needed.
+function liveGlyph(kind: 'truck' | 'hamali') {
+  const glyphSvg =
+    kind === 'truck'
+      ? '<path d="M2 8h9v6H2z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M11 10h3.5l2 2.5V14H11z" fill="none" stroke="#fff" stroke-width="1.4"/><circle cx="5" cy="15" r="1.3" fill="#fff"/><circle cx="13" cy="15" r="1.3" fill="#fff"/>'
+      : '<circle cx="8" cy="4.5" r="1.6" fill="#fff"/><path d="M8 6.5v4.5m0 0-2.5 4M8 11l2.5 4M8 6.5l-2.8 1.6M8 6.5l2.8 1.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+  const bg = kind === 'truck' ? '#BF5020' : '#0A6F66';
+  return L.divIcon({
+    className: '',
+    html: `<span style="position:relative;display:block;width:30px;height:30px;">
+      <span style="position:absolute;inset:0;border-radius:9999px;background:${bg};opacity:.35;animation:fyroLivePulse 1.8s ease-out infinite;"></span>
+      <span style="position:absolute;inset:5px;border-radius:9999px;background:${bg};border:2px solid white;box-shadow:0 2px 8px rgba(15,14,12,.4);display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 16 16">${glyphSvg}</svg>
+      </span>
+    </span>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
+}
+
+const liveIconByType = { truck: liveGlyph('truck'), hamali: liveGlyph('hamali') };
 
 // Keeps the viewport fit to whatever points are currently relevant instead
 // of a fixed center/zoom — the same map component serves a short intra-
@@ -68,11 +91,22 @@ function FitBounds({ points }: { points: LatLng[] }) {
   return null;
 }
 
-export default function RouteMap({ pickup, drop, liveMarker, className = '' }: RouteMapProps) {
+export default function RouteMap({ pickup, drop, liveMarker, liveMarkerType = 'truck', className = '' }: RouteMapProps) {
   const points = [pickup, drop, ...(liveMarker ? [liveMarker] : [])];
 
   return (
     <div className={`overflow-hidden rounded-lg border border-border shadow-sm ${className}`}>
+      {/* Global (not scoped) on purpose — Leaflet's marker DOM nodes live
+          outside this component's React tree, styled-jsx/CSS modules can't
+          reach them. Keyframes + the transition are cheap enough to ship
+          unscoped across the whole app. */}
+      <style>{`
+        .leaflet-marker-icon { transition: transform 0.6s linear; }
+        @keyframes fyroLivePulse {
+          0% { transform: scale(0.6); opacity: 0.5; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+      `}</style>
       <MapContainer
         center={[pickup.lat, pickup.lng]}
         zoom={13}
@@ -96,7 +130,7 @@ export default function RouteMap({ pickup, drop, liveMarker, className = '' }: R
         />
         <Marker position={[pickup.lat, pickup.lng]} icon={pickupIcon} />
         <Marker position={[drop.lat, drop.lng]} icon={dropIcon} />
-        {liveMarker && <Marker position={[liveMarker.lat, liveMarker.lng]} icon={liveIcon} />}
+        {liveMarker && <Marker position={[liveMarker.lat, liveMarker.lng]} icon={liveIconByType[liveMarkerType]} />}
         <FitBounds points={points} />
       </MapContainer>
     </div>

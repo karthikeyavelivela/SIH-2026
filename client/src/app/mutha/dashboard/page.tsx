@@ -9,6 +9,7 @@ import { MuthaResponse } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { RatingModal } from '@/components/worker/RatingModal';
+import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { StarIcon, UsersIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 const dotColor: Record<string, string> = {
@@ -36,6 +37,8 @@ export default function MuthaDashboardPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <p className="text-xs text-text-muted">Hello,</p>
       <h1 className="font-heading text-2xl font-bold mb-6">{firstName} 👋</h1>
+
+      <NotificationPrompt accent="secondary" copy="Get notified the instant a new job request arrives." />
 
       {state === 'loading' && <div className="h-32 rounded-lg bg-surface animate-pulse mb-6" />}
 

@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { StatusPill } from '@/components/worker/StatusPill';
 import { RatingModal } from '@/components/worker/RatingModal';
+import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { BoxIcon, WalletIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 export default function HamaliDashboardPage() {
@@ -39,6 +40,8 @@ export default function HamaliDashboardPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <p className="text-xs text-text-muted">Hello,</p>
       <h1 className="font-heading text-2xl font-bold mb-6">{firstName} 👋</h1>
+
+      <NotificationPrompt accent="secondary" copy="Get notified the instant a new job request arrives." />
 
       {status !== null && (
         <div className="mb-6">

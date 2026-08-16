@@ -4,10 +4,19 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
+import { useSavedAddresses } from '@/lib/useSavedAddresses';
+import { distanceKm } from '@/lib/geo';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AddressField, GeoPoint } from '@/components/booking/AddressField';
-import { TruckIcon, BoxIcon, LayersIcon } from '@/components/ui/icons';
+import { AddressChips } from '@/components/booking/AddressChips';
+import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/components/ui/icons';
+
+// How far a selected pickup can be from the device's GPS reading before we
+// ask "is this pickup for you or someone else?" — big enough that normal
+// GPS drift/inaccuracy never triggers it, small enough to catch "I typed
+// my office's address by habit but I'm actually at home right now".
+const MISMATCH_KM = 2;
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -152,6 +161,56 @@ function BookForm() {
   const [drop, setDrop] = useState<GeoPoint | null>(null);
   const [weightKg, setWeightKg] = useState('');
   const [hamaliCount, setHamaliCount] = useState(1);
+  const { addresses: savedAddresses, save: saveAddress } = useSavedAddresses();
+
+  // Device GPS as the default pickup — requested once on mount (the real
+  // browser permission prompt fires here), reverse-geocoded to a human
+  // address. Silent on denial/error: the field just stays empty and the
+  // customer types normally, same "don't fail loudly for something that
+  // doesn't block the core flow" principle as OnlineToggle/live-location.
+  const [deviceLocation, setDeviceLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locatingDevice, setLocatingDevice] = useState(true);
+  // Keyed on the pickup address that was dismissed, not a plain boolean —
+  // switching to a DIFFERENT mismatched address should re-surface the
+  // check rather than staying silenced from the first dismissal.
+  const [mismatchDismissedFor, setMismatchDismissedFor] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!('geolocation' in navigator)) {
+      setLocatingDevice(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setDeviceLocation(loc);
+        try {
+          const res = await api.get<{ result: { lat: number; lon: number; displayName: string } | null }>(
+            `/api/geocode/reverse?lat=${loc.lat}&lng=${loc.lng}`
+          );
+          if (res.result) {
+            setPickup((current) => current ?? { lat: res.result!.lat, lng: res.result!.lon, address: res.result!.displayName });
+          }
+        } catch {
+          // Reverse geocode failed — device location is still known for the
+          // mismatch check below, pickup just isn't prefilled.
+        } finally {
+          setLocatingDevice(false);
+        }
+      },
+      () => setLocatingDevice(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+    // Deliberately once on mount only — re-firing on every render would
+    // re-prompt/re-fetch pointlessly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const mismatch =
+    deviceLocation &&
+    pickup &&
+    mismatchDismissedFor !== pickup.address &&
+    distanceKm(deviceLocation, { lat: pickup.lat, lng: pickup.lng }) > MISMATCH_KM;
 
   const [fareState, setFareState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [fare, setFare] = useState<FareBreakdown | null>(null);
@@ -255,20 +314,80 @@ function BookForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Card elevation="raised" className="space-y-4">
-          <AddressField
-            label="Pickup"
-            placeholder="Where should we collect from?"
-            value={pickup}
-            onChange={setPickup}
-            markerColorClass="text-primary-600"
-          />
-          <AddressField
-            label="Drop"
-            placeholder="Where is this headed?"
-            value={drop}
-            onChange={setDrop}
-            markerColorClass="text-secondary-600"
-          />
+          <div>
+            <AddressField
+              label="Pickup"
+              placeholder="Where should we collect from?"
+              value={pickup}
+              onChange={setPickup}
+              markerColorClass="text-primary-600"
+            />
+            {locatingDevice && (
+              <p className="flex items-center gap-1.5 text-xs text-text-muted mt-2">
+                <CompassIcon className="w-3.5 h-3.5 animate-pulse" />
+                Finding your current location…
+              </p>
+            )}
+            <AddressChips
+              saved={savedAddresses}
+              onPick={setPickup}
+              currentValue={pickup}
+              onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
+            />
+            {mismatch && (
+              <div className="mt-2 flex items-start gap-2.5 rounded-md border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-800">
+                <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="mb-1.5">This pickup doesn&apos;t match your current location — is it for you or someone else?</p>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      className="font-semibold underline"
+                      onClick={async () => {
+                        if (!deviceLocation) return;
+                        try {
+                          const res = await api.get<{ result: { lat: number; lon: number; displayName: string } | null }>(
+                            `/api/geocode/reverse?lat=${deviceLocation.lat}&lng=${deviceLocation.lng}`
+                          );
+                          if (res.result) setPickup({ lat: res.result.lat, lng: res.result.lon, address: res.result.displayName });
+                        } catch {
+                          // Leave the typed address in place — same "don't fail loudly" fallback as elsewhere.
+                        }
+                      }}
+                    >
+                      It&apos;s me — use my location
+                    </button>
+                    <button
+                      type="button"
+                      className="font-semibold underline"
+                      onClick={() => setMismatchDismissedFor(pickup!.address)}
+                    >
+                      It&apos;s for someone else
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <AddressField
+              label="Drop"
+              placeholder="Where is this headed?"
+              value={drop}
+              onChange={setDrop}
+              markerColorClass="text-secondary-600"
+            />
+            <AddressChips
+              saved={savedAddresses}
+              onPick={setDrop}
+              currentValue={drop}
+              onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
+              extraChip={
+                type === 'hamali' && pickup ? { label: 'Same as pickup', onClick: () => setDrop(pickup) } : undefined
+              }
+            />
+          </div>
         </Card>
 
         {pickup && drop && (

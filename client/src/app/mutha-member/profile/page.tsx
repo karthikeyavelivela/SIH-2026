@@ -4,12 +4,12 @@ import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { UserIcon } from '@/components/ui/icons';
+import { AvatarUpload } from '@/components/ui/AvatarUpload';
 
 // Mutha members had no logout affordance at all — /mutha-member only had
 // Job and Earnings tabs before this page existed.
 export default function MuthaMemberProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, refetch } = useAuth();
   if (!user) return null;
 
   return (
@@ -17,9 +17,7 @@ export default function MuthaMemberProfilePage() {
       <h1 className="font-heading text-2xl font-bold mb-6">Profile</h1>
 
       <Card elevation="raised" className="flex items-center gap-4 mb-6">
-        <div className="w-16 h-16 rounded-full bg-secondary/15 text-secondary-600 flex items-center justify-center flex-shrink-0">
-          <UserIcon className="w-7 h-7" />
-        </div>
+        <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-text-muted">{user.phone}</p>

@@ -64,6 +64,13 @@ authRouter.post('/refresh', authController.refresh);
 authRouter.post('/logout', verifyJwt, authController.logout);
 authRouter.get('/me', verifyJwt, authController.me);
 authRouter.patch(
+  '/me/photo',
+  verifyJwt,
+  [body('imageBase64').isString().isLength({ min: 100 })],
+  validate,
+  authController.updateMyPhoto
+);
+authRouter.patch(
   '/me/documents',
   verifyJwt,
   [

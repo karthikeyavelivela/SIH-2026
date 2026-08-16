@@ -68,6 +68,7 @@ export interface MuthaMember {
   name: string;
   phone: string;
   accountStatus: string;
+  profilePhoto?: string;
   availabilityStatus: 'online' | 'offline' | 'on_job';
 }
 

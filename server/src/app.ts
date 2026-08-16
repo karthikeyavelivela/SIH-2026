@@ -21,6 +21,7 @@ import { incentiveRouter, workerIncentiveRouter } from './routes/incentive.route
 import { regionRouter } from './routes/region.routes';
 import { auditLogRouter } from './routes/auditLog.routes';
 import { adminStatsRouter } from './routes/adminStats.routes';
+import { savedAddressRouter } from './routes/savedAddress.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
@@ -84,6 +85,7 @@ app.use('/api/vehicles', vehicleRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/ratings', ratingRouter);
 app.use('/api/complaints', complaintRouter);
+app.use('/api/addresses', savedAddressRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

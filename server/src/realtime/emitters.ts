@@ -36,13 +36,14 @@ export async function emitBookingMatched(booking: IBooking): Promise<void> {
   if (booking.assignedDriverIds.length > 0) {
     const driverId = booking.assignedDriverIds[0].toString();
     const [driver, vehicle] = await Promise.all([
-      User.findById(driverId).select('name ratingAvg ratingCount').lean(),
+      User.findById(driverId).select('name profilePhoto ratingAvg ratingCount').lean(),
       Vehicle.findOne({ ownerId: driverId }).select('type capacityKg registrationNumber').lean(),
     ]);
     if (driver) {
       assigned.driver = {
         id: driverId,
         name: driver.name,
+        profilePhoto: driver.profilePhoto,
         ratingAvg: driver.ratingAvg,
         ratingCount: driver.ratingCount,
         vehicle,
@@ -57,11 +58,12 @@ export async function emitBookingMatched(booking: IBooking): Promise<void> {
     }
   } else if (booking.assignedHamaliIds.length > 0) {
     const hamalis = await User.find({ _id: { $in: booking.assignedHamaliIds } })
-      .select('name ratingAvg ratingCount')
+      .select('name profilePhoto ratingAvg ratingCount')
       .lean();
     assigned.hamalis = hamalis.map((h) => ({
       id: h._id.toString(),
       name: h.name,
+      profilePhoto: h.profilePhoto,
       ratingAvg: h.ratingAvg,
       ratingCount: h.ratingCount,
     }));

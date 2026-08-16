@@ -176,6 +176,15 @@ export function PhoneIcon(props: IconProps) {
   );
 }
 
+export function CameraIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h1.8l.9-1.6A1.5 1.5 0 0 1 9.5 4.6h5a1.5 1.5 0 0 1 1.3.8l.9 1.6h1.8A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" />
+      <circle cx="12" cy="13" r="3.2" />
+    </svg>
+  );
+}
+
 export function MessageIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>

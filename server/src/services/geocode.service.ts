@@ -45,3 +45,26 @@ export async function geocodeAddress(query: string): Promise<GeocodeResult[]> {
   const data = (await res.json()) as { lat: string; lon: string; display_name: string }[];
   return data.map((d) => ({ lat: parseFloat(d.lat), lon: parseFloat(d.lon), displayName: d.display_name }));
 }
+
+// Coords -> address, for "use my current location" — the booking form
+// prefills pickup from the device's GPS reading, which needs a human
+// address string, not just a lat/lng pair, to show/store.
+export async function reverseGeocode(lat: number, lon: number): Promise<GeocodeResult | null> {
+  const url = new URL('https://nominatim.openstreetmap.org/reverse');
+  url.searchParams.set('lat', String(lat));
+  url.searchParams.set('lon', String(lon));
+  url.searchParams.set('format', 'json');
+
+  const res = await fetch(url.toString(), {
+    headers: { 'User-Agent': 'FYRO-logistics-app/1.0 (contact: velivelakarthikeya@gmail.com)' },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+  if (!res.ok) {
+    // eslint-disable-next-line no-console
+    console.error(`reverseGeocode: Nominatim returned ${res.status} for ${lat},${lon}`);
+    return null;
+  }
+  const data = (await res.json()) as { lat?: string; lon?: string; display_name?: string; error?: string };
+  if (!data.display_name) return null;
+  return { lat: parseFloat(data.lat ?? String(lat)), lon: parseFloat(data.lon ?? String(lon)), displayName: data.display_name };
+}

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { getSocket } from './socket';
-import { BookingStatus } from './types';
+import { BookingStatus, STATUS_LABEL } from './types';
+import { notifyUser } from './notify';
 
 export interface ChatMsg {
   id: string;
@@ -44,12 +45,18 @@ export function useBookingSocket(bookingId: string | undefined) {
     const socket = socketRef.current;
 
     function onStatus(payload: { bookingId: string; status: BookingStatus }) {
-      if (payload.bookingId === bookingId) setStatus(payload.status);
+      if (payload.bookingId === bookingId) {
+        setStatus(payload.status);
+        if (payload.status === 'in_progress' || payload.status === 'completed') {
+          notifyUser('FYRO', `Your booking is now ${STATUS_LABEL[payload.status].toLowerCase()}.`);
+        }
+      }
     }
     function onMatched(payload: { bookingId: string; status: BookingStatus; assigned: Record<string, unknown> }) {
       if (payload.bookingId === bookingId) {
         setStatus(payload.status);
         setMatched({ assigned: payload.assigned });
+        notifyUser('FYRO', "You're matched — someone's on the way.");
       }
     }
     function onLocation(payload: { bookingId: string; lat: number; lng: number; at: number }) {

@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
+import { useNotificationPermission } from '@/lib/useNotificationPermission';
 import { Card } from '@/components/ui/Card';
+import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import {
   BellIcon,
   SearchIcon,
@@ -45,6 +47,7 @@ const statusLabel: Record<string, string> = {
 
 export default function CustomerDashboardPage() {
   const { user } = useAuth();
+  const { permission, request } = useNotificationPermission();
   const [bookings, setBookings] = useState<BookingSummary[]>([]);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'unavailable'>('loading');
 
@@ -88,12 +91,17 @@ export default function CustomerDashboardPage() {
         </div>
         <button
           type="button"
-          aria-label="Notifications"
-          className="w-11 h-11 rounded-full bg-surface flex items-center justify-center text-text-primary hover:bg-surface-raised hover:shadow-sm transition-all duration-fast"
+          aria-label={permission === 'granted' ? 'Alerts on' : 'Enable alerts'}
+          onClick={() => permission === 'default' && request()}
+          className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-fast ${
+            permission === 'granted' ? 'bg-primary/15 text-primary-600' : 'bg-surface text-text-primary hover:bg-surface-raised hover:shadow-sm'
+          }`}
         >
           <BellIcon className="w-5 h-5" />
         </button>
       </div>
+
+      <NotificationPrompt accent="primary" copy="Get notified the instant a driver or Hamali is on the way." />
 
       {/* Quick-book search bar */}
       <div className="flex gap-3 mb-6">

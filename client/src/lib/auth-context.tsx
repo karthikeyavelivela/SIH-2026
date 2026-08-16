@@ -11,6 +11,7 @@ export interface AuthUser {
   accountStatus: string;
   permissions: string[];
   licenseExpiryAt?: string;
+  profilePhoto?: string;
 }
 
 interface AuthContextValue {

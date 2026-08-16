@@ -47,6 +47,7 @@ const waitingCopy: Record<string, string> = {
 interface AssignedPerson {
   id: string;
   name: string;
+  profilePhoto?: string;
   ratingAvg: number;
   ratingCount: number;
   vehicle?: { type: string; capacityKg: number; registrationNumber: string } | null;
@@ -73,7 +74,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
           <UsersIcon className="w-5 h-5" />
         </div>
       ) : (
-        <Avatar name={entry.name} accent="primary" />
+        <Avatar name={entry.name} photoUrl={entry.profilePhoto} accent="primary" />
       )}
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold truncate">{entry.name}</p>
@@ -274,6 +275,7 @@ export default function TrackBookingPage() {
         pickup={{ lat: pLat, lng: pLng }}
         drop={{ lat: dLat, lng: dLng }}
         liveMarker={liveLocation ? { lat: liveLocation.lat, lng: liveLocation.lng } : undefined}
+        liveMarkerType={booking.type === 'hamali' ? 'hamali' : 'truck'}
         className="h-48 mb-3"
       />
 

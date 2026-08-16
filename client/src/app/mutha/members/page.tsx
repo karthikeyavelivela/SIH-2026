@@ -57,7 +57,7 @@ export default function MuthaMembersPage() {
         {data?.members.map((m) => (
           <Card key={m._id} elevation="raised" className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <Avatar name={m.name} accent="secondary" status={m.availabilityStatus} />
+              <Avatar name={m.name} photoUrl={m.profilePhoto} accent="secondary" status={m.availabilityStatus} />
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{m.name}</p>
                 <p className="text-xs text-text-muted">{m.phone}</p>
