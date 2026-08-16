@@ -15,7 +15,18 @@ import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
 import { BackHeader } from '@/components/ui/BackHeader';
-import { MapPinIcon, CheckIcon } from '@/components/ui/icons';
+import { Avatar } from '@/components/ui/Avatar';
+import { MapPinIcon, CheckIcon, StarIcon, MessageIcon } from '@/components/ui/icons';
+
+// Raw phone numbers are never sent to the client (no telephony/SMS-masking
+// vendor is wired up — see the customer track page's identical comment) —
+// this scrolls to the chat panel already on this screen instead of
+// pretending to place a call.
+function focusChat() {
+  const input = document.getElementById('booking-chat-input');
+  input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  (input as HTMLInputElement | null)?.focus();
+}
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
@@ -113,6 +124,29 @@ export default function HamaliActiveJobPage() {
             </div>
           ))}
         </div>
+
+        {booking.customer && (
+          <div className="flex items-center gap-3 p-3.5 rounded-lg bg-surface-raised border border-border shadow-sm mb-5">
+            <Avatar name={booking.customer.name} photoUrl={booking.customer.profilePhoto} accent="secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold truncate">{booking.customer.name}</p>
+              <span className="inline-flex items-center gap-0.5">
+                <StarIcon className="w-3.5 h-3.5 text-secondary-600" fill="currentColor" />
+                <span className="text-[11px] text-text-muted ml-0.5">
+                  {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : 'New'}
+                </span>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={focusChat}
+              aria-label="Message customer"
+              className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/15 transition-colors duration-fast"
+            >
+              <MessageIcon className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         <div className="space-y-3 mb-6">
           <div className="flex items-start gap-2.5">

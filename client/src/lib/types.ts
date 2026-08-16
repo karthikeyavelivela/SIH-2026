@@ -43,6 +43,10 @@ export interface Booking {
   statusHistory: { status: BookingStatus; timestamp: string }[];
   proofPhotos?: { pickup?: string; delivery?: string };
   createdAt: string;
+  // Only present on /api/requests/mine (a worker's own assigned-bookings
+  // view) — who they're actually meeting, mirroring the AssignedRow the
+  // customer side already sees for the driver/hamali.
+  customer?: { id: string; name: string; profilePhoto?: string; ratingAvg: number; ratingCount: number };
 }
 
 export const STATUS_LABEL: Record<BookingStatus, string> = {

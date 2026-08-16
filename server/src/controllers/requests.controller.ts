@@ -344,6 +344,42 @@ export const myAssignedBookings = asyncHandler(async (req: Request, res: Respons
     throw new ApiError(403, 'This role has no assigned-booking view');
   }
 
-  const bookings = await Booking.find(filter).sort({ createdAt: -1 }).limit(100);
-  res.status(200).json({ bookings });
+  // Populated separately from raw `bookings` (rather than mutating
+  // customerId in place) so this stays additive — nothing that already
+  // reads customerId as a plain string id on an assigned booking breaks.
+  // This is what lets a worker's active-job screen show who they're
+  // actually meeting, the same parity the customer side already has via
+  // AssignedRow — without inventing a fake "call" button neither side has
+  // real telephony for (see customer track page's focusChat comment).
+  const bookings = await Booking.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .populate<{ customerId: { _id: unknown; name: string; profilePhoto?: string; ratingAvg: number; ratingCount: number } }>(
+      'customerId',
+      'name profilePhoto ratingAvg ratingCount'
+    );
+
+  const withCustomer = bookings.map((b) => {
+    const obj = b.toObject();
+    const populatedCustomer = obj.customerId as unknown as {
+      _id: unknown;
+      name: string;
+      profilePhoto?: string;
+      ratingAvg: number;
+      ratingCount: number;
+    };
+    return {
+      ...obj,
+      customerId: populatedCustomer._id,
+      customer: {
+        id: populatedCustomer._id,
+        name: populatedCustomer.name,
+        profilePhoto: populatedCustomer.profilePhoto,
+        ratingAvg: populatedCustomer.ratingAvg,
+        ratingCount: populatedCustomer.ratingCount,
+      },
+    };
+  });
+
+  res.status(200).json({ bookings: withCustomer });
 });
