@@ -147,14 +147,22 @@ export default function DriverActiveJobPage() {
         )}
 
         {booking.status !== 'completed' && (
-          <Button
-            className="w-full"
-            size="lg"
-            disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
-            onClick={advance}
-          >
-            {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start trip' : 'Mark delivered'}
-          </Button>
+          <>
+            {!pending &&
+              (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
+                <p className="text-xs text-text-muted text-center mb-2">
+                  Take a {booking.status === 'accepted' ? 'pickup' : 'delivery'} photo above to continue.
+                </p>
+              )}
+            <Button
+              className="w-full"
+              size="lg"
+              disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
+              onClick={advance}
+            >
+              {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start trip' : 'Mark delivered'}
+            </Button>
+          </>
         )}
       </div>
 

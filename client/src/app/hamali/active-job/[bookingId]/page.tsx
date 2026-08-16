@@ -146,15 +146,23 @@ export default function HamaliActiveJobPage() {
         )}
 
         {booking.status !== 'completed' && (
-          <Button
-            variant="secondary"
-            className="w-full"
-            size="lg"
-            disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
-            onClick={advance}
-          >
-            {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start job' : 'Mark done'}
-          </Button>
+          <>
+            {!pending &&
+              (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
+                <p className="text-xs text-text-muted text-center mb-2">
+                  Take a {booking.status === 'accepted' ? 'pickup' : 'delivery'} photo above to continue.
+                </p>
+              )}
+            <Button
+              variant="secondary"
+              className="w-full"
+              size="lg"
+              disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
+              onClick={advance}
+            >
+              {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start job' : 'Mark done'}
+            </Button>
+          </>
         )}
       </div>
 
