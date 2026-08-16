@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { useNotificationPermission } from '@/lib/useNotificationPermission';
 import { Card } from '@/components/ui/Card';
+import { Avatar } from '@/components/ui/Avatar';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import {
   BellIcon,
@@ -45,6 +46,22 @@ const statusLabel: Record<string, string> = {
   cancelled: 'Cancelled',
 };
 
+const statusPillClass: Record<string, string> = {
+  requested: 'bg-text-muted/10 text-text-muted',
+  searching: 'bg-text-muted/10 text-text-muted',
+  matched: 'bg-secondary/10 text-secondary-600',
+  accepted: 'bg-secondary/10 text-secondary-600',
+  in_progress: 'bg-primary/10 text-primary-600',
+  completed: 'bg-emerald-500/10 text-emerald-700',
+  cancelled: 'bg-red-500/10 text-red-700',
+};
+
+const PROGRESS_STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
+
+function shortAddress(address: string): string {
+  return address.split(',')[0];
+}
+
 export default function CustomerDashboardPage() {
   const { user } = useAuth();
   const { permission, request } = useNotificationPermission();
@@ -55,7 +72,7 @@ export default function CustomerDashboardPage() {
     async function load() {
       try {
         const res = await api.get<{ bookings: BookingSummary[] }>('/api/bookings');
-        setBookings(res.bookings.slice(0, 4));
+        setBookings(res.bookings);
         setLoadState('ready');
       } catch (err) {
         // Booking history isn't wired up yet in every environment this runs
@@ -69,21 +86,17 @@ export default function CustomerDashboardPage() {
   }, []);
 
   const firstName = user?.name?.split(' ')[0] ?? 'there';
-  const initials = (user?.name ?? '?')
-    .split(' ')
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+
+  const activeBooking = bookings.find((b) => !['completed', 'cancelled'].includes(b.status));
+  const recent = bookings.filter((b) => b._id !== activeBooking?._id).slice(0, 4);
+  const activeStepIndex = activeBooking ? PROGRESS_STEPS.indexOf(activeBooking.status) : -1;
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
       {/* Greeting */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-primary/15 text-primary-600 font-heading font-bold flex items-center justify-center text-sm">
-            {initials}
-          </div>
+          <Avatar name={user?.name ?? '?'} photoUrl={user?.profilePhoto} accent="primary" />
           <div>
             <p className="text-xs text-text-muted">Hello,</p>
             <p className="font-heading font-bold text-lg leading-tight">{firstName} 👋</p>
@@ -137,6 +150,46 @@ export default function CustomerDashboardPage() {
         ))}
       </div>
 
+      {/* Current shipment — the one thing a customer with something in
+          flight actually wants to see first, ahead of the promo card. */}
+      {activeBooking && (
+        <Link href={`/customer/track/${activeBooking._id}`} className="block mb-6">
+          <Card elevation="raised" className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-base">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold">Current shipment</h2>
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusPillClass[activeBooking.status] ?? 'bg-text-muted/10 text-text-muted'}`}>
+                {statusLabel[activeBooking.status] ?? activeBooking.status}
+              </span>
+            </div>
+
+            {activeStepIndex >= 0 && (
+              <div className="flex items-center mb-4">
+                {PROGRESS_STEPS.slice(0, 5).map((step, i) => (
+                  <div key={step} className="flex items-center flex-1 last:flex-none">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${i <= activeStepIndex ? 'bg-primary-600' : 'bg-border-strong'}`}
+                    />
+                    {i < 4 && <span className={`h-0.5 flex-1 ${i < activeStepIndex ? 'bg-primary-600' : 'bg-border-strong'}`} />}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between text-sm">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] text-text-muted">{new Date(activeBooking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p>
+                <p className="font-medium truncate">{shortAddress(activeBooking.pickupLocation.address)}</p>
+              </div>
+              <ChevronRightIcon className="w-4 h-4 text-text-muted mx-2 flex-shrink-0" />
+              <div className="min-w-0 flex-1 text-right">
+                <p className="text-[11px] text-text-muted">In progress</p>
+                <p className="font-medium truncate">{shortAddress(activeBooking.dropLocation.address)}</p>
+              </div>
+            </div>
+          </Card>
+        </Link>
+      )}
+
       {/* Promo / primary CTA card */}
       <Link href="/customer/book" className="block mb-8">
         <div className="relative overflow-hidden rounded-lg bg-primary-600 text-white p-6 shadow-lg hover:shadow-glow-primary hover:-translate-y-0.5 transition-all duration-base">
@@ -181,24 +234,34 @@ export default function CustomerDashboardPage() {
         </Card>
       )}
 
-      {bookings.length > 0 && (
+      {loadState !== 'loading' && bookings.length > 0 && recent.length === 0 && (
+        <Card elevation="flat" className="text-center py-8 text-sm text-text-muted">
+          Nothing else yet — your current shipment above is the only one so far.
+        </Card>
+      )}
+
+      {recent.length > 0 && (
         <div className="space-y-3">
-          {bookings.map((b) => (
+          {recent.map((b) => (
             <Link key={b._id} href={`/customer/track/${b._id}`} className="block">
               <Card
                 elevation="raised"
-                className="flex items-center justify-between gap-3 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-base"
+                className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-base"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0">
-                    {b.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0">
+                      {b.type === 'hamali' ? <BoxIcon className="w-4 h-4" /> : <TruckIcon className="w-4 h-4" />}
+                    </span>
+                    <p className="font-heading font-bold text-sm truncate">
+                      {shortAddress(b.pickupLocation.address)} <span className="text-text-muted font-normal">→</span> {shortAddress(b.dropLocation.address)}
+                    </p>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate">{b.pickupLocation.address}</p>
-                    <p className="text-xs text-text-muted truncate">{statusLabel[b.status] ?? b.status}</p>
-                  </div>
+                  <span className={`flex-shrink-0 text-[11px] font-semibold px-2 py-1 rounded-full ${statusPillClass[b.status] ?? 'bg-text-muted/10 text-text-muted'}`}>
+                    {statusLabel[b.status] ?? b.status}
+                  </span>
                 </div>
-                <p className="text-sm font-heading font-bold whitespace-nowrap">₹{b.fareBreakdown.total}</p>
+                <p className="text-xs text-text-muted">₹{b.fareBreakdown.total}</p>
               </Card>
             </Link>
           ))}

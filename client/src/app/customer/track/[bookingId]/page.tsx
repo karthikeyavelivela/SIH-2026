@@ -44,6 +44,24 @@ const waitingCopy: Record<string, string> = {
   searching: 'Waiting for a driver or Hamali to respond…',
 };
 
+const historyStatusLabel: Record<string, string> = {
+  requested: 'Requested',
+  searching: 'Finding a match',
+  matched: 'Matched',
+  accepted: 'Accepted',
+  in_progress: 'Picked up — on the way',
+  completed: 'Delivered',
+  cancelled: 'Cancelled',
+};
+
+function formatHistoryTime(iso: string) {
+  const d = new Date(iso);
+  return {
+    time: d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    date: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+  };
+}
+
 interface AssignedPerson {
   id: string;
   name: string;
@@ -264,6 +282,27 @@ export default function TrackBookingPage() {
         <Badge tone={statusTone[booking.status] ?? 'secondary'}>{booking.status.replace('_', ' ')}</Badge>
       </div>
 
+      <Card elevation="raised" className="mb-4">
+        <div className="grid grid-cols-2 gap-y-4 gap-x-3 text-sm">
+          <div>
+            <p className="text-[11px] text-text-muted mb-0.5">Tracking ID</p>
+            <p className="font-heading font-bold tracking-wide">{booking._id.slice(-8).toUpperCase()}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-text-muted mb-0.5">Type</p>
+            <p className="font-semibold capitalize">{booking.type}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-text-muted mb-0.5">Status</p>
+            <p className="font-semibold capitalize">{booking.status.replace('_', ' ')}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-text-muted mb-0.5">Total fare</p>
+            <p className="font-semibold">₹{booking.fareBreakdown.total}</p>
+          </div>
+        </div>
+      </Card>
+
       {waitingCopy[booking.status] && (
         <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-primary/10 text-sm text-primary-600">
           <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-600/30 border-t-primary-600 animate-spin flex-shrink-0" />
@@ -315,6 +354,33 @@ export default function TrackBookingPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {booking.statusHistory.length > 0 && (
+        <Card elevation="raised" className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-4">Status timeline</p>
+          <div className="space-y-4">
+            {[...booking.statusHistory].reverse().map((entry, i) => {
+              const { time, date } = formatHistoryTime(entry.timestamp);
+              return (
+                <div key={`${entry.status}-${entry.timestamp}`} className="flex gap-3">
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <span className={`w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-primary-600' : 'bg-border-strong'}`} />
+                    {i < booking.statusHistory.length - 1 && <span className="w-px flex-1 bg-border mt-1" />}
+                  </div>
+                  <div className="pb-1 min-w-0">
+                    <p className={`text-sm font-semibold ${i === 0 ? 'text-primary-600' : ''}`}>
+                      {historyStatusLabel[entry.status] ?? entry.status}
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      {time} · {date}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
       )}
 
       {matched?.assigned && Object.keys(matched.assigned).length > 0 && (
