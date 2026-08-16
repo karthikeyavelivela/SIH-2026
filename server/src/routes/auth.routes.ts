@@ -63,3 +63,13 @@ authRouter.post(
 authRouter.post('/refresh', authController.refresh);
 authRouter.post('/logout', verifyJwt, authController.logout);
 authRouter.get('/me', verifyJwt, authController.me);
+authRouter.patch(
+  '/me/documents',
+  verifyJwt,
+  [
+    body('licenseExpiryAt').optional({ nullable: true }).isISO8601(),
+    body('insuranceExpiryAt').optional({ nullable: true }).isISO8601(),
+  ],
+  validate,
+  authController.updateMyDocuments
+);

@@ -197,3 +197,35 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
   if (!user) throw new ApiError(401, 'User not found');
   res.status(200).json({ user: publicUser(user) });
 });
+
+// ---- PATCH /api/auth/me/documents ----
+// Self-service until a real KYC doc-upload/verification pipeline exists —
+// a driver/hamali reports their own license/insurance expiry so the
+// profile page can nudge them before it lapses (see User.licenseExpiryAt
+// / Vehicle.insuranceExpiryAt doc comments for why this is self-reported).
+export const updateMyDocuments = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const role = req.user!.role;
+  const { licenseExpiryAt, insuranceExpiryAt } = req.body as {
+    licenseExpiryAt?: string;
+    insuranceExpiryAt?: string;
+  };
+
+  if (licenseExpiryAt !== undefined) {
+    await User.updateOne({ _id: userId }, { licenseExpiryAt: licenseExpiryAt ? new Date(licenseExpiryAt) : null });
+  }
+  if (insuranceExpiryAt !== undefined) {
+    if (role !== 'driver') throw new ApiError(403, 'Only drivers have a vehicle insurance date');
+    await Vehicle.updateOne(
+      { ownerId: userId },
+      { insuranceExpiryAt: insuranceExpiryAt ? new Date(insuranceExpiryAt) : null }
+    );
+  }
+
+  const user = await User.findById(userId);
+  const vehicle = role === 'driver' ? await Vehicle.findOne({ ownerId: userId }) : null;
+  res.status(200).json({
+    user: publicUser(user!),
+    insuranceExpiryAt: vehicle?.insuranceExpiryAt ?? null,
+  });
+});

@@ -56,3 +56,15 @@ requestsRouter.post(
   validate,
   requestsController.completeJob
 );
+
+requestsRouter.post(
+  '/:id/proof-photo',
+  requireRole('driver', 'hamali_solo', 'mutha_leader'),
+  [
+    param('id').isMongoId(),
+    body('stage').isIn(['pickup', 'delivery']),
+    body('imageBase64').isString().isLength({ min: 100 }),
+  ],
+  validate,
+  requestsController.uploadProofPhoto
+);

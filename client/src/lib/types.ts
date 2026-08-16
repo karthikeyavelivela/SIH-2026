@@ -41,6 +41,7 @@ export interface Booking {
   fareBreakdown: FareBreakdown;
   distanceKm: number;
   statusHistory: { status: BookingStatus; timestamp: string }[];
+  proofPhotos?: { pickup?: string; delivery?: string };
   createdAt: string;
 }
 

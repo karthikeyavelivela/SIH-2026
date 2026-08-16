@@ -1,11 +1,13 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
 import { UserIcon, TruckIcon } from '@/components/ui/icons';
 
 interface Vehicle {
@@ -13,6 +15,7 @@ interface Vehicle {
   capacityKg: number;
   registrationNumber: string;
   verified: boolean;
+  insuranceExpiryAt?: string;
 }
 
 export default function DriverProfilePage() {
@@ -21,6 +24,12 @@ export default function DriverProfilePage() {
     if (err instanceof ApiClientError && err.status === 404) return { vehicle: null as unknown as Vehicle };
     throw err;
   }), 60000);
+  const [licenseExpiryAt, setLicenseExpiryAt] = useState<string | null>(user?.licenseExpiryAt ?? null);
+  const [insuranceExpiryAt, setInsuranceExpiryAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (data?.vehicle?.insuranceExpiryAt !== undefined) setInsuranceExpiryAt(data.vehicle.insuranceExpiryAt ?? null);
+  }, [data?.vehicle?.insuranceExpiryAt]);
 
   if (!user) return null;
 
@@ -61,6 +70,15 @@ export default function DriverProfilePage() {
           <p className="text-sm text-text-muted">Capacity {data.vehicle.capacityKg} kg</p>
         </Card>
       )}
+
+      <DocumentExpiryCard
+        license={licenseExpiryAt}
+        insurance={insuranceExpiryAt}
+        onSaved={(updated) => {
+          if (updated.licenseExpiryAt !== undefined) setLicenseExpiryAt(updated.licenseExpiryAt ?? null);
+          if (updated.insuranceExpiryAt !== undefined) setInsuranceExpiryAt(updated.insuranceExpiryAt ?? null);
+        }}
+      />
 
       <Button variant="ghost" className="w-full" onClick={() => logout()}>
         Log out

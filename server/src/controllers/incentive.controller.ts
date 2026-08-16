@@ -3,7 +3,13 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { IncentiveRule } from '../models/IncentiveRule';
 import { Incentive } from '../models/Incentive';
-import { runIncentiveRule } from '../services/incentive.service';
+import { User } from '../models/User';
+import { Mutha } from '../models/Mutha';
+import {
+  runIncentiveRule,
+  completedJobCountForUser,
+  completedJobCountForMutha,
+} from '../services/incentive.service';
 import { writeAuditLog } from '../services/audit.service';
 
 export const createIncentiveRule = asyncHandler(async (req: Request, res: Response) => {
@@ -73,4 +79,68 @@ export const runIncentives = asyncHandler(async (req: Request, res: Response) =>
 export const listIncentives = asyncHandler(async (_req: Request, res: Response) => {
   const incentives = await Incentive.find().sort({ createdAt: -1 }).limit(200);
   res.status(200).json({ incentives });
+});
+
+// ---- GET /api/incentives/my-progress ----
+// Worker-facing (not admin) — surfaces live progress toward the nearest
+// active incentive rule the caller already qualifies for on rating but
+// hasn't yet hit the job-count threshold for. Spec: "gamified incentives
+// visible in real numbers ('2 more trips to bonus')" — rules/grants
+// already existed server-side (admin/incentives), this was the missing
+// half: nothing showed a worker where they stood.
+export const myIncentiveProgress = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const role = req.user!.role;
+
+  let ratingAvg: number;
+  let completedJobs: number;
+  let region: string | undefined;
+
+  if (role === 'mutha_leader') {
+    const mutha = await Mutha.findOne({ leaderId: userId });
+    if (!mutha) throw new ApiError(404, 'No Mutha found for this leader');
+    ratingAvg = mutha.ratingAvg;
+    completedJobs = await completedJobCountForMutha(mutha._id.toString());
+    region = mutha.region;
+  } else if (['driver', 'hamali_solo', 'mutha_member'].includes(role)) {
+    const user = await User.findById(userId).select('ratingAvg region').lean();
+    if (!user) throw new ApiError(404, 'User not found');
+    ratingAvg = user.ratingAvg;
+    completedJobs = await completedJobCountForUser(userId);
+    region = user.region;
+  } else {
+    throw new ApiError(403, 'This role has no incentive progress');
+  }
+
+  const rules = await IncentiveRule.find({
+    active: true,
+    $or: [{ region: { $exists: false } }, { region: null }, { region: region ?? null }],
+  }).lean();
+
+  // Nearest incomplete rule the caller already qualifies for on rating —
+  // smallest remaining job count wins. Rules the caller doesn't meet the
+  // rating bar for aren't "trips away", they're a rating problem, so
+  // they're excluded from this specific nudge.
+  let nearest: { rule: typeof rules[number]; remainingJobs: number } | null = null;
+  for (const rule of rules) {
+    if (ratingAvg < rule.minRatingAvg) continue;
+    const remainingJobs = Math.max(0, rule.minCompletedJobs - completedJobs);
+    if (nearest === null || remainingJobs < nearest.remainingJobs) {
+      nearest = { rule, remainingJobs };
+    }
+  }
+
+  if (!nearest) {
+    res.status(200).json({ progress: null });
+    return;
+  }
+
+  res.status(200).json({
+    progress: {
+      bonusAmount: nearest.rule.bonusAmount,
+      completedJobs,
+      requiredJobs: nearest.rule.minCompletedJobs,
+      remainingJobs: nearest.remainingJobs,
+    },
+  });
 });

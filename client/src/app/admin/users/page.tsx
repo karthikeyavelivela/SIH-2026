@@ -3,19 +3,29 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { UserTable, AdminUserRow } from '@/components/admin/UserTable';
+import { Pagination } from '@/components/ui/Pagination';
+
+const PAGE_SIZE = 20;
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  async function load() {
-    const query = search ? `?search=${encodeURIComponent(search)}` : '';
-    const res = await api.get<{ users: AdminUserRow[] }>(`/api/admin/users${query}`);
+  async function load(targetPage = page) {
+    const params = new URLSearchParams({ page: String(targetPage), limit: String(PAGE_SIZE) });
+    if (search) params.set('search', search);
+    const res = await api.get<{ users: AdminUserRow[]; total: number; page: number }>(
+      `/api/admin/users?${params.toString()}`
+    );
     setUsers(res.users);
+    setTotal(res.total);
+    setPage(res.page);
   }
 
   useEffect(() => {
-    load();
+    load(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -53,12 +63,13 @@ export default function AdminUsersPage() {
             placeholder="Search by name or phone"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && load()}
+            onKeyDown={(e) => e.key === 'Enter' && load(1)}
             className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-md border border-border bg-surface-raised shadow-sm text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
           />
         </div>
       </div>
       <UserTable users={users} onRoleChange={handleRoleChange} onStatusChange={handleStatusChange} />
+      <Pagination page={page} totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))} onChange={(p) => load(p)} />
     </div>
   );
 }

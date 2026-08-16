@@ -5,6 +5,7 @@ import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
+import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
 import { WalletIcon, StarIcon } from '@/components/ui/icons';
 
 export default function DriverEarningsPage() {
@@ -26,6 +27,8 @@ export default function DriverEarningsPage() {
           ₹{data.incentiveTotal} in rating-based bonuses earned
         </div>
       )}
+
+      <IncentiveProgressBar accent="primary" />
 
       <h2 className="font-heading text-lg font-bold mb-3">Order history</h2>
 

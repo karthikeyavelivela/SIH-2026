@@ -9,14 +9,14 @@ export function currentPeriod(): string {
   return new Date().toISOString().slice(0, 7); // 'YYYY-MM'
 }
 
-async function completedJobCountForUser(userId: string): Promise<number> {
+export async function completedJobCountForUser(userId: string): Promise<number> {
   return Booking.countDocuments({
     status: 'completed',
     $or: [{ assignedDriverIds: userId }, { assignedHamaliIds: userId }],
   });
 }
 
-async function completedJobCountForMutha(muthaId: string): Promise<number> {
+export async function completedJobCountForMutha(muthaId: string): Promise<number> {
   return Booking.countDocuments({ status: 'completed', assignedMuthaId: muthaId });
 }
 

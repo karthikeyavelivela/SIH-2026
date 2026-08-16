@@ -10,6 +10,7 @@ export interface AuthUser {
   role: string;
   accountStatus: string;
   permissions: string[];
+  licenseExpiryAt?: string;
 }
 
 interface AuthContextValue {

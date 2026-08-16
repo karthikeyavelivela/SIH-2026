@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react';
 
-type Tone = 'primary' | 'secondary' | 'muted' | 'success' | 'danger';
+type Tone = 'primary' | 'secondary' | 'muted' | 'success' | 'danger' | 'warning';
 
 const toneClasses: Record<Tone, string> = {
   primary: 'bg-primary/10 text-primary-600',
@@ -8,6 +8,9 @@ const toneClasses: Record<Tone, string> = {
   muted: 'bg-text-muted/10 text-text-muted',
   success: 'bg-emerald-500/10 text-emerald-700',
   danger: 'bg-red-500/10 text-red-700',
+  // "Expiring soon" per PRODUCT.md — warm amber, not alarming red, since
+  // nothing's actually wrong yet.
+  warning: 'bg-amber-500/10 text-amber-700',
 };
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {

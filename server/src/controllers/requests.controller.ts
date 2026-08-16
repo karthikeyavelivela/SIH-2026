@@ -14,6 +14,7 @@ import {
 } from '../services/bookingAssignment.service';
 import { emitBookingMatched, emitBookingStatus } from '../realtime/emitters';
 import { notifyMuthaOfferSettled } from '../realtime/offerEngine';
+import { uploadImage } from '../services/cloudinary.service';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
@@ -235,6 +236,43 @@ export const completeJob = asyncHandler(async (req: Request, res: Response) => {
       { availabilityStatus: 'online' }
     );
   }
+
+  emitBookingStatus(booking);
+  res.status(200).json({ booking });
+});
+
+// ---- POST /api/requests/:id/proof-photo ----
+// Captured inline as part of the status-button flow — pickup proof before
+// 'start', delivery proof before 'complete' — not a separate menu item.
+// Accepts a base64 data URL rather than multipart/form-data: no multer
+// dependency exists in this codebase yet, and a data URL in a JSON body is
+// simplest for a single small photo per stage.
+
+const MAX_PROOF_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB — generous for a compressed phone-camera JPEG, cheap ceiling against abuse
+
+export const uploadProofPhoto = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const role = req.user!.role;
+  const { stage, imageBase64 } = req.body as { stage: 'pickup' | 'delivery'; imageBase64: string };
+
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) throw new ApiError(404, 'Booking not found');
+
+  let muthaId: string | undefined;
+  if (role === 'mutha_leader') {
+    const mutha = await Mutha.findOne({ leaderId: userId });
+    muthaId = mutha?._id.toString();
+  }
+  assertAssignedToBooking(booking, userId, role, muthaId);
+
+  const match = /^data:image\/(png|jpe?g|webp);base64,(.+)$/.exec(imageBase64 ?? '');
+  if (!match) throw new ApiError(400, 'imageBase64 must be a data:image/(png|jpeg|webp);base64,... URL');
+  const buffer = Buffer.from(match[2], 'base64');
+  if (buffer.byteLength > MAX_PROOF_PHOTO_BYTES) throw new ApiError(400, 'Photo too large (max 5MB)');
+
+  const { url } = await uploadImage(buffer, `bookings/${booking._id}/proof`);
+  booking.proofPhotos = { ...booking.proofPhotos, [stage]: url };
+  await booking.save();
 
   emitBookingStatus(booking);
   res.status(200).json({ booking });

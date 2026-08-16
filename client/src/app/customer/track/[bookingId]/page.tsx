@@ -11,10 +11,11 @@ import { Payment } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Avatar } from '@/components/ui/Avatar';
 import { BackHeader } from '@/components/ui/BackHeader';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
-import { TruckIcon, BoxIcon, StarIcon, AlertIcon, PhoneIcon, UsersIcon } from '@/components/ui/icons';
+import { TruckIcon, BoxIcon, StarIcon, AlertIcon, MessageIcon, UsersIcon } from '@/components/ui/icons';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -28,6 +29,7 @@ interface BookingDetail {
   pickupLocation: { address: string; coordinates: [number, number] };
   dropLocation: { address: string; coordinates: [number, number] };
   statusHistory: { status: string; timestamp: string }[];
+  proofPhotos?: { pickup?: string; delivery?: string };
 }
 
 const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
@@ -45,28 +47,34 @@ const waitingCopy: Record<string, string> = {
 interface AssignedPerson {
   id: string;
   name: string;
-  phone?: string;
   ratingAvg: number;
   ratingCount: number;
   vehicle?: { type: string; capacityKg: number; registrationNumber: string } | null;
+}
+
+// Raw phone numbers are never sent to the client (see emitters.ts) — no
+// telephony/SMS-masking vendor is wired up, so the only safe contact
+// channel is the in-app chat already on this page. This scrolls to it and
+// focuses the input instead of pretending to place a masked call.
+function focusChat() {
+  const input = document.getElementById('booking-chat-input');
+  input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  (input as HTMLInputElement | null)?.focus();
 }
 
 // Full profile card, not a compact list row — this is what a customer
 // actually wants to see once matched: who's coming, what they're driving/
 // bringing, their track record, and a way to reach them.
 function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 'group' }) {
-  const initials = entry.name
-    .split(' ')
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-
   return (
     <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-      <div className="w-11 h-11 rounded-full bg-primary/15 text-primary-600 font-heading font-bold flex items-center justify-center flex-shrink-0 text-sm">
-        {sub === 'group' ? <UsersIcon className="w-5 h-5" /> : initials}
-      </div>
+      {sub === 'group' ? (
+        <div className="w-11 h-11 rounded-full bg-primary/15 text-primary-600 flex items-center justify-center flex-shrink-0">
+          <UsersIcon className="w-5 h-5" />
+        </div>
+      ) : (
+        <Avatar name={entry.name} accent="primary" />
+      )}
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold truncate">{entry.name}</p>
         {sub === 'vehicle' && entry.vehicle && (
@@ -75,28 +83,27 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
           </p>
         )}
         {sub === 'group' && <p className="text-xs text-text-muted">Mutha group</p>}
-        <span className="inline-flex items-center gap-1 mt-0.5">
+        <span className="inline-flex items-center gap-0.5 mt-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <StarIcon
               key={i}
-              className={`w-3 h-3 ${i < Math.round(entry.ratingAvg) ? 'text-primary-600' : 'text-border-strong'}`}
+              className={`w-3.5 h-3.5 ${i < Math.round(entry.ratingAvg) ? 'text-primary-600' : 'text-border-strong'}`}
               fill={i < Math.round(entry.ratingAvg) ? 'currentColor' : 'none'}
             />
           ))}
-          <span className="text-[11px] text-text-muted ml-0.5">
+          <span className="text-[11px] text-text-muted ml-1">
             {entry.ratingCount > 0 ? `${entry.ratingAvg.toFixed(1)} (${entry.ratingCount})` : 'New'}
           </span>
         </span>
       </div>
-      {entry.phone && (
-        <a
-          href={`tel:${entry.phone}`}
-          aria-label={`Call ${entry.name}`}
-          className="w-9 h-9 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/20 transition-colors duration-fast"
-        >
-          <PhoneIcon className="w-4 h-4" />
-        </a>
-      )}
+      <button
+        type="button"
+        onClick={focusChat}
+        aria-label={`Message ${entry.name}`}
+        className="w-9 h-9 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/20 transition-colors duration-fast"
+      >
+        <MessageIcon className="w-4 h-4" />
+      </button>
     </div>
   );
 }
@@ -347,6 +354,26 @@ export default function TrackBookingPage() {
           </p>
         </div>
       </Card>
+
+      {(booking.proofPhotos?.pickup || booking.proofPhotos?.delivery) && (
+        <Card elevation="raised" className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Photo proof</p>
+          <div className="flex gap-3">
+            {booking.proofPhotos?.pickup && (
+              <div>
+                <img src={booking.proofPhotos.pickup} alt="Pickup proof" className="w-24 h-24 rounded-md object-cover" />
+                <p className="text-[11px] text-text-muted mt-1 text-center">Pickup</p>
+              </div>
+            )}
+            {booking.proofPhotos?.delivery && (
+              <div>
+                <img src={booking.proofPhotos.delivery} alt="Delivery proof" className="w-24 h-24 rounded-md object-cover" />
+                <p className="text-[11px] text-text-muted mt-1 text-center">Delivery</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card elevation="raised">
         <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Fare</p>

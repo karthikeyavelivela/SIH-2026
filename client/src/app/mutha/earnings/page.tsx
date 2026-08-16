@@ -5,6 +5,7 @@ import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
+import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
 import { WalletIcon, StarIcon } from '@/components/ui/icons';
 
 export default function MuthaEarningsPage() {
@@ -26,6 +27,8 @@ export default function MuthaEarningsPage() {
           ₹{data.incentiveTotal} in group rating-based bonuses earned
         </div>
       )}
+
+      <IncentiveProgressBar accent="secondary" />
 
       <h2 className="font-heading text-lg font-bold mb-3">Per member</h2>
       {state === 'loading' && <div className="h-24 rounded-lg bg-surface animate-pulse mb-6" />}

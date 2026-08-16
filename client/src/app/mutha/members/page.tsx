@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { Avatar } from '@/components/ui/Avatar';
 import { UsersIcon } from '@/components/ui/icons';
 
 export default function MuthaMembersPage() {
@@ -55,9 +56,12 @@ export default function MuthaMembersPage() {
       <div className="space-y-3">
         {data?.members.map((m) => (
           <Card key={m._id} elevation="raised" className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{m.name}</p>
-              <p className="text-xs text-text-muted">{m.phone}</p>
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar name={m.name} accent="secondary" status={m.availabilityStatus} />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">{m.name}</p>
+                <p className="text-xs text-text-muted">{m.phone}</p>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Badge tone={m.availabilityStatus === 'online' ? 'success' : 'muted'}>

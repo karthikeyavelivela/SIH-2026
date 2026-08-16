@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
+import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
 import { BackHeader } from '@/components/ui/BackHeader';
 import { MapPinIcon, CheckIcon } from '@/components/ui/icons';
 
@@ -134,8 +135,24 @@ export default function HamaliActiveJobPage() {
           </div>
         )}
 
+        {(booking.status === 'accepted' || booking.status === 'in_progress') && (
+          <PhotoProofCapture
+            bookingId={booking._id}
+            stage={booking.status === 'accepted' ? 'pickup' : 'delivery'}
+            existingUrl={booking.status === 'accepted' ? booking.proofPhotos?.pickup : booking.proofPhotos?.delivery}
+            onUploaded={() => reload()}
+            accent="secondary"
+          />
+        )}
+
         {booking.status !== 'completed' && (
-          <Button variant="secondary" className="w-full" size="lg" disabled={pending} onClick={advance}>
+          <Button
+            variant="secondary"
+            className="w-full"
+            size="lg"
+            disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
+            onClick={advance}
+          >
             {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start job' : 'Mark done'}
           </Button>
         )}

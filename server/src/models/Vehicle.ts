@@ -8,6 +8,9 @@ export interface IVehicle {
   capacityKg: number;
   registrationNumber: string;
   photos: string[];
+  // Self-reported for now, same rationale as User.licenseExpiryAt — no
+  // document-upload/OCR pipeline exists to derive this automatically.
+  insuranceExpiryAt?: Date;
   verified: boolean;
   currentLocation: { type: 'Point'; coordinates: [number, number] };
   availabilityStatus: AvailabilityStatus;
@@ -22,6 +25,7 @@ const vehicleSchema = new Schema<IVehicle>(
     capacityKg: { type: Number, required: true, min: 1 },
     registrationNumber: { type: String, required: true, unique: true, trim: true, uppercase: true },
     photos: { type: [String], default: [] },
+    insuranceExpiryAt: { type: Date },
     verified: { type: Boolean, default: false },
     currentLocation: {
       type: { type: String, enum: ['Point'], default: 'Point' },

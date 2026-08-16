@@ -1,13 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
 import { UserIcon } from '@/components/ui/icons';
 
 export default function HamaliProfilePage() {
   const { user, logout } = useAuth();
+  const [licenseExpiryAt, setLicenseExpiryAt] = useState<string | null>(user?.licenseExpiryAt ?? null);
   if (!user) return null;
 
   return (
@@ -26,6 +29,13 @@ export default function HamaliProfilePage() {
           </Badge>
         </div>
       </Card>
+
+      <DocumentExpiryCard
+        license={licenseExpiryAt}
+        onSaved={(updated) => {
+          if (updated.licenseExpiryAt !== undefined) setLicenseExpiryAt(updated.licenseExpiryAt ?? null);
+        }}
+      />
 
       <Button variant="ghost" className="w-full" onClick={() => logout()}>
         Log out

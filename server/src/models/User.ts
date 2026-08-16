@@ -12,6 +12,11 @@ export interface IUser {
   kycStatus: KycStatus;
   kycDocs: string[];
   profilePhoto?: string;
+  // Driver's license / hamali ID expiry — self-reported for now (no KYC
+  // doc-upload endpoint exists yet to derive it from an actual document).
+  // Surfaced as a profile-page nudge before it lapses so a worker isn't
+  // surprised by a sudden deactivation.
+  licenseExpiryAt?: Date;
   accountStatus: AccountStatus;
   // Aggregate rating (driver/hamali_solo/mutha_member/customer can all be
   // rated). Updated by rating.service whenever a new Rating is submitted —
@@ -49,6 +54,7 @@ const userSchema = new Schema<IUser>(
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
     kycDocs: { type: [String], default: [] },
     profilePhoto: { type: String },
+    licenseExpiryAt: { type: Date },
     accountStatus: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
     ratingAvg: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },

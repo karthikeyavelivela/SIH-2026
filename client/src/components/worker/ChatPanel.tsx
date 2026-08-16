@@ -52,6 +52,7 @@ export function ChatPanel({ messages, currentUserId, onSend, accent = 'primary' 
       </div>
       <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-border p-3">
         <input
+          id="booking-chat-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Message…"

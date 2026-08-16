@@ -25,17 +25,24 @@ export async function emitBookingMatched(booking: IBooking): Promise<void> {
 
   const assigned: Record<string, unknown> = {};
 
+  // Masked contact: raw phone numbers are never sent to the other party —
+  // no telephony/SMS-proxy vendor is integrated in this codebase, and
+  // shipping a fake "masked call" button that silently exposed the real
+  // number would be worse than not having calling at all. The in-app
+  // ChatPanel (already present on both the customer's track page and the
+  // worker's active-job page) is the one contact channel that's actually
+  // safe to offer, so `phone` is deliberately excluded from this payload —
+  // this was previously leaking the raw number straight to `tel:` links.
   if (booking.assignedDriverIds.length > 0) {
     const driverId = booking.assignedDriverIds[0].toString();
     const [driver, vehicle] = await Promise.all([
-      User.findById(driverId).select('name phone ratingAvg ratingCount').lean(),
+      User.findById(driverId).select('name ratingAvg ratingCount').lean(),
       Vehicle.findOne({ ownerId: driverId }).select('type capacityKg registrationNumber').lean(),
     ]);
     if (driver) {
       assigned.driver = {
         id: driverId,
         name: driver.name,
-        phone: driver.phone,
         ratingAvg: driver.ratingAvg,
         ratingCount: driver.ratingCount,
         vehicle,
@@ -50,12 +57,11 @@ export async function emitBookingMatched(booking: IBooking): Promise<void> {
     }
   } else if (booking.assignedHamaliIds.length > 0) {
     const hamalis = await User.find({ _id: { $in: booking.assignedHamaliIds } })
-      .select('name phone ratingAvg ratingCount')
+      .select('name ratingAvg ratingCount')
       .lean();
     assigned.hamalis = hamalis.map((h) => ({
       id: h._id.toString(),
       name: h.name,
-      phone: h.phone,
       ratingAvg: h.ratingAvg,
       ratingCount: h.ratingCount,
     }));

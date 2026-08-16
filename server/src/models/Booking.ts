@@ -39,6 +39,11 @@ export interface IBooking {
   };
   distanceKm: number;
   statusHistory: { status: BookingStatus; timestamp: Date }[];
+  // Photo proof captured by the assigned worker at pickup (before 'start')
+  // and delivery (before 'complete') — biggest single dispute-reduction
+  // feature per PRODUCT.md's real-world feature spec, cheap to build on
+  // top of the existing cloudinary.service upload path.
+  proofPhotos: { pickup?: string; delivery?: string };
   createdAt: Date;
 }
 
@@ -84,6 +89,12 @@ const bookingSchema = new Schema<IBooking>(
     statusHistory: {
       type: [{ status: String, timestamp: { type: Date, default: Date.now } }],
       default: [],
+    },
+    // Plain nested object (like pickupLocation/dropLocation above), not an
+    // array — mongoose doesn't add its own _id to a single embedded object.
+    proofPhotos: {
+      pickup: { type: String },
+      delivery: { type: String },
     },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
