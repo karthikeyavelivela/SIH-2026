@@ -11,7 +11,7 @@ import { Mutha, IMutha } from '../models/Mutha';
 export const DRIVER_WILLING_RADIUS_KM = 200;
 export const HAMALI_WILLING_RADIUS_KM = 20;
 
-function dedupeById<T extends { _id: { toString(): string } }>(lists: T[][]): T[] {
+export function dedupeById<T extends { _id: { toString(): string } }>(lists: T[][]): T[] {
   const seen = new Set<string>();
   const out: T[] = [];
   for (const list of lists) {

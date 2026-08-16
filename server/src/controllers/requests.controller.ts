@@ -5,7 +5,12 @@ import { Booking, IBooking } from '../models/Booking';
 import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
-import { findCandidateMuthas } from '../services/matching.service';
+import {
+  findCandidateMuthas,
+  dedupeById,
+  DRIVER_WILLING_RADIUS_KM,
+  HAMALI_WILLING_RADIUS_KM,
+} from '../services/matching.service';
 import {
   acceptAsDriver,
   acceptAsHamaliSolo,
@@ -65,17 +70,39 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       res.status(200).json({ requests: [] });
       return;
     }
-    const bookings = await Booking.find({
+    const driverBase = {
       status: openStatus,
-      type: { $in: ['truck', 'combo'] },
+      type: { $in: ['truck', 'combo'] as const },
       assignedDriverIds: { $size: 0 },
       rejectedByUserIds: { $ne: userId },
       'requiredVehicles.0.capacityKg': { $lte: vehicle.capacityKg },
-      pickupLocation: {
-        $near: { $geometry: vehicle.currentLocation, $maxDistance: SEARCH_RADIUS_KM * 1000 },
-      },
-    }).limit(20);
-    res.status(200).json({ requests: bookings });
+    };
+    // Same two-tier search as matching.service: live GPS at the normal
+    // radius, plus a second wider pass anchored on the driver's own
+    // self-set willing-location (if they set one) — this is what makes
+    // "set a home base, get found before your GPS ping does" actually
+    // true for the browse/poll list a driver looks at, not just the
+    // (Phase 3, socket-only) push-offer path in offerEngine.ts.
+    const [live, willing] = await Promise.all([
+      Booking.find({
+        ...driverBase,
+        pickupLocation: {
+          $near: { $geometry: vehicle.currentLocation, $maxDistance: SEARCH_RADIUS_KM * 1000 },
+        },
+      }).limit(20),
+      vehicle.willingLocation?.coordinates?.length === 2
+        ? Booking.find({
+            ...driverBase,
+            pickupLocation: {
+              $near: {
+                $geometry: vehicle.willingLocation,
+                $maxDistance: DRIVER_WILLING_RADIUS_KM * 1000,
+              },
+            },
+          }).limit(20)
+        : Promise.resolve([]),
+    ]);
+    res.status(200).json({ requests: dedupeById([live, willing]).slice(0, 20) });
     return;
   }
 
@@ -86,16 +113,32 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       res.status(200).json({ requests: [] });
       return;
     }
-    const bookings = await Booking.find({
+    const hamaliBase = {
       status: openStatus,
-      type: { $in: ['hamali', 'combo'] },
+      type: { $in: ['hamali', 'combo'] as const },
       rejectedByUserIds: { $ne: userId },
       $expr: { $lt: [{ $size: '$assignedHamaliIds' }, '$requiredHamaliCount'] },
-      pickupLocation: {
-        $near: { $geometry: profile.currentLocation, $maxDistance: SEARCH_RADIUS_KM * 1000 },
-      },
-    }).limit(20);
-    res.status(200).json({ requests: bookings });
+    };
+    const [live, willing] = await Promise.all([
+      Booking.find({
+        ...hamaliBase,
+        pickupLocation: {
+          $near: { $geometry: profile.currentLocation, $maxDistance: SEARCH_RADIUS_KM * 1000 },
+        },
+      }).limit(20),
+      profile.willingLocation?.coordinates?.length === 2
+        ? Booking.find({
+            ...hamaliBase,
+            pickupLocation: {
+              $near: {
+                $geometry: profile.willingLocation,
+                $maxDistance: HAMALI_WILLING_RADIUS_KM * 1000,
+              },
+            },
+          }).limit(20)
+        : Promise.resolve([]),
+    ]);
+    res.status(200).json({ requests: dedupeById([live, willing]).slice(0, 20) });
     return;
   }
 
