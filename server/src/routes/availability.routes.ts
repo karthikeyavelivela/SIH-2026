@@ -40,3 +40,15 @@ availabilityRouter.patch(
   validate,
   availabilityController.setAvailability
 );
+
+availabilityRouter.patch(
+  '/willing-location',
+  verifyJwt,
+  requireRole('driver', 'hamali_solo', 'mutha_member'),
+  [
+    body('lat').isFloat({ min: -90, max: 90 }).optional({ nullable: true }),
+    body('lng').isFloat({ min: -180, max: 180 }).optional({ nullable: true }),
+  ],
+  validate,
+  availabilityController.setWillingLocation
+);

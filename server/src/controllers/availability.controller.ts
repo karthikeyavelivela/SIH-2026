@@ -20,13 +20,19 @@ export const getAvailability = asyncHandler(async (req: Request, res: Response) 
   if (req.user!.role === 'driver') {
     const vehicle = await Vehicle.findOne({ ownerId: req.user!.id });
     if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
-    res.status(200).json({ availabilityStatus: vehicle.availabilityStatus });
+    res.status(200).json({
+      availabilityStatus: vehicle.availabilityStatus,
+      willingLocation: vehicle.willingLocation ?? null,
+    });
     return;
   }
   if (req.user!.role === 'hamali_solo' || req.user!.role === 'mutha_member') {
     const profile = await HamaliProfile.findOne({ userId: req.user!.id });
     if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
-    res.status(200).json({ availabilityStatus: profile.availabilityStatus });
+    res.status(200).json({
+      availabilityStatus: profile.availabilityStatus,
+      willingLocation: profile.willingLocation ?? null,
+    });
     return;
   }
   throw new ApiError(403, 'This role does not have an availability toggle');
@@ -96,4 +102,56 @@ export const setAvailability = asyncHandler(async (req: Request, res: Response) 
   }
 
   throw new ApiError(403, 'This role does not have an availability toggle');
+});
+
+// ---- PATCH /api/availability/willing-location ----
+// Separate from setAvailability's `location` (live GPS, refreshed each
+// time they go online) — this is a self-set anchor point a driver/hamali
+// declares once and matching.service searches from with a much wider
+// radius (see DRIVER_WILLING_RADIUS_KM/HAMALI_WILLING_RADIUS_KM), so they
+// can be found for jobs anchored to a home base even before their live
+// GPS ping puts them anywhere near it. null clears it back to live-GPS-only matching.
+export const setWillingLocation = asyncHandler(async (req: Request, res: Response) => {
+  const { lat, lng } = req.body as { lat: number | null; lng: number | null };
+
+  let willingLocation: { type: 'Point'; coordinates: [number, number] } | null = null;
+  if (lat !== null && lng !== null) {
+    if (
+      typeof lat !== 'number' ||
+      typeof lng !== 'number' ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng) ||
+      lat < LAT_MIN ||
+      lat > LAT_MAX ||
+      lng < LNG_MIN ||
+      lng > LNG_MAX
+    ) {
+      throw new ApiError(400, 'Invalid location: lat must be -90..90 and lng must be -180..180');
+    }
+    willingLocation = { type: 'Point', coordinates: [lng, lat] };
+  }
+
+  if (req.user!.role === 'driver') {
+    const vehicle = await Vehicle.findOneAndUpdate(
+      { ownerId: req.user!.id },
+      { $set: { willingLocation } },
+      { new: true }
+    );
+    if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
+    res.status(200).json({ willingLocation: vehicle.willingLocation ?? null });
+    return;
+  }
+
+  if (req.user!.role === 'hamali_solo' || req.user!.role === 'mutha_member') {
+    const profile = await HamaliProfile.findOneAndUpdate(
+      { userId: req.user!.id },
+      { $set: { willingLocation } },
+      { new: true }
+    );
+    if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
+    res.status(200).json({ willingLocation: profile.willingLocation ?? null });
+    return;
+  }
+
+  throw new ApiError(403, 'This role has no willing-location concept');
 });

@@ -9,6 +9,14 @@ export interface IHamaliProfile {
   skills: string[];
   availabilityStatus: AvailabilityStatus;
   currentLocation: { type: 'Point'; coordinates: [number, number] };
+  // Optional, self-set "I'll take jobs anchored here" point — distinct
+  // from currentLocation (live GPS, refreshed each time they go online).
+  // A solo hamali who's willing to travel out from a fixed base doesn't
+  // need to physically be there yet for matching.service to consider
+  // them; matching runs a wider-radius second pass against this field
+  // when set, separate from the tight live-proximity pass on
+  // currentLocation.
+  willingLocation?: { type: 'Point'; coordinates: [number, number] };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,10 +32,22 @@ const hamaliProfileSchema = new Schema<IHamaliProfile>(
       type: { type: String, enum: ['Point'], default: 'Point' },
       coordinates: { type: [Number], default: [0, 0] },
     },
+    // No default on the inner `type` here (unlike currentLocation) —
+    // giving it one makes mongoose materialize a half-populated
+    // { type: 'Point' } (no coordinates) on every insert regardless of
+    // whether willingLocation was ever set, which broke the sparse
+    // 2dsphere index below with "Can't extract geo keys: Point must be an
+    // array or object" on every single document write. Undefined by
+    // default is exactly what the sparse index wants.
+    willingLocation: {
+      type: { type: String, enum: ['Point'] },
+      coordinates: { type: [Number] },
+    },
   },
   { timestamps: true }
 );
 
 hamaliProfileSchema.index({ currentLocation: '2dsphere' });
+hamaliProfileSchema.index({ willingLocation: '2dsphere' }, { sparse: true });
 
 export const HamaliProfile = model<IHamaliProfile>('HamaliProfile', hamaliProfileSchema);

@@ -2,6 +2,29 @@ import { Vehicle, IVehicle } from '../models/Vehicle';
 import { HamaliProfile, IHamaliProfile } from '../models/HamaliProfile';
 import { Mutha, IMutha } from '../models/Mutha';
 
+// A worker's self-set "willing location" (see Vehicle/HamaliProfile doc
+// comments) is searched with a much wider radius than live-GPS proximity
+// matching — the point of declaring one is exactly "find me for jobs
+// anchored near my base, even before I'm physically there." Drivers
+// naturally cover more ground per job than hamali labor, hence the very
+// different radii.
+export const DRIVER_WILLING_RADIUS_KM = 200;
+export const HAMALI_WILLING_RADIUS_KM = 20;
+
+function dedupeById<T extends { _id: { toString(): string } }>(lists: T[][]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const list of lists) {
+    for (const doc of list) {
+      const id = doc._id.toString();
+      if (seen.has(id)) continue;
+      seen.add(id);
+      out.push(doc);
+    }
+  }
+  return out;
+}
+
 interface CandidateVehicleQuery {
   pickup: [number, number]; // [lng, lat]
   requiredCapacityKg: number;
@@ -9,16 +32,37 @@ interface CandidateVehicleQuery {
 }
 
 export async function findCandidateVehicles(q: CandidateVehicleQuery): Promise<IVehicle[]> {
-  return Vehicle.find({
-    availabilityStatus: 'online',
+  const base = {
+    availabilityStatus: 'online' as const,
     capacityKg: { $gte: q.requiredCapacityKg },
-    currentLocation: {
-      $near: {
-        $geometry: { type: 'Point', coordinates: q.pickup },
-        $maxDistance: q.maxDistanceKm * 1000,
+  };
+
+  const [live, willing] = await Promise.all([
+    Vehicle.find({
+      ...base,
+      currentLocation: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: q.pickup },
+          $maxDistance: q.maxDistanceKm * 1000,
+        },
       },
-    },
-  });
+    }),
+    // Second, wider pass against the self-set anchor point — only
+    // matches vehicles that actually have one (the sparse 2dsphere index
+    // means $near here simply excludes docs missing the field, no need
+    // to filter separately).
+    Vehicle.find({
+      ...base,
+      willingLocation: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: q.pickup },
+          $maxDistance: DRIVER_WILLING_RADIUS_KM * 1000,
+        },
+      },
+    }),
+  ]);
+
+  return dedupeById([live, willing]);
 }
 
 interface CandidateHamaliQuery {
@@ -27,16 +71,30 @@ interface CandidateHamaliQuery {
 }
 
 export async function findCandidateHamaliSolos(q: CandidateHamaliQuery): Promise<IHamaliProfile[]> {
-  return HamaliProfile.find({
-    type: 'solo',
-    availabilityStatus: 'online',
-    currentLocation: {
-      $near: {
-        $geometry: { type: 'Point', coordinates: q.pickup },
-        $maxDistance: q.maxDistanceKm * 1000,
+  const base = { type: 'solo' as const, availabilityStatus: 'online' as const };
+
+  const [live, willing] = await Promise.all([
+    HamaliProfile.find({
+      ...base,
+      currentLocation: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: q.pickup },
+          $maxDistance: q.maxDistanceKm * 1000,
+        },
       },
-    },
-  });
+    }),
+    HamaliProfile.find({
+      ...base,
+      willingLocation: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: q.pickup },
+          $maxDistance: HAMALI_WILLING_RADIUS_KM * 1000,
+        },
+      },
+    }),
+  ]);
+
+  return dedupeById([live, willing]);
 }
 
 interface CandidateMuthaQuery {
@@ -47,22 +105,36 @@ interface CandidateMuthaQuery {
 
 /**
  * A Mutha is a candidate if it has at least `requiredHamaliCount` members
- * whose own HamaliProfile is online and within range. Ranks Muthas by how
- * many qualifying online members they have near the pickup point (most
- * first), not by a single distance value, since a group's "location" isn't
- * one point.
+ * whose own HamaliProfile is online and within range (live GPS OR their
+ * own wider willing-location pass — same two-tier search as solo hamalis).
+ * Ranks Muthas by how many qualifying online members they have near the
+ * pickup point (most first), not by a single distance value, since a
+ * group's "location" isn't one point.
  */
 export async function findCandidateMuthas(q: CandidateMuthaQuery): Promise<IMutha[]> {
-  const nearbyMemberProfiles = await HamaliProfile.find({
-    type: 'mutha_member',
-    availabilityStatus: 'online',
-    currentLocation: {
-      $near: {
-        $geometry: { type: 'Point', coordinates: q.pickup },
-        $maxDistance: q.maxDistanceKm * 1000,
+  const base = { type: 'mutha_member' as const, availabilityStatus: 'online' as const };
+
+  const [liveMembers, willingMembers] = await Promise.all([
+    HamaliProfile.find({
+      ...base,
+      currentLocation: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: q.pickup },
+          $maxDistance: q.maxDistanceKm * 1000,
+        },
       },
-    },
-  }).select('muthaId');
+    }).select('muthaId'),
+    HamaliProfile.find({
+      ...base,
+      willingLocation: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: q.pickup },
+          $maxDistance: HAMALI_WILLING_RADIUS_KM * 1000,
+        },
+      },
+    }).select('muthaId'),
+  ]);
+  const nearbyMemberProfiles = dedupeById([liveMembers, willingMembers]);
 
   const muthaIdCounts = new Map<string, number>();
   for (const profile of nearbyMemberProfiles) {
