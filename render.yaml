@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: fyro-server
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build:server
+    startCommand: node server/dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MOCK_EXTERNAL_SERVICES
+        value: "true"
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ADMIN_PHONE
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

@@ -20,10 +20,17 @@ import {
 
 const BCRYPT_COST = 12;
 
+// sameSite:'strict' works fine in dev (client:3000 and server:4000 are
+// different ports but the same registrable domain, localhost) but breaks
+// auth entirely once client and server are on genuinely different domains
+// (Vercel + Render) — a 'strict' cookie is never sent cross-site, so every
+// authenticated fetch from the deployed client would silently look
+// logged-out. 'none' requires secure:true (HTTPS-only), which production
+// already has.
 const cookieOpts = {
   httpOnly: true as const,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'strict') as 'none' | 'strict',
 };
 
 function setAuthCookies(res: Response, userId: string, role: string, tokenVersion: number) {
