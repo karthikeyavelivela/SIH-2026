@@ -9,6 +9,19 @@ const LAT_MAX = 90;
 const LNG_MIN = -180;
 const LNG_MAX = 180;
 
+// Mongoose materializes a "plain nested object" schema path (the
+// {type, coordinates} GeoPoint shape used throughout this codebase) as an
+// empty {} on every document that never explicitly set it — never
+// undefined/null, even with no defaults on either child field. `doc.field
+// ?? null` never catches that, so every caller of willingLocation needs
+// this instead of a bare nullish check.
+function presentGeoPoint(
+  point: { type?: string; coordinates?: number[] } | undefined
+): { type: 'Point'; coordinates: [number, number] } | null {
+  if (!point?.coordinates || point.coordinates.length !== 2) return null;
+  return { type: 'Point', coordinates: [point.coordinates[0], point.coordinates[1]] };
+}
+
 /**
  * GET /api/availability — the caller's own current status, so a client
  * (e.g. the dashboard's online/offline toggle) can render the real state
@@ -22,7 +35,7 @@ export const getAvailability = asyncHandler(async (req: Request, res: Response) 
     if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
     res.status(200).json({
       availabilityStatus: vehicle.availabilityStatus,
-      willingLocation: vehicle.willingLocation ?? null,
+      willingLocation: presentGeoPoint(vehicle.willingLocation),
     });
     return;
   }
@@ -31,7 +44,7 @@ export const getAvailability = asyncHandler(async (req: Request, res: Response) 
     if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
     res.status(200).json({
       availabilityStatus: profile.availabilityStatus,
-      willingLocation: profile.willingLocation ?? null,
+      willingLocation: presentGeoPoint(profile.willingLocation),
     });
     return;
   }
@@ -138,7 +151,7 @@ export const setWillingLocation = asyncHandler(async (req: Request, res: Respons
       { new: true }
     );
     if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
-    res.status(200).json({ willingLocation: vehicle.willingLocation ?? null });
+    res.status(200).json({ willingLocation: presentGeoPoint(vehicle.willingLocation) });
     return;
   }
 
@@ -149,7 +162,7 @@ export const setWillingLocation = asyncHandler(async (req: Request, res: Respons
       { new: true }
     );
     if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
-    res.status(200).json({ willingLocation: profile.willingLocation ?? null });
+    res.status(200).json({ willingLocation: presentGeoPoint(profile.willingLocation) });
     return;
   }
 

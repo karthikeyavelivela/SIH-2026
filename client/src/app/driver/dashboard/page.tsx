@@ -39,7 +39,7 @@ export default function DriverDashboardPage() {
       )
       .then((res) => {
         setStatus(res.availabilityStatus);
-        setWillingLocation(res.willingLocation ? { lat: res.willingLocation.coordinates[1], lng: res.willingLocation.coordinates[0] } : null);
+        setWillingLocation(res.willingLocation?.coordinates ? { lat: res.willingLocation.coordinates[1], lng: res.willingLocation.coordinates[0] } : null);
       })
       .catch((err) => {
         // A driver with no Vehicle yet (KYC/vehicle setup incomplete)

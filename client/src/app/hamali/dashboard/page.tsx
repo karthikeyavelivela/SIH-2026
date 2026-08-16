@@ -34,7 +34,7 @@ export default function HamaliDashboardPage() {
       )
       .then((res) => {
         setStatus(res.availabilityStatus);
-        setWillingLocation(res.willingLocation ? { lat: res.willingLocation.coordinates[1], lng: res.willingLocation.coordinates[0] } : null);
+        setWillingLocation(res.willingLocation?.coordinates ? { lat: res.willingLocation.coordinates[1], lng: res.willingLocation.coordinates[0] } : null);
       })
       .catch((err) => {
         if (err instanceof ApiClientError) {
