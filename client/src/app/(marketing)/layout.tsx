@@ -18,8 +18,15 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex flex-col">
       {/* Floating pill nav — sits above the hero rather than spanning edge
-          to edge, so the hero's illustration reads as full-bleed behind it. */}
-      <header className="sticky top-4 z-40 px-4">
+          to edge, so the hero's illustration reads as full-bleed behind it.
+          Must be `fixed`, not `sticky`: sticky still reserves its own box
+          height in normal flow, which left a solid page-background gap
+          above the hero section (glaringly visible once the hero became a
+          near-black video instead of a faint low-opacity decoration). Every
+          marketing subpage already has pt-24 on its own content wrapper
+          specifically to clear a floating header, confirming this was
+          always the intended layout. */}
+      <header className="fixed top-4 inset-x-0 z-40 px-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 rounded-full bg-surface-raised/90 backdrop-blur-md border border-border shadow-lg pl-5 pr-3 py-2.5">
           <Link
             href="/"

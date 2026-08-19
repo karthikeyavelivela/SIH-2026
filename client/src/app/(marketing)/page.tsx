@@ -89,17 +89,34 @@ export default function HomePage() {
           loop
           playsInline
           poster={HERO_VIDEO_POSTER}
-          className="absolute inset-0 -z-20 w-full h-full object-cover"
+          className="absolute inset-0 -z-20 w-full h-full object-cover saturate-[1.15] contrast-[1.05]"
         >
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
-        {/* Scrim: darkens the footage enough for white text to stay
-            readable at every point behind it, fading to the page's real
-            background color at the bottom so the next section (which
-            isn't over video) transitions cleanly rather than hard-cutting. */}
+        {/* Layered scrim, not one flat dark wash — the earlier single
+            heavy gradient (black/75→55) crushed the footage into near-
+            solid black. This keeps the video itself clearly visible at
+            the edges/top, and only concentrates darkness (a soft radial
+            vignette) where the headline/copy actually sits, so text stays
+            legible without hiding what's supposed to be the "wow" moment.
+            The bottom-most layer fades to the page's real background so
+            the next section (not over video) transitions cleanly. */}
+        <div aria-hidden className="absolute inset-0 -z-10 bg-black/20" />
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-b from-black/75 via-black/55 to-background"
+          className="absolute inset-0 -z-10"
+          style={{ background: 'radial-gradient(ellipse 75% 65% at 50% 40%, rgba(0,0,0,0.55), transparent 70%)' }}
+        />
+        {/* Precise stops, not the 0/50/100 spread of a named gradient
+            utility — the stats row sits ~80% down the section, and a
+            plain from/via/to fade was already lightening (and killing
+            contrast on) the white stat numbers well before the section
+            actually ended. This keeps the video dark through the stats
+            row and only fades out in the final ~12%. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10"
+          style={{ background: 'linear-gradient(to bottom, transparent 0%, transparent 88%, var(--color-background) 100%)' }}
         />
 
         <div className="max-w-4xl mx-auto text-center px-6 pt-24 pb-20">
@@ -113,13 +130,13 @@ export default function HomePage() {
 
           <motion.h1
             {...rise(0.06)}
-            className="font-heading text-hero font-extrabold tracking-tight leading-[1.02] text-white"
+            className="font-heading text-hero font-extrabold tracking-tight leading-[1.02] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]"
           >
             Move anything.
             <br />
             <span className="font-accent italic text-primary font-medium">Anywhere in AP.</span>
           </motion.h1>
-          <motion.p {...rise(0.14)} className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+          <motion.p {...rise(0.14)} className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
             Trucks for 1kg or 1000 tons. Hamali labor on demand. Book in minutes, watch it move on a live map,
             pay and rate when it&apos;s done.
           </motion.p>
