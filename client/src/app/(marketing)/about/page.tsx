@@ -14,7 +14,7 @@ export default function AboutPage() {
           <p className="text-text-muted leading-relaxed text-lg">
             FYRO — Find Your Right One — is an on-demand logistics marketplace launching in Andhra
             Pradesh. We connect customers who need cargo moved or loaded with verified truck drivers
-            and Hamali labor, matched in real time, tracked live, and paid for securely in-app.
+            and Hamali labor, matched in real time, tracked live, at a fixed fare shown upfront.
           </p>
         </Card>
       </div>

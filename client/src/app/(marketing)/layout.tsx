@@ -6,6 +6,8 @@ import Link from 'next/link';
 const navLinks = [
   { href: '/how-it-works', label: 'How it works' },
   { href: '/pricing', label: 'Pricing' },
+  { href: '/safety', label: 'Safety' },
+  { href: '/faq', label: 'FAQ' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -18,7 +20,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       {/* Floating pill nav — sits above the hero rather than spanning edge
           to edge, so the hero's illustration reads as full-bleed behind it. */}
       <header className="sticky top-4 z-40 px-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 rounded-full bg-surface-raised/90 backdrop-blur-md border border-border shadow-lg pl-5 pr-3 py-2.5">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 rounded-full bg-surface-raised/90 backdrop-blur-md border border-border shadow-lg pl-5 pr-3 py-2.5">
           <Link
             href="/"
             className="font-heading text-lg font-extrabold text-primary-600 tracking-tight transition-transform duration-base ease-out-expo hover:scale-[1.03] flex items-center gap-1.5"
@@ -29,7 +31,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </svg>
             FYRO
           </Link>
-          <nav aria-label="Main" className="hidden md:flex gap-7 text-sm font-medium text-text-muted">
+          <nav aria-label="Main" className="hidden lg:flex gap-6 text-sm font-medium text-text-muted">
             {navLinks.map((l) => (
               <Link
                 key={l.href}
@@ -60,7 +62,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <button
               type="button"
               onClick={() => setMobileNavOpen((open) => !open)}
-              className="md:hidden p-2 text-text-primary rounded-full hover:bg-surface transition-colors duration-base"
+              className="lg:hidden p-2 text-text-primary rounded-full hover:bg-surface transition-colors duration-base"
               aria-expanded={mobileNavOpen}
               aria-controls="mobile-nav-panel"
               aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
@@ -81,7 +83,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           <nav
             id="mobile-nav-panel"
             aria-label="Main (mobile)"
-            className="md:hidden max-w-4xl mx-auto mt-2 rounded-2xl border border-border px-6 py-5 flex flex-col gap-1 text-base font-medium text-text-muted bg-surface-raised shadow-lg animate-[fadeIn_200ms_ease-out]"
+            className="lg:hidden max-w-5xl mx-auto mt-2 rounded-2xl border border-border px-6 py-5 flex flex-col gap-1 text-base font-medium text-text-muted bg-surface-raised shadow-lg animate-[fadeIn_200ms_ease-out]"
           >
             {navLinks.map((l) => (
               <Link

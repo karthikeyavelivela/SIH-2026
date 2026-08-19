@@ -229,3 +229,12 @@ export function AlertIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ShieldIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3 4.5 6v6c0 4.5 3.2 7.6 7.5 9 4.3-1.4 7.5-4.5 7.5-9V6L12 3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}

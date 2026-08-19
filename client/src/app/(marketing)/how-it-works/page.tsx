@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 const sections = [
   {
     title: 'For customers',
-    body: 'Post a booking with pickup/drop points and cargo details, or request Hamali labor for loading and unloading — or bundle both. Nearby drivers and Hamali workers are offered your job one at a time, so you always get a real acceptance, not a fake instant match. Track your assigned driver or team live on the map, chat in-app, and pay securely when the job is done.',
+    body: 'Post a booking with pickup/drop points and cargo details, or request Hamali labor for loading and unloading — or bundle both. Nearby drivers and Hamali workers are offered your job one at a time, so you always get a real acceptance, not a fake instant match. Track your assigned driver or team live on the map, chat in-app, and pay the fixed fare you saw upfront when the job is done.',
   },
   {
     title: 'For drivers',
