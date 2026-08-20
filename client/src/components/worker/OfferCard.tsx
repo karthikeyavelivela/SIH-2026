@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { IncomingOffer } from '@/lib/useIncomingOffer';
 import { Button } from '@/components/ui/Button';
+import { CountdownRing } from '@/components/ui/CountdownRing';
 import { TruckIcon, BoxIcon, LayersIcon, MapPinIcon } from '@/components/ui/icons';
 
 const typeIcon = { truck: TruckIcon, hamali: BoxIcon, combo: LayersIcon };
@@ -32,7 +33,6 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
 
   const secondsLeft = Math.ceil(msLeft / 1000);
   const totalSeconds = 20; // matches server's OFFER_TIMEOUT_MS default; purely visual, server is authoritative on the real expiry
-  const pct = Math.max(0, Math.min(1, msLeft / (totalSeconds * 1000)));
   const Icon = typeIcon[offer.type as keyof typeof typeIcon] ?? TruckIcon;
   const ringColor = accent === 'primary' ? '#BF5020' : '#0A6F66';
   const accentText = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
@@ -53,24 +53,9 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
             {offer.distanceKm > 0 && <p className="text-xs text-text-muted">{offer.distanceKm.toFixed(1)} km trip</p>}
           </div>
         </div>
-        <div className="relative w-11 h-11 flex-shrink-0">
-          <svg viewBox="0 0 40 40" className="w-11 h-11 -rotate-90">
-            <circle cx="20" cy="20" r="17" fill="none" stroke="var(--color-border)" strokeWidth="4" />
-            <circle
-              cx="20"
-              cy="20"
-              r="17"
-              fill="none"
-              stroke={ringColor}
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeDasharray={2 * Math.PI * 17}
-              strokeDashoffset={2 * Math.PI * 17 * (1 - pct)}
-              style={{ transition: 'stroke-dashoffset 250ms linear' }}
-            />
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">{secondsLeft}</span>
-        </div>
+        <CountdownRing secondsLeft={secondsLeft} totalSeconds={totalSeconds} size={44} accent={accent}>
+          <span className="text-xs font-bold">{secondsLeft}</span>
+        </CountdownRing>
       </div>
 
       <div className="space-y-2 mb-4">

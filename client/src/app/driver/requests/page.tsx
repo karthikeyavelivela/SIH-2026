@@ -7,6 +7,7 @@ import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking } from '@/lib/types';
 import { RequestCard } from '@/components/worker/RequestCard';
 import { OfferCard } from '@/components/worker/OfferCard';
+import { TopBar } from '@/components/ui/TopBar';
 import { LayersIcon, AlertIcon } from '@/components/ui/icons';
 
 export default function DriverRequestsPage() {
@@ -41,9 +42,10 @@ export default function DriverRequestsPage() {
   const requests = data?.requests ?? [];
 
   return (
-    <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-1">Job requests</h1>
-      <p className="text-sm text-text-muted mb-6">Nearby truck jobs matching your vehicle. Refreshes automatically.</p>
+    <div className="min-h-screen bg-ip-surface pb-24">
+      <TopBar title="Job requests" showBack={false} />
+      <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
+      <p className="text-sm text-ip-on-surface-variant mb-6">Nearby truck jobs matching your vehicle. Refreshes automatically.</p>
 
       {offer && (
         <div className="mb-6">
@@ -82,6 +84,7 @@ export default function DriverRequestsPage() {
         {requests.map((b) => (
           <RequestCard key={b._id} booking={b} accent="primary" onAccept={accept} onReject={reject} />
         ))}
+      </div>
       </div>
     </div>
   );

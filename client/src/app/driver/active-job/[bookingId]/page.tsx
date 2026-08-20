@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
@@ -16,7 +17,9 @@ import { RatingModal } from '@/components/worker/RatingModal';
 import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
 import { BackHeader } from '@/components/ui/BackHeader';
 import { Avatar } from '@/components/ui/Avatar';
-import { MapPinIcon, CheckIcon, StarIcon, MessageIcon } from '@/components/ui/icons';
+import { ChecklistItem } from '@/components/ui/ChecklistItem';
+import { AlertBanner } from '@/components/ui/AlertBanner';
+import { MapPinIcon, CheckIcon, StarIcon, MessageIcon, AlertIcon } from '@/components/ui/icons';
 
 // Raw phone numbers are never sent to the client (no telephony/SMS-masking
 // vendor is wired up — see the customer track page's identical comment) —
@@ -76,15 +79,16 @@ export default function DriverActiveJobPage() {
     return (
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title="Active job" fallbackHref="/driver/dashboard" />
-        <p className="px-5 pt-6 text-sm text-text-muted">Loading job…</p>
+        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">Loading job…</p>
       </div>
     );
   }
 
   const stepIndex = STEPS.findIndex((s) => s.status === booking.status);
+  const pickupConfirmed = !!booking.proofPhotos?.pickup;
 
   return (
-    <div className="max-w-lg mx-auto pb-6">
+    <div className="max-w-lg mx-auto pb-6 bg-ip-surface min-h-screen">
       <BackHeader title="Active job" fallbackHref="/driver/dashboard" />
       <RouteMap
         pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
@@ -92,13 +96,13 @@ export default function DriverActiveJobPage() {
         className="h-56"
       />
 
-      <div className="px-5 pt-5">
+      <div className="px-ip-edge pt-ip-md">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-text-muted">Job status</p>
+          <p className="text-xs text-ip-on-surface-variant">Job status</p>
           <StatusPill status={booking.status} />
         </div>
         {booking.status === 'in_progress' && (
-          <p className="flex items-center gap-1.5 text-xs text-text-muted mb-5">
+          <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Sharing your live location with the customer
           </p>
@@ -112,28 +116,28 @@ export default function DriverActiveJobPage() {
               <div className="flex flex-col items-center gap-1.5">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-base ${
-                    i <= stepIndex ? 'bg-primary-600 text-white' : 'bg-surface text-text-muted'
+                    i <= stepIndex ? 'bg-primary-600 text-white' : 'bg-ip-surface-container text-ip-on-surface-variant'
                   }`}
                 >
                   {i < stepIndex ? <CheckIcon className="w-4 h-4" /> : i + 1}
                 </span>
-                <span className="text-[11px] text-text-muted whitespace-nowrap">{step.label}</span>
+                <span className="text-[11px] text-ip-on-surface-variant whitespace-nowrap">{step.label}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-1.5 -mt-4 transition-colors duration-base ${i < stepIndex ? 'bg-primary-600' : 'bg-border'}`} />
+                <div className={`h-0.5 flex-1 mx-1.5 -mt-4 transition-colors duration-base ${i < stepIndex ? 'bg-primary-600' : 'bg-ip-outline/20'}`} />
               )}
             </div>
           ))}
         </div>
 
         {booking.customer && (
-          <div className="flex items-center gap-3 p-3.5 rounded-lg bg-surface-raised border border-border shadow-sm mb-5">
+          <div className="ip-card flex items-center gap-3 mb-5">
             <Avatar name={booking.customer.name} photoUrl={booking.customer.profilePhoto} accent="primary" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold truncate">{booking.customer.name}</p>
               <span className="inline-flex items-center gap-0.5">
                 <StarIcon className="w-3.5 h-3.5 text-primary-600" fill="currentColor" />
-                <span className="text-[11px] text-text-muted ml-0.5">
+                <span className="text-[11px] text-ip-on-surface-variant ml-0.5">
                   {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : 'New'}
                 </span>
               </span>
@@ -155,17 +159,64 @@ export default function DriverActiveJobPage() {
             <p className="text-sm">{booking.pickupLocation.address}</p>
           </div>
           <div className="flex items-start gap-2.5">
-            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
-            <p className="text-sm text-text-muted">{booking.dropLocation.address}</p>
+            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
+            <p className="text-sm text-ip-on-surface-variant">{booking.dropLocation.address}</p>
           </div>
         </div>
+
+        {/* Cargo verification — read-only checklist derived from the same
+            booking fields the manifest is seeded from; system-derived, not
+            inspector-entered, so it has no onStateChange (per ChecklistItem's
+            own doc comment on that distinction). Only relevant before pickup
+            is confirmed. */}
+        {booking.status === 'accepted' && (
+          <div className="ip-card mb-6">
+            <p className="font-heading font-bold text-sm uppercase tracking-wide text-ip-on-surface-variant mb-1">
+              Cargo verification
+            </p>
+            <ChecklistItem
+              label="Weight declared"
+              state="pass"
+              note={`${booking.cargoDetails.weightKg} kg`}
+            />
+            <ChecklistItem
+              label="Cargo description"
+              state={booking.cargoDetails.description ? 'pass' : 'pending'}
+              note={booking.cargoDetails.description || 'Not provided'}
+            />
+            <ChecklistItem label="Pickup photo captured" state={pickupConfirmed ? 'pass' : 'pending'} />
+          </div>
+        )}
+
+        {/* Once pickup is confirmed, the driver signs off on the Load
+            Manifest / BOL before setting off — a real legal artifact, kept
+            as its own screen (client/src/app/driver/active-job/[bookingId]/manifest)
+            rather than folded into this one. */}
+        {booking.status === 'accepted' && pickupConfirmed && (
+          <Link
+            href={`/driver/active-job/${booking._id}/manifest`}
+            className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container mb-6 hover:bg-ip-surface-container-high transition-colors"
+          >
+            <div>
+              <p className="text-sm font-semibold text-ip-on-surface">Load Manifest &amp; BOL</p>
+              <p className="text-xs text-ip-on-surface-variant">Review cargo and sign off before you set off</p>
+            </div>
+            <span className="text-primary-600 font-semibold text-sm">Open</span>
+          </Link>
+        )}
+
+        {booking.status === 'in_progress' && !booking.proofPhotos?.delivery && (
+          <AlertBanner tone="warning" icon={<AlertIcon className="w-4 h-4" />} className="mb-6">
+            Take a delivery photo once you&apos;ve reached the drop-off point, then mark this job delivered.
+          </AlertBanner>
+        )}
 
         <div className="mb-6">
           <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="primary" />
         </div>
 
         {error && (
-          <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div role="alert" className="mb-4 rounded-ip-card bg-ip-error-container px-4 py-3 text-sm text-ip-on-error-container">
             {error}
           </div>
         )}
@@ -184,7 +235,7 @@ export default function DriverActiveJobPage() {
           <>
             {!pending &&
               (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
-                <p className="text-xs text-text-muted text-center mb-2">
+                <p className="text-xs text-ip-on-surface-variant text-center mb-2">
                   Take a {booking.status === 'accepted' ? 'pickup' : 'delivery'} photo above to continue.
                 </p>
               )}

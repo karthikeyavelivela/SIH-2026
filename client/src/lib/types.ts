@@ -49,6 +49,31 @@ export interface Booking {
   customer?: { id: string; name: string; profilePhoto?: string; ratingAvg: number; ratingCount: number };
 }
 
+export interface LoadManifestLineItem {
+  sku: string;
+  description: string;
+  weightKg: number;
+  quantity: number;
+}
+
+export interface LoadManifestConsignorDetails {
+  name: string;
+  address: string;
+  phone: string;
+}
+
+export interface LoadManifest {
+  _id: string;
+  bookingId: string;
+  lineItems: LoadManifestLineItem[];
+  consignorDetails: LoadManifestConsignorDetails;
+  signatureImageUrl?: string;
+  signedAt?: string;
+  status: 'pending' | 'signed';
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const STATUS_LABEL: Record<BookingStatus, string> = {
   requested: 'Requested',
   searching: 'Finding a match…',
@@ -80,12 +105,22 @@ export interface MuthaResponse {
   mutha: {
     _id: string;
     name: string;
+    region?: string;
+    photo?: string;
     inviteCode: string;
     ratingAvg: number;
     ratingCount: number;
     activeJobsCount: number;
   };
   members: MuthaMember[];
+}
+
+// GET /api/mutha/my-group — a mutha_member's narrow, read-only view of
+// their own group + leader contact (no invite code, no other members'
+// phone numbers).
+export interface MuthaMemberGroupInfo {
+  mutha: { _id: string; name: string; photo?: string; region?: string; ratingAvg: number; ratingCount: number };
+  leader: { name: string; phone: string; profilePhoto?: string };
 }
 
 export interface EarningsResponse {
@@ -118,4 +153,90 @@ export interface Complaint {
   resolutionNote?: string;
   createdAt: string;
   resolvedAt?: string;
+}
+
+// ---- Insurance (mirrors server/src/models/Insurance*.ts + ParametricTrigger.ts) ----
+
+export type InsurancePlanType = 'standard' | 'parametric';
+export type InsurancePlanCategory = 'commercial_auto' | 'work_compensation' | 'cargo_transit';
+export type InsurancePolicyStatus = 'active' | 'expired' | 'cancelled';
+export type InsuranceClaimStatus = 'submitted' | 'under_review' | 'approved' | 'rejected' | 'paid';
+export type ParametricCondition = 'earnings_below_threshold' | 'days_unable_to_work';
+
+export interface InsurancePlan {
+  _id: string;
+  name: string;
+  type: InsurancePlanType;
+  category: InsurancePlanCategory;
+  coverageAmount: number;
+  description: string;
+  forRoles: string[];
+  active: boolean;
+}
+
+export interface InsurancePolicyWithPlan {
+  _id: string;
+  userId: string;
+  planId: string;
+  status: InsurancePolicyStatus;
+  startDate: string;
+  endDate: string;
+  plan: InsurancePlan | null;
+}
+
+export interface InsuranceClaim {
+  _id: string;
+  userId: string;
+  policyId: string;
+  incidentDescription: string;
+  incidentDate: string;
+  status: InsuranceClaimStatus;
+  payoutAmount: number;
+  photos: string[];
+  reviewNote?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Current-period result from GET /api/insurance/me — see parametricInsurance.service.ts. */
+export interface ParametricTriggerStatus {
+  triggerId: string;
+  policyId: string;
+  condition: ParametricCondition;
+  thresholdValue: number;
+  periodDays: number;
+  payoutAmount: number;
+  actualValue: number;
+  triggered: boolean;
+  periodStart: string;
+  periodEnd: string;
+  paidAt?: string;
+  fromExistingEvent: boolean;
+}
+
+export interface ParametricTriggerEvent {
+  checkedAt: string;
+  periodIndex: number;
+  periodStart: string;
+  periodEnd: string;
+  actualValue: number;
+  triggered: boolean;
+  paidAt?: string;
+}
+
+export interface ParametricTriggerHistory {
+  _id: string;
+  policyId: string;
+  condition: ParametricCondition;
+  thresholdValue: number;
+  periodDays: number;
+  payoutAmount: number;
+  events: ParametricTriggerEvent[];
+}
+
+export interface InsuranceMeResponse {
+  policies: InsurancePolicyWithPlan[];
+  parametricTriggers: ParametricTriggerStatus[];
+  parametricTriggerHistory: ParametricTriggerHistory[];
+  claims: InsuranceClaim[];
 }

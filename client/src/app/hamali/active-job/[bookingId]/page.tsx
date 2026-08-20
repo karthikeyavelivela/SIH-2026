@@ -16,7 +16,9 @@ import { RatingModal } from '@/components/worker/RatingModal';
 import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
 import { BackHeader } from '@/components/ui/BackHeader';
 import { Avatar } from '@/components/ui/Avatar';
-import { MapPinIcon, CheckIcon, StarIcon, MessageIcon } from '@/components/ui/icons';
+import { ChecklistItem } from '@/components/ui/ChecklistItem';
+import { AlertBanner } from '@/components/ui/AlertBanner';
+import { MapPinIcon, CheckIcon, StarIcon, MessageIcon, AlertIcon } from '@/components/ui/icons';
 
 // Raw phone numbers are never sent to the client (no telephony/SMS-masking
 // vendor is wired up — see the customer track page's identical comment) —
@@ -76,7 +78,7 @@ export default function HamaliActiveJobPage() {
     return (
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title="Active job" fallbackHref="/hamali/dashboard" />
-        <p className="px-5 pt-6 text-sm text-text-muted">Loading job…</p>
+        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">Loading job…</p>
       </div>
     );
   }
@@ -84,7 +86,7 @@ export default function HamaliActiveJobPage() {
   const stepIndex = STEPS.findIndex((s) => s.status === booking.status);
 
   return (
-    <div className="max-w-lg mx-auto pb-6">
+    <div className="max-w-lg mx-auto pb-6 bg-ip-surface min-h-screen">
       <BackHeader title="Active job" fallbackHref="/hamali/dashboard" />
       <RouteMap
         pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
@@ -92,13 +94,13 @@ export default function HamaliActiveJobPage() {
         className="h-56"
       />
 
-      <div className="px-5 pt-5">
+      <div className="px-ip-edge pt-ip-md">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-text-muted">Job status</p>
+          <p className="text-xs text-ip-on-surface-variant">Job status</p>
           <StatusPill status={booking.status} />
         </div>
         {booking.status === 'in_progress' && (
-          <p className="flex items-center gap-1.5 text-xs text-text-muted mb-5">
+          <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Sharing your live location with the customer
           </p>
@@ -111,28 +113,28 @@ export default function HamaliActiveJobPage() {
               <div className="flex flex-col items-center gap-1.5">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-base ${
-                    i <= stepIndex ? 'bg-secondary-600 text-white' : 'bg-surface text-text-muted'
+                    i <= stepIndex ? 'bg-secondary-600 text-white' : 'bg-ip-surface-container text-ip-on-surface-variant'
                   }`}
                 >
                   {i < stepIndex ? <CheckIcon className="w-4 h-4" /> : i + 1}
                 </span>
-                <span className="text-[11px] text-text-muted whitespace-nowrap">{step.label}</span>
+                <span className="text-[11px] text-ip-on-surface-variant whitespace-nowrap">{step.label}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-1.5 -mt-4 transition-colors duration-base ${i < stepIndex ? 'bg-secondary-600' : 'bg-border'}`} />
+                <div className={`h-0.5 flex-1 mx-1.5 -mt-4 transition-colors duration-base ${i < stepIndex ? 'bg-secondary-600' : 'bg-ip-outline/20'}`} />
               )}
             </div>
           ))}
         </div>
 
         {booking.customer && (
-          <div className="flex items-center gap-3 p-3.5 rounded-lg bg-surface-raised border border-border shadow-sm mb-5">
+          <div className="ip-card flex items-center gap-3 mb-5">
             <Avatar name={booking.customer.name} photoUrl={booking.customer.profilePhoto} accent="secondary" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold truncate">{booking.customer.name}</p>
               <span className="inline-flex items-center gap-0.5">
                 <StarIcon className="w-3.5 h-3.5 text-secondary-600" fill="currentColor" />
-                <span className="text-[11px] text-text-muted ml-0.5">
+                <span className="text-[11px] text-ip-on-surface-variant ml-0.5">
                   {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : 'New'}
                 </span>
               </span>
@@ -154,17 +156,41 @@ export default function HamaliActiveJobPage() {
             <p className="text-sm">{booking.pickupLocation.address}</p>
           </div>
           <div className="flex items-start gap-2.5">
-            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
-            <p className="text-sm text-text-muted">{booking.dropLocation.address}</p>
+            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
+            <p className="text-sm text-ip-on-surface-variant">{booking.dropLocation.address}</p>
           </div>
         </div>
+
+        {/* Arrival / loading checklist — read-only, system-derived from the
+            same booking fields (cargo weight, pickup-photo state), same
+            pattern as the driver's cargo-verification card. */}
+        {booking.status === 'accepted' && (
+          <div className="ip-card mb-6">
+            <p className="font-heading font-bold text-sm uppercase tracking-wide text-ip-on-surface-variant mb-1">
+              Site arrival
+            </p>
+            <ChecklistItem label="Weight to load" state="pass" note={`${booking.cargoDetails.weightKg} kg`} />
+            <ChecklistItem
+              label="Cargo description"
+              state={booking.cargoDetails.description ? 'pass' : 'pending'}
+              note={booking.cargoDetails.description || 'Not provided'}
+            />
+            <ChecklistItem label="Loading photo captured" state={booking.proofPhotos?.pickup ? 'pass' : 'pending'} />
+          </div>
+        )}
+
+        {booking.status === 'in_progress' && !booking.proofPhotos?.delivery && (
+          <AlertBanner tone="info" icon={<AlertIcon className="w-4 h-4" />} className="mb-6">
+            Take an unloading photo once the job is done, then mark it complete.
+          </AlertBanner>
+        )}
 
         <div className="mb-6">
           <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
         </div>
 
         {error && (
-          <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div role="alert" className="mb-4 rounded-ip-card bg-ip-error-container px-4 py-3 text-sm text-ip-on-error-container">
             {error}
           </div>
         )}
@@ -183,7 +209,7 @@ export default function HamaliActiveJobPage() {
           <>
             {!pending &&
               (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
-                <p className="text-xs text-text-muted text-center mb-2">
+                <p className="text-xs text-ip-on-surface-variant text-center mb-2">
                   Take a {booking.status === 'accepted' ? 'pickup' : 'delivery'} photo above to continue.
                 </p>
               )}
