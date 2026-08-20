@@ -8,6 +8,11 @@ export interface IUser {
   email?: string;
   passwordHash: string;
   role: Role;
+  // Every role this phone number currently holds — the role switcher reads
+  // this to offer alternatives; `role` above stays the *active* role a
+  // session is currently operating as (JWT payload, every existing
+  // `role === '...'` check in the codebase). Always contains `role`.
+  roles: Role[];
   region?: string;
   kycStatus: KycStatus;
   kycDocs: string[];
@@ -48,7 +53,26 @@ const userSchema = new Schema<IUser>(
         'mutha_member',
         'manager',
         'admin',
+        'fleet_owner',
+        'warehouse_hub',
       ],
+    },
+    roles: {
+      type: [String],
+      enum: [
+        'customer',
+        'driver',
+        'hamali_solo',
+        'mutha_leader',
+        'mutha_member',
+        'manager',
+        'admin',
+        'fleet_owner',
+        'warehouse_hub',
+      ],
+      default: function (this: { role: Role }) {
+        return [this.role];
+      },
     },
     region: { type: String, trim: true },
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },

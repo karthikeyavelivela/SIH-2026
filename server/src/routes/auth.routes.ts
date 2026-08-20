@@ -53,6 +53,22 @@ authRouter.post(
 );
 
 authRouter.post(
+  '/signup/fleet-owner',
+  authLimiter,
+  [nameRule, phoneRule, passwordRule, body('fleetName').isString().trim().notEmpty()],
+  validate,
+  authController.signupFleetOwner
+);
+
+authRouter.post(
+  '/signup/warehouse-hub',
+  authLimiter,
+  [nameRule, phoneRule, passwordRule, body('hubName').isString().trim().notEmpty(), body('address').optional().isString()],
+  validate,
+  authController.signupWarehouseHub
+);
+
+authRouter.post(
   '/login',
   authLimiter,
   [phoneRule, body('password').isString().notEmpty()],
@@ -63,6 +79,13 @@ authRouter.post(
 authRouter.post('/refresh', authController.refresh);
 authRouter.post('/logout', verifyJwt, authController.logout);
 authRouter.get('/me', verifyJwt, authController.me);
+authRouter.patch(
+  '/switch-role',
+  verifyJwt,
+  [body('role').isString().notEmpty()],
+  validate,
+  authController.switchRole
+);
 authRouter.patch(
   '/me/photo',
   verifyJwt,

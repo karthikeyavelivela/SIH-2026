@@ -10,6 +10,9 @@ import { Vehicle } from '../models/Vehicle';
 import { uploadImage } from '../services/cloudinary.service';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
+import { Fleet } from '../models/Fleet';
+import { WarehouseHub } from '../models/WarehouseHub';
+import type { Role } from '@fyro/shared';
 import {
   signAccessToken,
   signRefreshToken,
@@ -154,6 +157,40 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   throw new ApiError(400, 'Invalid joinType');
 });
 
+export const signupFleetOwner = asyncHandler(async (req: Request, res: Response) => {
+  const { name, phone, password, fleetName } = req.body;
+  const existing = await User.findOne({ phone });
+  if (existing) throw new ApiError(409, 'Phone already registered');
+
+  const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+  let user;
+  try {
+    user = await User.create({ name, phone, passwordHash, role: 'fleet_owner' });
+  } catch (err) {
+    rethrowAsConflict(err, 'Phone number');
+  }
+  const fleet = await Fleet.create({ ownerId: user._id, name: fleetName, vehicleIds: [], driverIds: [] });
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  res.status(201).json({ user: publicUser(user), fleet: { id: fleet._id, name: fleet.name } });
+});
+
+export const signupWarehouseHub = asyncHandler(async (req: Request, res: Response) => {
+  const { name, phone, password, hubName, address } = req.body;
+  const existing = await User.findOne({ phone });
+  if (existing) throw new ApiError(409, 'Phone already registered');
+
+  const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+  let user;
+  try {
+    user = await User.create({ name, phone, passwordHash, role: 'warehouse_hub' });
+  } catch (err) {
+    rethrowAsConflict(err, 'Phone number');
+  }
+  const hub = await WarehouseHub.create({ ownerId: user._id, name: hubName, address: address ?? '' });
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  res.status(201).json({ user: publicUser(user), hub: { id: hub._id, name: hub.name } });
+});
+
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { phone, password } = req.body;
   const user = await User.findOne({ phone }).select('+passwordHash');
@@ -197,6 +234,24 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie('accessToken', cookieOpts);
   res.clearCookie('refreshToken', cookieOpts);
   res.status(200).json({ ok: true });
+});
+
+// ---- PATCH /api/auth/switch-role ----
+// One phone number can hold multiple roles (see User.roles). This never
+// grants a new role — it only re-issues the JWT with a role the account
+// already holds in roles[], so req.user.role (and every RBAC check built
+// on it) reflects the switch. Client re-fetches /auth/me and re-routes.
+export const switchRole = asyncHandler(async (req: Request, res: Response) => {
+  const { role } = req.body as { role: Role };
+  const user = await User.findById(req.user!.id);
+  if (!user) throw new ApiError(401, 'User not found');
+  if (!user.roles.includes(role)) {
+    throw new ApiError(403, 'Forbidden: account does not hold this role');
+  }
+  user.role = role;
+  await user.save();
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  res.status(200).json({ user: publicUser(user) });
 });
 
 export const me = asyncHandler(async (req: Request, res: Response) => {

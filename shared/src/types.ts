@@ -5,7 +5,15 @@ export type Role =
   | 'mutha_leader'
   | 'mutha_member'
   | 'manager'
-  | 'admin';
+  | 'admin'
+  | 'fleet_owner'
+  | 'warehouse_hub';
+
+// Roles a single phone number can hold concurrently (role switcher —
+// User.roles[] carries every role granted; User.role stays the *active*
+// one a session is currently operating as, kept for backward compat with
+// existing role === checks throughout the codebase).
+export type RoleSet = Role[];
 
 export type AccountStatus = 'active' | 'suspended' | 'deleted';
 export type KycStatus = 'pending' | 'verified' | 'rejected';
