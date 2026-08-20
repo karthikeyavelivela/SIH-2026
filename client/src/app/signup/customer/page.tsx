@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ const inputClass =
 export default function SignupCustomerPage() {
   const router = useRouter();
   const { refetch } = useAuth();
+  const t = useTranslations('auth.signupCustomer');
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export default function SignupCustomerPage() {
       await refetch();
       router.push('/customer/dashboard');
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Signup failed');
+      setError(err instanceof ApiClientError ? err.message : t('genericError'));
     } finally {
       setLoading(false);
     }
@@ -50,15 +52,15 @@ export default function SignupCustomerPage() {
 
       <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
         <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">
-          Get started
+          {t('eyebrow')}
         </p>
-        <h1 className="font-heading text-2xl font-bold mb-1">Book with FYRO</h1>
-        <p className="text-sm text-text-muted mb-7">Create an account to start booking loads.</p>
+        <h1 className="font-heading text-2xl font-bold mb-1">{t('title')}</h1>
+        <p className="text-sm text-text-muted mb-7">{t('subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            placeholder="Full name"
-            aria-label="Full name"
+            placeholder={t('namePlaceholder')}
+            aria-label={t('namePlaceholder')}
             autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -67,8 +69,8 @@ export default function SignupCustomerPage() {
           />
           <input
             type="tel"
-            placeholder="Phone number"
-            aria-label="Phone number"
+            placeholder={t('phonePlaceholder')}
+            aria-label={t('phonePlaceholder')}
             autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -77,8 +79,8 @@ export default function SignupCustomerPage() {
           />
           <input
             type="email"
-            placeholder="Email (optional)"
-            aria-label="Email (optional)"
+            placeholder={t('emailPlaceholder')}
+            aria-label={t('emailPlaceholder')}
             autoComplete="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -86,8 +88,8 @@ export default function SignupCustomerPage() {
           />
           <input
             type="password"
-            placeholder="Password (min 8 characters)"
-            aria-label="Password (min 8 characters)"
+            placeholder={t('passwordPlaceholder')}
+            aria-label={t('passwordPlaceholder')}
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -111,13 +113,13 @@ export default function SignupCustomerPage() {
             </div>
           )}
           <Button type="submit" disabled={loading} className="w-full" size="lg">
-            {loading ? 'Creating account…' : 'Create account'}
+            {loading ? t('submitLoading') : t('submit')}
           </Button>
         </form>
         <p className="text-sm text-text-muted mt-7 pt-6 border-t border-border">
-          Already have an account?{' '}
+          {t('loginPrompt')}{' '}
           <Link href="/login" className="text-primary-600 font-semibold hover:underline">
-            Log in
+            {t('loginLink')}
           </Link>
         </p>
       </Card>

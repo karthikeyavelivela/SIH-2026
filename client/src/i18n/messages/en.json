@@ -271,6 +271,110 @@
       "genericError": "Signup failed"
     }
   },
+  "shared": {
+    "languageSelection": {
+      "title": "Choose your language",
+      "subtitle": "Select a language to get started with FYRO.",
+      "continue": "Continue"
+    },
+    "roleSelection": {
+      "title": "Who are you?",
+      "subtitle": "Select your primary role to customize your experience.",
+      "roles": {
+        "customer": {
+          "title": "Customer",
+          "body": "I want to book transport or labor for my goods."
+        },
+        "driver": {
+          "title": "Truck Driver",
+          "body": "I own or operate a vehicle and want to find loads."
+        },
+        "hamali": {
+          "title": "Hamali Worker",
+          "body": "I provide loading, unloading, and labor services."
+        },
+        "fleetOwner": {
+          "title": "Fleet Owner",
+          "body": "I manage a fleet of vehicles and want to grow my business."
+        },
+        "warehouseHub": {
+          "title": "Warehouse Hub",
+          "body": "I run a warehouse or dock and coordinate incoming loads."
+        }
+      },
+      "continue": "Continue",
+      "backToHome": "Back to home"
+    },
+    "onboarding": {
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Get started",
+      "slides": {
+        "book": {
+          "eyebrow": "Instant logistics",
+          "title": "Book a truck or find labor in minutes.",
+          "body": "Seamlessly connect with verified drivers and Hamali groups near you."
+        },
+        "track": {
+          "eyebrow": "Live, end to end",
+          "title": "Watch it move on a real map.",
+          "body": "From pickup to delivery, track your driver or Hamali team in real time — no guessing."
+        },
+        "trust": {
+          "eyebrow": "Honest by design",
+          "title": "Real offers, real accountability.",
+          "body": "Sequential job offers, photo proof at both ends, and mandatory two-way ratings — never a fake instant match."
+        }
+      }
+    },
+    "terms": {
+      "back": "Back",
+      "eyebrow": "Legal documents",
+      "lastUpdated": "Last updated: August 2026",
+      "title": "Terms of Service & Privacy Policy",
+      "subtitle": "Please read these terms carefully before using the FYRO logistics platform. These documents define your rights and responsibilities.",
+      "sections": {
+        "userResponsibilities": {
+          "heading": "01. User Responsibilities",
+          "body1": "By creating an account or using the FYRO platform, you agree to provide accurate booking, vehicle, and identity details, and to conduct every pickup, delivery, and labor job in accordance with applicable local and state regulations.",
+          "body2": "You are responsible for keeping your account credentials confidential. Any activity under your account, authorized or not, remains your responsibility until you notify FYRO support of a suspected breach."
+        },
+        "liability": {
+          "heading": "02. Liability",
+          "body1": "FYRO connects customers with independent drivers and Hamali workers; it does not itself own vehicles or employ workers. Fares shown before you confirm a booking are final for that job, but FYRO is not a party to the underlying transport or labor contract.",
+          "body2": "To the extent permitted by law, FYRO is not liable for indirect or consequential loss arising from a delay, cancellation, or dispute between a customer and a driver or Hamali worker — use \"Report an issue\" on the booking to escalate any problem to our team."
+        },
+        "dataPrivacy": {
+          "heading": "03. Data Privacy",
+          "body1": "We collect the location, booking, and account data needed to match you with a driver or Hamali worker, show live tracking, and process ratings. Data in transit and at rest is protected using industry-standard encryption.",
+          "note": "FYRO never sells your individual booking or location data to third parties. Aggregated, anonymized data may be used to improve matching and route quality."
+        },
+        "governingLaw": {
+          "heading": "04. Governing Law",
+          "body1": "These Terms of Service and Privacy Policy are governed by the laws of India, without regard to conflict-of-law principles.",
+          "body2": "Any dispute arising from these terms shall be resolved exclusively in the competent courts of Andhra Pradesh."
+        }
+      },
+      "acknowledgment": "By continuing to use the FYRO platform, you acknowledge that you have read and understood these terms."
+    },
+    "otp": {
+      "back": "Back",
+      "stepPhoneTitle": "Enter your number",
+      "stepPhoneSubtitle": "We'll send a code to verify your account.",
+      "phonePlaceholder": "Phone number",
+      "sendCode": "Send code",
+      "stepCodeTitle": "Enter code",
+      "sentTo": "Sent to {phone}",
+      "resend": "Resend code",
+      "resendIn": "Resend in {seconds}s",
+      "changeNumber": "Change number",
+      "verify": "Verify",
+      "verifying": "Verifying…",
+      "disclaimerTitle": "This screen is a preview",
+      "disclaimer": "FYRO signs you in with a phone number and password today, not an SMS code — this screen isn't wired to a real verification flow yet, so no message will actually be sent.",
+      "backToLogin": "Go to log in instead"
+    }
+  },
   "worker": {
     "onlineToggle": {
       "onJob": "On a job",

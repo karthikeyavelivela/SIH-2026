@@ -2,20 +2,22 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { BottomTabNav, TabItem } from '@/components/ui/BottomTabNav';
 import { HomeIcon, CalendarIcon, ClockIcon, UserIcon } from '@/components/ui/icons';
 
-const tabs: TabItem[] = [
-  { href: '/customer/dashboard', label: 'Home', icon: HomeIcon },
-  { href: '/customer/book', label: 'Book', icon: CalendarIcon },
-  { href: '/customer/history', label: 'History', icon: ClockIcon },
-  { href: '/customer/profile', label: 'Profile', icon: UserIcon },
-];
-
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const t = useTranslations('nav');
+
+  const tabs: TabItem[] = [
+    { href: '/customer/dashboard', label: t('home'), icon: HomeIcon },
+    { href: '/customer/book', label: t('book'), icon: CalendarIcon },
+    { href: '/customer/history', label: t('history'), icon: ClockIcon },
+    { href: '/customer/profile', label: t('profile'), icon: UserIcon },
+  ];
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'customer')) {

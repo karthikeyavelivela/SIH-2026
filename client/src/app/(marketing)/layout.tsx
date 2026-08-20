@@ -1,19 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
-
-const navLinks = [
-  { href: '/how-it-works', label: 'How it works' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/safety', label: 'Safety' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-];
+import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
+import { setLocaleAction } from '@/i18n/setLocale';
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const t = useTranslations('marketing.layout');
+  const locale = useLocale() as LanguageCode;
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const navLinks = [
+    { href: '/how-it-works', label: t('howItWorks') },
+    { href: '/pricing', label: t('pricing') },
+    { href: '/safety', label: t('safety') },
+    { href: '/faq', label: t('faq') },
+    { href: '/about', label: t('about') },
+    { href: '/contact', label: t('contact') },
+  ];
+
+  function handleLocaleChange(code: LanguageCode) {
+    if (code === locale) return;
+    startTransition(async () => {
+      await setLocaleAction(code);
+      router.refresh();
+    });
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -51,17 +67,26 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            {/* Compact language switcher — same setLocaleAction + router.refresh
+                loop as the homepage hero (see client/src/app/(marketing)/page.tsx),
+                just styled to fit inline in the pill nav instead of floating
+                over a hero. */}
+            <LanguagePill
+              value={locale}
+              onChange={handleLocaleChange}
+              className={`hidden md:inline-flex bg-surface transition-opacity duration-base ${isPending ? 'opacity-60' : ''}`}
+            />
             <Link
               href="/login"
               className="hidden sm:inline-flex text-sm font-semibold px-4 py-2 rounded-full text-text-primary hover:bg-surface transition-colors duration-base"
             >
-              Log in
+              {t('login')}
             </Link>
             <Link
               href="/signup/customer"
               className="text-sm font-semibold px-4 py-2.5 rounded-full bg-primary-600 text-white shadow-sm hover:shadow-glow-primary hover:-translate-y-0.5 transition-all duration-base"
             >
-              Book a delivery
+              {t('bookDelivery')}
             </Link>
             {/* Mobile-only nav toggle. The four content links (nav above) are
                 hidden below md — this is the only way to reach them on a
@@ -72,7 +97,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               className="lg:hidden p-2 text-text-primary rounded-full hover:bg-surface transition-colors duration-base"
               aria-expanded={mobileNavOpen}
               aria-controls="mobile-nav-panel"
-              aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+              aria-label={mobileNavOpen ? t('closeMenu') : t('openMenu')}
             >
               {mobileNavOpen ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -107,8 +132,11 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               onClick={() => setMobileNavOpen(false)}
               className="py-3 px-2 rounded-md hover:bg-surface hover:text-text-primary transition-colors duration-base sm:hidden"
             >
-              Log in
+              {t('login')}
             </Link>
+            <div className="pt-3 mt-2 border-t border-border md:hidden">
+              <LanguagePill value={locale} onChange={handleLocaleChange} />
+            </div>
           </nav>
         )}
       </header>
@@ -117,7 +145,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         <div className="max-w-6xl mx-auto px-6 py-14 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
           <div>
             <span className="font-heading text-lg font-extrabold text-primary-600 tracking-tight">FYRO</span>
-            <p className="mt-2 text-sm text-text-muted">© 2026 FYRO. Andhra Pradesh.</p>
+            <p className="mt-2 text-sm text-text-muted">{t('copyright')}</p>
           </div>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-text-muted">
             {navLinks.map((l) => (

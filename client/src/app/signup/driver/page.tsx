@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/Button';
@@ -12,15 +13,16 @@ import { ChevronLeftIcon } from '@/components/ui/icons';
 const inputClass =
   'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
 
-const VEHICLE_OPTIONS: { value: string; label: string }[] = [
-  { value: 'mini_truck', label: 'Mini truck' },
-  { value: 'medium_truck', label: 'Medium truck' },
-  { value: 'large_truck', label: 'Large truck' },
-];
+const VEHICLE_VALUES = ['mini_truck', 'medium_truck', 'large_truck'] as const;
 
 export default function SignupDriverPage() {
   const router = useRouter();
   const { refetch } = useAuth();
+  const t = useTranslations('auth.signupDriver');
+  const vehicleOptions = VEHICLE_VALUES.map((value) => ({
+    value,
+    label: t(`vehicleOptions.${value === 'mini_truck' ? 'miniTruck' : value === 'medium_truck' ? 'mediumTruck' : 'largeTruck'}`),
+  }));
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -41,7 +43,7 @@ export default function SignupDriverPage() {
       await refetch();
       router.push('/driver/dashboard');
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Signup failed');
+      setError(err instanceof ApiClientError ? err.message : t('genericError'));
     } finally {
       setLoading(false);
     }
@@ -63,15 +65,15 @@ export default function SignupDriverPage() {
 
       <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
         <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">
-          Partner with us
+          {t('eyebrow')}
         </p>
-        <h1 className="font-heading text-2xl font-bold mb-1">Drive with FYRO</h1>
-        <p className="text-sm text-text-muted mb-7">Register your vehicle to start hauling loads.</p>
+        <h1 className="font-heading text-2xl font-bold mb-1">{t('title')}</h1>
+        <p className="text-sm text-text-muted mb-7">{t('subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            placeholder="Full name"
-            aria-label="Full name"
+            placeholder={t('namePlaceholder')}
+            aria-label={t('namePlaceholder')}
             autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -80,8 +82,8 @@ export default function SignupDriverPage() {
           />
           <input
             type="tel"
-            placeholder="Phone number"
-            aria-label="Phone number"
+            placeholder={t('phonePlaceholder')}
+            aria-label={t('phonePlaceholder')}
             autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -90,8 +92,8 @@ export default function SignupDriverPage() {
           />
           <input
             type="password"
-            placeholder="Password (min 8 characters)"
-            aria-label="Password (min 8 characters)"
+            placeholder={t('passwordPlaceholder')}
+            aria-label={t('passwordPlaceholder')}
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -101,15 +103,15 @@ export default function SignupDriverPage() {
           />
 
           <div className="rounded-md border border-border bg-surface/60 p-3.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2.5">Vehicle type</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2.5">{t('vehicleTypeLabel')}</p>
             <div className="relative">
               <select
-                aria-label="Vehicle type"
+                aria-label={t('vehicleTypeLabel')}
                 value={form.vehicleType}
                 onChange={(e) => setForm({ ...form, vehicleType: e.target.value })}
                 className="w-full min-h-[44px] px-4 py-2.5 rounded-md border-0 bg-surface-raised text-text-primary shadow-sm transition-colors duration-fast focus:ring-2 focus:ring-primary-600/20 appearance-none cursor-pointer pr-10 font-medium"
               >
-                {VEHICLE_OPTIONS.map((v) => (
+                {vehicleOptions.map((v) => (
                   <option key={v.value} value={v.value}>
                     {v.label}
                   </option>
@@ -132,8 +134,8 @@ export default function SignupDriverPage() {
 
           <input
             type="number"
-            placeholder="Capacity (kg)"
-            aria-label="Capacity in kilograms"
+            placeholder={t('capacityPlaceholder')}
+            aria-label={t('capacityPlaceholder')}
             value={form.capacityKg}
             onChange={(e) => setForm({ ...form, capacityKg: e.target.value })}
             className={inputClass}
@@ -141,8 +143,8 @@ export default function SignupDriverPage() {
             min={1}
           />
           <input
-            placeholder="Registration number"
-            aria-label="Vehicle registration number"
+            placeholder={t('registrationPlaceholder')}
+            aria-label={t('registrationPlaceholder')}
             value={form.registrationNumber}
             onChange={(e) => setForm({ ...form, registrationNumber: e.target.value })}
             className={inputClass}
@@ -164,13 +166,13 @@ export default function SignupDriverPage() {
             </div>
           )}
           <Button type="submit" disabled={loading} className="w-full" size="lg">
-            {loading ? 'Creating account…' : 'Create account'}
+            {loading ? t('submitLoading') : t('submit')}
           </Button>
         </form>
         <p className="text-sm text-text-muted mt-7 pt-6 border-t border-border">
-          Already have an account?{' '}
+          {t('loginPrompt')}{' '}
           <Link href="/login" className="text-primary-600 font-semibold hover:underline">
-            Log in
+            {t('loginLink')}
           </Link>
         </p>
       </Card>
