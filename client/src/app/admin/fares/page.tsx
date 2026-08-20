@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { api, ApiClientError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { StatusChip } from '@/components/ui/StatusChip';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { LayersIcon } from '@/components/ui/icons';
 
 interface FareRule {
   _id: string;
@@ -25,16 +27,19 @@ const CATEGORIES: { value: FareRule['category']; label: string }[] = [
 ];
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
 
 function ErrorAlert({ message }: { message: string }) {
   return (
-    <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div role="alert" className="rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container">
       {message}
     </div>
   );
 }
 
+// Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md's
+// pricing_rules_configuration row — all fetch/mutation logic identical to
+// before this pass.
 export default function AdminFaresPage() {
   const [rules, setRules] = useState<FareRule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,62 +93,64 @@ export default function AdminFaresPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">Pricing</p>
-        <h1 className="font-heading text-2xl font-bold mb-1">Fare rules</h1>
-        <p className="text-sm text-text-muted mb-6">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Pricing</p>
+        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Fare rules</h1>
+        <p className="text-sm text-ip-on-surface-variant mb-6">
           Region × category rate cards. Creating a new active rule for the same region+category retires the
           previous one automatically.
         </p>
 
-        {loading && <div className="h-40 rounded-lg bg-surface animate-pulse" />}
+        {loading && <Skeleton className="h-40" />}
 
         {!loading && rules.length === 0 && (
-          <Card elevation="raised" className="text-center py-10">
-            <p className="text-sm text-text-muted">
-              No fare rules yet — bookings can't be created until at least one exists per region/category.
-            </p>
-          </Card>
+          <div className="ip-card">
+            <EmptyState
+              icon={<LayersIcon className="w-7 h-7" />}
+              title="No fare rules yet"
+              description="Bookings can't be created until at least one exists per region/category."
+            />
+          </div>
         )}
 
         <div className="space-y-3">
           {rules.map((r) => (
-            <Card key={r._id} elevation="raised">
+            <div key={r._id} className="ip-card">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-heading font-bold">{r.region}</p>
-                <Badge tone={r.active ? 'success' : 'muted'}>{r.active ? 'Active' : 'Inactive'}</Badge>
+                <StatusChip tone={r.active ? 'success' : 'muted'}>{r.active ? 'Active' : 'Inactive'}</StatusChip>
               </div>
-              <p className="text-sm text-text-muted mb-3 capitalize">{r.category.replace('_', ' ')}</p>
+              <p className="text-sm text-ip-on-surface-variant mb-3 capitalize">{r.category.replace('_', ' ')}</p>
               <div className="grid grid-cols-3 gap-2 text-sm mb-3">
                 <div>
-                  <p className="text-xs text-text-muted">Base</p>
+                  <p className="text-xs text-ip-on-surface-variant">Base</p>
                   <p className="font-semibold">₹{r.baseFare}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted">Per km</p>
+                  <p className="text-xs text-ip-on-surface-variant">Per km</p>
                   <p className="font-semibold">₹{r.perKmRate}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted">Minimum</p>
+                  <p className="text-xs text-ip-on-surface-variant">Minimum</p>
                   <p className="font-semibold">₹{r.minimumFare}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => toggleActive(r)}
-                className="text-xs font-semibold text-primary-600 hover:underline"
+                className="text-xs font-semibold text-ip-primary hover:underline"
               >
                 {r.active ? 'Deactivate' : 'Reactivate'}
               </button>
-            </Card>
+            </div>
           ))}
         </div>
       </div>
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary-600 mb-2">Add</p>
-        <h2 className="font-heading text-xl font-bold mb-1">New fare rule</h2>
-        <p className="text-sm text-text-muted mb-6">Launch region is Visakhapatnam until Phase 5's region picker.</p>
-        <Card elevation="raised">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">Add</p>
+        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">New fare rule</h2>
+        <p className="text-sm text-ip-on-surface-variant mb-6">Launch region is Visakhapatnam until Phase 5's region picker.</p>
+        <div className="ip-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               placeholder="Region"
@@ -200,7 +207,7 @@ export default function AdminFaresPage() {
               {submitting ? 'Saving…' : 'Create fare rule'}
             </Button>
           </form>
-        </Card>
+        </div>
       </div>
     </div>
   );

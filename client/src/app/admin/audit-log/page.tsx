@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
+import { DataTable } from '@/components/admin/DataTable';
+import { StatusChip } from '@/components/ui/StatusChip';
 
 interface AuditEntry {
   _id: string;
@@ -16,8 +18,14 @@ interface AuditEntry {
 }
 
 const inputClass =
-  'min-h-[40px] px-3.5 py-2 rounded-md border border-border bg-background text-sm placeholder:text-text-muted/70 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-colors duration-fast';
+  'min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm placeholder:text-ip-on-surface-variant/70 focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20 transition-colors';
 
+// Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md's
+// system_audit_trail row, moved onto the shared DataTable component. Same
+// data source as before (GET /api/admin/audit-log, unchanged) — this
+// already covers "immutable, filterable" (AuditLog.ts has no
+// update/delete anywhere in the codebase; this page's filters +
+// pagination are the "filterable" half), so this pass is UI-only.
 export default function AdminAuditLogPage() {
   const [action, setAction] = useState('');
   const [targetType, setTargetType] = useState('');
@@ -41,9 +49,12 @@ export default function AdminAuditLogPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">Trust & safety</p>
-      <h1 className="font-heading text-2xl font-bold mb-1">Audit log</h1>
-      <p className="text-sm text-text-muted mb-6">Every admin/manager action — role changes, deletions, fare rule edits, complaint resolutions.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Audit log</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-6">
+        Every admin/manager action — role changes, deletions, fare rule edits, complaint resolutions. Append-only:
+        nothing here can be edited or removed.
+      </p>
 
       <div className="flex flex-wrap gap-3 mb-6">
         <input
@@ -68,34 +79,33 @@ export default function AdminAuditLogPage() {
         />
       </div>
 
-      <div className="rounded-lg border border-border bg-surface-raised shadow-sm overflow-x-auto max-w-5xl">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-              <th className="px-4 py-3">Time</th>
-              <th className="px-4 py-3">Actor</th>
-              <th className="px-4 py-3">Action</th>
-              <th className="px-4 py-3">Target</th>
-              <th className="px-4 py-3">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((e) => (
-              <tr key={e._id} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 whitespace-nowrap text-text-muted">{new Date(e.timestamp).toLocaleString()}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{e.actorRole}</td>
-                <td className="px-4 py-3 whitespace-nowrap font-medium">{e.action}</td>
-                <td className="px-4 py-3 whitespace-nowrap text-text-muted">
+      <div className="max-w-5xl">
+        <DataTable<AuditEntry>
+          rows={entries}
+          rowKey={(e) => e._id}
+          loading={state === 'loading' && entries.length === 0}
+          emptyTitle="No matching entries"
+          columns={[
+            { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString()}</span> },
+            { key: 'actor', header: 'Actor', render: (e) => <StatusChip tone="secondary">{e.actorRole}</StatusChip> },
+            { key: 'action', header: 'Action', render: (e) => <span className="font-medium">{e.action}</span> },
+            {
+              key: 'target',
+              header: 'Target',
+              render: (e) => (
+                <span className="text-ip-on-surface-variant whitespace-nowrap">
                   {e.targetType} · {e.targetId.slice(-6)}
-                </td>
-                <td className="px-4 py-3 text-text-muted max-w-xs truncate">{JSON.stringify(e.details)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {state !== 'loading' && entries.length === 0 && (
-          <p className="text-sm text-text-muted text-center py-8">No matching entries.</p>
-        )}
+                </span>
+              ),
+            },
+            {
+              key: 'details',
+              header: 'Details',
+              className: 'max-w-xs truncate',
+              render: (e) => <span className="text-ip-on-surface-variant">{JSON.stringify(e.details)}</span>,
+            },
+          ]}
+        />
       </div>
 
       {totalPages > 1 && (
@@ -103,17 +113,17 @@ export default function AdminAuditLogPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="text-sm font-medium text-primary-600 disabled:text-text-muted disabled:cursor-not-allowed"
+            className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
           >
             Previous
           </button>
-          <span className="text-sm text-text-muted">
+          <span className="text-sm text-ip-on-surface-variant">
             Page {page} of {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="text-sm font-medium text-primary-600 disabled:text-text-muted disabled:cursor-not-allowed"
+            className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
           >
             Next
           </button>

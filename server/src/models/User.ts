@@ -16,6 +16,10 @@ export interface IUser {
   region?: string;
   kycStatus: KycStatus;
   kycDocs: string[];
+  // Set by kyc.controller's reject action; cleared (unset) on a subsequent
+  // approve. Not required for 'pending'/'verified' — only ever meaningful
+  // alongside kycStatus === 'rejected'.
+  kycRejectionReason?: string;
   profilePhoto?: string;
   // Driver's license / hamali ID expiry — self-reported for now (no KYC
   // doc-upload endpoint exists yet to derive it from an actual document).
@@ -77,6 +81,7 @@ const userSchema = new Schema<IUser>(
     region: { type: String, trim: true },
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
     kycDocs: { type: [String], default: [] },
+    kycRejectionReason: { type: String, trim: true },
     profilePhoto: { type: String },
     licenseExpiryAt: { type: Date },
     accountStatus: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },

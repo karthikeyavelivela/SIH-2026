@@ -5,7 +5,6 @@ import { api } from '@/lib/api';
 import { TreeView } from '@/components/admin/TreeView';
 import { PermissionPicker } from '@/components/admin/PermissionPicker';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { useAuth } from '@/lib/auth-context';
 
@@ -17,13 +16,13 @@ interface ManagerRow {
 }
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
 
 function ErrorAlert({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
+      className="flex items-start gap-2.5 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container animate-[fadeIn_200ms_ease-out]"
     >
       <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path
@@ -37,6 +36,9 @@ function ErrorAlert({ message }: { message: string }) {
   );
 }
 
+// Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md — TreeView /
+// PermissionPicker (components/admin/*) are untouched; all fetch/mutation
+// logic below (including the edit-existing-manager flow) is unchanged.
 export default function AdminManagersPage() {
   const { user } = useAuth();
   const [managers, setManagers] = useState<ManagerRow[]>([]);
@@ -44,10 +46,6 @@ export default function AdminManagersPage() {
   const [permissions, setPermissions] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Edit-existing-manager flow. The spec requires an "edit-permissions
-  // action" for managers already in the tree — the backend has supported
-  // this since Task 10 (PATCH /api/admin/managers/:id/permissions,
-  // audit-logged), this page just didn't expose it until now.
   const [editingManager, setEditingManager] = useState<ManagerRow | null>(null);
   const [editPermissions, setEditPermissions] = useState<string[]>([]);
   const [editError, setEditError] = useState<string | null>(null);
@@ -106,17 +104,19 @@ export default function AdminManagersPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">Structure</p>
-        <h1 className="font-heading text-2xl font-bold mb-1">Org tree</h1>
-        <p className="text-sm text-text-muted mb-6">Admin at the root, managers and their granted permissions below.</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Structure</p>
+        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Org tree</h1>
+        <p className="text-sm text-ip-on-surface-variant mb-6">
+          Admin at the root, managers and their granted permissions below.
+        </p>
         <TreeView adminName={user?.name ?? 'Admin'} managers={managers} onEditManager={openEdit} />
       </div>
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary-600 mb-2">Onboard</p>
-        <h2 className="font-heading text-xl font-bold mb-1">Create manager</h2>
-        <p className="text-sm text-text-muted mb-6">Grant a new manager access with scoped permissions.</p>
-        <Card elevation="raised">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">Onboard</p>
+        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">Create manager</h2>
+        <p className="text-sm text-ip-on-surface-variant mb-6">Grant a new manager access with scoped permissions.</p>
+        <div className="ip-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               placeholder="Name"
@@ -147,7 +147,7 @@ export default function AdminManagersPage() {
               required
               minLength={8}
             />
-            <div className="pt-2 border-t border-border">
+            <div className="pt-2 border-t border-ip-outline/10">
               <PermissionPicker permissions={permissions} onChange={setPermissions} />
             </div>
             {error && <ErrorAlert message={error} />}
@@ -155,7 +155,7 @@ export default function AdminManagersPage() {
               Create manager
             </Button>
           </form>
-        </Card>
+        </div>
       </div>
 
       <Modal

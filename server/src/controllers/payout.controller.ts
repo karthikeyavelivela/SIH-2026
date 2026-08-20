@@ -1,0 +1,62 @@
+import { Request, Response } from 'express';
+import { Types } from 'mongoose';
+import { asyncHandler } from '../utils/asyncHandler';
+import { ApiError } from '../utils/ApiError';
+import { Payout } from '../models/Payout';
+import { writeAuditLog } from '../services/audit.service';
+import { writeLedgerEntry } from '../services/ledger.service';
+
+/** GET /api/admin/payouts — approval queue, filterable by status. */
+export const listPayouts = asyncHandler(async (req: Request, res: Response) => {
+  const { status } = req.query as Record<string, string>;
+  const filter: Record<string, unknown> = {};
+  if (status) filter.status = status;
+  const payouts = await Payout.find(filter).sort({ createdAt: 1 }).populate('userId', 'name phone role');
+  res.status(200).json({ payouts });
+});
+
+async function decidePayout(
+  req: Request,
+  res: Response,
+  status: 'approved' | 'rejected' | 'paid'
+): Promise<void> {
+  const payout = await Payout.findById(req.params.id);
+  if (!payout) throw new ApiError(404, 'Payout not found');
+  if (payout.status !== 'pending' && status !== 'paid') {
+    throw new ApiError(409, 'This payout has already been decided');
+  }
+  if (status === 'paid' && payout.status !== 'approved') {
+    throw new ApiError(409, 'Only an approved payout can be marked paid');
+  }
+
+  payout.status = status;
+  payout.decidedByAdminId = new Types.ObjectId(req.user!.id);
+  payout.decidedAt = new Date();
+  await payout.save();
+
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: `payout_${status}`,
+    targetType: 'Payout',
+    targetId: payout._id.toString(),
+    details: { userId: payout.userId.toString(), amount: payout.amount, period: payout.period },
+  });
+
+  if (status === 'paid') {
+    await writeLedgerEntry({
+      type: 'payout',
+      entityType: 'Payout',
+      entityId: payout._id.toString(),
+      amount: -Math.abs(payout.amount),
+      description: `Payout for ${payout.period}`,
+      status: 'posted',
+    });
+  }
+
+  res.status(200).json({ payout });
+}
+
+export const approvePayout = asyncHandler((req, res) => decidePayout(req, res, 'approved'));
+export const rejectPayout = asyncHandler((req, res) => decidePayout(req, res, 'rejected'));
+export const markPayoutPaid = asyncHandler((req, res) => decidePayout(req, res, 'paid'));

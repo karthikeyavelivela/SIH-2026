@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Complaint } from '@/lib/types';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { StatusChip } from '@/components/ui/StatusChip';
+import { FilterChip } from '@/components/ui/FilterChip';
 
 const statusTone: Record<Complaint['status'], 'muted' | 'secondary' | 'success'> = {
   open: 'muted',
@@ -15,6 +15,8 @@ const statusTone: Record<Complaint['status'], 'muted' | 'secondary' | 'success'>
   resolved: 'success',
 };
 
+// Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md — all
+// fetch/mutation logic identical to before this pass.
 export default function AdminComplaintsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const { data, reload } = usePolling(
@@ -47,32 +49,26 @@ export default function AdminComplaintsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">Trust & safety</p>
-      <h1 className="font-heading text-2xl font-bold mb-1">Complaints</h1>
-      <p className="text-sm text-text-muted mb-6">Resolution queue for issues raised against a booking.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Complaints</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-6">Resolution queue for issues raised against a booking.</p>
 
       <div className="flex gap-2 mb-6">
         {['', 'open', 'in_review', 'resolved'].map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`px-3.5 py-2 rounded-full text-sm font-medium border transition-colors duration-fast ${
-              statusFilter === s ? 'bg-primary-600 text-white border-primary-600' : 'border-border hover:bg-surface'
-            }`}
-          >
+          <FilterChip key={s} active={statusFilter === s} onClick={() => setStatusFilter(s)}>
             {s === '' ? 'All' : s.replace('_', ' ')}
-          </button>
+          </FilterChip>
         ))}
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 max-w-4xl">
         {complaints.map((c) => (
-          <Card key={c._id} elevation="raised">
+          <div key={c._id} className="ip-card">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold capitalize">{c.category.replace('_', ' ')}</p>
-              <Badge tone={statusTone[c.status]}>{c.status.replace('_', ' ')}</Badge>
+              <StatusChip tone={statusTone[c.status]}>{c.status.replace('_', ' ')}</StatusChip>
             </div>
-            <p className="text-sm text-text-muted mb-3">{c.description}</p>
+            <p className="text-sm text-ip-on-surface-variant mb-3">{c.description}</p>
             {c.status !== 'resolved' && (
               <Button
                 size="md"
@@ -86,23 +82,27 @@ export default function AdminComplaintsPage() {
                 Review
               </Button>
             )}
-            {c.resolutionNote && <p className="text-xs text-text-muted mt-2 pt-2 border-t border-border">{c.resolutionNote}</p>}
-          </Card>
+            {c.resolutionNote && (
+              <p className="text-xs text-ip-on-surface-variant mt-2 pt-2 border-t border-ip-outline/10">
+                {c.resolutionNote}
+              </p>
+            )}
+          </div>
         ))}
-        {complaints.length === 0 && <p className="text-sm text-text-muted">No complaints here.</p>}
+        {complaints.length === 0 && <p className="text-sm text-ip-on-surface-variant">No complaints here.</p>}
       </div>
 
       <Modal open={!!resolving} onClose={() => setResolving(null)} title="Resolve complaint">
-        <p className="text-sm text-text-muted mb-4">{resolving?.description}</p>
+        <p className="text-sm text-ip-on-surface-variant mb-4">{resolving?.description}</p>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Resolution note"
           rows={4}
           aria-label="Resolution note"
-          className="w-full px-4 py-2.5 rounded-md border border-border bg-background text-sm mb-4 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
+          className="w-full px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm mb-4 focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
         />
-        {error && <p className="text-sm text-red-700 mb-4">{error}</p>}
+        {error && <p className="text-sm text-ip-error mb-4">{error}</p>}
         <div className="flex gap-3">
           <Button variant="ghost" className="flex-1" disabled={saving || !note.trim()} onClick={() => submitResolution('in_review')}>
             Mark in review
