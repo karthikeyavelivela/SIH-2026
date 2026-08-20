@@ -24,6 +24,19 @@ import { adminStatsRouter } from './routes/adminStats.routes';
 import { savedAddressRouter } from './routes/savedAddress.routes';
 import { fleetRouter } from './routes/fleet.routes';
 import { warehouseHubRouter } from './routes/warehouseHub.routes';
+import { insuranceRouter, adminInsuranceRouter } from './routes/insurance.routes';
+import { trainingRouter } from './routes/training.routes';
+import { referralRouter, adminReferralRouter } from './routes/referral.routes';
+import { loadManifestRouter } from './routes/loadManifest.routes';
+import { kycRouter } from './routes/kyc.routes';
+import { ledgerRouter } from './routes/ledger.routes';
+import { disputeRouter } from './routes/dispute.routes';
+import { fraudRouter } from './routes/fraud.routes';
+import { payoutRouter } from './routes/payout.routes';
+import { surgeZoneRouter } from './routes/surgeZone.routes';
+import { analyticsRouter } from './routes/analytics.routes';
+import { opsHubRouter } from './routes/opsHub.routes';
+import { reportsRouter } from './routes/reports.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
@@ -76,6 +89,17 @@ app.use('/api/incentives', workerIncentiveRouter);
 app.use('/api/admin/regions', regionRouter);
 app.use('/api/admin/audit-log', auditLogRouter);
 app.use('/api/admin/stats', adminStatsRouter);
+app.use('/api/admin/insurance', adminInsuranceRouter);
+app.use('/api/admin/referrals', adminReferralRouter);
+app.use('/api/admin/kyc-queue', kycRouter);
+app.use('/api/admin/ledger', ledgerRouter);
+app.use('/api/admin/disputes', disputeRouter);
+app.use('/api/admin/fraud', fraudRouter);
+app.use('/api/admin/payouts', payoutRouter);
+app.use('/api/admin/surge-zones', surgeZoneRouter);
+app.use('/api/admin/analytics', analyticsRouter);
+app.use('/api/admin/ops-hub', opsHubRouter);
+app.use('/api/admin/reports', reportsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/geocode', geocodeRouter);
 app.use('/api/bookings', bookingRouter);
@@ -90,6 +114,10 @@ app.use('/api/complaints', complaintRouter);
 app.use('/api/addresses', savedAddressRouter);
 app.use('/api/fleet', fleetRouter);
 app.use('/api/warehouse-hub', warehouseHubRouter);
+app.use('/api/insurance', insuranceRouter);
+app.use('/api/training', trainingRouter);
+app.use('/api/referrals', referralRouter);
+app.use('/api/load-manifests', loadManifestRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
