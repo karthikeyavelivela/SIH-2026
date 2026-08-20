@@ -1,10 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import { ChevronRightIcon, UsersIcon } from '@/components/ui/icons';
 
 // Mutha leaders had no way to log out at all before this page existed —
 // found live: /mutha's bottom tabs were Group/Requests/Jobs/Members/
@@ -28,6 +30,17 @@ export default function MuthaLeaderProfilePage() {
           </Badge>
         </div>
       </Card>
+
+      <Link
+        href="/mutha/create-group"
+        className="flex items-center justify-between p-4 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base mb-3"
+      >
+        <span className="flex items-center gap-2.5 text-sm font-semibold">
+          <UsersIcon className="w-4 h-4 text-text-muted" />
+          Group settings
+        </span>
+        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+      </Link>
 
       <Button variant="ghost" className="w-full" onClick={() => logout()}>
         Log out

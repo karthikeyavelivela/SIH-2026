@@ -6,6 +6,7 @@ export interface IMutha {
   leaderId: Types.ObjectId;
   memberIds: Types.ObjectId[];
   region?: string;
+  photo?: string;
   inviteCode: string;
   ratingAvg: number;
   ratingCount: number;
@@ -19,6 +20,7 @@ const muthaSchema = new Schema<IMutha>(
     leaderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     memberIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     region: { type: String, trim: true },
+    photo: { type: String },
     inviteCode: { type: String, required: true, unique: true },
     ratingAvg: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },

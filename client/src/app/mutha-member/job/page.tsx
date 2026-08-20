@@ -6,12 +6,13 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useBookingSocket } from '@/lib/useBookingSocket';
-import { Booking } from '@/lib/types';
+import { Booking, MuthaMemberGroupInfo } from '@/lib/types';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
-import { MapPinIcon, TruckIcon } from '@/components/ui/icons';
+import { Avatar } from '@/components/ui/Avatar';
+import { MapPinIcon, TruckIcon, UsersIcon } from '@/components/ui/icons';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
@@ -42,6 +43,7 @@ export default function MuthaMemberJobPage() {
   const { data } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 6000);
   const activeJob = data?.bookings.find((b) => b.status === 'accepted' || b.status === 'in_progress');
   const { messages, sendChat } = useBookingSocket(activeJob?._id);
+  const { data: groupInfo } = usePolling(() => api.get<MuthaMemberGroupInfo>('/api/mutha/my-group'), 30000);
 
   const firstName = user?.name?.split(' ')[0] ?? 'there';
 
@@ -53,6 +55,17 @@ export default function MuthaMemberJobPage() {
       {status !== null && (
         <div className="mb-6">
           <OnlineToggle status={status} onStatusChange={(s) => setStatus(s)} accent="secondary" />
+        </div>
+      )}
+
+      {groupInfo && (
+        <div className="ip-card flex items-center gap-3 mb-6">
+          <Avatar name={groupInfo.leader.name} photoUrl={groupInfo.leader.profilePhoto} accent="secondary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-ip-on-surface-variant">{groupInfo.mutha.name} · Team leader</p>
+            <p className="text-sm font-semibold truncate">{groupInfo.leader.name}</p>
+          </div>
+          <UsersIcon className="w-4 h-4 text-ip-on-surface-variant flex-shrink-0" />
         </div>
       )}
 

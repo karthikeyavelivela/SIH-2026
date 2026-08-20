@@ -7,6 +7,8 @@ import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking, MuthaResponse } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { OfferCard } from '@/components/worker/OfferCard';
+import { SelectableWorkerCard } from '@/components/ui/SelectableWorkerCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { LayersIcon, MapPinIcon, AlertIcon } from '@/components/ui/icons';
 
 function MemberPicker({
@@ -54,15 +56,15 @@ function MemberPicker({
   }
 
   return (
-    <div className="rounded-lg bg-surface-raised border border-border shadow-md p-5 animate-[scaleIn_250ms_ease-out]">
+    <div className="ip-card animate-[scaleIn_250ms_ease-out]">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="w-11 h-11 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0">
+          <span className="w-11 h-11 rounded-full bg-ip-secondary-container/30 text-ip-secondary flex items-center justify-center flex-shrink-0">
             <LayersIcon className="w-5 h-5" />
           </span>
           <div className="min-w-0">
             <p className="font-heading font-bold text-base capitalize">{booking.type} job</p>
-            <p className="text-xs text-text-muted">Needs {remaining} more worker{remaining === 1 ? '' : 's'}</p>
+            <p className="text-xs text-ip-on-surface-variant">Needs {remaining} more worker{remaining === 1 ? '' : 's'}</p>
           </div>
         </div>
         <p className="font-heading font-bold text-lg whitespace-nowrap">₹{booking.fareBreakdown.total}</p>
@@ -70,44 +72,41 @@ function MemberPicker({
 
       <div className="space-y-2 mb-4">
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-secondary-600" />
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-secondary" />
           <p className="text-sm truncate">{booking.pickupLocation.address}</p>
         </div>
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
-          <p className="text-sm text-text-muted truncate">{booking.dropLocation.address}</p>
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
+          <p className="text-sm text-ip-on-surface-variant truncate">{booking.dropLocation.address}</p>
         </div>
       </div>
 
-      <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+      <p className="text-xs font-semibold text-ip-on-surface-variant uppercase tracking-wide mb-2">
         Assign online members ({selected.length}/{remaining})
       </p>
       {onlineMembers.length === 0 ? (
-        <p className="text-sm text-text-muted mb-4">No members online right now — bring someone online to assign this job.</p>
+        <p className="text-sm text-ip-on-surface-variant mb-4">No members online right now — bring someone online to assign this job.</p>
       ) : (
-        <div className="space-y-2 mb-4">
+        <div className="space-y-1 mb-4">
           {onlineMembers.map((m) => {
             const checked = selected.includes(m._id);
             return (
-              <button
+              <SelectableWorkerCard
                 key={m._id}
-                type="button"
-                onClick={() => toggle(m._id)}
+                name={m.name}
+                photoUrl={m.profilePhoto}
+                subtitle="Currently active"
+                selected={checked}
                 disabled={!checked && selected.length >= remaining}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-md border text-sm font-medium transition-colors duration-fast disabled:opacity-40 ${
-                  checked ? 'bg-secondary-600 text-white border-secondary-600' : 'bg-background border-border hover:bg-surface'
-                }`}
-              >
-                {m.name}
-                {checked && <span aria-hidden="true">✓</span>}
-              </button>
+                onToggle={() => toggle(m._id)}
+              />
             );
           })}
         </div>
       )}
 
       {error && (
-        <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="mb-4 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container">
           {error}
         </div>
       )}
@@ -155,7 +154,7 @@ export default function MuthaRequestsPage() {
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
       <h1 className="font-heading text-2xl font-bold mb-1">Job requests</h1>
-      <p className="text-sm text-text-muted mb-6">Assign specific online members to each job.</p>
+      <p className="text-sm text-ip-on-surface-variant mb-6">Assign specific online members to each job.</p>
 
       {offer && (
         <div className="mb-6">
@@ -167,11 +166,11 @@ export default function MuthaRequestsPage() {
             onAccept={() => respondToOffer(true)}
             onReject={() => respondToOffer(false)}
           />
-          <p className="text-xs text-text-muted mt-2">
+          <p className="text-xs text-ip-on-surface-variant mt-2">
             Accepting holds this job for your group — pick members from the list below to confirm.
           </p>
           {offerError && (
-            <div role="alert" className="flex items-start gap-2 mt-2 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+            <div role="alert" className="flex items-start gap-2 mt-2 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-3.5 py-2.5 text-xs text-ip-on-error-container">
               <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
               <p>{offerError}</p>
             </div>
@@ -182,16 +181,13 @@ export default function MuthaRequestsPage() {
       {state === 'loading' && (
         <div className="space-y-3">
           {[0, 1].map((i) => (
-            <div key={i} className="h-56 rounded-lg bg-surface animate-pulse" />
+            <div key={i} className="h-56 rounded-ip-card bg-ip-surface-container animate-pulse" />
           ))}
         </div>
       )}
 
       {state !== 'loading' && requests.length === 0 && (
-        <div className="text-center py-16">
-          <LayersIcon className="w-10 h-10 text-text-muted/50 mx-auto mb-3" />
-          <p className="text-sm text-text-muted">No open requests match your group right now.</p>
-        </div>
+        <EmptyState icon={<LayersIcon className="w-6 h-6" />} title="No open requests" description="Jobs your group qualifies for will show up here." />
       )}
 
       <div className="space-y-4">

@@ -3,9 +3,9 @@
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
-import { Card } from '@/components/ui/Card';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
 import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { WalletIcon, StarIcon } from '@/components/ui/icons';
 
 export default function MuthaEarningsPage() {
@@ -31,24 +31,23 @@ export default function MuthaEarningsPage() {
       <IncentiveProgressBar accent="secondary" />
 
       <h2 className="font-heading text-lg font-bold mb-3">Per member</h2>
-      {state === 'loading' && <div className="h-24 rounded-lg bg-surface animate-pulse mb-6" />}
+      {state === 'loading' && <div className="h-24 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />}
 
       {state !== 'loading' && (data?.perMember?.length ?? 0) === 0 && (
-        <Card elevation="raised" className="text-center py-8 mb-6">
-          <WalletIcon className="w-8 h-8 text-text-muted/50 mx-auto mb-3" />
-          <p className="text-sm text-text-muted">No completed jobs yet.</p>
-        </Card>
+        <div className="ip-card mb-6">
+          <EmptyState icon={<WalletIcon className="w-6 h-6" />} title="No completed jobs yet" />
+        </div>
       )}
 
       <div className="space-y-3 mb-8">
         {data?.perMember?.map((m) => (
-          <Card key={m.userId} elevation="raised" className="flex items-center justify-between gap-3">
+          <div key={m.userId} className="ip-card flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate">{m.name}</p>
-              <p className="text-xs text-text-muted">{m.phone}</p>
+              <p className="text-xs text-ip-on-surface-variant">{m.phone}</p>
             </div>
             <p className="font-heading font-bold whitespace-nowrap">₹{m.total}</p>
-          </Card>
+          </div>
         ))}
       </div>
 
