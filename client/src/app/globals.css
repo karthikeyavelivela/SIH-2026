@@ -72,6 +72,90 @@
   --radius-md: 14px;
   --radius-lg: 22px;
   --radius-xl: 32px;
+
+  /* ==========================================================================
+     "Ink on Warm Paper" tokens — from the Stitch design system
+     (design/stitch/.../premium_industrial_marketplace/DESIGN.md), added for
+     all NEW screens/components (fleet, warehouse hub, insurance, admin
+     ops tooling, etc). Existing screens keep the tokens above untouched.
+     Elevation here is TONAL (color-layer), not shadow — see note below.
+     ========================================================================== */
+  --ip-surface: #FEF8F4;
+  --ip-surface-dim: #DED9D5;
+  --ip-surface-bright: #FEF8F4;
+  --ip-surface-container-lowest: #FFFFFF;
+  --ip-surface-container-low: #F8F3EF;
+  --ip-surface-container: #F2EDE9;
+  --ip-surface-container-high: #ECE7E3;
+  --ip-surface-container-highest: #E6E2DE;
+  --ip-on-surface: #1D1B19;
+  --ip-on-surface-variant: #594138;
+  --ip-inverse-surface: #32302E;
+  --ip-inverse-on-surface: #F5F0EC;
+  --ip-outline: #8D7167;
+  --ip-outline-variant: #E2BFB3;
+
+  --ip-primary: #A83900;
+  --ip-primary-container: #FF6B2B;
+  --ip-on-primary: #FFFFFF;
+  --ip-on-primary-container: #5C1C00;
+
+  --ip-secondary: #006A61;
+  --ip-secondary-container: #86F2E4;
+  --ip-on-secondary: #FFFFFF;
+  --ip-on-secondary-container: #006F66;
+
+  --ip-tertiary: #5F5E5A;
+  --ip-tertiary-container: #9B9994;
+  --ip-on-tertiary: #FFFFFF;
+  --ip-on-tertiary-container: #32312E;
+
+  --ip-error: #BA1A1A;
+  --ip-error-container: #FFDAD6;
+  --ip-on-error: #FFFFFF;
+  --ip-on-error-container: #93000A;
+
+  /* Typography named aliases onto the existing fluid clamp() scale — keeps
+     one responsive scale instead of two competing fixed-px scales. */
+  --ip-text-display-lg: var(--text-2xl);   /* ~44-48px */
+  --ip-text-display-md: var(--text-xl);    /* ~32px */
+  --ip-text-headline-sm: var(--text-lg);   /* ~24px, 20px mobile via clamp */
+  --ip-text-body-lg: var(--text-base);
+  --ip-text-body-md: var(--text-sm);
+  --ip-text-body-sm: var(--text-xs);
+  --ip-text-data-mono: var(--text-lg);     /* Syne bold, tabular numbers */
+
+  /* Spacing aliases matching the industrial system's named scale */
+  --ip-space-base: 4px;
+  --ip-space-xs: 8px;
+  --ip-space-sm: 16px;
+  --ip-space-md: 24px;
+  --ip-space-lg: 32px;
+  --ip-space-xl: 48px;
+  --ip-edge-margin: 20px;
+  --ip-gutter: 12px;
+
+  /* Component radii per the design system's prose spec: cards 16px,
+     buttons/inputs 12px, pills/status dots fully round. */
+  --ip-radius-input: 12px;
+  --ip-radius-card: 16px;
+  --ip-radius-sheet: 24px; /* bottom-sheet top corners */
+  --ip-radius-pill: 9999px;
+}
+
+/* Elevation note: the industrial system deliberately avoids shadows —
+   depth comes from tonal layering (surface → surface-container →
+   surface-container-high) and, on press, a 1px solid var(--ip-on-surface)
+   border — never a shadow. New components use `.ip-card`/`.ip-card--pressed`
+   below rather than the `shadow-*` utilities used by existing screens. */
+.ip-card {
+  background: var(--ip-surface-container);
+  border-radius: var(--ip-radius-card);
+  padding: var(--ip-space-md);
+}
+.ip-card--pressed {
+  background: var(--ip-surface-container-high);
+  border: 1px solid var(--ip-on-surface);
 }
 
 * {
