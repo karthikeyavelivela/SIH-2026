@@ -23,6 +23,17 @@ export interface IVehicle {
   // assignment shown on the fleet dashboard until the owner reassigns it.
   // Absent for independent (non-fleet) vehicles.
   assignedDriverId?: Types.ObjectId;
+  // Set by fleet.controller's submitInspection whenever a
+  // VehicleInspection is filed with overallVerdict 'non_compliant';
+  // cleared back to 'compliant' the next time an inspection passes. This is
+  // the gate a failed inspection is supposed to enforce — job matching
+  // (server/src/services/matching.service.ts) does not currently read this
+  // field, so it does not yet actually block a non-compliant vehicle from
+  // being offered work. Wiring it in is a one-line addition there
+  // (`vehicle.complianceStatus !== 'non_compliant'`) alongside its existing
+  // availabilityStatus check, deliberately left for that service's owner
+  // rather than touched here.
+  complianceStatus: 'compliant' | 'non_compliant';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +62,7 @@ const vehicleSchema = new Schema<IVehicle>(
     },
     availabilityStatus: { type: String, enum: ['online', 'offline', 'on_job'], default: 'offline' },
     assignedDriverId: { type: Schema.Types.ObjectId, ref: 'User' },
+    complianceStatus: { type: String, enum: ['compliant', 'non_compliant'], default: 'compliant' },
   },
   { timestamps: true }
 );

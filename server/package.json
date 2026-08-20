@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "test": "jest --runInBand",
     "seed:admin": "ts-node src/scripts/seedAdmin.ts",
-    "seed:demo": "ts-node src/scripts/seedDemoAccounts.ts"
+    "seed:demo": "ts-node src/scripts/seedDemoAccounts.ts",
+    "seed:training": "ts-node src/scripts/seedTrainingModules.ts"
   },
   "dependencies": {
     "@fyro/shared": "*",
