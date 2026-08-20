@@ -1,0 +1,298 @@
+{
+  "nav": {
+    "home": "Home",
+    "book": "Book",
+    "history": "History",
+    "profile": "Profile",
+    "requests": "Requests",
+    "earnings": "Earnings",
+    "group": "Group",
+    "jobs": "Jobs",
+    "members": "Members",
+    "job": "Job"
+  },
+  "languageSwitcher": {
+    "label": "Language"
+  },
+  "marketing": {
+    "layout": {
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "safety": "Safety",
+      "faq": "FAQ",
+      "about": "About",
+      "contact": "Contact",
+      "login": "Log in",
+      "bookDelivery": "Book a delivery",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "copyright": "© 2026 FYRO. Andhra Pradesh.",
+      "backToHome": "Back to home"
+    },
+    "home": {
+      "liveBadge": "Live in Andhra Pradesh — real-time matching",
+      "heroTitleLine1": "Move anything.",
+      "heroTitleAccent": "Anywhere in AP.",
+      "heroSubtitle": "Trucks for 1kg or 1000 tons. Hamali labor on demand. Book in minutes, watch it move on a live map, pay and rate when it's done.",
+      "searchPlaceholder": "Where do you need a pickup?",
+      "searchCta": "Get moving",
+      "ctaBookDelivery": "Book a delivery",
+      "ctaDriveWithUs": "Drive with us",
+      "ctaJoinMutha": "Join a Mutha",
+      "statCargoRangeValue": "1kg–1000t",
+      "statCargoRangeLabel": "cargo range",
+      "statOfferTimeValue": "< 60s",
+      "statOfferTimeLabel": "to a live offer",
+      "statDistrictsValue": "13",
+      "statDistrictsLabel": "districts in AP",
+      "trust": {
+        "realMatchesTitle": "Real matches, not fake ones",
+        "realMatchesBody": "Jobs go to nearby drivers and Hamali workers one at a time, just like a ride-hailing app. If nothing's found, you're told honestly — never shown a fake instant match.",
+        "photoProofTitle": "Photo proof, both ends",
+        "photoProofBody": "A pickup and delivery photo is attached to every job — a real record, not just a status label.",
+        "ratingsTitle": "Two-way ratings",
+        "ratingsBody": "Customers and workers rate each other after every job — mandatory before either side's next one, so it's never a self-selected sample.",
+        "liveMapTitle": "Live on the map",
+        "liveMapBody": "Once a job is picked up, you watch it move — the driver or Hamali's location updates in real time."
+      },
+      "howItWorksHeading": "How FYRO works",
+      "steps": {
+        "tellUsTitle": "Tell us what you need",
+        "tellUsBody": "Cargo weight, pickup and drop points, or how many hands you need for loading.",
+        "findTitle": "We find the right one",
+        "findBody": "Nearby drivers and Hamali workers get sequential job offers, just like a ride-hailing captain app.",
+        "trackTitle": "Track it live",
+        "trackBody": "Live map, in-app chat, transparent fare — from pickup to delivery.",
+        "payTitle": "Pay and rate",
+        "payBody": "A fixed fare shown upfront, no surprises after. Pay your driver or Hamali team, then rate them."
+      },
+      "whereWeOperateHeading": "Where we operate",
+      "whereWeOperateSubtitle": "Live across Andhra Pradesh today, expanding district by district.",
+      "districts": {
+        "visakhapatnam": "Visakhapatnam",
+        "vijayawada": "Vijayawada",
+        "guntur": "Guntur",
+        "nellore": "Nellore",
+        "kurnool": "Kurnool",
+        "kakinada": "Kakinada",
+        "rajahmundry": "Rajahmundry",
+        "tirupati": "Tirupati",
+        "anantapur": "Anantapur",
+        "kadapa": "Kadapa",
+        "eluru": "Eluru",
+        "ongole": "Ongole",
+        "srikakulam": "Srikakulam"
+      },
+      "closingHeading": "Own a truck? Ready to work?",
+      "closingSubtitle": "Set your own hours, get matched to nearby jobs, and get paid for every trip — solo or as part of a Mutha.",
+      "closingDriveCta": "Drive with FYRO",
+      "closingHamaliCta": "Join as Hamali"
+    },
+    "about": {
+      "title": "About FYRO",
+      "body": "FYRO — Find Your Right One — is an on-demand logistics marketplace launching in Andhra Pradesh. We connect customers who need cargo moved or loaded with verified truck drivers and Hamali labor, matched in real time, tracked live, at a fixed fare shown upfront."
+    },
+    "contact": {
+      "title": "Contact",
+      "supportLabel": "Support",
+      "supportEmail": "support@fyro.example",
+      "partnershipsLabel": "Partnerships",
+      "partnershipsEmail": "partners@fyro.example"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "cantFindPrefix": "Can't find what you need?",
+      "contactUsLink": "Contact us",
+      "items": {
+        "fare": {
+          "q": "How is my fare calculated?",
+          "a": "A base fare plus a per-kilometre rate for the route, with a guaranteed minimum — set per region and vehicle/Hamali category. You see the full breakdown and total before you confirm a booking, and it doesn't change after you do."
+        },
+        "payment": {
+          "q": "How do I pay?",
+          "a": "FYRO shows you the fixed fare upfront. Payment is settled directly with your driver or Hamali team at the end of the job — there's no surprise afterward, since the amount was fixed from the moment you booked."
+        },
+        "cancel": {
+          "q": "Can I cancel a booking?",
+          "a": "Yes, any time before it's marked completed. There's no cancellation fee — go to the booking's tracking page and use \"Cancel booking.\""
+        },
+        "coverage": {
+          "q": "Where does FYRO operate?",
+          "a": "Across Andhra Pradesh, expanding district by district — see the full list on the homepage. If you book outside an active district, you'll be told plainly rather than left waiting on a match that will never come."
+        },
+        "accountability": {
+          "q": "What keeps a job accountable?",
+          "a": "A pickup and delivery photo attached to every job, live location while it's in progress, and a rating both sides give right after — mandatory before either can start their next job. See the Trust & Safety page for the full list."
+        },
+        "noAccept": {
+          "q": "What if no one accepts my booking?",
+          "a": "You'll see it plainly on the tracking screen — FYRO doesn't fake a match. If nothing nearby is available, widen your pickup point or try again shortly as more workers come online."
+        },
+        "mutha": {
+          "q": "What's a Mutha?",
+          "a": "A Mutha is a registered group of Hamali workers with one leader. For jobs that need multiple hands, a Mutha leader receives the request on behalf of the group and assigns members — including splitting one group across more than one job at once."
+        },
+        "issue": {
+          "q": "What if something goes wrong during a job?",
+          "a": "Use \"Report an issue\" on the booking's tracking page — no-shows, damage, payment disputes, or misconduct go straight to our team as a complaint logged against that specific job."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "customers": {
+        "title": "For customers",
+        "body": "Post a booking with pickup/drop points and cargo details, or request Hamali labor for loading and unloading — or bundle both. Nearby drivers and Hamali workers are offered your job one at a time, so you always get a real acceptance, not a fake instant match. Track your assigned driver or team live on the map, chat in-app, and pay the fixed fare you saw upfront when the job is done."
+      },
+      "drivers": {
+        "title": "For drivers",
+        "body": "Go online and receive job requests matched to your vehicle capacity and location. Accept or reject within a visible countdown. Follow a clear status stepper from pickup to delivery, and track your earnings and incentives in one place."
+      },
+      "hamaliWorkers": {
+        "title": "For Hamali workers",
+        "body": "Work solo, or as part of a Mutha (labor group). Solo workers accept jobs directly. Mutha leaders receive requests on behalf of their group and assign members — even splitting one group across multiple job sites at once."
+      }
+    },
+    "pricing": {
+      "title": "Pricing",
+      "subtitle": "Illustrative Andhra Pradesh rate card. Final fare is calculated per booking based on distance, cargo, and live demand, and shown in full before you confirm.",
+      "tableHeaders": {
+        "category": "Category",
+        "baseFare": "Base fare",
+        "perKm": "Per km",
+        "minimum": "Minimum"
+      },
+      "rows": {
+        "smallVehicle": { "category": "Small vehicle (up to 1T)", "base": "₹150", "perKm": "₹18/km", "min": "₹250" },
+        "mediumVehicle": { "category": "Medium vehicle (1T–5T)", "base": "₹400", "perKm": "₹28/km", "min": "₹600" },
+        "largeVehicle": { "category": "Large vehicle (5T+)", "base": "₹900", "perKm": "₹45/km", "min": "₹1200" },
+        "hamali": { "category": "Hamali (per worker)", "base": "₹100", "perKm": "—", "min": "₹300" }
+      }
+    },
+    "safety": {
+      "title": "Trust & safety",
+      "subtitle": "What actually protects you on FYRO — every item below is a feature already running in the product, not a promise for later.",
+      "measures": {
+        "cancelWithoutPenalty": {
+          "title": "Cancel without penalty",
+          "body": "Change your mind any time before a job is marked completed and cancel it — no fee, and you don't owe an explanation."
+        },
+        "photoProof": {
+          "title": "Photo proof at pickup and delivery",
+          "body": "Drivers and Hamali workers attach a photo before they can advance a job past pickup, and again before marking it delivered — a real record attached to the booking, not just a status label."
+        },
+        "twoWayRatings": {
+          "title": "Two-way ratings, every job",
+          "body": "Customers rate their driver or Hamali team, and workers rate the customer, right after each job — it's mandatory before either side can start their next one, so the rating history you see is genuinely complete, not a self-selected sample."
+        },
+        "liveLocation": {
+          "title": "Live location while a job is in progress",
+          "body": "Once a driver or Hamali worker marks a job \"in transit,\" their location streams to your tracking screen in real time until delivery — you're never guessing where your shipment is."
+        },
+        "inAppChat": {
+          "title": "In-app chat, no raw numbers shared",
+          "body": "Coordinate pickup details through the booking's in-app chat. FYRO doesn't hand your phone number to the other side, or theirs to you."
+        },
+        "reportIssue": {
+          "title": "Report an issue on any booking",
+          "body": "Every booking has a \"Report an issue\" action that opens a complaint straight to our team — no-shows, damage, payment disputes, or misconduct, logged against that specific job."
+        }
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "eyebrow": "Welcome back",
+      "title": "Log in",
+      "subtitle": "Enter your phone and password to continue.",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password",
+      "submit": "Log in",
+      "submitLoading": "Logging in…",
+      "signupPrompt": "New here?",
+      "signupLink": "Sign up",
+      "backToHome": "Back to home",
+      "genericError": "Login failed"
+    },
+    "signupCustomer": {
+      "eyebrow": "Get started",
+      "title": "Book with FYRO",
+      "subtitle": "Create an account to start booking loads.",
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "emailPlaceholder": "Email (optional)",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
+    },
+    "signupDriver": {
+      "eyebrow": "Partner with us",
+      "title": "Drive with FYRO",
+      "subtitle": "Register your vehicle to start hauling loads.",
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "vehicleTypeLabel": "Vehicle type",
+      "vehicleOptions": {
+        "miniTruck": "Mini truck",
+        "mediumTruck": "Medium truck",
+        "largeTruck": "Large truck"
+      },
+      "capacityPlaceholder": "Capacity (kg)",
+      "registrationPlaceholder": "Registration number",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
+    },
+    "signupHamali": {
+      "eyebrow": "Join the crew",
+      "title": "Join FYRO as Hamali",
+      "subtitle": "Pick how you'd like to get started.",
+      "joinTypeAria": "How would you like to join?",
+      "joinTypes": {
+        "solo": { "label": "Solo", "hint": "Work independently" },
+        "leader": { "label": "Create Mutha", "hint": "Lead a new group" },
+        "member": { "label": "Join Mutha", "hint": "Join with a code" }
+      },
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "muthaNamePlaceholder": "Mutha (group) name",
+      "inviteCodePlaceholder": "Invite code from your leader",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
+    }
+  },
+  "worker": {
+    "onlineToggle": {
+      "onJob": "On a job",
+      "online": "You're online",
+      "offline": "You're offline",
+      "onJobHint": "Finish your current job to go offline",
+      "onlineHint": "Receiving nearby requests",
+      "offlineHint": "Go online to start receiving requests",
+      "noGeoSupport": "This device/browser has no location support — FYRO needs it to send you nearby jobs.",
+      "goOfflineError": "Could not go offline right now.",
+      "goOnlineError": "Could not go online right now.",
+      "permissionDenied": "Location access was denied. Enable it in your browser/device settings so nearby jobs can find you.",
+      "locationUnavailable": "Could not get your location. Check your device's location settings and try again."
+    },
+    "statusPill": {
+      "requested": "Requested",
+      "searching": "Finding a match…",
+      "matched": "Matched",
+      "accepted": "Accepted",
+      "inProgress": "On the way",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  }
+}

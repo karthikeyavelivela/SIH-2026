@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Syne, Outfit, Playfair_Display } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 
@@ -20,11 +22,19 @@ export const metadata: Metadata = {
   description: 'Book trucks and Hamali labor across Andhra Pradesh, on demand.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Locale is read server-side from the NEXT_LOCALE cookie (see
+  // src/i18n/request.ts), falling back to 'en'. No [locale] URL segment —
+  // existing routes are unaffected.
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" className={`${syne.variable} ${outfit.variable} ${accentFont.variable}`}>
+    <html lang={locale} className={`${syne.variable} ${outfit.variable} ${accentFont.variable}`}>
       <body className="font-body">
-        <AuthProvider>{children}</AuthProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AuthProvider>{children}</AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ComponentType } from 'react';
 
 export interface TabItem {
@@ -14,6 +15,26 @@ interface BottomTabNavProps {
   items: TabItem[];
 }
 
+// Every layout that renders this nav (customer/driver/hamali/mutha/
+// mutha-member) still hardcodes its TabItem[] with an English `label` —
+// they haven't been converted to next-intl yet (see client/src/i18n/README.md).
+// Rather than touch all five of those layout files in this pass, this map
+// translates the known English label strings to the shared `nav` message
+// namespace; any label not in the map (e.g. a future new tab) just renders
+// as-is, so this degrades safely instead of breaking.
+const LABEL_TO_KEY: Record<string, string> = {
+  Home: 'home',
+  Book: 'book',
+  History: 'history',
+  Profile: 'profile',
+  Requests: 'requests',
+  Earnings: 'earnings',
+  Group: 'group',
+  Jobs: 'jobs',
+  Members: 'members',
+  Job: 'job',
+};
+
 // Fixed bottom nav for authenticated mobile screens — required by the spec
 // for every authenticated role. Kept visible at all breakpoints (a bottom
 // tab bar reading as "the" navigation on desktop too is a defensible
@@ -22,6 +43,7 @@ interface BottomTabNavProps {
 // consume it, since they only render inside the layout that places this).
 export function BottomTabNav({ items }: BottomTabNavProps) {
   const pathname = usePathname();
+  const t = useTranslations('nav');
 
   return (
     <nav
@@ -32,6 +54,8 @@ export function BottomTabNav({ items }: BottomTabNavProps) {
       <div className="max-w-lg mx-auto grid grid-flow-col auto-cols-fr">
         {items.map((item) => {
           const active = pathname === item.href || pathname?.startsWith(item.href + '/');
+          const key = LABEL_TO_KEY[item.label];
+          const label = key ? t(key) : item.label;
           return (
             <Link
               key={item.href}
@@ -42,7 +66,7 @@ export function BottomTabNav({ items }: BottomTabNavProps) {
               }`}
             >
               <item.icon className="w-[22px] h-[22px]" />
-              {item.label}
+              {label}
             </Link>
           );
         })}

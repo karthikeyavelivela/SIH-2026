@@ -1,8 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui/Card';
+import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
+import { setLocaleAction } from '@/i18n/setLocale';
 import { SearchIcon, ChevronRightIcon, CompassIcon, CameraIcon, StarIcon, MapPinIcon, TruckIcon, BoxIcon } from '@/components/ui/icons';
 
 const HERO_VIDEO_URL = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v1787149585/fezidk7rqlmkmcepfuqn.mp4';
@@ -12,40 +17,15 @@ const HERO_VIDEO_URL = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v17871
 // of a blank flash before the video can play.
 const HERO_VIDEO_POSTER = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/so_0/v1787149585/fezidk7rqlmkmcepfuqn.jpg';
 
-// Real, shipped platform mechanics — not marketing fluff. Every claim here
-// maps to an actual feature already live in the product (PhotoProofCapture
-// on pickup/delivery, the mandatory-rating gate, live GPS broadcast during
-// in_progress, sequential real-offer matching), same "no borrowed press
-// logos" discipline as the stats array below. Deliberately does NOT claim
-// a KYC verification gate — kycStatus exists on the User model but nothing
-// in the backend actually checks it before a worker can go online, so
-// that claim would be false.
-const trustPoints = [
-  { icon: CompassIcon, title: 'Real matches, not fake ones', body: "Jobs go to nearby drivers and Hamali workers one at a time, just like a ride-hailing app. If nothing's found, you're told honestly — never shown a fake instant match." },
-  { icon: CameraIcon, title: 'Photo proof, both ends', body: 'A pickup and delivery photo is attached to every job — a real record, not just a status label.' },
-  { icon: StarIcon, title: 'Two-way ratings', body: "Customers and workers rate each other after every job — mandatory before either side's next one, so it's never a self-selected sample." },
-  { icon: MapPinIcon, title: 'Live on the map', body: "Once a job is picked up, you watch it move — the driver or Hamali's location updates in real time." },
-];
-
-const districts = [
-  'Visakhapatnam', 'Vijayawada', 'Guntur', 'Nellore', 'Kurnool', 'Kakinada',
-  'Rajahmundry', 'Tirupati', 'Anantapur', 'Kadapa', 'Eluru', 'Ongole', 'Srikakulam',
-];
-
-const ctas = [
-  { href: '/signup/customer', label: 'Book a delivery', tone: 'bg-primary' },
-  { href: '/signup/driver', label: 'Drive with us', tone: 'bg-primary' },
-  { href: '/signup/hamali', label: 'Join a Mutha', tone: 'bg-secondary' },
-];
-
-// Honest platform stats, not borrowed press logos — this is a young
-// regional marketplace, not a brand with Forbes/Bloomberg coverage to
-// legitimately display.
-const stats = [
-  { value: '1kg–1000t', label: 'cargo range' },
-  { value: '< 60s', label: 'to a live offer' },
-  { value: '13', label: 'districts in AP' },
-];
+// Icon set for the trust strip — order matches marketing.home.trust.* in
+// the message catalogs (client/src/i18n/messages/*.json).
+const TRUST_ICONS = [CompassIcon, CameraIcon, StarIcon, MapPinIcon];
+const TRUST_KEYS = ['realMatches', 'photoProof', 'ratings', 'liveMap'] as const;
+const STEP_KEYS = ['tellUs', 'find', 'track', 'pay'] as const;
+const DISTRICT_KEYS = [
+  'visakhapatnam', 'vijayawada', 'guntur', 'nellore', 'kurnool', 'kakinada',
+  'rajahmundry', 'tirupati', 'anantapur', 'kadapa', 'eluru', 'ongole', 'srikakulam',
+] as const;
 
 // Mirrors Button.tsx's `lg` primary/secondary variant classes exactly, so
 // these full-height nav links (they must stay real <Link>s for routing,
@@ -57,21 +37,69 @@ const ctaStyles: Record<string, string> = {
     'bg-secondary-600 text-white shadow-md hover:shadow-glow-secondary hover:-translate-y-0.5 active:translate-y-0',
 };
 
-const steps = [
-  { title: 'Tell us what you need', body: 'Cargo weight, pickup and drop points, or how many hands you need for loading.' },
-  { title: 'We find the right one', body: 'Nearby drivers and Hamali workers get sequential job offers, just like a ride-hailing captain app.' },
-  { title: 'Track it live', body: 'Live map, in-app chat, transparent fare — from pickup to delivery.' },
-  { title: 'Pay and rate', body: 'A fixed fare shown upfront, no surprises after. Pay your driver or Hamali team, then rate them.' },
-];
-
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
+// Demonstrated next-intl pattern for future page conversions: every
+// user-facing string below comes from useTranslations('marketing.home')
+// (client/src/i18n/messages/{en,te,hi}.json) instead of being hardcoded.
+// See client/src/i18n/README.md for what's NOT converted yet.
 export default function HomePage() {
   const reduceMotion = useReducedMotion();
+  const t = useTranslations('marketing.home');
+  const locale = useLocale() as LanguageCode;
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleLocaleChange(code: LanguageCode) {
+    if (code === locale) return;
+    startTransition(async () => {
+      await setLocaleAction(code);
+      router.refresh();
+    });
+  }
+
   const rise = (delay = 0) =>
     reduceMotion
       ? {}
       : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, delay, ease: easeOutExpo } };
+
+  const ctas = [
+    { href: '/signup/customer', label: t('ctaBookDelivery'), tone: 'bg-primary' },
+    { href: '/signup/driver', label: t('ctaDriveWithUs'), tone: 'bg-primary' },
+    { href: '/signup/hamali', label: t('ctaJoinMutha'), tone: 'bg-secondary' },
+  ];
+
+  // Honest platform stats, not borrowed press logos — this is a young
+  // regional marketplace, not a brand with Forbes/Bloomberg coverage to
+  // legitimately display.
+  const stats = [
+    { value: t('statCargoRangeValue'), label: t('statCargoRangeLabel') },
+    { value: t('statOfferTimeValue'), label: t('statOfferTimeLabel') },
+    { value: t('statDistrictsValue'), label: t('statDistrictsLabel') },
+  ];
+
+  // Real, shipped platform mechanics — not marketing fluff. Every claim here
+  // maps to an actual feature already live in the product (PhotoProofCapture
+  // on pickup/delivery, the mandatory-rating gate, live GPS broadcast during
+  // in_progress, sequential real-offer matching), same "no borrowed press
+  // logos" discipline as the stats array above. Deliberately does NOT claim
+  // a KYC verification gate — kycStatus exists on the User model but nothing
+  // in the backend actually checks it before a worker can go online, so
+  // that claim would be false.
+  const trustPoints = TRUST_KEYS.map((key, i) => ({
+    icon: TRUST_ICONS[i],
+    title: t(`trust.${key}Title`),
+    body: t(`trust.${key}Body`),
+  }));
+
+  const steps = STEP_KEYS.map((key) => ({
+    title: t(`steps.${key}Title`),
+    body: t(`steps.${key}Body`),
+  }));
+
+  // Real district list, not a "pan-India" overstatement. Matches the "13
+  // districts in AP" stat above the fold.
+  const districts = DISTRICT_KEYS.map((key) => t(`districts.${key}`));
 
   return (
     <div>
@@ -119,26 +147,40 @@ export default function HomePage() {
           style={{ background: 'linear-gradient(to bottom, transparent 0%, transparent 88%, var(--color-background) 100%)' }}
         />
 
-        <div className="max-w-4xl mx-auto text-center px-6 pt-24 pb-20">
+        {/* Language switcher — the first concrete, working example of the
+            NEXT_LOCALE cookie flow: LanguagePill calls setLocaleAction
+            (a Server Action in client/src/i18n/setLocale.ts) then
+            router.refresh() so Server Components re-render with the new
+            locale, no URL change. Placed here rather than in the shared
+            marketing header/layout, which this pass deliberately leaves
+            untouched (see client/src/i18n/README.md). */}
+        <div className="relative z-30 flex justify-center pt-24 px-4">
+          <LanguagePill
+            value={locale}
+            onChange={handleLocaleChange}
+            className={`bg-white/90 backdrop-blur-md shadow-lg transition-opacity duration-base ${isPending ? 'opacity-60' : ''}`}
+          />
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center px-6 pt-8 pb-20">
           <motion.span
             {...rise()}
             className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-sm px-4 py-1.5 text-xs font-semibold text-white mb-7"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Live in Andhra Pradesh — real-time matching
+            {t('liveBadge')}
           </motion.span>
 
           <motion.h1
             {...rise(0.06)}
             className="font-heading text-hero font-extrabold tracking-tight leading-[1.02] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]"
           >
-            Move anything.
+            {t('heroTitleLine1')}
             <br />
-            <span className="font-accent italic text-primary font-medium">Anywhere in AP.</span>
+            <span className="font-accent italic text-primary font-medium">{t('heroTitleAccent')}</span>
           </motion.h1>
           <motion.p {...rise(0.14)} className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
-            Trucks for 1kg or 1000 tons. Hamali labor on demand. Book in minutes, watch it move on a live map,
-            pay and rate when it&apos;s done.
+            {t('heroSubtitle')}
           </motion.p>
 
           {/* Search-style primary CTA — the reachable, honest version: it
@@ -151,10 +193,10 @@ export default function HomePage() {
             >
               <SearchIcon className="w-5 h-5 text-text-muted flex-shrink-0" />
               <span className="flex-1 text-left text-sm md:text-base text-text-muted">
-                Where do you need a pickup?
+                {t('searchPlaceholder')}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-600 text-white text-sm font-semibold px-5 py-2.5 group-hover:shadow-glow-primary transition-shadow duration-base flex-shrink-0">
-                Get moving
+                {t('searchCta')}
                 <ChevronRightIcon className="w-4 h-4" />
               </span>
             </Link>
@@ -188,18 +230,18 @@ export default function HomePage() {
           live-location broadcast are all real and already live. */}
       <section className="max-w-6xl mx-auto px-6 pt-20">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {trustPoints.map((t, i) => (
+          {trustPoints.map((t2, i) => (
             <motion.div
-              key={t.title}
+              key={t2.title}
               initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.5, delay: i * 0.08, ease: easeOutExpo }}
             >
               <Card className="h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-base ease-out-expo">
-                <t.icon className="w-6 h-6 text-primary-600 mb-3" />
-                <h3 className="font-heading text-sm font-bold mb-1.5 text-text-primary">{t.title}</h3>
-                <p className="text-xs text-text-muted leading-relaxed">{t.body}</p>
+                <t2.icon className="w-6 h-6 text-primary-600 mb-3" />
+                <h3 className="font-heading text-sm font-bold mb-1.5 text-text-primary">{t2.title}</h3>
+                <p className="text-xs text-text-muted leading-relaxed">{t2.body}</p>
               </Card>
             </motion.div>
           ))}
@@ -208,7 +250,7 @@ export default function HomePage() {
 
       <section className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <h2 className="font-heading text-2xl font-bold text-text-primary">How FYRO works</h2>
+          <h2 className="font-heading text-2xl font-bold text-text-primary">{t('howItWorksHeading')}</h2>
           <span aria-hidden className="mt-4 inline-block w-14 h-1 rounded-full bg-primary-600" />
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -244,8 +286,8 @@ export default function HomePage() {
       {/* Coverage — real district list, not a "pan-India" overstatement.
           Matches the "13 districts in AP" stat above the fold. */}
       <section className="max-w-4xl mx-auto px-6 pb-24 text-center">
-        <h2 className="font-heading text-2xl font-bold text-text-primary mb-2">Where we operate</h2>
-        <p className="text-sm text-text-muted mb-8">Live across Andhra Pradesh today, expanding district by district.</p>
+        <h2 className="font-heading text-2xl font-bold text-text-primary mb-2">{t('whereWeOperateHeading')}</h2>
+        <p className="text-sm text-text-muted mb-8">{t('whereWeOperateSubtitle')}</p>
         <div className="flex flex-wrap justify-center gap-2.5">
           {districts.map((d) => (
             <span
@@ -267,9 +309,9 @@ export default function HomePage() {
           <div aria-hidden className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-primary/20 blur-[100px]" />
           <div aria-hidden className="absolute -bottom-16 -right-16 w-72 h-72 rounded-full bg-secondary/20 blur-[100px]" />
           <div className="relative">
-            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-white mb-3">Own a truck? Ready to work?</h2>
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-white mb-3">{t('closingHeading')}</h2>
             <p className="text-white/70 max-w-lg mx-auto mb-8">
-              Set your own hours, get matched to nearby jobs, and get paid for every trip — solo or as part of a Mutha.
+              {t('closingSubtitle')}
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
@@ -277,14 +319,14 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 rounded-full bg-primary-600 text-white font-semibold px-6 py-3 text-sm shadow-md hover:shadow-glow-primary hover:-translate-y-0.5 transition-all duration-base"
               >
                 <TruckIcon className="w-4 h-4" />
-                Drive with FYRO
+                {t('closingDriveCta')}
               </Link>
               <Link
                 href="/signup/hamali"
                 className="inline-flex items-center gap-2 rounded-full bg-secondary-600 text-white font-semibold px-6 py-3 text-sm shadow-md hover:shadow-glow-secondary hover:-translate-y-0.5 transition-all duration-base"
               >
                 <BoxIcon className="w-4 h-4" />
-                Join as Hamali
+                {t('closingHamaliCta')}
               </Link>
             </div>
           </div>
