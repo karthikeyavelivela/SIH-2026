@@ -7,9 +7,9 @@ import { api, ApiClientError } from '@/lib/api';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { distanceKm } from '@/lib/geo';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { AddressField, GeoPoint } from '@/components/booking/AddressField';
 import { AddressChips } from '@/components/booking/AddressChips';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/components/ui/icons';
 
 // How far a selected pickup can be from the device's GPS reading before we
@@ -44,16 +44,16 @@ interface FareBreakdown {
 }
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/25 bg-ip-surface-container-lowest text-ip-on-surface placeholder:text-ip-on-surface-variant/60 transition-colors duration-fast focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
 
 function Stepper({ value, onChange, min = 1 }: { value: number; onChange: (n: number) => void; min?: number }) {
   return (
-    <div className="inline-flex items-center rounded-md border border-border overflow-hidden">
+    <div className="inline-flex items-center rounded-ip-input border border-ip-outline/25 overflow-hidden">
       <button
         type="button"
         aria-label="Decrease"
         onClick={() => onChange(Math.max(min, value - 1))}
-        className="w-11 h-11 flex items-center justify-center text-lg font-semibold text-text-primary hover:bg-surface transition-colors duration-fast disabled:opacity-40"
+        className="w-11 h-11 flex items-center justify-center text-lg font-semibold text-ip-on-surface hover:bg-ip-surface-container transition-colors duration-fast disabled:opacity-40"
         disabled={value <= min}
       >
         &minus;
@@ -63,7 +63,7 @@ function Stepper({ value, onChange, min = 1 }: { value: number; onChange: (n: nu
         type="button"
         aria-label="Increase"
         onClick={() => onChange(value + 1)}
-        className="w-11 h-11 flex items-center justify-center text-lg font-semibold text-text-primary hover:bg-surface transition-colors duration-fast"
+        className="w-11 h-11 flex items-center justify-center text-lg font-semibold text-ip-on-surface hover:bg-ip-surface-container transition-colors duration-fast"
       >
         +
       </button>
@@ -82,62 +82,60 @@ function FareCard({
 }) {
   if (state === 'idle') {
     return (
-      <Card elevation="flat" className="text-center py-6 text-sm text-text-muted">
+      <div className="text-center py-6 text-ip-body-sm text-ip-on-surface-variant">
         Add pickup, drop, and load details to see your fare.
-      </Card>
+      </div>
     );
   }
   if (state === 'loading') {
     return (
-      <Card elevation="raised" className="space-y-2.5">
-        <div className="h-4 w-24 rounded bg-surface animate-pulse" />
-        <div className="h-4 w-full rounded bg-surface animate-pulse" />
-        <div className="h-4 w-2/3 rounded bg-surface animate-pulse" />
-      </Card>
+      <div className="ip-card">
+        <Skeleton lines={3} className="h-4" />
+      </div>
     );
   }
   if (state === 'error') {
     return (
-      <Card elevation="raised" className="text-sm text-red-700 bg-red-50 border-red-200">
+      <div className="rounded-ip-card bg-ip-error-container text-ip-on-error-container text-sm p-ip-md">
         {errorMessage ?? 'Could not estimate a fare for this trip.'}
-      </Card>
+      </div>
     );
   }
   if (!fare) return null;
   return (
-    <Card elevation="raised">
-      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Fare estimate</p>
+    <div className="ip-card">
+      <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">Fare estimate</p>
       <div className="space-y-1.5 text-sm">
         {fare.baseFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-text-muted">Base fare</span>
+            <span className="text-ip-on-surface-variant">Base fare</span>
             <span>₹{fare.baseFare}</span>
           </div>
         )}
         {fare.distanceFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-text-muted">Distance</span>
+            <span className="text-ip-on-surface-variant">Distance</span>
             <span>₹{fare.distanceFare}</span>
           </div>
         )}
         {fare.hamaliFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-text-muted">Hamali labor</span>
+            <span className="text-ip-on-surface-variant">Hamali labor</span>
             <span>₹{fare.hamaliFare}</span>
           </div>
         )}
         {fare.surgeMultiplier > 1 && (
-          <div className="flex justify-between text-primary-600">
+          <div className="flex justify-between text-ip-primary">
             <span>Surge</span>
             <span>×{fare.surgeMultiplier}</span>
           </div>
         )}
-        <div className="flex justify-between pt-2.5 mt-1 border-t border-border">
-          <span className="font-heading font-bold">Total</span>
-          <span className="font-heading font-bold text-lg">₹{fare.total}</span>
+        <div className="flex justify-between pt-2.5 mt-1 border-t border-ip-outline/10">
+          <span className="font-heading font-bold text-ip-on-surface">Total</span>
+          <span className="font-heading font-bold text-lg text-ip-on-surface tabular-nums">₹{fare.total}</span>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -286,158 +284,162 @@ function BookForm() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-1">Book a delivery</h1>
-      <p className="text-sm text-text-muted mb-6">Trucks, Hamali labor, or both — in {REGION}.</p>
+    <div className="min-h-screen bg-ip-surface">
+      <div className="max-w-lg mx-auto px-ip-edge pt-ip-lg pb-ip-xl">
+        <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-1">Book a delivery</h1>
+        <p className="text-ip-body-md text-ip-on-surface-variant mb-6">Trucks, Hamali labor, or both — in {REGION}.</p>
 
-      <div
-        className="grid grid-cols-3 gap-2 mb-6 p-1.5 rounded-lg border border-border bg-surface shadow-sm"
-        role="radiogroup"
-        aria-label="Booking type"
-      >
-        {TYPES.map((t) => (
-          <button
-            key={t.value}
-            type="button"
-            role="radio"
-            aria-checked={type === t.value}
-            onClick={() => setType(t.value)}
-            className={`flex flex-col items-center gap-1 py-2.5 rounded-md text-xs font-semibold transition-all duration-fast ${
-              type === t.value ? 'bg-primary-600 text-white shadow-md -translate-y-0.5' : 'text-text-muted hover:bg-surface-raised'
-            }`}
-          >
-            <t.icon className="w-5 h-5" />
-            {t.label}
-          </button>
-        ))}
-      </div>
+        <div
+          className="grid grid-cols-3 gap-2 mb-6 p-1.5 rounded-ip-card bg-ip-surface-container"
+          role="radiogroup"
+          aria-label="Booking type"
+        >
+          {TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              role="radio"
+              aria-checked={type === t.value}
+              onClick={() => setType(t.value)}
+              className={`flex flex-col items-center gap-1 py-2.5 rounded-ip-input text-xs font-semibold transition-all duration-fast ${
+                type === t.value ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
+              }`}
+            >
+              <t.icon className="w-5 h-5" />
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <Card elevation="raised" className="space-y-4">
-          <div>
-            <AddressField
-              label="Pickup"
-              placeholder="Where should we collect from?"
-              value={pickup}
-              onChange={setPickup}
-              markerColorClass="text-primary-600"
-            />
-            {locatingDevice && (
-              <p className="flex items-center gap-1.5 text-xs text-text-muted mt-2">
-                <CompassIcon className="w-3.5 h-3.5 animate-pulse" />
-                Finding your current location…
-              </p>
-            )}
-            <AddressChips
-              saved={savedAddresses}
-              onPick={setPickup}
-              currentValue={pickup}
-              onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
-            />
-            {mismatch && (
-              <div className="mt-2 flex items-start gap-2.5 rounded-md border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-800">
-                <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="mb-1.5">This pickup doesn&apos;t match your current location — is it for you or someone else?</p>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      className="font-semibold underline"
-                      onClick={async () => {
-                        if (!deviceLocation) return;
-                        try {
-                          const res = await api.get<{ result: { lat: number; lon: number; displayName: string } | null }>(
-                            `/api/geocode/reverse?lat=${deviceLocation.lat}&lng=${deviceLocation.lng}`
-                          );
-                          if (res.result) setPickup({ lat: res.result.lat, lng: res.result.lon, address: res.result.displayName });
-                        } catch {
-                          // Leave the typed address in place — same "don't fail loudly" fallback as elsewhere.
-                        }
-                      }}
-                    >
-                      It&apos;s me — use my location
-                    </button>
-                    <button
-                      type="button"
-                      className="font-semibold underline"
-                      onClick={() => setMismatchDismissedFor(pickup!.address)}
-                    >
-                      It&apos;s for someone else
-                    </button>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="ip-card space-y-4">
+            <div>
+              <AddressField
+                label="Pickup"
+                placeholder="Where should we collect from?"
+                value={pickup}
+                onChange={setPickup}
+                markerColorClass="text-ip-primary"
+              />
+              {locatingDevice && (
+                <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mt-2">
+                  <CompassIcon className="w-3.5 h-3.5 animate-pulse" />
+                  Finding your current location…
+                </p>
+              )}
+              <AddressChips
+                saved={savedAddresses}
+                onPick={setPickup}
+                currentValue={pickup}
+                onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
+              />
+              {mismatch && (
+                <div className="mt-2 flex items-start gap-2.5 rounded-ip-input bg-amber-100/70 px-3.5 py-2.5 text-sm text-amber-900">
+                  <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="mb-1.5">This pickup doesn&apos;t match your current location — is it for you or someone else?</p>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        className="font-semibold underline"
+                        onClick={async () => {
+                          if (!deviceLocation) return;
+                          try {
+                            const res = await api.get<{ result: { lat: number; lon: number; displayName: string } | null }>(
+                              `/api/geocode/reverse?lat=${deviceLocation.lat}&lng=${deviceLocation.lng}`
+                            );
+                            if (res.result) setPickup({ lat: res.result.lat, lng: res.result.lon, address: res.result.displayName });
+                          } catch {
+                            // Leave the typed address in place — same "don't fail loudly" fallback as elsewhere.
+                          }
+                        }}
+                      >
+                        It&apos;s me — use my location
+                      </button>
+                      <button
+                        type="button"
+                        className="font-semibold underline"
+                        onClick={() => setMismatchDismissedFor(pickup!.address)}
+                      >
+                        It&apos;s for someone else
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <AddressField
-              label="Drop"
-              placeholder="Where is this headed?"
-              value={drop}
-              onChange={setDrop}
-              markerColorClass="text-secondary-600"
-            />
-            <AddressChips
-              saved={savedAddresses}
-              onPick={setDrop}
-              currentValue={drop}
-              onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
-              extraChip={
-                type === 'hamali' && pickup ? { label: 'Same as pickup', onClick: () => setDrop(pickup) } : undefined
-              }
-            />
-          </div>
-        </Card>
-
-        {pickup && drop && (
-          <RouteMap
-            pickup={{ lat: pickup.lat, lng: pickup.lng }}
-            drop={{ lat: drop.lat, lng: drop.lng }}
-            className="h-48"
-          />
-        )}
-
-        {needsWeight && (
-          <Card elevation="raised">
-            <label className="block text-xs font-semibold text-text-muted mb-1.5" htmlFor="weight">
-              Cargo weight (kg)
-            </label>
-            <input
-              id="weight"
-              type="number"
-              placeholder="e.g. 800"
-              value={weightKg}
-              onChange={(e) => setWeightKg(e.target.value)}
-              className={inputClass}
-              required
-              min={1}
-            />
-          </Card>
-        )}
-
-        {needsHamali && (
-          <Card elevation="raised" className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">Hamali workers</p>
-              <p className="text-xs text-text-muted">How many hands do you need?</p>
+              )}
             </div>
-            <Stepper value={hamaliCount} onChange={setHamaliCount} />
-          </Card>
-        )}
 
-        <FareCard state={fareState} fare={fare} errorMessage={fareError} />
-
-        {submitError && (
-          <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {submitError}
+            <div>
+              <AddressField
+                label="Drop"
+                placeholder="Where is this headed?"
+                value={drop}
+                onChange={setDrop}
+                markerColorClass="text-ip-secondary"
+              />
+              <AddressChips
+                saved={savedAddresses}
+                onPick={setDrop}
+                currentValue={drop}
+                onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
+                extraChip={
+                  type === 'hamali' && pickup ? { label: 'Same as pickup', onClick: () => setDrop(pickup) } : undefined
+                }
+              />
+            </div>
           </div>
-        )}
 
-        <Button type="submit" disabled={submitting || fareState !== 'ready'} className="w-full" size="lg">
-          {submitting ? 'Booking…' : fare ? `Confirm — ₹${fare.total}` : 'Confirm booking'}
-        </Button>
-      </form>
+          {pickup && drop && (
+            <div className="rounded-ip-card overflow-hidden">
+              <RouteMap
+                pickup={{ lat: pickup.lat, lng: pickup.lng }}
+                drop={{ lat: drop.lat, lng: drop.lng }}
+                className="h-48"
+              />
+            </div>
+          )}
+
+          {needsWeight && (
+            <div className="ip-card">
+              <label className="block text-xs font-semibold text-ip-on-surface-variant mb-1.5" htmlFor="weight">
+                Cargo weight (kg)
+              </label>
+              <input
+                id="weight"
+                type="number"
+                placeholder="e.g. 800"
+                value={weightKg}
+                onChange={(e) => setWeightKg(e.target.value)}
+                className={inputClass}
+                required
+                min={1}
+              />
+            </div>
+          )}
+
+          {needsHamali && (
+            <div className="ip-card flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-ip-on-surface">Hamali workers</p>
+                <p className="text-xs text-ip-on-surface-variant">How many hands do you need?</p>
+              </div>
+              <Stepper value={hamaliCount} onChange={setHamaliCount} />
+            </div>
+          )}
+
+          <FareCard state={fareState} fare={fare} errorMessage={fareError} />
+
+          {submitError && (
+            <div role="alert" className="rounded-ip-card bg-ip-error-container text-ip-on-error-container px-4 py-3 text-sm">
+              {submitError}
+            </div>
+          )}
+
+          <Button type="submit" disabled={submitting || fareState !== 'ready'} className="w-full" size="lg">
+            {submitting ? 'Booking…' : fare ? `Confirm — ₹${fare.total}` : 'Confirm booking'}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

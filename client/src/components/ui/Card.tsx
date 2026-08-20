@@ -6,16 +6,12 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   elevation?: Elevation;
 }
 
-// `flat` sits directly on the page surface tone (for content grouped inside
-// an already-elevated context). `raised` is the default — a real card that
-// reads as sitting above the page via shadow, not just a border, on the
-// pure-white surface-raised tone so it separates from the warm-beige page bg.
+// Tonal, not shadow-based, per the "Ink on Warm Paper" component rule:
+// depth comes from the surface/surface-raised tone shift, never a drop
+// shadow. `flat` sits directly on the page surface tone (content grouped
+// inside an already-elevated context); `raised` is the default — pure
+// white so it separates from the warm-beige page without needing a border.
 export function Card({ elevation = 'raised', className = '', ...props }: CardProps) {
-  const base = elevation === 'raised' ? 'bg-surface-raised shadow-md' : 'bg-surface';
-  return (
-    <div
-      className={`${base} rounded-lg p-6 border border-border ${className}`}
-      {...props}
-    />
-  );
+  const base = elevation === 'raised' ? 'bg-surface-raised' : 'bg-surface';
+  return <div className={`${base} rounded-lg p-6 ${className}`} {...props} />;
 }

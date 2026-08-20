@@ -28,7 +28,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-ip-surface pb-24">
       {children}
       <BottomTabNav items={tabs} />
     </div>

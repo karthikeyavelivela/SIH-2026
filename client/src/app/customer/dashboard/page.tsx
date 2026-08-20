@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { useNotificationPermission } from '@/lib/useNotificationPermission';
-import { Card } from '@/components/ui/Card';
-import { Avatar } from '@/components/ui/Avatar';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
+import { StatusChip } from '@/components/ui/StatusChip';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { ListDivider } from '@/components/ui/ListDivider';
 import {
   BellIcon,
-  SearchIcon,
   MapPinIcon,
   TruckIcon,
   BoxIcon,
@@ -30,10 +31,8 @@ interface BookingSummary {
 }
 
 const quickActions = [
-  { href: '/customer/book?type=truck', label: 'Truck', icon: TruckIcon },
-  { href: '/customer/book?type=hamali', label: 'Hamali', icon: BoxIcon },
-  { href: '/customer/book?type=combo', label: 'Combo', icon: LayersIcon },
-  { href: '/customer/history', label: 'History', icon: ClockIcon },
+  { href: '/customer/book?type=hamali', label: 'Hamali Labor', hint: 'Hire loaders', icon: BoxIcon },
+  { href: '/customer/history', label: 'History', hint: 'View past trips', icon: ClockIcon },
 ];
 
 const statusLabel: Record<string, string> = {
@@ -41,19 +40,19 @@ const statusLabel: Record<string, string> = {
   searching: 'Finding a match…',
   matched: 'Matched',
   accepted: 'Accepted',
-  in_progress: 'On the way',
+  in_progress: 'In Transit',
   completed: 'Completed',
   cancelled: 'Cancelled',
 };
 
-const statusPillClass: Record<string, string> = {
-  requested: 'bg-text-muted/10 text-text-muted',
-  searching: 'bg-text-muted/10 text-text-muted',
-  matched: 'bg-secondary/10 text-secondary-600',
-  accepted: 'bg-secondary/10 text-secondary-600',
-  in_progress: 'bg-primary/10 text-primary-600',
-  completed: 'bg-emerald-500/10 text-emerald-700',
-  cancelled: 'bg-red-500/10 text-red-700',
+const statusTone: Record<string, 'muted' | 'secondary' | 'primary' | 'success' | 'danger'> = {
+  requested: 'muted',
+  searching: 'muted',
+  matched: 'secondary',
+  accepted: 'secondary',
+  in_progress: 'primary',
+  completed: 'success',
+  cancelled: 'danger',
 };
 
 const PROGRESS_STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
@@ -88,185 +87,181 @@ export default function CustomerDashboardPage() {
   const firstName = user?.name?.split(' ')[0] ?? 'there';
 
   const activeBooking = bookings.find((b) => !['completed', 'cancelled'].includes(b.status));
-  const recent = bookings.filter((b) => b._id !== activeBooking?._id).slice(0, 4);
+  const recent = bookings.filter((b) => b._id !== activeBooking?._id).slice(0, 5);
   const activeStepIndex = activeBooking ? PROGRESS_STEPS.indexOf(activeBooking.status) : -1;
+  const progressPct = activeStepIndex >= 0 ? Math.round((activeStepIndex / (PROGRESS_STEPS.length - 1)) * 100) : 0;
 
   return (
-    <div className="max-w-lg mx-auto px-5 pt-6">
-      {/* Greeting */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Avatar name={user?.name ?? '?'} photoUrl={user?.profilePhoto} accent="primary" />
-          <div>
-            <p className="text-xs text-text-muted">Hello,</p>
-            <p className="font-heading font-bold text-lg leading-tight">{firstName} 👋</p>
+    <div className="min-h-screen bg-ip-surface">
+      {/* TopAppBar */}
+      <header className="w-full sticky top-0 z-30 bg-ip-surface-container/95 backdrop-blur-sm flex justify-between items-center px-ip-edge py-3 max-w-[600px] mx-auto">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="w-10 h-10 rounded-full bg-ip-surface-container-lowest overflow-hidden flex-shrink-0 flex items-center justify-center text-ip-primary font-heading font-bold"
+            aria-hidden="true"
+          >
+            {user?.profilePhoto ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.profilePhoto} alt="" className="w-full h-full object-cover" />
+            ) : (
+              (user?.name ?? '?')[0]?.toUpperCase()
+            )}
           </div>
+          <h1 className="font-heading font-extrabold text-ip-headline-sm text-ip-primary tracking-tight uppercase truncate">FYRO</h1>
         </div>
         <button
           type="button"
           aria-label={permission === 'granted' ? 'Alerts on' : 'Enable alerts'}
           onClick={() => permission === 'default' && request()}
-          className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-fast ${
-            permission === 'granted' ? 'bg-primary/15 text-primary-600' : 'bg-surface text-text-primary hover:bg-surface-raised hover:shadow-sm'
+          className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center transition-colors ${
+            permission === 'granted' ? 'bg-ip-primary-container/25 text-ip-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
           }`}
         >
           <BellIcon className="w-5 h-5" />
         </button>
-      </div>
+      </header>
 
-      <NotificationPrompt accent="primary" copy="Get notified the instant a driver or Hamali is on the way." />
+      <main className="max-w-[600px] mx-auto px-ip-edge pt-ip-lg pb-ip-xl flex flex-col gap-ip-xl">
+        <NotificationPrompt accent="primary" copy="Get notified the instant a driver or Hamali is on the way." />
 
-      {/* Quick-book search bar */}
-      <div className="flex gap-3 mb-6">
-        <Link
-          href="/customer/book"
-          className="flex-1 flex items-center gap-3 px-4 py-3.5 rounded-full bg-surface-raised border border-border shadow-sm text-text-muted hover:shadow-md hover:border-border-strong transition-all duration-base"
-        >
-          <SearchIcon className="w-5 h-5 flex-shrink-0" />
-          <span className="text-sm">Where do you need pickup?</span>
-        </Link>
-        <Link
-          href="/customer/track"
-          aria-label="Track a booking"
-          className="w-[52px] h-[52px] flex-shrink-0 rounded-full bg-primary-600 text-white flex items-center justify-center shadow-md hover:shadow-glow-primary hover:-translate-y-0.5 transition-all duration-base"
-        >
-          <MapPinIcon className="w-5 h-5" />
-        </Link>
-      </div>
+        {/* Welcome */}
+        <section className="flex flex-col gap-ip-sm">
+          <p className="text-ip-body-lg text-ip-on-surface-variant">Welcome back,</p>
+          <h2 className="font-heading font-extrabold text-ip-display-lg text-ip-on-surface leading-none">{firstName}</h2>
+        </section>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        {quickActions.map((qa) => (
+        {/* Quick Action Bento */}
+        <section className="grid grid-cols-2 gap-ip-sm">
           <Link
-            key={qa.href}
-            href={qa.href}
-            className="flex flex-col items-center gap-2 py-3 rounded-md hover:bg-surface transition-colors duration-fast"
+            href="/customer/book"
+            className="ip-card active:bg-ip-surface-container-high active:border active:border-ip-on-surface col-span-2 relative overflow-hidden flex flex-col items-start gap-ip-md"
           >
-            <div className="w-12 h-12 rounded-full bg-surface-raised shadow-sm flex items-center justify-center text-primary-600">
-              <qa.icon className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-full bg-ip-primary-container text-ip-on-primary flex items-center justify-center z-10">
+              <TruckIcon className="w-6 h-6" />
             </div>
-            <span className="text-xs font-medium text-text-muted">{qa.label}</span>
+            <div className="flex flex-col items-start z-10">
+              <span className="font-heading font-bold text-lg text-ip-on-surface">Book a Truck</span>
+              <span className="text-ip-body-sm text-ip-on-surface-variant">Instant logistics support</span>
+            </div>
+            <TruckIcon className="pointer-events-none select-none absolute -right-3 -bottom-4 w-28 h-28 opacity-10" />
           </Link>
-        ))}
-      </div>
 
-      {/* Current shipment — the one thing a customer with something in
-          flight actually wants to see first, ahead of the promo card. */}
-      {activeBooking && (
-        <Link href={`/customer/track/${activeBooking._id}`} className="block mb-6">
-          <Card elevation="raised" className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-base">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-lg font-bold">Current shipment</h2>
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusPillClass[activeBooking.status] ?? 'bg-text-muted/10 text-text-muted'}`}>
-                {statusLabel[activeBooking.status] ?? activeBooking.status}
-              </span>
-            </div>
-
-            {activeStepIndex >= 0 && (
-              <div className="flex items-center mb-4">
-                {PROGRESS_STEPS.slice(0, 5).map((step, i) => (
-                  <div key={step} className="flex items-center flex-1 last:flex-none">
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${i <= activeStepIndex ? 'bg-primary-600' : 'bg-border-strong'}`}
-                    />
-                    {i < 4 && <span className={`h-0.5 flex-1 ${i < activeStepIndex ? 'bg-primary-600' : 'bg-border-strong'}`} />}
-                  </div>
-                ))}
+          {quickActions.map((qa) => (
+            <Link
+              key={qa.href}
+              href={qa.href}
+              className="ip-card active:bg-ip-surface-container-high active:border active:border-ip-on-surface flex flex-col items-start gap-ip-md"
+            >
+              <div className="w-10 h-10 rounded-full bg-ip-surface-container-highest text-ip-primary flex items-center justify-center">
+                <qa.icon className="w-5 h-5" />
               </div>
-            )}
-
-            <div className="flex items-center justify-between text-sm">
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-text-muted">{new Date(activeBooking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p>
-                <p className="font-medium truncate">{shortAddress(activeBooking.pickupLocation.address)}</p>
+              <div className="flex flex-col items-start">
+                <span className="text-sm font-semibold text-ip-on-surface">{qa.label}</span>
+                <span className="text-ip-body-sm text-ip-on-surface-variant">{qa.hint}</span>
               </div>
-              <ChevronRightIcon className="w-4 h-4 text-text-muted mx-2 flex-shrink-0" />
-              <div className="min-w-0 flex-1 text-right">
-                <p className="text-[11px] text-text-muted">In progress</p>
-                <p className="font-medium truncate">{shortAddress(activeBooking.dropLocation.address)}</p>
-              </div>
-            </div>
-          </Card>
-        </Link>
-      )}
-
-      {/* Promo / primary CTA card */}
-      <Link href="/customer/book" className="block mb-8">
-        <div className="relative overflow-hidden rounded-lg bg-primary-600 text-white p-6 shadow-lg hover:shadow-glow-primary hover:-translate-y-0.5 transition-all duration-base">
-          <TruckIcon className="pointer-events-none select-none absolute -right-3 -bottom-4 w-32 h-32 opacity-15" />
-          <p className="font-heading text-xl font-extrabold leading-tight mb-1">
-            Move anything.
-            <br />
-            Anywhere in AP.
-          </p>
-          <p className="text-sm text-white/85 mb-4 max-w-[80%]">
-            Trucks from 1kg to 1000 tons, or Hamali labor — book in minutes.
-          </p>
-          <span className="inline-flex items-center gap-1 bg-white text-primary-600 text-sm font-semibold px-4 py-2 rounded-full">
-            Book now
-            <ChevronRightIcon className="w-4 h-4" />
-          </span>
-        </div>
-      </Link>
-
-      {/* Recent bookings */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-heading text-lg font-bold">Recent bookings</h2>
-        <Link href="/customer/history" className="text-sm font-medium text-primary-600 hover:underline">
-          See all
-        </Link>
-      </div>
-
-      {loadState === 'loading' && (
-        <div className="space-y-3">
-          {[0, 1].map((i) => (
-            <div key={i} className="h-20 rounded-lg bg-surface animate-pulse" />
-          ))}
-        </div>
-      )}
-
-      {loadState !== 'loading' && bookings.length === 0 && (
-        <Card elevation="raised" className="text-center py-10">
-          <p className="text-sm text-text-muted mb-4">No bookings yet.</p>
-          <Link href="/customer/book" className="text-sm font-semibold text-primary-600 hover:underline">
-            Book your first delivery →
-          </Link>
-        </Card>
-      )}
-
-      {loadState !== 'loading' && bookings.length > 0 && recent.length === 0 && (
-        <Card elevation="flat" className="text-center py-8 text-sm text-text-muted">
-          Nothing else yet — your current shipment above is the only one so far.
-        </Card>
-      )}
-
-      {recent.length > 0 && (
-        <div className="space-y-3">
-          {recent.map((b) => (
-            <Link key={b._id} href={`/customer/track/${b._id}`} className="block">
-              <Card
-                elevation="raised"
-                className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-base"
-              >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0">
-                      {b.type === 'hamali' ? <BoxIcon className="w-4 h-4" /> : <TruckIcon className="w-4 h-4" />}
-                    </span>
-                    <p className="font-heading font-bold text-sm truncate">
-                      {shortAddress(b.pickupLocation.address)} <span className="text-text-muted font-normal">→</span> {shortAddress(b.dropLocation.address)}
-                    </p>
-                  </div>
-                  <span className={`flex-shrink-0 text-[11px] font-semibold px-2 py-1 rounded-full ${statusPillClass[b.status] ?? 'bg-text-muted/10 text-text-muted'}`}>
-                    {statusLabel[b.status] ?? b.status}
-                  </span>
-                </div>
-                <p className="text-xs text-text-muted">₹{b.fareBreakdown.total}</p>
-              </Card>
             </Link>
           ))}
-        </div>
-      )}
+        </section>
+
+        {/* Active Tracking */}
+        {activeBooking && (
+          <section className="flex flex-col gap-ip-md">
+            <h3 className="font-heading font-bold text-ip-headline-sm text-ip-on-surface border-b border-ip-outline/10 pb-ip-xs">
+              Active Tracking
+            </h3>
+            <Link href={`/customer/track/${activeBooking._id}`} className="ip-card active:bg-ip-surface-container-high flex flex-col gap-ip-md">
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex flex-col gap-1">
+                  <StatusChip tone={statusTone[activeBooking.status] ?? 'muted'} dot>
+                    {statusLabel[activeBooking.status] ?? activeBooking.status}
+                  </StatusChip>
+                  <span className="font-heading font-semibold text-ip-data-mono text-ip-on-surface tabular-nums">
+                    ₹{activeBooking.fareBreakdown.total}
+                  </span>
+                </div>
+                <span className="text-xs text-ip-on-surface-variant text-right">
+                  {new Date(activeBooking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                </span>
+              </div>
+              <div className="flex items-center gap-ip-sm">
+                <div className="w-8 h-8 rounded-full bg-ip-surface-container-highest flex items-center justify-center text-ip-on-surface-variant flex-shrink-0">
+                  <MapPinIcon className="w-4 h-4" />
+                </div>
+                <div className="h-px flex-1 bg-ip-outline/20 relative">
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-ip-primary rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+                </div>
+                <div className="w-8 h-8 rounded-full bg-ip-surface-container-highest flex items-center justify-center text-ip-on-surface-variant flex-shrink-0">
+                  <MapPinIcon className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="flex justify-between text-ip-body-sm text-ip-on-surface-variant gap-3">
+                <span className="truncate">{shortAddress(activeBooking.pickupLocation.address)}</span>
+                <span className="truncate text-right">{shortAddress(activeBooking.dropLocation.address)}</span>
+              </div>
+            </Link>
+          </section>
+        )}
+
+        {/* Recent bookings */}
+        <section className="flex flex-col gap-ip-md">
+          <div className="flex items-center justify-between border-b border-ip-outline/10 pb-ip-xs">
+            <h3 className="font-heading font-bold text-ip-headline-sm text-ip-on-surface">Recent bookings</h3>
+            <Link href="/customer/history" className="text-sm font-semibold text-ip-primary hover:underline">
+              See all
+            </Link>
+          </div>
+
+          {loadState === 'loading' && <Skeleton lines={3} className="h-16" />}
+
+          {loadState !== 'loading' && bookings.length === 0 && (
+            <div className="ip-card">
+              <EmptyState
+                icon={<LayersIcon className="w-6 h-6" />}
+                title="No bookings yet"
+                description="Book your first truck or Hamali crew to see it here."
+                action={
+                  <Link href="/customer/book" className="text-sm font-semibold text-ip-primary hover:underline">
+                    Book your first delivery →
+                  </Link>
+                }
+              />
+            </div>
+          )}
+
+          {loadState !== 'loading' && bookings.length > 0 && recent.length === 0 && (
+            <p className="text-center py-6 text-ip-body-sm text-ip-on-surface-variant">
+              Nothing else yet — your active shipment above is the only one so far.
+            </p>
+          )}
+
+          {recent.length > 0 && (
+            <div className="flex flex-col">
+              {recent.map((b, i) => (
+                <div key={b._id}>
+                  <Link href={`/customer/track/${b._id}`} className="flex items-center justify-between py-ip-sm active:bg-ip-surface-container-high group -mx-2 px-2 rounded-ip-input transition-colors">
+                    <div className="flex items-center gap-ip-sm min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-ip-surface-container-highest group-hover:bg-ip-primary-container group-hover:text-ip-on-primary transition-colors flex items-center justify-center text-ip-on-surface-variant flex-shrink-0">
+                        {b.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
+                      </div>
+                      <div className="flex flex-col items-start text-left min-w-0">
+                        <span className="text-sm font-semibold text-ip-on-surface truncate">
+                          {shortAddress(b.pickupLocation.address)} → {shortAddress(b.dropLocation.address)}
+                        </span>
+                        <span className="text-ip-body-sm text-ip-on-surface-variant">₹{b.fareBreakdown.total}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <StatusChip tone={statusTone[b.status] ?? 'muted'}>{statusLabel[b.status] ?? b.status}</StatusChip>
+                      <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+                    </div>
+                  </Link>
+                  {i < recent.length - 1 && <ListDivider />}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

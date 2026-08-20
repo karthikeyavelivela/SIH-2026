@@ -17,7 +17,12 @@ const nameRule = body('name').isString().trim().isLength({ min: 1 });
 authRouter.post(
   '/signup/customer',
   authLimiter,
-  [nameRule, phoneRule, passwordRule, body('email').optional().isEmail()],
+  // checkFalsy: true — the client always sends email:'' when left blank
+  // (a controlled input, never omitted from the request body), and
+  // express-validator's optional() only skips *absent* fields by default,
+  // not falsy ones. Without checkFalsy, signup with no email 400s every
+  // time despite the field being labeled optional.
+  [nameRule, phoneRule, passwordRule, body('email').optional({ checkFalsy: true }).isEmail()],
   validate,
   authController.signupCustomer
 );
