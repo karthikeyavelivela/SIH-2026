@@ -22,6 +22,8 @@ import { regionRouter } from './routes/region.routes';
 import { auditLogRouter } from './routes/auditLog.routes';
 import { adminStatsRouter } from './routes/adminStats.routes';
 import { savedAddressRouter } from './routes/savedAddress.routes';
+import { fleetRouter } from './routes/fleet.routes';
+import { warehouseHubRouter } from './routes/warehouseHub.routes';
 import { ApiError } from './utils/ApiError';
 
 export const app = express();
@@ -86,6 +88,8 @@ app.use('/api/payments', paymentRouter);
 app.use('/api/ratings', ratingRouter);
 app.use('/api/complaints', complaintRouter);
 app.use('/api/addresses', savedAddressRouter);
+app.use('/api/fleet', fleetRouter);
+app.use('/api/warehouse-hub', warehouseHubRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

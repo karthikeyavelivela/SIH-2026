@@ -17,6 +17,12 @@ export interface IVehicle {
   // HamaliProfile.willingLocation's doc comment for the full rationale.
   willingLocation?: { type: 'Point'; coordinates: [number, number] };
   availabilityStatus: AvailabilityStatus;
+  // Fleet-roster pairing only — which driver a fleet_owner has currently
+  // put behind this unit's wheel. Distinct from Booking.assignedDriverIds
+  // (which is a per-trip assignment); this is the standing roster
+  // assignment shown on the fleet dashboard until the owner reassigns it.
+  // Absent for independent (non-fleet) vehicles.
+  assignedDriverId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +50,7 @@ const vehicleSchema = new Schema<IVehicle>(
       coordinates: { type: [Number] },
     },
     availabilityStatus: { type: String, enum: ['online', 'offline', 'on_job'], default: 'offline' },
+    assignedDriverId: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true }
 );

@@ -1,0 +1,125 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { api, ApiClientError } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ChevronLeftIcon } from '@/components/ui/icons';
+
+const inputClass =
+  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+
+export default function SignupFleetOwnerPage() {
+  const router = useRouter();
+  const { refetch } = useAuth();
+  const [form, setForm] = useState({ name: '', phone: '', password: '', fleetName: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await api.post('/api/auth/signup/fleet-owner', form);
+      await refetch();
+      router.push('/fleet-owner/dashboard');
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Signup failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-background">
+      <Link
+        href="/"
+        aria-label="Back to home"
+        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-surface-raised border border-border shadow-sm hover:bg-surface transition-colors duration-fast"
+      >
+        <ChevronLeftIcon className="w-5 h-5" />
+      </Link>
+      <div
+        className="pointer-events-none absolute -top-32 -right-24 w-80 h-80 rounded-full bg-primary/10 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
+        <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">
+          Partner with us
+        </p>
+        <h1 className="font-heading text-2xl font-bold mb-1">Run your fleet on FYRO</h1>
+        <p className="text-sm text-text-muted mb-7">Register your fleet to start deploying vehicles and drivers.</p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            placeholder="Full name"
+            aria-label="Full name"
+            autoComplete="name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className={inputClass}
+            required
+          />
+          <input
+            type="tel"
+            placeholder="Phone number"
+            aria-label="Phone number"
+            autoComplete="tel"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            className={inputClass}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password (min 8 characters)"
+            aria-label="Password (min 8 characters)"
+            autoComplete="new-password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className={inputClass}
+            required
+            minLength={8}
+          />
+          <input
+            placeholder="Fleet name"
+            aria-label="Fleet name"
+            value={form.fleetName}
+            onChange={(e) => setForm({ ...form, fleetName: e.target.value })}
+            className={inputClass}
+            required
+          />
+          {error && (
+            <div
+              role="alert"
+              className="flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
+            >
+              <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  fillRule="evenodd"
+                  d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-4a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p>{error}</p>
+            </div>
+          )}
+          <Button type="submit" disabled={loading} className="w-full" size="lg">
+            {loading ? 'Creating account…' : 'Create account'}
+          </Button>
+        </form>
+        <p className="text-sm text-text-muted mt-7 pt-6 border-t border-border">
+          Already have an account?{' '}
+          <Link href="/login" className="text-primary-600 font-semibold hover:underline">
+            Log in
+          </Link>
+        </p>
+      </Card>
+    </div>
+  );
+}

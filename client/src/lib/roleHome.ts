@@ -16,6 +16,10 @@ export function roleHome(role: string): string {
     case 'manager':
     case 'admin':
       return '/admin/dashboard';
+    case 'fleet_owner':
+      return '/fleet-owner/dashboard';
+    case 'warehouse_hub':
+      return '/warehouse-hub/dashboard';
     default:
       return '/';
   }
