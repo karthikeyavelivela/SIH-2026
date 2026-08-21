@@ -5,6 +5,7 @@ import { ApiError } from '../utils/ApiError';
 import { Payout } from '../models/Payout';
 import { writeAuditLog } from '../services/audit.service';
 import { writeLedgerEntry } from '../services/ledger.service';
+import { generateEarningsPayouts } from '../services/payoutGeneration.service';
 
 /** GET /api/admin/payouts — approval queue, filterable by status. */
 export const listPayouts = asyncHandler(async (req: Request, res: Response) => {
@@ -60,3 +61,30 @@ async function decidePayout(
 export const approvePayout = asyncHandler((req, res) => decidePayout(req, res, 'approved'));
 export const rejectPayout = asyncHandler((req, res) => decidePayout(req, res, 'rejected'));
 export const markPayoutPaid = asyncHandler((req, res) => decidePayout(req, res, 'paid'));
+
+/**
+ * POST /api/admin/payouts/generate — AUDIT_REPORT.md Phase 1.5. Turns
+ * computeTrailingEarnings into pending Payout records, one per eligible
+ * worker per period, so the approve/reject/mark-paid flow above (already
+ * real, previously structurally unreachable — nothing ever created a
+ * Payout to act on) has something to review. Idempotent per (userId,
+ * period) — see payoutGeneration.service.ts's doc comment.
+ */
+export const generatePayouts = asyncHandler(async (req: Request, res: Response) => {
+  const periodDays = typeof req.body.periodDays === 'number' ? req.body.periodDays : 30;
+  const result = await generateEarningsPayouts(periodDays);
+
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'payouts_generated',
+    targetType: 'PayoutGenerationRun',
+    // No single Payout document is "the" target of a batch run — a fresh
+    // id stands for this run itself, rather than reusing the admin's own
+    // id (which would misleadingly read as "targeted themselves").
+    targetId: new Types.ObjectId().toString(),
+    details: { periodDays, ...result },
+  });
+
+  res.status(200).json({ result });
+});

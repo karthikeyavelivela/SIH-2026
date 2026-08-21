@@ -1,13 +1,49 @@
 import { Types, HydratedDocument } from 'mongoose';
 import type { Role } from '@fyro/shared';
+import { env } from '../config/env';
 import { Booking, IBooking } from '../models/Booking';
 import { InsurancePolicy } from '../models/InsurancePolicy';
 import { ParametricTrigger, IParametricTrigger } from '../models/ParametricTrigger';
+import { Payout } from '../models/Payout';
+import { writeLedgerEntry } from './ledger.service';
+import { writeAuditLog } from './audit.service';
 
 const MS_PER_DAY = 86_400_000;
 
+// AUDIT_REPORT.md Phase 1.4 caps. Named constants, same convention as
+// matching.service.ts's DRIVER_WILLING_RADIUS_KM/HAMALI_WILLING_RADIUS_KM —
+// no admin-configurable-caps UI exists yet (would need its own model +
+// admin screen, out of scope for this phase; flagged in the phase report).
+export const MAX_PARAMETRIC_PAYOUT_PER_WORKER_PER_PERIOD = 10_000; // ₹10,000
+export const MAX_PARAMETRIC_PAYOUT_GLOBAL_PER_DAY = 500_000; // ₹5,00,000
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Bounded retry with backoff for the disbursement write. This runs inline
+ * inside a request handler (GET /api/insurance/me — see
+ * checkParametricTriggers's doc comment on why), so "retry with backoff"
+ * here means short, HTTP-response-friendly delays (100ms/300ms), not a
+ * background job's minutes-long backoff — the realistic failure mode for a
+ * same-process Mongo write is a transient blip, not a slow external API.
+ */
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3, delaysMs = [100, 300]): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < delaysMs.length) await sleep(delaysMs[i]);
+    }
+  }
+  throw lastErr;
 }
 
 /**
@@ -96,17 +132,152 @@ export interface ParametricCheckResult {
   periodStart: Date;
   periodEnd: Date;
   paidAt?: Date;
+  payoutId?: string;
+  payoutFailureReason?: string;
   /** True when this result came from an already-recorded event for the current period (no new check/payout was made this call). */
   fromExistingEvent: boolean;
+}
+
+interface DisbursementOutcome {
+  payoutId: Types.ObjectId;
+  paidAt?: Date;
+  failureReason?: string;
+}
+
+/**
+ * Actually moves money for one fired trigger — the piece that was entirely
+ * missing before AUDIT_REPORT.md's Phase 1.4 (a trigger firing previously
+ * only flipped a boolean on its own sub-document). Always creates a real
+ * Payout record first (so nothing is ever silently dropped, even on total
+ * failure below), then tries to finalize it as paid:
+ *
+ * 1. Kill switch (env.PARAMETRIC_PAYOUTS_ENABLED) — off means every
+ *    disbursement platform-wide is left 'pending' for a human, no
+ *    exceptions, checked before anything else.
+ * 2. Per-worker-per-period cap — sums this worker's own already-'paid'
+ *    parametric payouts since this trigger's periodStart.
+ * 3. Global daily cap — sums every worker's already-'paid' parametric
+ *    payouts since midnight. This is what "halts the engine" — once
+ *    breached, every subsequent trigger firing anywhere on the platform
+ *    today falls back to 'pending' until the next calendar day, with no
+ *    separate flag needed since the check re-evaluates the real sum each
+ *    time it runs.
+ * 4. Only past all three: attempt the real disbursement (writeLedgerEntry,
+ *    then flip the Payout to 'paid') with retry/backoff. A failure after
+ *    retries leaves the already-created Payout at 'pending' — the human
+ *    queue — with the reason recorded.
+ */
+async function disburseParametricPayout(
+  trigger: HydratedDocument<IParametricTrigger>,
+  userId: string,
+  role: Role,
+  periodStart: Date,
+  at: Date
+): Promise<DisbursementOutcome> {
+  const payout = await Payout.create({
+    userId,
+    amount: trigger.payoutAmount,
+    period: periodStart.toISOString().slice(0, 10),
+    status: 'pending',
+    breakdown: { condition: trigger.condition, thresholdValue: trigger.thresholdValue, actualValue: undefined },
+    source: 'parametric_insurance',
+    sourceRefId: trigger._id,
+  });
+
+  async function leaveForHumanReview(reason: string): Promise<DisbursementOutcome> {
+    await writeAuditLog({
+      actorId: userId,
+      actorRole: role,
+      action: 'parametric_payout_escalated',
+      targetType: 'Payout',
+      targetId: payout._id.toString(),
+      details: { reason, triggerId: trigger._id.toString(), amount: trigger.payoutAmount },
+    });
+    return { payoutId: payout._id, failureReason: reason };
+  }
+
+  if (!env.PARAMETRIC_PAYOUTS_ENABLED) {
+    return leaveForHumanReview('Automatic parametric payouts are currently disabled platform-wide (kill switch).');
+  }
+
+  const [workerPeriodTotal, globalDayTotal] = await Promise.all([
+    Payout.aggregate([
+      {
+        $match: {
+          userId: new Types.ObjectId(userId),
+          source: 'parametric_insurance',
+          status: 'paid',
+          createdAt: { $gte: periodStart },
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]).then((r) => r[0]?.total ?? 0),
+    Payout.aggregate([
+      {
+        $match: {
+          source: 'parametric_insurance',
+          status: 'paid',
+          createdAt: { $gte: new Date(new Date(at).setHours(0, 0, 0, 0)) },
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]).then((r) => r[0]?.total ?? 0),
+  ]);
+
+  if (workerPeriodTotal + trigger.payoutAmount > MAX_PARAMETRIC_PAYOUT_PER_WORKER_PER_PERIOD) {
+    return leaveForHumanReview(
+      `Per-worker parametric payout cap (₹${MAX_PARAMETRIC_PAYOUT_PER_WORKER_PER_PERIOD} per period) would be exceeded.`
+    );
+  }
+  if (globalDayTotal + trigger.payoutAmount > MAX_PARAMETRIC_PAYOUT_GLOBAL_PER_DAY) {
+    return leaveForHumanReview(
+      `Platform-wide daily parametric payout cap (₹${MAX_PARAMETRIC_PAYOUT_GLOBAL_PER_DAY}) would be exceeded.`
+    );
+  }
+
+  try {
+    await withRetry(async () => {
+      await writeLedgerEntry({
+        type: 'payout',
+        entityType: 'Payout',
+        entityId: payout._id.toString(),
+        amount: -Math.abs(trigger.payoutAmount),
+        description: `Automatic parametric insurance payout — ${trigger.condition} (trigger ${trigger._id})`,
+        status: 'posted',
+      });
+      payout.status = 'paid';
+      payout.decidedAt = at;
+      await payout.save();
+    });
+  } catch (err) {
+    return leaveForHumanReview(
+      `Automatic disbursement failed after retries: ${err instanceof Error ? err.message : 'unknown error'}`
+    );
+  }
+
+  await writeAuditLog({
+    actorId: userId,
+    actorRole: role,
+    action: 'parametric_payout_auto_paid',
+    targetType: 'Payout',
+    targetId: payout._id.toString(),
+    details: { triggerId: trigger._id.toString(), amount: trigger.payoutAmount, automated: true },
+  });
+
+  return { payoutId: payout._id, paidAt: at };
 }
 
 /**
  * Evaluates (and, if genuinely due, resolves) one ParametricTrigger for the
  * given worker. Idempotent: if an event already exists for the current
  * epoch-aligned period bucket (see periodIndexFor), that stored event is
- * returned as-is and NO new check or payout happens — this is what makes
- * the function safe to call on every dashboard poll and from an admin batch
- * run without ever double-paying the same period.
+ * returned as-is and NO new check or disbursement happens — this is what
+ * makes the function safe to call on every dashboard poll and from an admin
+ * batch run without ever double-paying the same period. The disbursement
+ * block below only ever runs inside this "no existing event" branch, which
+ * is the entire idempotency guarantee — proven in
+ * tests/parametricInsurance.test.ts by calling this twice back to back and
+ * asserting only one Payout ever exists.
  *
  * `condition: 'days_unable_to_work'` has no real backing data source in
  * this codebase yet (no attendance/incident-days model exists) — rather
@@ -137,6 +308,8 @@ export async function checkParametricTrigger(
       periodStart: existing.periodStart,
       periodEnd: existing.periodEnd,
       paidAt: existing.paidAt,
+      payoutId: existing.payoutId?.toString(),
+      payoutFailureReason: existing.payoutFailureReason,
       fromExistingEvent: true,
     };
   }
@@ -148,7 +321,11 @@ export async function checkParametricTrigger(
       : 0; // days_unable_to_work — no real data source yet, see doc comment above
 
   const triggered = trigger.condition === 'earnings_below_threshold' && actualValue < trigger.thresholdValue;
-  const paidAt = triggered ? at : undefined;
+
+  let disbursement: DisbursementOutcome | undefined;
+  if (triggered) {
+    disbursement = await disburseParametricPayout(trigger, userId, role, periodStart, at);
+  }
 
   trigger.events.push({
     checkedAt: at,
@@ -157,7 +334,9 @@ export async function checkParametricTrigger(
     periodEnd: at,
     actualValue,
     triggered,
-    paidAt,
+    paidAt: disbursement?.paidAt,
+    payoutId: disbursement?.payoutId,
+    payoutFailureReason: disbursement?.failureReason,
   });
   await trigger.save();
 
@@ -172,7 +351,9 @@ export async function checkParametricTrigger(
     triggered,
     periodStart,
     periodEnd: at,
-    paidAt,
+    paidAt: disbursement?.paidAt,
+    payoutId: disbursement?.payoutId.toString(),
+    payoutFailureReason: disbursement?.failureReason,
     fromExistingEvent: false,
   };
 }

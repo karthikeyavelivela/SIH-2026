@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { param, query } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import { verifyJwt } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
@@ -20,3 +20,9 @@ payoutRouter.get(
 payoutRouter.patch('/:id/approve', [param('id').isMongoId()], validate, payoutController.approvePayout);
 payoutRouter.patch('/:id/reject', [param('id').isMongoId()], validate, payoutController.rejectPayout);
 payoutRouter.patch('/:id/paid', [param('id').isMongoId()], validate, payoutController.markPayoutPaid);
+payoutRouter.post(
+  '/generate',
+  [body('periodDays').optional().isInt({ min: 1, max: 90 })],
+  validate,
+  payoutController.generatePayouts
+);

@@ -22,6 +22,17 @@ const envSchema = z.object({
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),
   RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
+  // Platform-wide kill switch for automatic parametric-insurance payouts
+  // (AUDIT_REPORT.md Phase 1.4). Same MOCK_EXTERNAL_SERVICES-style boolean
+  // convention as the rest of this file. Setting this to 'false' does NOT
+  // stop trigger evaluation (a worker still sees an honest 'triggered: true'
+  // on their dashboard) — it only stops the automatic disbursement step;
+  // the Payout is still created, just 'pending' in the ordinary admin
+  // queue instead of already 'paid'. See parametricInsurance.service.ts.
+  PARAMETRIC_PAYOUTS_ENABLED: z
+    .string()
+    .default('true')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

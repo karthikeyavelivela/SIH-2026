@@ -41,8 +41,35 @@ export default function AdminPayoutsPage() {
   );
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [generateResult, setGenerateResult] = useState<string | null>(null);
 
   const payouts = data?.payouts ?? [];
+
+  // AUDIT_REPORT.md Phase 1.5 — the queue above previously had nothing to
+  // approve because nothing anywhere ever called Payout.create for a
+  // regular earnings cycle. This is the trigger for the producer that
+  // fixes that: admin-run (no real scheduler exists in this app — see
+  // payoutGeneration.service.ts's doc comment), idempotent per worker per
+  // period, safe to click more than once.
+  async function generate() {
+    setGenerating(true);
+    setError(null);
+    setGenerateResult(null);
+    try {
+      const res = await api.post<{
+        result: { created: number; skippedAlreadyExists: number; skippedZeroEarnings: number; totalAmount: number };
+      }>('/api/admin/payouts/generate');
+      setGenerateResult(
+        `${res.result.created} new payout${res.result.created === 1 ? '' : 's'} queued (₹${res.result.totalAmount}), ${res.result.skippedAlreadyExists} already existed this period, ${res.result.skippedZeroEarnings} had no earnings.`
+      );
+      await reload();
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Could not generate payouts.');
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   async function decide(id: string, action: 'approve' | 'reject' | 'paid') {
     setBusyId(id);
@@ -63,14 +90,20 @@ export default function AdminPayoutsPage() {
       <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Payout approvals</h1>
       <p className="text-sm text-ip-on-surface-variant mb-7">Queue of driver/Mutha payout requests.</p>
 
-      <div className="flex gap-2 mb-6">
-        {STATUS_FILTERS.map((s) => (
-          <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
-            {s === '' ? 'All' : s}
-          </FilterChip>
-        ))}
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <div className="flex gap-2">
+          {STATUS_FILTERS.map((s) => (
+            <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
+              {s === '' ? 'All' : s}
+            </FilterChip>
+          ))}
+        </div>
+        <Button size="md" variant="ghost" disabled={generating} onClick={generate}>
+          {generating ? 'Generating…' : 'Generate this period’s payouts'}
+        </Button>
       </div>
 
+      {generateResult && <p className="text-sm text-ip-on-surface-variant mb-4">{generateResult}</p>}
       {error && <p className="text-sm text-ip-error mb-4">{error}</p>}
 
       {state === 'loading' && !data && <Skeleton lines={3} className="h-20" />}

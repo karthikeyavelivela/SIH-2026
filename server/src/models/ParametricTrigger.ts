@@ -23,6 +23,18 @@ export interface IParametricTriggerEvent {
   actualValue: number;
   triggered: boolean;
   paidAt?: Date;
+  // Added for AUDIT_REPORT.md Phase 1.4 — previously `paidAt` was set on a
+  // trigger firing with no real money moving (no Payout, no LedgerEntry).
+  // `payoutId` is the real Payout this event actually produced — present
+  // whenever `triggered` is true, whether it ended up 'paid' automatically
+  // or 'pending' in the admin queue (see payoutFailureReason). Absent only
+  // when `triggered` is false (nothing to pay).
+  payoutId?: Types.ObjectId;
+  // Set when a fired trigger could NOT be auto-paid (kill switch off, a
+  // cap breached, or the disbursement write failed after retries) — the
+  // Payout is still created, just 'pending' in the ordinary admin queue
+  // instead of already 'paid'. Absent when auto-payment succeeded.
+  payoutFailureReason?: string;
 }
 
 export interface IParametricTrigger {
@@ -47,6 +59,8 @@ const parametricTriggerEventSchema = new Schema<IParametricTriggerEvent>(
     actualValue: { type: Number, required: true },
     triggered: { type: Boolean, required: true },
     paidAt: { type: Date },
+    payoutId: { type: Schema.Types.ObjectId, ref: 'Payout' },
+    payoutFailureReason: { type: String, trim: true },
   },
   { _id: false }
 );
