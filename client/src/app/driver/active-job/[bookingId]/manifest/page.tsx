@@ -82,7 +82,7 @@ export default function LoadManifestPage() {
               </StatusChip>
               {manifest.signedAt && (
                 <span className="text-xs text-ip-on-surface-variant">
-                  {new Date(manifest.signedAt).toLocaleString()}
+                  {new Date(manifest.signedAt).toLocaleString('en-IN')}
                 </span>
               )}
             </div>

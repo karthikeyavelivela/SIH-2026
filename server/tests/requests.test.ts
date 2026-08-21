@@ -137,6 +137,28 @@ describe('driver requests', () => {
     const list = await agent.get('/api/requests');
     expect(list.body.requests).toEqual([]);
   });
+
+  it('returns an empty list for an online driver whose vehicle failed compliance, instead of erroring', async () => {
+    const { agent, driver } = await loginAsOnlineDriver('9830000020');
+    await Vehicle.updateOne({ ownerId: driver._id }, { complianceStatus: 'non_compliant' });
+    await makeTruckBooking();
+
+    const list = await agent.get('/api/requests');
+    expect(list.status).toBe(200);
+    expect(list.body.requests).toEqual([]);
+  });
+
+  it('blocks accepting a job outright (400) when the vehicle is non_compliant, even via a direct accept call bypassing the list', async () => {
+    const { agent, driver } = await loginAsOnlineDriver('9830000021');
+    await Vehicle.updateOne({ ownerId: driver._id }, { complianceStatus: 'non_compliant' });
+    const booking = await makeTruckBooking();
+
+    const accept = await agent.post(`/api/requests/${booking._id}/accept`);
+    expect(accept.status).toBe(400);
+
+    const stillOpen = await Booking.findById(booking._id);
+    expect(stillOpen?.assignedDriverIds).toEqual([]);
+  });
 });
 
 describe('hamali_solo requests', () => {

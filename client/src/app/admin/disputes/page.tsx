@@ -72,7 +72,7 @@ export default function AdminDisputesPage() {
             title={d.claim}
             status={d.status}
             statusTone={statusTone[d.status]}
-            updatedAt={`${d.raisedBy?.name ?? 'Unknown'} · ${new Date(d.createdAt).toLocaleDateString()} · ${d.priority} priority`}
+            updatedAt={`${d.raisedBy?.name ?? 'Unknown'} · ${new Date(d.createdAt).toLocaleDateString('en-IN')} · ${d.priority} priority`}
             onClick={() => router.push(`/admin/disputes/${d._id}`)}
           />
         ))}

@@ -44,6 +44,8 @@ const trainingModuleSchema = new Schema<ITrainingModule>(
   { timestamps: true }
 );
 
-trainingModuleSchema.index({ order: 1 });
+// No separate `.index({ order: 1 })` here — `unique: true` on the field
+// above already creates that index; declaring both triggered a duplicate-
+// index warning on every server boot.
 
 export const TrainingModule = model<ITrainingModule>('TrainingModule', trainingModuleSchema);

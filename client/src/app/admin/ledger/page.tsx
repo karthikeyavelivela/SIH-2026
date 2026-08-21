@@ -105,7 +105,7 @@ export default function AdminLedgerPage() {
         emptyTitle="No ledger entries yet"
         emptyDescription="Entries appear here as real bookings, payouts, fees, and refunds are recorded."
         columns={[
-          { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString()}</span> },
+          { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
           { key: 'type', header: 'Type', render: (e) => <span className="capitalize font-medium">{e.type}</span> },
           { key: 'desc', header: 'Description', render: (e) => e.description },
           { key: 'entity', header: 'Entity', render: (e) => <span className="text-ip-on-surface-variant">{e.entityType} · {e.entityId.slice(-6)}</span> },

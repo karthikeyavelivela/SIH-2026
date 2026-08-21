@@ -75,7 +75,7 @@ export default function AdminOpsHubPage() {
             <AlertBanner key={b.bookingId} tone="warning" icon={<ClockIcon className="w-5 h-5" />}>
               <p className="font-semibold">Pickup overdue — {b.customer?.name ?? 'Unknown customer'}</p>
               <p>{b.pickupAddress} → {b.dropAddress}</p>
-              <p className="text-xs mt-0.5">Accepted {new Date(b.acceptedAt).toLocaleString()}</p>
+              <p className="text-xs mt-0.5">Accepted {new Date(b.acceptedAt).toLocaleString('en-IN')}</p>
             </AlertBanner>
           ))}
         </div>
@@ -96,7 +96,7 @@ export default function AdminOpsHubPage() {
             >
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{item.title}</p>
-                <p className="text-xs text-ip-on-surface-variant capitalize">{item.kind.replace('_', ' ')} · {item.priority} · {new Date(item.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-ip-on-surface-variant capitalize">{item.kind.replace('_', ' ')} · {item.priority} · {new Date(item.createdAt).toLocaleDateString('en-IN')}</p>
               </div>
             </Link>
           ))}

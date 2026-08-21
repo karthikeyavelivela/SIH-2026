@@ -85,7 +85,7 @@ function SupportForm() {
             </option>
             {bookings.map((b) => (
               <option key={b._id} value={b._id}>
-                {new Date(b.createdAt).toLocaleDateString()} — {b.pickupLocation.address.slice(0, 40)}
+                {new Date(b.createdAt).toLocaleDateString('en-IN')} — {b.pickupLocation.address.slice(0, 40)}
               </option>
             ))}
           </select>

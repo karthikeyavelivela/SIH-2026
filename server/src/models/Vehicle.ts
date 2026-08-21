@@ -25,14 +25,12 @@ export interface IVehicle {
   assignedDriverId?: Types.ObjectId;
   // Set by fleet.controller's submitInspection whenever a
   // VehicleInspection is filed with overallVerdict 'non_compliant';
-  // cleared back to 'compliant' the next time an inspection passes. This is
-  // the gate a failed inspection is supposed to enforce — job matching
-  // (server/src/services/matching.service.ts) does not currently read this
-  // field, so it does not yet actually block a non-compliant vehicle from
-  // being offered work. Wiring it in is a one-line addition there
-  // (`vehicle.complianceStatus !== 'non_compliant'`) alongside its existing
-  // availabilityStatus check, deliberately left for that service's owner
-  // rather than touched here.
+  // cleared back to 'compliant' the next time an inspection passes. Gated
+  // at all three enforcement points: matching.service.ts's
+  // findCandidateVehicles (offer engine), requests.controller.ts's
+  // listRequests (browse/poll list), and bookingAssignment.service.ts's
+  // acceptAsDriver (the authoritative accept-time check — the other two
+  // are UX, this one is enforcement).
   complianceStatus: 'compliant' | 'non_compliant';
   createdAt: Date;
   updatedAt: Date;

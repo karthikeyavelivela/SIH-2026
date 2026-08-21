@@ -35,6 +35,15 @@ export async function findCandidateVehicles(q: CandidateVehicleQuery): Promise<I
   const base = {
     availabilityStatus: 'online' as const,
     capacityKg: { $gte: q.requiredCapacityKg },
+    // A vehicle that failed its last 4-angle compliance inspection
+    // (fleet.controller.ts's submitInspection sets this) must not be
+    // offered work until it passes a fresh one — this was previously
+    // documented as a known gap on Vehicle.complianceStatus's own schema
+    // comment and never wired in. See requests.controller.ts's listRequests
+    // and bookingAssignment.service.ts's acceptAsDriver for the other two
+    // enforcement points (offer/browse/accept all need their own check;
+    // there's no single shared query path across them).
+    complianceStatus: { $ne: 'non_compliant' as const },
   };
 
   const [live, willing] = await Promise.all([

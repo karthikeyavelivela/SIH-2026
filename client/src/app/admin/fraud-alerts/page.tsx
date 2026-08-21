@@ -139,7 +139,7 @@ export default function AdminFraudAlertsPage() {
           >
             <p className="font-semibold capitalize">{c.severity} severity · {c.status}</p>
             <p>
-              {c.userId?.name ?? 'Unknown user'} ({c.userId?.role}) · flagged {new Date(c.createdAt).toLocaleString()}
+              {c.userId?.name ?? 'Unknown user'} ({c.userId?.role}) · flagged {new Date(c.createdAt).toLocaleString('en-IN')}
             </p>
           </AlertBanner>
         ))}
@@ -162,7 +162,7 @@ export default function AdminFraudAlertsPage() {
                 {signals.map((s) => (
                   <div key={s._id} className="rounded-ip-input border border-ip-outline/15 p-3">
                     <p className="text-sm font-semibold capitalize">{s.detectorType.replace(/_/g, ' ')}</p>
-                    <p className="text-xs text-ip-on-surface-variant mb-1">{new Date(s.detectedAt).toLocaleString()}</p>
+                    <p className="text-xs text-ip-on-surface-variant mb-1">{new Date(s.detectedAt).toLocaleString('en-IN')}</p>
                     <pre className="text-xs text-ip-on-surface-variant whitespace-pre-wrap break-all">{JSON.stringify(s.evidence, null, 2)}</pre>
                   </div>
                 ))}

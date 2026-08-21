@@ -6,6 +6,8 @@ import { User } from '../models/User';
 import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
+import { Fleet } from '../models/Fleet';
+import { WarehouseHub } from '../models/WarehouseHub';
 
 // Idempotent demo-account seeder — one account per role, fixed known
 // password, safe to re-run (skips a role if its demo phone already exists).
@@ -27,6 +29,11 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
   { role: 'hamali_solo', phone: '9000000012', name: 'Demo Hamali (Solo)' },
   { role: 'mutha_leader', phone: '9000000013', name: 'Demo Mutha Leader' },
   { role: 'mutha_member', phone: '9000000014', name: 'Demo Mutha Member' },
+  // Added per AUDIT_REPORT.md Phase 1.6 — fleet_owner and warehouse_hub had
+  // real signup pages, dashboards, and routes but no seeded demo account,
+  // so neither role had ever been live-verified.
+  { role: 'fleet_owner', phone: '9000000015', name: 'Demo Fleet Owner' },
+  { role: 'warehouse_hub', phone: '9000000016', name: 'Demo Warehouse Hub' },
 ];
 
 async function seedDemoAccounts() {
@@ -86,6 +93,24 @@ async function seedDemoAccounts() {
         mutha.memberIds.push(user._id);
         await mutha.save();
       }
+    }
+
+    if (acc.role === 'fleet_owner') {
+      await Fleet.create({ ownerId: user._id, name: 'Demo Fleet', vehicleIds: [], driverIds: [] });
+    }
+
+    if (acc.role === 'warehouse_hub') {
+      await WarehouseHub.create({
+        ownerId: user._id,
+        name: 'Demo Warehouse Hub',
+        address: 'Visakhapatnam, Andhra Pradesh',
+        // Real Vizag coordinates, not the schema's [0,0] default — a demo
+        // account that's actually usable for anything location-based,
+        // rather than reproducing the stale-default problem this session
+        // already hit once with Vehicle.currentLocation.
+        location: { type: 'Point', coordinates: [83.2185, 17.6868] },
+        totalDockSlots: 6,
+      });
     }
 
     // eslint-disable-next-line no-console

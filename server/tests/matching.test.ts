@@ -56,6 +56,36 @@ describe('findCandidateVehicles', () => {
     expect(candidates[0].ownerId.toString()).toBe(owner1._id.toString());
   });
 
+  it('excludes an online, in-capacity vehicle that failed its compliance inspection', async () => {
+    const compliantOwner = await makeDriver('9700000018');
+    const nonCompliantOwner = await makeDriver('9700000019');
+    const pickup: [number, number] = [78.4867, 17.385];
+
+    await Vehicle.create({
+      ownerId: compliantOwner._id,
+      type: 'mini_truck',
+      capacityKg: 1000,
+      registrationNumber: 'AP01A0018',
+      availabilityStatus: 'online',
+      complianceStatus: 'compliant',
+      currentLocation: { type: 'Point', coordinates: [78.49, 17.39] },
+    });
+    await Vehicle.create({
+      ownerId: nonCompliantOwner._id,
+      type: 'mini_truck',
+      capacityKg: 1000,
+      registrationNumber: 'AP01A0019',
+      availabilityStatus: 'online',
+      complianceStatus: 'non_compliant',
+      currentLocation: { type: 'Point', coordinates: [78.491, 17.391] },
+    });
+
+    const candidates = await findCandidateVehicles({ pickup, requiredCapacityKg: 500, maxDistanceKm: 50 });
+
+    expect(candidates.length).toBe(1);
+    expect(candidates[0].ownerId.toString()).toBe(compliantOwner._id.toString());
+  });
+
   it('excludes vehicles beyond maxDistanceKm', async () => {
     const owner = await makeDriver('9700000004');
     await Vehicle.create({

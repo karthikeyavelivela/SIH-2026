@@ -23,7 +23,7 @@ export function EarningLineCard({ line }: { line: EarningLine }) {
         </div>
       </div>
       <p className="text-[11px] text-text-muted">
-        {line.completedAt ? new Date(line.completedAt).toLocaleString() : ''}
+        {line.completedAt ? new Date(line.completedAt).toLocaleString('en-IN') : ''}
       </p>
     </Card>
   );

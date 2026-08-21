@@ -23,5 +23,12 @@ const savedAddressSchema = new Schema<ISavedAddress>(
 );
 
 savedAddressSchema.index({ userId: 1 });
+// Nothing $near-queries this today (the booking form's address picker only
+// ever reads a user's own saved list, unfiltered by distance) — added for
+// correctness/consistency with every other geo field in the codebase, and
+// so a future "nearby saved addresses" feature doesn't silently need a
+// migration first. 2dsphere accepts this legacy [lng, lat] pair shape
+// directly, no GeoJSON Point wrapper required.
+savedAddressSchema.index({ coordinates: '2dsphere' });
 
 export const SavedAddress = model<ISavedAddress>('SavedAddress', savedAddressSchema);

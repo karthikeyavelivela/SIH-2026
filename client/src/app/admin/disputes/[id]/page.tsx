@@ -122,7 +122,7 @@ export default function AdminDisputeDetailPage() {
           <h1 className="font-heading text-ip-headline-sm font-bold mb-1">{dispute.claim}</h1>
           <p className="text-sm text-ip-on-surface-variant">
             Raised by {dispute.raisedBy?.name ?? 'Unknown'} ({dispute.raisedBy?.role}) ·{' '}
-            {new Date(dispute.createdAt).toLocaleString()}
+            {new Date(dispute.createdAt).toLocaleString('en-IN')}
           </p>
         </div>
         <StatusChip tone={statusTone[dispute.status]}>{dispute.status}</StatusChip>
@@ -154,7 +154,7 @@ export default function AdminDisputeDetailPage() {
             events={dispute.communicationLog.map((m, i) => ({
               id: String(i),
               label: `${m.from}: ${m.message}`,
-              timestamp: new Date(m.at).toLocaleString(),
+              timestamp: new Date(m.at).toLocaleString('en-IN'),
             }))}
           />
         )}

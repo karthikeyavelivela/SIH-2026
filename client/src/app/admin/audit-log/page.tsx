@@ -86,7 +86,7 @@ export default function AdminAuditLogPage() {
           loading={state === 'loading' && entries.length === 0}
           emptyTitle="No matching entries"
           columns={[
-            { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString()}</span> },
+            { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
             { key: 'actor', header: 'Actor', render: (e) => <StatusChip tone="secondary">{e.actorRole}</StatusChip> },
             { key: 'action', header: 'Action', render: (e) => <span className="font-medium">{e.action}</span> },
             {

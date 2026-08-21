@@ -70,6 +70,13 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       res.status(200).json({ requests: [] });
       return;
     }
+    // A vehicle that failed its last compliance inspection sees an empty
+    // list, same shape as the offline case above — not an error, just
+    // nothing to offer them until they pass a fresh inspection.
+    if (vehicle.complianceStatus === 'non_compliant') {
+      res.status(200).json({ requests: [] });
+      return;
+    }
     const driverBase = {
       status: openStatus,
       type: { $in: ['truck', 'combo'] as const },

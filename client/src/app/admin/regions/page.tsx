@@ -57,7 +57,7 @@ export default function AdminRegionsPage() {
             <div key={r._id} className="ip-card flex items-center justify-between">
               <div>
                 <p className="font-semibold text-sm">{r.name}</p>
-                <p className="text-xs text-ip-on-surface-variant">Launched {new Date(r.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-ip-on-surface-variant">Launched {new Date(r.createdAt).toLocaleDateString('en-IN')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <StatusChip tone={r.enabled ? 'success' : 'muted'}>{r.enabled ? 'Live' : 'Disabled'}</StatusChip>

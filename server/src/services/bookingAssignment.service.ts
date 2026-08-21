@@ -58,6 +58,14 @@ export async function acceptAsDriver(userId: string, bookingId: string): Promise
   const vehicle = await Vehicle.findOne({ ownerId: userId });
   if (!vehicle) throw new ApiError(404, 'No vehicle found for this driver');
   if (vehicle.availabilityStatus !== 'online') throw new ApiError(400, 'Go online before accepting a job');
+  // Authoritative accept-time gate — the offer engine and browse list
+  // (Section 1.1 of the remediation build) already hide non-compliant
+  // vehicles' jobs, but this is the check that actually matters: it closes
+  // the race where a client's stale list still shows a job that became
+  // hidden after the vehicle failed a fresh inspection mid-poll.
+  if (vehicle.complianceStatus === 'non_compliant') {
+    throw new ApiError(400, 'This vehicle failed its last compliance inspection — get it re-inspected before accepting jobs');
+  }
 
   const booking = await Booking.findOneAndUpdate(
     {

@@ -53,7 +53,11 @@ adminInsuranceRouter.patch(
   [
     param('id').isMongoId(),
     body('status').isIn(['under_review', 'approved', 'rejected', 'paid']),
-    body('payoutAmount').optional().isFloat({ min: 0 }),
+    // Upper bound is a sanity ceiling against a fat-fingered or malicious
+    // figure reaching the ledger, not a real business limit — admin-only
+    // route, already a trusted actor, but a real financial amount deserves
+    // a cap regardless.
+    body('payoutAmount').optional().isFloat({ min: 0, max: 1_000_000 }),
     body('reviewNote').optional().isString().trim().isLength({ max: 2000 }),
   ],
   validate,

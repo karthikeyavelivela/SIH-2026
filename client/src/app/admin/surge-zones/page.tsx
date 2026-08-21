@@ -116,7 +116,7 @@ export default function AdminSurgeZonesPage() {
               {recentExpired.slice(0, 5).map((z) => (
                 <div key={z._id} className="flex items-center justify-between text-sm text-ip-on-surface-variant px-1">
                   <span>{z.name} · {z.multiplier}x</span>
-                  <span>{new Date(z.expiresAt).toLocaleString()}</span>
+                  <span>{new Date(z.expiresAt).toLocaleString('en-IN')}</span>
                 </div>
               ))}
             </div>
