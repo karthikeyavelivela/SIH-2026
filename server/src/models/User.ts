@@ -1,5 +1,26 @@
 import { Schema, model, Types } from 'mongoose';
-import type { Role, AccountStatus, KycStatus } from '@fyro/shared';
+import type { Role, AccountStatus, KycStatus, KycDocumentType, KycDocumentStatus } from '@fyro/shared';
+
+// One uploaded KYC document. Added in AUDIT_REPORT.md's Phase 1.2 remediation
+// — previously kycDocs was a bare string[] of URLs with no per-document
+// status, so an admin reviewing a submission (or a worker checking their
+// own) had no way to tell what was uploaded, what was under review, or why
+// something was rejected, without one giant reason string. `type` IS
+// effectively unique per user (kycDocument.controller.ts's uploadKycDocument
+// replaces the existing entry for that type in place on re-upload, resetting
+// status to 'under_review' and clearing rejectionReason) — one tile per
+// document type, matching DocumentUploadCard's one-tile-per-type UI exactly.
+export interface IKycDocument {
+  _id: Types.ObjectId;
+  type: KycDocumentType;
+  url: string;
+  status: KycDocumentStatus;
+  rejectionReason?: string;
+  expiryDate?: Date;
+  uploadedAt: Date;
+  reviewedAt?: Date;
+  reviewedByAdminId?: Types.ObjectId;
+}
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -14,8 +35,15 @@ export interface IUser {
   // `role === '...'` check in the codebase). Always contains `role`.
   roles: Role[];
   region?: string;
+  // Overall account-level gate — still what availability.controller.ts's
+  // KYC gate (Phase 1.3) and kyc.controller's admin queue check. Individual
+  // kycDocs[].status is finer-grained (per-document review) but does not
+  // itself flip this; an admin explicitly approves/rejects the whole
+  // submission via the existing kyc.controller endpoints once they've
+  // reviewed the documents. See kycDocument.controller.ts's doc comment for
+  // the full reasoning on why these two are deliberately not auto-linked.
   kycStatus: KycStatus;
-  kycDocs: string[];
+  kycDocs: IKycDocument[];
   // Set by kyc.controller's reject action; cleared (unset) on a subsequent
   // approve. Not required for 'pending'/'verified' — only ever meaningful
   // alongside kycStatus === 'rejected'.
@@ -80,7 +108,21 @@ const userSchema = new Schema<IUser>(
     },
     region: { type: String, trim: true },
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
-    kycDocs: { type: [String], default: [] },
+    kycDocs: {
+      type: [
+        {
+          type: { type: String, required: true },
+          url: { type: String, required: true },
+          status: { type: String, enum: ['under_review', 'verified', 'rejected'], default: 'under_review' },
+          rejectionReason: { type: String, trim: true },
+          expiryDate: { type: Date },
+          uploadedAt: { type: Date, required: true, default: Date.now },
+          reviewedAt: { type: Date },
+          reviewedByAdminId: { type: Schema.Types.ObjectId, ref: 'User' },
+        },
+      ],
+      default: [],
+    },
     kycRejectionReason: { type: String, trim: true },
     profilePhoto: { type: String },
     licenseExpiryAt: { type: Date },

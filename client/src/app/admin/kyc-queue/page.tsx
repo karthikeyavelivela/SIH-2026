@@ -11,15 +11,47 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ShieldIcon } from '@/components/ui/icons';
 
+interface KycDocument {
+  _id: string;
+  type: string;
+  url: string;
+  status: 'under_review' | 'verified' | 'rejected';
+  rejectionReason?: string;
+  uploadedAt: string;
+}
+
 interface KycUser {
   _id: string;
   name: string;
   phone: string;
   role: string;
   region?: string;
-  kycDocs: string[];
+  kycDocs: KycDocument[];
   createdAt: string;
 }
+
+const DOC_TYPE_LABEL: Record<string, string> = {
+  driving_licence: 'Driving Licence',
+  vehicle_rc: 'Vehicle RC',
+  fastag: 'FASTag',
+  goods_carriage_permit: 'Goods Carriage Permit',
+  puc: 'PUC Certificate',
+  vehicle_fitness: 'Vehicle Fitness Certificate',
+  aadhaar: 'Aadhaar',
+  pan: 'PAN',
+  gstin: 'GSTIN',
+};
+
+const docStatusTone: Record<KycDocument['status'], 'muted' | 'secondary' | 'success' | 'danger'> = {
+  under_review: 'secondary',
+  verified: 'success',
+  rejected: 'danger',
+};
+const docStatusLabel: Record<KycDocument['status'], string> = {
+  under_review: 'Under review',
+  verified: 'Verified',
+  rejected: 'Rejected',
+};
 
 // New page — DESIGN_INVENTORY.md kyc_verification_queue_1/_2, consolidated
 // into one list+detail view per the build spec. Approve/reject PATCH
@@ -130,15 +162,16 @@ export default function AdminKycQueuePage() {
               </p>
               {selected.kycDocs.length === 0 && <p className="text-sm text-ip-on-surface-variant">No documents on file.</p>}
               <div className="space-y-2">
-                {selected.kycDocs.map((doc, i) => (
+                {selected.kycDocs.map((doc) => (
                   <a
-                    key={i}
-                    href={doc}
+                    key={doc._id}
+                    href={doc.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="block px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 text-sm text-ip-primary hover:bg-ip-surface-container truncate"
+                    className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 text-sm hover:bg-ip-surface-container"
                   >
-                    Document {i + 1}
+                    <span className="text-ip-primary truncate">{DOC_TYPE_LABEL[doc.type] ?? doc.type}</span>
+                    <StatusChip tone={docStatusTone[doc.status]}>{docStatusLabel[doc.status]}</StatusChip>
                   </a>
                 ))}
               </div>

@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
+import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 
 // Mutha members had no logout affordance at all — /mutha-member only had
 // Job and Earnings tabs before this page existed.
@@ -26,6 +28,8 @@ export default function MuthaMemberProfilePage() {
           </Badge>
         </div>
       </Card>
+
+      <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.mutha_member} />
 
       <Button variant="ghost" className="w-full" onClick={() => logout()}>
         Log out

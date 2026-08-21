@@ -5,9 +5,21 @@ import { publicUser } from '../utils/publicUser';
 import { User } from '../models/User';
 import { writeAuditLog } from '../services/audit.service';
 
-/** GET /api/admin/kyc-queue — every user awaiting KYC review, oldest first. */
+/**
+ * GET /api/admin/kyc-queue — users actually awaiting KYC review, oldest
+ * first. `kycStatus` alone used to be the filter — but every user defaults
+ * to 'pending' forever (there was previously no document-upload endpoint
+ * to ever move them past it, see kycDocument.controller.ts), so that filter
+ * meant literally every never-reviewed account showed up here regardless
+ * of whether they'd submitted anything. Now also requires at least one
+ * uploaded document — a genuine "ready for review" queue, not "everyone
+ * who signed up and was never looked at."
+ */
 export const listKycQueue = asyncHandler(async (_req: Request, res: Response) => {
-  const users = await User.find({ kycStatus: 'pending' }).sort({ createdAt: 1 });
+  const users = await User.find({
+    kycStatus: 'pending',
+    'kycDocs.0': { $exists: true },
+  }).sort({ createdAt: 1 });
   res.status(200).json({ users: users.map(publicUser) });
 });
 

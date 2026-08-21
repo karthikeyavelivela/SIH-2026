@@ -29,6 +29,7 @@ import { trainingRouter } from './routes/training.routes';
 import { referralRouter, adminReferralRouter } from './routes/referral.routes';
 import { loadManifestRouter } from './routes/loadManifest.routes';
 import { kycRouter } from './routes/kyc.routes';
+import { kycDocumentRouter } from './routes/kycDocument.routes';
 import { ledgerRouter } from './routes/ledger.routes';
 import { disputeRouter } from './routes/dispute.routes';
 import { fraudRouter } from './routes/fraud.routes';
@@ -49,6 +50,18 @@ app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 // byte-for-byte, which would break signature verification).
 app.use(
   express.json({
+    // Default is 100kb. Every base64-data-URL file upload in this codebase
+    // (proof photos up to 5MB, manifest signatures up to 2MB, KYC documents
+    // up to 8MB — each enforced by its own controller-level check) sends
+    // the file inside the JSON body, base64-inflated (~33% larger) plus a
+    // JSON envelope. Left at the default, Express itself 413s any
+    // realistically-sized real photo before a request ever reaches a
+    // controller — found while wiring up KYC document upload (Phase 1.2 of
+    // AUDIT_REPORT.md's remediation), because this session's only prior
+    // live test of the pattern used a trivial few-byte 1x1 PNG that never
+    // exercised the limit. 12mb covers the largest declared cap (8MB) with
+    // headroom for base64 + JSON overhead.
+    limit: '12mb',
     verify: (req, _res, buf) => {
       (req as Request & { rawBody?: string }).rawBody = buf.toString('utf8');
     },
@@ -92,6 +105,7 @@ app.use('/api/admin/stats', adminStatsRouter);
 app.use('/api/admin/insurance', adminInsuranceRouter);
 app.use('/api/admin/referrals', adminReferralRouter);
 app.use('/api/admin/kyc-queue', kycRouter);
+app.use('/api/kyc/documents', kycDocumentRouter);
 app.use('/api/admin/ledger', ledgerRouter);
 app.use('/api/admin/disputes', disputeRouter);
 app.use('/api/admin/fraud', fraudRouter);

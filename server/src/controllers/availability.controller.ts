@@ -3,6 +3,8 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
+import { User } from '../models/User';
+import { outstandingKycDocs, kycGateMessage } from '../services/kyc.service';
 
 const LAT_MIN = -90;
 const LAT_MAX = 90;
@@ -56,6 +58,23 @@ export const setAvailability = asyncHandler(async (req: Request, res: Response) 
 
   if (status === 'online' && !location) {
     throw new ApiError(400, 'A location is required to go online');
+  }
+
+  // KYC gate (AUDIT_REPORT.md Phase 1.3) — only blocks going online, never
+  // going offline (a worker whose docs lapse mid-shift can still take
+  // themselves offline cleanly). Scoped to the three roles that actually
+  // hit this endpoint at all (see the role checks below) rather than
+  // driver/hamali_solo/mutha_member being spelled out twice.
+  if (
+    status === 'online' &&
+    (req.user!.role === 'driver' || req.user!.role === 'hamali_solo' || req.user!.role === 'mutha_member')
+  ) {
+    const requester = await User.findById(req.user!.id).select('role kycDocs');
+    if (!requester) throw new ApiError(404, 'User not found');
+    const outstanding = outstandingKycDocs(requester);
+    if (outstanding.length > 0) {
+      throw new ApiError(403, kycGateMessage(outstanding));
+    }
   }
 
   // Bounds-check whenever a location is present, not only when going

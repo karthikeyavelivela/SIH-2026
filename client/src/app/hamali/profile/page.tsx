@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { TopBar } from '@/components/ui/TopBar';
 import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
+import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 
 export default function HamaliProfilePage() {
   const { user, logout, refetch } = useAuth();
@@ -28,6 +30,8 @@ export default function HamaliProfilePage() {
           </Badge>
         </div>
       </div>
+
+      <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.hamali_solo} />
 
       <DocumentExpiryCard
         license={licenseExpiryAt}

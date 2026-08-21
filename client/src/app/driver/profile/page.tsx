@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { TopBar } from '@/components/ui/TopBar';
 import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
+import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { TruckIcon } from '@/components/ui/icons';
+import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 
 interface Vehicle {
   type: string;
@@ -70,6 +72,8 @@ export default function DriverProfilePage() {
           <p className="text-sm text-ip-on-surface-variant">Capacity {data.vehicle.capacityKg} kg</p>
         </div>
       )}
+
+      <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.driver} />
 
       <DocumentExpiryCard
         license={licenseExpiryAt}
