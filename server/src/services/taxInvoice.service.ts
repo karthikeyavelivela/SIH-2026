@@ -142,9 +142,9 @@ export async function generateTaxInvoicePdf(
       y = doc.y;
       doc.text(line.label, colX.desc, y, { width: 245 });
       doc.text(`${(line.rate * 100).toFixed(0)}%`, colX.rate, y, { width: 55 });
-      doc.text(`₹${line.taxable.toFixed(2)}`, colX.taxable, y, { width: 75 });
-      doc.text(`₹${line.tax.toFixed(2)}`, colX.tax, y, { width: 55 });
-      doc.text(`₹${line.inclusive.toFixed(2)}`, colX.total, y, { width: 55 });
+      doc.text(`Rs. ${line.taxable.toFixed(2)}`, colX.taxable, y, { width: 75 });
+      doc.text(`Rs. ${line.tax.toFixed(2)}`, colX.tax, y, { width: 55 });
+      doc.text(`Rs. ${line.inclusive.toFixed(2)}`, colX.total, y, { width: 55 });
       doc.moveDown(0.5);
     }
     doc.moveDown(0.3);
@@ -152,11 +152,11 @@ export async function generateTaxInvoicePdf(
     doc.moveDown(0.5);
 
     doc.font('Helvetica').fontSize(9);
-    doc.text(`Taxable value: ₹${totalTaxable.toFixed(2)}`, { align: 'right' });
-    doc.text(`CGST: ₹${cgst.toFixed(2)}`, { align: 'right' });
-    doc.text(`SGST: ₹${sgst.toFixed(2)}`, { align: 'right' });
+    doc.text(`Taxable value: Rs. ${totalTaxable.toFixed(2)}`, { align: 'right' });
+    doc.text(`CGST: Rs. ${cgst.toFixed(2)}`, { align: 'right' });
+    doc.text(`SGST: Rs. ${sgst.toFixed(2)}`, { align: 'right' });
     doc.font('Helvetica-Bold').fontSize(11);
-    doc.text(`Total (paid): ₹${payment.amount.toFixed(2)}`, { align: 'right' });
+    doc.text(`Total (paid): Rs. ${payment.amount.toFixed(2)}`, { align: 'right' });
     doc.moveDown(1);
 
     doc.font('Helvetica').fontSize(8).fillColor('#888888');
