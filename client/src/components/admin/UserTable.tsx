@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -31,6 +32,7 @@ interface UserTableProps {
 }
 
 export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProps) {
+  const t = useTranslations('userTable');
   const [pendingAction, setPendingAction] = useState<
     { userId: string; kind: 'role' | 'suspend' | 'delete'; value?: string } | null
   >(null);
@@ -62,19 +64,19 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
           <thead className="bg-surface text-left">
             <tr>
               <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
-                Name
+                {t('name')}
               </th>
               <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
-                Phone
+                {t('phone')}
               </th>
               <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
-                Role
+                {t('role')}
               </th>
               <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
-                Status
+                {t('status')}
               </th>
               <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
-                Actions
+                {t('actions')}
               </th>
             </tr>
           </thead>
@@ -82,7 +84,7 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
             {users.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-10 text-center text-text-muted text-sm">
-                  No users found.
+                  {t('noUsers')}
                 </td>
               </tr>
             )}
@@ -92,7 +94,7 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                 <td className="px-5 py-3.5 text-text-muted">{u.phone}</td>
                 <td className="px-5 py-3.5">
                   <select
-                    aria-label={`Role for ${u.name}`}
+                    aria-label={t('roleAria', { name: u.name })}
                     // Controlled: while a change to THIS row is pending
                     // confirmation, show the pending value; otherwise show
                     // the server-confirmed role. Uncontrolled (defaultValue)
@@ -108,29 +110,29 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                   >
                     {ROLE_OPTIONS.map((r) => (
                       <option key={r} value={r}>
-                        {r}
+                        {t(`roles.${r}`)}
                       </option>
                     ))}
                   </select>
                 </td>
                 <td className="px-5 py-3.5">
-                  <Badge tone={statusTone(u.accountStatus)}>{u.accountStatus}</Badge>
+                  <Badge tone={statusTone(u.accountStatus)}>{t(`accountStatus.${u.accountStatus}`)}</Badge>
                 </td>
                 <td className="px-5 py-3.5">
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
-                      aria-label={`Suspend ${u.name}`}
+                      aria-label={t('suspendAria', { name: u.name })}
                       onClick={() => setPendingAction({ userId: u._id, kind: 'suspend' })}
                     >
-                      Suspend
+                      {t('suspend')}
                     </Button>
                     <Button
                       variant="danger"
-                      aria-label={`Delete ${u.name}`}
+                      aria-label={t('deleteAria', { name: u.name })}
                       onClick={() => setPendingAction({ userId: u._id, kind: 'delete' })}
                     >
-                      Delete
+                      {t('delete')}
                     </Button>
                   </div>
                 </td>
@@ -143,22 +145,22 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
       <Modal
         open={!!pendingAction}
         onClose={() => setPendingAction(null)}
-        title="Confirm action"
+        title={t('confirmAction')}
         footer={
           <>
             <Button variant="ghost" onClick={() => setPendingAction(null)} disabled={confirming}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button variant="danger" onClick={confirmAction} disabled={confirming}>
-              {confirming ? 'Working…' : 'Confirm'}
+              {confirming ? t('working') : t('confirm')}
             </Button>
           </>
         }
       >
         <p className="text-sm text-text-muted">
-          {pendingAction?.kind === 'role' && `Change role to "${pendingAction.value}"?`}
-          {pendingAction?.kind === 'suspend' && 'Suspend this account?'}
-          {pendingAction?.kind === 'delete' && 'Delete this account? This is a soft delete and can be reversed by an admin.'}
+          {pendingAction?.kind === 'role' && t('changeRoleTo', { role: pendingAction.value ?? '' })}
+          {pendingAction?.kind === 'suspend' && t('suspendConfirm')}
+          {pendingAction?.kind === 'delete' && t('deleteConfirm')}
         </p>
       </Modal>
     </>

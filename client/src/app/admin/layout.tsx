@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { SidebarNav, SidebarNavItem } from '@/components/admin/SidebarNav';
 import {
@@ -30,61 +31,68 @@ import {
 // rule "ungranted controls HIDDEN not disabled" — the server independently
 // re-checks every permission on every request regardless of what this menu
 // shows (see requirePermission in server/src/middleware/rbac.ts).
-function navItems(role: string, permissions: string[]): SidebarNavItem[] {
+function navItems(
+  role: string,
+  permissions: string[],
+  t: (key: string) => string
+): SidebarNavItem[] {
   const isAdmin = role === 'admin';
   const has = (p: string) => isAdmin || permissions.includes(p);
 
   const items: (SidebarNavItem & { show: boolean })[] = [
-    { href: '/admin/dashboard', label: 'Dashboard', icon: <HomeIcon className="w-5 h-5" />, show: true },
-    { href: '/admin/kyc-queue', label: 'KYC queue', icon: <ShieldIcon className="w-5 h-5" />, show: has('verify_kyc') },
-    { href: '/admin/disputes', label: 'Disputes', icon: <AlertIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/dashboard', label: t('dashboard'), icon: <HomeIcon className="w-5 h-5" />, show: true },
+    { href: '/admin/kyc-queue', label: t('kycQueue'), icon: <ShieldIcon className="w-5 h-5" />, show: has('verify_kyc') },
+    { href: '/admin/disputes', label: t('disputes'), icon: <AlertIcon className="w-5 h-5" />, show: isAdmin },
     {
       href: '/admin/fraud-alerts',
-      label: 'Fraud alerts',
+      label: t('fraudAlerts'),
       icon: <ShieldIcon className="w-5 h-5" />,
       show: isAdmin,
     },
-    { href: '/admin/payouts', label: 'Payouts', icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/insurance', label: 'Insurance', icon: <ShieldIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/ledger', label: 'Ledger', icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/payouts', label: t('payouts'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/insurance', label: t('insurance'), icon: <ShieldIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/ledger', label: t('ledger'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
     {
       href: '/admin/surge-zones',
-      label: 'Surge zones',
+      label: t('surgeZones'),
       icon: <CompassIcon className="w-5 h-5" />,
       show: has('edit_fare_rules'),
     },
     {
       href: '/admin/analytics',
-      label: 'Analytics',
+      label: t('analytics'),
       icon: <LayersIcon className="w-5 h-5" />,
       show: has('view_analytics'),
     },
     {
       href: '/admin/ops-hub',
-      label: 'Ops hub',
+      label: t('opsHub'),
       icon: <BellIcon className="w-5 h-5" />,
       show: has('view_analytics'),
     },
-    { href: '/admin/reports', label: 'Reports', icon: <BoxIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/users', label: 'Users', icon: <UsersIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/managers', label: 'Managers', icon: <UsersIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/fares', label: 'Fares', icon: <LayersIcon className="w-5 h-5" />, show: has('edit_fare_rules') },
+    { href: '/admin/reports', label: t('reports'), icon: <BoxIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/users', label: t('users'), icon: <UsersIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/managers', label: t('managers'), icon: <UsersIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/fares', label: t('fares'), icon: <LayersIcon className="w-5 h-5" />, show: has('edit_fare_rules') },
     {
       href: '/admin/complaints',
-      label: 'Complaints',
+      label: t('complaints'),
       icon: <AlertIcon className="w-5 h-5" />,
       show: has('resolve_complaints'),
     },
-    { href: '/admin/incentives', label: 'Incentives', icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/regions', label: 'Regions', icon: <CompassIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/audit-log', label: 'Audit log', icon: <ClockIcon className="w-5 h-5" />, show: isAdmin },
-    { href: '/admin/profile', label: 'Profile', icon: <UsersIcon className="w-5 h-5" />, show: true },
+    { href: '/admin/incentives', label: t('incentives'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/regions', label: t('regions'), icon: <CompassIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/audit-log', label: t('auditLog'), icon: <ClockIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/profile', label: t('profile'), icon: <UsersIcon className="w-5 h-5" />, show: true },
   ];
 
   return items.filter((i) => i.show).map(({ show: _show, ...rest }) => rest);
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('adminLayout');
+  const tNav = useTranslations('adminLayout.nav');
+  const tLayout = useTranslations('consoleLayout');
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -101,8 +109,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   const items = useMemo(
-    () => (user ? navItems(user.role, user.permissions ?? []) : []),
-    [user]
+    () => (user ? navItems(user.role, user.permissions ?? [], tNav) : []),
+    [user, tNav]
   );
 
   if (loading || !user || (user.role !== 'admin' && user.role !== 'manager')) {
@@ -112,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           className="w-8 h-8 rounded-full border-2 border-ip-outline-variant border-t-ip-primary animate-spin"
           aria-hidden="true"
         />
-        <p className="text-sm">Loading…</p>
+        <p className="text-sm">{tLayout('loading')}</p>
       </div>
     );
   }
@@ -123,20 +131,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="mb-8">
           <p className="font-heading font-bold text-lg text-ip-primary tracking-tight">FYRO</p>
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ip-on-surface-variant mt-0.5">
-            {user.role === 'admin' ? 'Admin console' : 'Manager console'}
+            {user.role === 'admin' ? t('adminConsole') : t('managerConsole')}
           </p>
         </div>
         <SidebarNav items={items} />
         <div className="mt-auto pt-6 border-t border-ip-outline/10">
           <p className="text-xs text-ip-on-surface-variant truncate mb-3">
-            Signed in as <span className="font-semibold text-ip-on-surface">{user.name}</span>
+            {tLayout('signedInAs')} <span className="font-semibold text-ip-on-surface">{user.name}</span>
           </p>
           <button
             type="button"
             onClick={() => logout()}
             className="w-full text-left px-3.5 py-2.5 rounded-ip-input text-sm font-medium text-ip-error hover:bg-ip-error-container/40 transition-colors"
           >
-            Log out
+            {tLayout('logout')}
           </button>
         </div>
       </aside>
@@ -144,12 +152,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile top bar + drawer */}
       <div className="md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 py-3 bg-ip-surface-container-lowest border-b border-ip-outline/10 shadow-sm">
         <p className="font-heading font-bold text-ip-primary">
-          FYRO {user.role === 'admin' ? 'Admin' : 'Manager'}
+          FYRO {user.role === 'admin' ? t('admin') : t('manager')}
         </p>
         <button
           type="button"
           onClick={() => setMobileNavOpen((o) => !o)}
-          aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+          aria-label={mobileNavOpen ? tLayout('closeMenu') : tLayout('openMenu')}
           aria-expanded={mobileNavOpen}
           className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-ip-surface-container transition-colors"
         >
@@ -170,7 +178,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={() => logout()}
             className="w-full text-left px-3.5 py-2.5 mt-2 rounded-ip-input text-sm font-medium text-ip-error hover:bg-ip-error-container/40 transition-colors border-t border-ip-outline/10 pt-4"
           >
-            Log out
+            {tLayout('logout')}
           </button>
         </div>
       )}

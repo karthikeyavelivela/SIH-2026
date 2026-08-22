@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Complaint } from '@/lib/types';
@@ -18,6 +19,7 @@ const statusTone: Record<Complaint['status'], 'muted' | 'secondary' | 'success'>
 // Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md — all
 // fetch/mutation logic identical to before this pass.
 export default function AdminComplaintsPage() {
+  const t = useTranslations('adminComplaints');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const { data, reload } = usePolling(
     () => api.get<{ complaints: Complaint[] }>(`/api/admin/complaints${statusFilter ? `?status=${statusFilter}` : ''}`),
@@ -39,7 +41,7 @@ export default function AdminComplaintsPage() {
       setNote('');
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update this complaint.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setSaving(false);
     }
@@ -49,14 +51,14 @@ export default function AdminComplaintsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Complaints</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">Resolution queue for issues raised against a booking.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
 
       <div className="flex gap-2 mb-6">
-        {['', 'open', 'in_review', 'resolved'].map((s) => (
+        {(['', 'open', 'in_review', 'resolved'] as const).map((s) => (
           <FilterChip key={s} active={statusFilter === s} onClick={() => setStatusFilter(s)}>
-            {s === '' ? 'All' : s.replace('_', ' ')}
+            {s === '' ? t('all') : t(`status.${s}`)}
           </FilterChip>
         ))}
       </div>
@@ -65,8 +67,8 @@ export default function AdminComplaintsPage() {
         {complaints.map((c) => (
           <div key={c._id} className="ip-card">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold capitalize">{c.category.replace('_', ' ')}</p>
-              <StatusChip tone={statusTone[c.status]}>{c.status.replace('_', ' ')}</StatusChip>
+              <p className="text-sm font-semibold capitalize">{t(`category.${c.category}`)}</p>
+              <StatusChip tone={statusTone[c.status]}>{t(`status.${c.status}`)}</StatusChip>
             </div>
             <p className="text-sm text-ip-on-surface-variant mb-3">{c.description}</p>
             {c.status !== 'resolved' && (
@@ -79,7 +81,7 @@ export default function AdminComplaintsPage() {
                   setError(null);
                 }}
               >
-                Review
+                {t('review')}
               </Button>
             )}
             {c.resolutionNote && (
@@ -89,26 +91,26 @@ export default function AdminComplaintsPage() {
             )}
           </div>
         ))}
-        {complaints.length === 0 && <p className="text-sm text-ip-on-surface-variant">No complaints here.</p>}
+        {complaints.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noComplaints')}</p>}
       </div>
 
-      <Modal open={!!resolving} onClose={() => setResolving(null)} title="Resolve complaint">
+      <Modal open={!!resolving} onClose={() => setResolving(null)} title={t('resolveTitle')}>
         <p className="text-sm text-ip-on-surface-variant mb-4">{resolving?.description}</p>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Resolution note"
+          placeholder={t('notePlaceholder')}
           rows={4}
-          aria-label="Resolution note"
+          aria-label={t('noteAria')}
           className="w-full px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm mb-4 focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
         />
         {error && <p className="text-sm text-ip-error mb-4">{error}</p>}
         <div className="flex gap-3">
           <Button variant="ghost" className="flex-1" disabled={saving || !note.trim()} onClick={() => submitResolution('in_review')}>
-            Mark in review
+            {t('markInReview')}
           </Button>
           <Button className="flex-1" disabled={saving || !note.trim()} onClick={() => submitResolution('resolved')}>
-            Resolve
+            {t('resolve')}
           </Button>
         </div>
       </Modal>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { DataTable } from '@/components/admin/DataTable';
@@ -27,6 +28,7 @@ const inputClass =
 // update/delete anywhere in the codebase; this page's filters +
 // pagination are the "filterable" half), so this pass is UI-only.
 export default function AdminAuditLogPage() {
+  const t = useTranslations('adminAuditLog');
   const [action, setAction] = useState('');
   const [targetType, setTargetType] = useState('');
   const [page, setPage] = useState(1);
@@ -49,12 +51,9 @@ export default function AdminAuditLogPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Audit log</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">
-        Every admin/manager action — role changes, deletions, fare rule edits, complaint resolutions. Append-only:
-        nothing here can be edited or removed.
-      </p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
 
       <div className="flex flex-wrap gap-3 mb-6">
         <input
@@ -63,8 +62,8 @@ export default function AdminAuditLogPage() {
             setPage(1);
             setAction(e.target.value);
           }}
-          placeholder="Filter by action…"
-          aria-label="Filter by action"
+          placeholder={t('filterByAction')}
+          aria-label={t('filterByAction')}
           className={inputClass}
         />
         <input
@@ -73,8 +72,8 @@ export default function AdminAuditLogPage() {
             setPage(1);
             setTargetType(e.target.value);
           }}
-          placeholder="Filter by target type…"
-          aria-label="Filter by target type"
+          placeholder={t('filterByTarget')}
+          aria-label={t('filterByTarget')}
           className={inputClass}
         />
       </div>
@@ -84,14 +83,14 @@ export default function AdminAuditLogPage() {
           rows={entries}
           rowKey={(e) => e._id}
           loading={state === 'loading' && entries.length === 0}
-          emptyTitle="No matching entries"
+          emptyTitle={t('noMatching')}
           columns={[
-            { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
-            { key: 'actor', header: 'Actor', render: (e) => <StatusChip tone="secondary">{e.actorRole}</StatusChip> },
-            { key: 'action', header: 'Action', render: (e) => <span className="font-medium">{e.action}</span> },
+            { key: 'time', header: t('time'), render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
+            { key: 'actor', header: t('actor'), render: (e) => <StatusChip tone="secondary">{e.actorRole}</StatusChip> },
+            { key: 'action', header: t('action'), render: (e) => <span className="font-medium">{e.action}</span> },
             {
               key: 'target',
-              header: 'Target',
+              header: t('target'),
               render: (e) => (
                 <span className="text-ip-on-surface-variant whitespace-nowrap">
                   {e.targetType} · {e.targetId.slice(-6)}
@@ -100,7 +99,7 @@ export default function AdminAuditLogPage() {
             },
             {
               key: 'details',
-              header: 'Details',
+              header: t('details'),
               className: 'max-w-xs truncate',
               render: (e) => <span className="text-ip-on-surface-variant">{JSON.stringify(e.details)}</span>,
             },
@@ -115,17 +114,15 @@ export default function AdminAuditLogPage() {
             disabled={page <= 1}
             className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
           >
-            Previous
+            {t('previous')}
           </button>
-          <span className="text-sm text-ip-on-surface-variant">
-            Page {page} of {totalPages}
-          </span>
+          <span className="text-sm text-ip-on-surface-variant">{t('pageOf', { page, totalPages })}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
             className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
           >
-            Next
+            {t('next')}
           </button>
         </div>
       )}

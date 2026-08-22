@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { TicketCard } from '@/components/ui/TicketCard';
@@ -32,6 +33,7 @@ const statusTone: Record<DisputeRow['status'], 'muted' | 'secondary' | 'success'
 // Reads server/src/models/Dispute.ts (new) via
 // server/src/controllers/dispute.controller.ts (new).
 export default function AdminDisputesPage() {
+  const t = useTranslations('adminDisputes');
   const router = useRouter();
   const [status, setStatus] = useState<string>('');
   const { data, state } = usePolling(
@@ -44,14 +46,14 @@ export default function AdminDisputesPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Disputes & refunds</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">Claim vs system-record resolution queue.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       <div className="flex gap-2 mb-6">
         {STATUS_FILTERS.map((s) => (
           <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
-            {s === '' ? 'All' : s}
+            {s === '' ? t('all') : t(`status.${s}`)}
           </FilterChip>
         ))}
       </div>
@@ -60,7 +62,7 @@ export default function AdminDisputesPage() {
 
       {state !== 'loading' && disputes.length === 0 && (
         <div className="ip-card max-w-2xl">
-          <EmptyState icon={<AlertIcon className="w-7 h-7" />} title="No disputes" description="Nothing in this queue right now." />
+          <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('noDisputes')} description={t('noDisputesDesc')} />
         </div>
       )}
 
@@ -70,9 +72,9 @@ export default function AdminDisputesPage() {
             key={d._id}
             ticketId={d._id.slice(-6)}
             title={d.claim}
-            status={d.status}
+            status={t(`status.${d.status}`)}
             statusTone={statusTone[d.status]}
-            updatedAt={`${d.raisedBy?.name ?? 'Unknown'} · ${new Date(d.createdAt).toLocaleDateString('en-IN')} · ${d.priority} priority`}
+            updatedAt={`${d.raisedBy?.name ?? t('unknown')} · ${new Date(d.createdAt).toLocaleDateString('en-IN')} · ${t('priorityLabel', { priority: d.priority })}`}
             onClick={() => router.push(`/admin/disputes/${d._id}`)}
           />
         ))}

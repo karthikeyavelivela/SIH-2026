@@ -1435,5 +1435,219 @@
   "hrsAgo": "{count} hrs ago",
   "dayAgo": "{count} day ago",
   "daysAgo": "{count} days ago"
+ },
+ "adminLayout": {
+  "nav": {
+   "dashboard": "Dashboard",
+   "kycQueue": "KYC queue",
+   "disputes": "Disputes",
+   "fraudAlerts": "Fraud alerts",
+   "payouts": "Payouts",
+   "insurance": "Insurance",
+   "ledger": "Ledger",
+   "surgeZones": "Surge zones",
+   "analytics": "Analytics",
+   "opsHub": "Ops hub",
+   "reports": "Reports",
+   "users": "Users",
+   "managers": "Managers",
+   "fares": "Fares",
+   "complaints": "Complaints",
+   "incentives": "Incentives",
+   "regions": "Regions",
+   "auditLog": "Audit log",
+   "profile": "Profile"
+  },
+  "adminConsole": "Admin console",
+  "managerConsole": "Manager console",
+  "admin": "Admin",
+  "manager": "Manager"
+ },
+ "adminUsers": {
+  "eyebrow": "Directory",
+  "title": "Users",
+  "subtitle": "Manage roles and account status across the platform.",
+  "searchPlaceholder": "Search by name or phone"
+ },
+ "userTable": {
+  "name": "Name",
+  "phone": "Phone",
+  "role": "Role",
+  "status": "Status",
+  "actions": "Actions",
+  "noUsers": "No users found.",
+  "roleAria": "Role for {name}",
+  "suspendAria": "Suspend {name}",
+  "deleteAria": "Delete {name}",
+  "suspend": "Suspend",
+  "delete": "Delete",
+  "confirmAction": "Confirm action",
+  "cancel": "Cancel",
+  "working": "Working…",
+  "confirm": "Confirm",
+  "changeRoleTo": "Change role to \"{role}\"?",
+  "suspendConfirm": "Suspend this account?",
+  "deleteConfirm": "Delete this account? This is a soft delete and can be reversed by an admin.",
+  "roles": {
+   "customer": "Customer",
+   "driver": "Driver",
+   "hamali_solo": "Hamali (solo)",
+   "mutha_leader": "Mutha Leader",
+   "mutha_member": "Mutha Member"
+  },
+  "accountStatus": {
+   "active": "Active",
+   "suspended": "Suspended",
+   "deleted": "Deleted"
+  }
+ },
+ "adminDashboard": {
+  "eyebrow": "Console",
+  "welcome": "Welcome, {name}",
+  "subtitle": "Platform snapshot and everything you can manage.",
+  "activeBookings": "Active bookings",
+  "gmv": "GMV (completed)",
+  "openComplaints": "Open complaints",
+  "links": {
+   "kycQueue": {
+    "label": "KYC queue",
+    "hint": "Approve or reject pending submissions"
+   },
+   "disputes": {
+    "label": "Disputes",
+    "hint": "Claim vs system-record resolution"
+   },
+   "fraudAlerts": {
+    "label": "Fraud alerts",
+    "hint": "Severity-ranked case queue"
+   },
+   "payouts": {
+    "label": "Payouts",
+    "hint": "Approve driver/Mutha payout requests"
+   },
+   "ledger": {
+    "label": "Ledger",
+    "hint": "Platform transaction ledger"
+   },
+   "surgeZones": {
+    "label": "Surge zones",
+    "hint": "Demand-surge overrides"
+   },
+   "analytics": {
+    "label": "Analytics",
+    "hint": "KPIs, heatmap, revenue trend"
+   },
+   "opsHub": {
+    "label": "Ops hub",
+    "hint": "Live incident dashboard"
+   },
+   "reports": {
+    "label": "Reports",
+    "hint": "Custom exports"
+   },
+   "users": {
+    "label": "Users",
+    "hint": "Org tree, roles, suspend/delete"
+   },
+   "managers": {
+    "label": "Managers",
+    "hint": "Create managers, scope permissions"
+   },
+   "fares": {
+    "label": "Fare rules",
+    "hint": "Region × category rate cards"
+   },
+   "complaints": {
+    "label": "Complaints",
+    "hint": "Resolution queue"
+   },
+   "incentives": {
+    "label": "Incentives",
+    "hint": "Rating-threshold bonus rules"
+   },
+   "regions": {
+    "label": "Regions",
+    "hint": "Enable/launch new regions"
+   },
+   "auditLog": {
+    "label": "Audit log",
+    "hint": "Immutable action history"
+   }
+  }
+ },
+ "adminDisputes": {
+  "eyebrow": "Trust & safety",
+  "title": "Disputes & refunds",
+  "subtitle": "Claim vs system-record resolution queue.",
+  "all": "All",
+  "noDisputes": "No disputes",
+  "noDisputesDesc": "Nothing in this queue right now.",
+  "unknown": "Unknown",
+  "priorityLabel": "{priority} priority",
+  "status": {
+   "open": "Open",
+   "investigating": "Investigating",
+   "resolved": "Resolved",
+   "escalated": "Escalated"
+  }
+ },
+ "adminAnalytics": {
+  "eyebrow": "Insights",
+  "title": "Performance analytics",
+  "subtitle": "Live KPIs, demand hotspots, and revenue trend.",
+  "revenue": "Revenue",
+  "activeTrips": "Active trips",
+  "completedTrips": "Completed trips",
+  "fleetUtilization": "Fleet utilization",
+  "avgDeliveryTime": "Avg delivery time",
+  "minSuffix": "{mins} min",
+  "demandHotspots": "Demand hotspots",
+  "noPickupData": "No pickup data yet",
+  "noPickupDataDesc": "Hotspots appear here once bookings start coming in.",
+  "revenueTrend": "Revenue trend (14 days)",
+  "notEnoughData": "Not enough data",
+  "notEnoughDataDesc": "Revenue trend needs at least two days of completed bookings."
+ },
+ "adminComplaints": {
+  "eyebrow": "Trust & safety",
+  "title": "Complaints",
+  "subtitle": "Resolution queue for issues raised against a booking.",
+  "all": "All",
+  "errorUpdate": "Could not update this complaint.",
+  "review": "Review",
+  "noComplaints": "No complaints here.",
+  "resolveTitle": "Resolve complaint",
+  "notePlaceholder": "Resolution note",
+  "noteAria": "Resolution note",
+  "markInReview": "Mark in review",
+  "resolve": "Resolve",
+  "category": {
+   "no_show": "No-show",
+   "damage": "Cargo damage",
+   "payment": "Payment issue",
+   "misconduct": "Misconduct",
+   "other": "Other"
+  },
+  "status": {
+   "open": "open",
+   "in_review": "in review",
+   "resolved": "resolved"
+  }
+ },
+ "adminAuditLog": {
+  "eyebrow": "Trust & safety",
+  "title": "Audit log",
+  "subtitle": "Every admin/manager action — role changes, deletions, fare rule edits, complaint resolutions. Append-only: nothing here can be edited or removed.",
+  "filterByAction": "Filter by action…",
+  "filterByTarget": "Filter by target type…",
+  "noMatching": "No matching entries",
+  "time": "Time",
+  "actor": "Actor",
+  "action": "Action",
+  "target": "Target",
+  "details": "Details",
+  "previous": "Previous",
+  "next": "Next",
+  "pageOf": "Page {page} of {totalPages}"
  }
 }

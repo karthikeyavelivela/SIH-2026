@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -33,6 +34,7 @@ const AP_CENTER = { lat: 16.5062, lng: 80.648 };
 // new) against Booking/Vehicle — zeros/empty on a sparse dev DB, not
 // fabricated placeholders.
 export default function AdminAnalyticsPage() {
+  const t = useTranslations('adminAnalytics');
   const { data, state } = usePolling(() => api.get<AnalyticsOverview>('/api/admin/analytics/overview'), 30000);
   const kpis = data?.kpis;
   const heatmap = data?.heatmap ?? [];
@@ -40,38 +42,38 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Insights</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Performance analytics</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">Live KPIs, demand hotspots, and revenue trend.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       {state === 'loading' && !data ? (
         <Skeleton className="h-28 mb-8" />
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-10">
-          <MetricCard label="Revenue" value={`₹${kpis?.revenue ?? 0}`} icon={<WalletIcon className="w-5 h-5" />} />
-          <MetricCard label="Active trips" value={kpis?.activeTrips ?? 0} icon={<TruckIcon className="w-5 h-5" />} />
-          <MetricCard label="Completed trips" value={kpis?.completedTrips ?? 0} icon={<LayersIcon className="w-5 h-5" />} />
-          <MetricCard label="Fleet utilization" value={`${kpis?.fleetUtilization ?? 0}%`} icon={<TruckIcon className="w-5 h-5" />} />
-          <MetricCard label="Avg delivery time" value={`${kpis?.avgDeliveryMinutes ?? 0} min`} icon={<ClockIcon className="w-5 h-5" />} />
+          <MetricCard label={t('revenue')} value={`₹${kpis?.revenue ?? 0}`} icon={<WalletIcon className="w-5 h-5" />} />
+          <MetricCard label={t('activeTrips')} value={kpis?.activeTrips ?? 0} icon={<TruckIcon className="w-5 h-5" />} />
+          <MetricCard label={t('completedTrips')} value={kpis?.completedTrips ?? 0} icon={<LayersIcon className="w-5 h-5" />} />
+          <MetricCard label={t('fleetUtilization')} value={`${kpis?.fleetUtilization ?? 0}%`} icon={<TruckIcon className="w-5 h-5" />} />
+          <MetricCard label={t('avgDeliveryTime')} value={t('minSuffix', { mins: kpis?.avgDeliveryMinutes ?? 0 })} icon={<ClockIcon className="w-5 h-5" />} />
         </div>
       )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div>
-          <h2 className="font-heading text-ip-headline-sm font-bold mb-3">Demand hotspots</h2>
+          <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('demandHotspots')}</h2>
           {heatmap.length === 0 ? (
             <div className="ip-card">
-              <EmptyState title="No pickup data yet" description="Hotspots appear here once bookings start coming in." />
+              <EmptyState title={t('noPickupData')} description={t('noPickupDataDesc')} />
             </div>
           ) : (
             <HeatmapMap points={heatmap} center={AP_CENTER} className="h-80" />
           )}
         </div>
         <div>
-          <h2 className="font-heading text-ip-headline-sm font-bold mb-3">Revenue trend (14 days)</h2>
+          <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('revenueTrend')}</h2>
           <div className="ip-card">
             {trend.length < 2 ? (
-              <EmptyState title="Not enough data" description="Revenue trend needs at least two days of completed bookings." />
+              <EmptyState title={t('notEnoughData')} description={t('notEnoughDataDesc')} />
             ) : (
               <TrendChart
                 points={trend.map((t) => t.total)}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { UserTable, AdminUserRow } from '@/components/admin/UserTable';
 import { Pagination } from '@/components/ui/Pagination';
@@ -13,6 +14,7 @@ const PAGE_SIZE = 20;
 // (components/admin/UserTable.tsx) is untouched, all fetch/mutation logic
 // below is identical to before this pass.
 export default function AdminUsersPage() {
+  const t = useTranslations('adminUsers');
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -46,15 +48,15 @@ export default function AdminUsersPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Directory</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Users</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">Manage roles and account status across the platform.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       <div className="flex gap-3 mb-6">
         <div className="relative w-full max-w-sm">
           <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ip-outline" />
           <input
-            placeholder="Search by name or phone"
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && load(1)}

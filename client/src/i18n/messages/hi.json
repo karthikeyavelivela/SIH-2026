@@ -1435,5 +1435,219 @@
   "hrsAgo": "{count} घंटे पहले",
   "dayAgo": "{count} दिन पहले",
   "daysAgo": "{count} दिन पहले"
+ },
+ "adminLayout": {
+  "nav": {
+   "dashboard": "डैशबोर्ड",
+   "kycQueue": "KYC कतार",
+   "disputes": "विवाद",
+   "fraudAlerts": "धोखाधड़ी अलर्ट",
+   "payouts": "भुगतान",
+   "insurance": "बीमा",
+   "ledger": "लेजर",
+   "surgeZones": "सर्ज ज़ोन",
+   "analytics": "एनालिटिक्स",
+   "opsHub": "ऑप्स हब",
+   "reports": "रिपोर्ट",
+   "users": "उपयोगकर्ता",
+   "managers": "मैनेजर",
+   "fares": "किराए",
+   "complaints": "शिकायतें",
+   "incentives": "प्रोत्साहन",
+   "regions": "क्षेत्र",
+   "auditLog": "ऑडिट लॉग",
+   "profile": "प्रोफ़ाइल"
+  },
+  "adminConsole": "एडमिन कंसोल",
+  "managerConsole": "मैनेजर कंसोल",
+  "admin": "एडमिन",
+  "manager": "मैनेजर"
+ },
+ "adminUsers": {
+  "eyebrow": "डायरेक्टरी",
+  "title": "उपयोगकर्ता",
+  "subtitle": "पूरे प्लेटफ़ॉर्म पर भूमिकाएं और खाता स्थिति प्रबंधित करें।",
+  "searchPlaceholder": "नाम या फ़ोन से खोजें"
+ },
+ "userTable": {
+  "name": "नाम",
+  "phone": "फ़ोन",
+  "role": "भूमिका",
+  "status": "स्थिति",
+  "actions": "कार्रवाई",
+  "noUsers": "कोई उपयोगकर्ता नहीं मिला।",
+  "roleAria": "{name} के लिए भूमिका",
+  "suspendAria": "{name} को निलंबित करें",
+  "deleteAria": "{name} को हटाएं",
+  "suspend": "निलंबित करें",
+  "delete": "हटाएं",
+  "confirmAction": "कार्रवाई की पुष्टि करें",
+  "cancel": "रद्द करें",
+  "working": "हो रहा है…",
+  "confirm": "पुष्टि करें",
+  "changeRoleTo": "भूमिका \"{role}\" में बदलें?",
+  "suspendConfirm": "क्या इस खाते को निलंबित करना है?",
+  "deleteConfirm": "क्या इस खाते को हटाना है? यह सॉफ़्ट डिलीट है और एडमिन इसे वापस ला सकता है।",
+  "roles": {
+   "customer": "ग्राहक",
+   "driver": "ड्राइवर",
+   "hamali_solo": "हमाली (सोलो)",
+   "mutha_leader": "मुठा लीडर",
+   "mutha_member": "मुठा सदस्य"
+  },
+  "accountStatus": {
+   "active": "सक्रिय",
+   "suspended": "निलंबित",
+   "deleted": "हटाया गया"
+  }
+ },
+ "adminDashboard": {
+  "eyebrow": "कंसोल",
+  "welcome": "स्वागत है, {name}",
+  "subtitle": "प्लेटफ़ॉर्म का स्नैपशॉट और आप जो कुछ भी प्रबंधित कर सकते हैं।",
+  "activeBookings": "सक्रिय बुकिंग",
+  "gmv": "GMV (पूर्ण)",
+  "openComplaints": "खुली शिकायतें",
+  "links": {
+   "kycQueue": {
+    "label": "KYC कतार",
+    "hint": "लंबित सबमिशन स्वीकृत या अस्वीकृत करें"
+   },
+   "disputes": {
+    "label": "विवाद",
+    "hint": "दावा बनाम सिस्टम-रिकॉर्ड समाधान"
+   },
+   "fraudAlerts": {
+    "label": "धोखाधड़ी अलर्ट",
+    "hint": "गंभीरता-क्रम में केस कतार"
+   },
+   "payouts": {
+    "label": "भुगतान",
+    "hint": "ड्राइवर/मुठा भुगतान अनुरोध स्वीकृत करें"
+   },
+   "ledger": {
+    "label": "लेजर",
+    "hint": "प्लेटफ़ॉर्म लेनदेन लेजर"
+   },
+   "surgeZones": {
+    "label": "सर्ज ज़ोन",
+    "hint": "मांग-सर्ज ओवरराइड"
+   },
+   "analytics": {
+    "label": "एनालिटिक्स",
+    "hint": "KPI, हीटमैप, राजस्व रुझान"
+   },
+   "opsHub": {
+    "label": "ऑप्स हब",
+    "hint": "लाइव घटना डैशबोर्ड"
+   },
+   "reports": {
+    "label": "रिपोर्ट",
+    "hint": "कस्टम एक्सपोर्ट"
+   },
+   "users": {
+    "label": "उपयोगकर्ता",
+    "hint": "ऑर्ग ट्री, भूमिकाएं, निलंबित/हटाएं"
+   },
+   "managers": {
+    "label": "मैनेजर",
+    "hint": "मैनेजर बनाएं, अनुमतियां तय करें"
+   },
+   "fares": {
+    "label": "किराया नियम",
+    "hint": "क्षेत्र × श्रेणी दर कार्ड"
+   },
+   "complaints": {
+    "label": "शिकायतें",
+    "hint": "समाधान कतार"
+   },
+   "incentives": {
+    "label": "प्रोत्साहन",
+    "hint": "रेटिंग-सीमा बोनस नियम"
+   },
+   "regions": {
+    "label": "क्षेत्र",
+    "hint": "नए क्षेत्र सक्षम/लॉन्च करें"
+   },
+   "auditLog": {
+    "label": "ऑडिट लॉग",
+    "hint": "अपरिवर्तनीय कार्रवाई इतिहास"
+   }
+  }
+ },
+ "adminDisputes": {
+  "eyebrow": "ट्रस्ट एंड सेफ्टी",
+  "title": "विवाद और रिफंड",
+  "subtitle": "दावा बनाम सिस्टम-रिकॉर्ड समाधान कतार।",
+  "all": "सभी",
+  "noDisputes": "कोई विवाद नहीं",
+  "noDisputesDesc": "अभी इस कतार में कुछ नहीं है।",
+  "unknown": "अज्ञात",
+  "priorityLabel": "{priority} प्राथमिकता",
+  "status": {
+   "open": "खुला",
+   "investigating": "जांच जारी",
+   "resolved": "सुलझाया गया",
+   "escalated": "आगे भेजा गया"
+  }
+ },
+ "adminAnalytics": {
+  "eyebrow": "इनसाइट्स",
+  "title": "प्रदर्शन एनालिटिक्स",
+  "subtitle": "लाइव KPI, मांग हॉटस्पॉट, और राजस्व रुझान।",
+  "revenue": "राजस्व",
+  "activeTrips": "सक्रिय ट्रिप",
+  "completedTrips": "पूर्ण ट्रिप",
+  "fleetUtilization": "फ़्लीट उपयोग",
+  "avgDeliveryTime": "औसत डिलीवरी समय",
+  "minSuffix": "{mins} मिनट",
+  "demandHotspots": "मांग हॉटस्पॉट",
+  "noPickupData": "अभी तक कोई पिकअप डेटा नहीं",
+  "noPickupDataDesc": "बुकिंग आना शुरू होते ही हॉटस्पॉट यहां दिखेंगे।",
+  "revenueTrend": "राजस्व रुझान (14 दिन)",
+  "notEnoughData": "पर्याप्त डेटा नहीं",
+  "notEnoughDataDesc": "राजस्व रुझान के लिए कम से कम दो दिन की पूर्ण बुकिंग चाहिए।"
+ },
+ "adminComplaints": {
+  "eyebrow": "ट्रस्ट एंड सेफ्टी",
+  "title": "शिकायतें",
+  "subtitle": "किसी बुकिंग पर उठाई गई समस्याओं के लिए समाधान कतार।",
+  "all": "सभी",
+  "errorUpdate": "यह शिकायत अपडेट नहीं हो पाई।",
+  "review": "समीक्षा करें",
+  "noComplaints": "यहां कोई शिकायत नहीं है।",
+  "resolveTitle": "शिकायत सुलझाएं",
+  "notePlaceholder": "समाधान नोट",
+  "noteAria": "समाधान नोट",
+  "markInReview": "समीक्षा में चिह्नित करें",
+  "resolve": "सुलझाएं",
+  "category": {
+   "no_show": "नहीं आया",
+   "damage": "सामान को नुकसान",
+   "payment": "भुगतान समस्या",
+   "misconduct": "अनुचित व्यवहार",
+   "other": "अन्य"
+  },
+  "status": {
+   "open": "खुला",
+   "in_review": "समीक्षा में",
+   "resolved": "सुलझाया गया"
+  }
+ },
+ "adminAuditLog": {
+  "eyebrow": "ट्रस्ट एंड सेफ्टी",
+  "title": "ऑडिट लॉग",
+  "subtitle": "हर एडमिन/मैनेजर कार्रवाई — भूमिका बदलाव, डिलीशन, किराया नियम बदलाव, शिकायत समाधान। केवल-जोड़ें: यहां कुछ भी बदला या हटाया नहीं जा सकता।",
+  "filterByAction": "कार्रवाई से फ़िल्टर करें…",
+  "filterByTarget": "लक्ष्य प्रकार से फ़िल्टर करें…",
+  "noMatching": "कोई मेल खाती प्रविष्टि नहीं",
+  "time": "समय",
+  "actor": "कर्ता",
+  "action": "कार्रवाई",
+  "target": "लक्ष्य",
+  "details": "विवरण",
+  "previous": "पिछला",
+  "next": "अगला",
+  "pageOf": "पेज {page} में से {totalPages}"
  }
 }
