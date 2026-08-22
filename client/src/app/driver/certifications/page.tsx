@@ -1,12 +1,14 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { CertificationList } from '@/components/worker/CertificationList';
 
 export default function DriverCertificationsPage() {
+  const t = useTranslations('certifications');
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-xl font-bold mb-1">Certifications</h1>
-      <p className="text-sm text-text-muted mb-6">Endorsed skills, valid dates, and a scannable site-verification code.</p>
+      <h1 className="font-heading text-xl font-bold mb-1">{t('pageTitle')}</h1>
+      <p className="text-sm text-text-muted mb-6">{t('pageSubtitle')}</p>
       <CertificationList />
     </div>
   );

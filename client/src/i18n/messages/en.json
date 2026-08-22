@@ -788,7 +788,9 @@
   "loadError": "Couldn't load your certifications",
   "tryAgain": "Try again",
   "emptyTitle": "No certifications yet",
-  "emptyDescription": "Complete every module in your training curriculum to earn your first certificate."
+  "emptyDescription": "Complete every module in your training curriculum to earn your first certificate.",
+  "pageTitle": "Certifications",
+  "pageSubtitle": "Endorsed skills, valid dates, and a scannable site-verification code."
  },
  "agents": {
   "aiChip": "AI",
@@ -929,7 +931,9 @@
    "signed_up": "Signed up — awaiting 1st job",
    "first_job_completed": "First job done",
    "bonus_paid": "Bonus earned"
-  }
+  },
+  "pageTitle": "Invite & Earn",
+  "pageSubtitle": "Grow the FYRO network. Refer drivers and Hamali groups to earn bonuses when they complete their first verified trip."
  },
  "training": {
   "academyTitle": "Training Academy",
@@ -1061,5 +1065,78 @@
   "signOffConfirmation": "I confirm that the cargo listed above has been loaded and inspected.",
   "submitting": "Submitting…",
   "confirmAndAccept": "Confirm & Accept Load"
+ },
+ "customerDashboard": {
+  "alertsOn": "Alerts on",
+  "enableAlerts": "Enable alerts",
+  "notifyPrompt": "Get notified the instant a driver or Hamali is on the way.",
+  "welcomeBack": "Welcome back,",
+  "thereFallback": "there",
+  "bookTruck": "Book a Truck",
+  "bookTruckHint": "Instant logistics support",
+  "hamaliLabor": "Hamali Labor",
+  "hamaliLaborHint": "Hire loaders",
+  "history": "History",
+  "historyHint": "View past trips",
+  "activeTracking": "Active Tracking",
+  "recentBookings": "Recent bookings",
+  "seeAll": "See all",
+  "noBookingsTitle": "No bookings yet",
+  "noBookingsDescription": "Book your first truck or Hamali crew to see it here.",
+  "bookFirst": "Book your first delivery →",
+  "onlyActiveNote": "Nothing else yet — your active shipment above is the only one so far.",
+  "status": {
+   "scheduled": "Scheduled",
+   "requested": "Requested",
+   "searching": "Finding a match…",
+   "matched": "Matched",
+   "accepted": "Accepted",
+   "in_progress": "In Transit",
+   "completed": "Completed",
+   "cancelled": "Cancelled"
+  }
+ },
+ "customerSupport": {
+  "title": "Support",
+  "subtitle": "Raise an issue tied to a booking, or browse common questions.",
+  "reportIssue": "Report an issue",
+  "bookingAria": "Booking",
+  "selectBooking": "Select a booking",
+  "categoryAria": "Category",
+  "category": {
+   "no_show": "No-show",
+   "damage": "Cargo damage",
+   "payment": "Payment issue",
+   "misconduct": "Misconduct",
+   "other": "Other"
+  },
+  "descriptionPlaceholder": "Describe what happened",
+  "descriptionAria": "Description",
+  "errorSubmit": "Could not submit your complaint.",
+  "submittedNotice": "Submitted — we'll review it shortly.",
+  "submitting": "Submitting…",
+  "submit": "Submit",
+  "yourReports": "Your reports",
+  "status": {
+   "open": "open",
+   "in_review": "in review",
+   "resolved": "resolved"
+  },
+  "resolutionLabel": "Resolution: ",
+  "faqTitle": "FAQ",
+  "faq": [
+   {
+    "q": "How is the fare calculated?",
+    "a": "Base fare + distance × rate, shown itemized before you confirm. Never guessed on your device — always computed by the server."
+   },
+   {
+    "q": "Can I cancel a booking?",
+    "a": "Yes, any time before it's completed, from the tracking screen."
+   },
+   {
+    "q": "What happens if no driver responds?",
+    "a": "You'll see an honest \"waiting\" status — we never fake a match. Try widening your pickup time or checking back shortly."
+   }
+  ]
  }
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { useNotificationPermission } from '@/lib/useNotificationPermission';
@@ -31,22 +32,6 @@ interface BookingSummary {
   createdAt: string;
 }
 
-const quickActions = [
-  { href: '/customer/book?type=hamali', label: 'Hamali Labor', hint: 'Hire loaders', icon: BoxIcon },
-  { href: '/customer/history', label: 'History', hint: 'View past trips', icon: ClockIcon },
-];
-
-const statusLabel: Record<string, string> = {
-  scheduled: 'Scheduled',
-  requested: 'Requested',
-  searching: 'Finding a match…',
-  matched: 'Matched',
-  accepted: 'Accepted',
-  in_progress: 'In Transit',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-};
-
 const statusTone: Record<string, 'muted' | 'secondary' | 'primary' | 'success' | 'danger'> = {
   scheduled: 'muted',
   requested: 'muted',
@@ -65,10 +50,27 @@ function shortAddress(address: string): string {
 }
 
 export default function CustomerDashboardPage() {
+  const t = useTranslations('customerDashboard');
   const { user } = useAuth();
   const { permission, request } = useNotificationPermission();
   const [bookings, setBookings] = useState<BookingSummary[]>([]);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+
+  const quickActions = [
+    { href: '/customer/book?type=hamali', label: t('hamaliLabor'), hint: t('hamaliLaborHint'), icon: BoxIcon },
+    { href: '/customer/history', label: t('history'), hint: t('historyHint'), icon: ClockIcon },
+  ];
+
+  const statusLabel: Record<string, string> = {
+    scheduled: t('status.scheduled'),
+    requested: t('status.requested'),
+    searching: t('status.searching'),
+    matched: t('status.matched'),
+    accepted: t('status.accepted'),
+    in_progress: t('status.in_progress'),
+    completed: t('status.completed'),
+    cancelled: t('status.cancelled'),
+  };
 
   useEffect(() => {
     async function load() {
@@ -87,7 +89,7 @@ export default function CustomerDashboardPage() {
     load();
   }, []);
 
-  const firstName = user?.name?.split(' ')[0] ?? 'there';
+  const firstName = user?.name?.split(' ')[0] ?? t('thereFallback');
 
   const activeBooking = bookings.find((b) => !['completed', 'cancelled'].includes(b.status));
   const recent = bookings.filter((b) => b._id !== activeBooking?._id).slice(0, 5);
@@ -114,7 +116,7 @@ export default function CustomerDashboardPage() {
         </div>
         <button
           type="button"
-          aria-label={permission === 'granted' ? 'Alerts on' : 'Enable alerts'}
+          aria-label={permission === 'granted' ? t('alertsOn') : t('enableAlerts')}
           onClick={() => permission === 'default' && request()}
           className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center transition-colors ${
             permission === 'granted' ? 'bg-ip-primary-container/25 text-ip-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
@@ -125,11 +127,11 @@ export default function CustomerDashboardPage() {
       </header>
 
       <main className="max-w-[600px] mx-auto px-ip-edge pt-ip-lg pb-ip-xl flex flex-col gap-ip-xl">
-        <NotificationPrompt accent="primary" copy="Get notified the instant a driver or Hamali is on the way." />
+        <NotificationPrompt accent="primary" copy={t('notifyPrompt')} />
 
         {/* Welcome */}
         <section className="flex flex-col gap-ip-sm">
-          <p className="text-ip-body-lg text-ip-on-surface-variant">Welcome back,</p>
+          <p className="text-ip-body-lg text-ip-on-surface-variant">{t('welcomeBack')}</p>
           <h2 className="font-heading font-extrabold text-ip-display-lg text-ip-on-surface leading-none">{firstName}</h2>
         </section>
 
@@ -143,8 +145,8 @@ export default function CustomerDashboardPage() {
               <TruckIcon className="w-6 h-6" />
             </div>
             <div className="flex flex-col items-start z-10">
-              <span className="font-heading font-bold text-lg text-ip-on-surface">Book a Truck</span>
-              <span className="text-ip-body-sm text-ip-on-surface-variant">Instant logistics support</span>
+              <span className="font-heading font-bold text-lg text-ip-on-surface">{t('bookTruck')}</span>
+              <span className="text-ip-body-sm text-ip-on-surface-variant">{t('bookTruckHint')}</span>
             </div>
             <TruckIcon className="pointer-events-none select-none absolute -right-3 -bottom-4 w-28 h-28 opacity-10" />
           </Link>
@@ -170,7 +172,7 @@ export default function CustomerDashboardPage() {
         {activeBooking && (
           <section className="flex flex-col gap-ip-md">
             <h3 className="font-heading font-bold text-ip-headline-sm text-ip-on-surface border-b border-ip-outline/10 pb-ip-xs">
-              Active Tracking
+              {t('activeTracking')}
             </h3>
             <Link href={`/customer/track/${activeBooking._id}`} className="ip-card active:bg-ip-surface-container-high flex flex-col gap-ip-md">
               <div className="flex justify-between items-start gap-3">
@@ -208,9 +210,9 @@ export default function CustomerDashboardPage() {
         {/* Recent bookings */}
         <section className="flex flex-col gap-ip-md">
           <div className="flex items-center justify-between border-b border-ip-outline/10 pb-ip-xs">
-            <h3 className="font-heading font-bold text-ip-headline-sm text-ip-on-surface">Recent bookings</h3>
+            <h3 className="font-heading font-bold text-ip-headline-sm text-ip-on-surface">{t('recentBookings')}</h3>
             <Link href="/customer/history" className="text-sm font-semibold text-ip-primary hover:underline">
-              See all
+              {t('seeAll')}
             </Link>
           </div>
 
@@ -220,11 +222,11 @@ export default function CustomerDashboardPage() {
             <div className="ip-card">
               <EmptyState
                 icon={<LayersIcon className="w-6 h-6" />}
-                title="No bookings yet"
-                description="Book your first truck or Hamali crew to see it here."
+                title={t('noBookingsTitle')}
+                description={t('noBookingsDescription')}
                 action={
                   <Link href="/customer/book" className="text-sm font-semibold text-ip-primary hover:underline">
-                    Book your first delivery →
+                    {t('bookFirst')}
                   </Link>
                 }
               />
@@ -232,9 +234,7 @@ export default function CustomerDashboardPage() {
           )}
 
           {loadState !== 'loading' && bookings.length > 0 && recent.length === 0 && (
-            <p className="text-center py-6 text-ip-body-sm text-ip-on-surface-variant">
-              Nothing else yet — your active shipment above is the only one so far.
-            </p>
+            <p className="text-center py-6 text-ip-body-sm text-ip-on-surface-variant">{t('onlyActiveNote')}</p>
           )}
 
           {recent.length > 0 && (
