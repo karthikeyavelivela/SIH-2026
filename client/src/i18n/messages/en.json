@@ -2102,5 +2102,9 @@
   "loadError": "Couldn't load your notifications",
   "tryAgain": "Try again",
   "errorMarkRead": "Could not mark all as read."
+ },
+ "offline": {
+  "offline": "You're offline",
+  "offlineDesc": "Some actions may not work until your connection is back."
  }
 }
