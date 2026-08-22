@@ -30,6 +30,8 @@ interface BookingDetail {
   fareBreakdown: { baseFare: number; distanceFare: number; hamaliFare: number; total: number };
   pickupLocation: { address: string; coordinates: [number, number] };
   dropLocation: { address: string; coordinates: [number, number] };
+  // Phase 6.3 — multi-stop routing.
+  stops?: { address: string; coordinates: [number, number] }[];
   statusHistory: { status: string; timestamp: string }[];
   proofPhotos?: { pickup?: string; delivery?: string };
   // Phase 6.2 — load board with bidding.
@@ -383,10 +385,25 @@ export default function TrackBookingPage() {
       <RouteMap
         pickup={{ lat: pLat, lng: pLng }}
         drop={{ lat: dLat, lng: dLng }}
+        stops={(booking.stops ?? []).map((s) => ({ lat: s.coordinates[1], lng: s.coordinates[0] }))}
         liveMarker={liveLocation ? { lat: liveLocation.lat, lng: liveLocation.lng } : undefined}
         liveMarkerType={booking.type === 'hamali' ? 'hamali' : 'truck'}
         className="h-48 mb-3"
       />
+
+      {booking.stops && booking.stops.length > 0 && (
+        <Card elevation="raised" className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('stops')}</p>
+          <div className="space-y-1.5 text-sm">
+            {booking.stops.map((s, i) => (
+              <p key={i}>
+                <span className="text-text-muted">{i + 1}. </span>
+                {s.address}
+              </p>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Honest GPS state — never implies live tracking that isn't
           actually flowing. A driver/hamali only streams position once

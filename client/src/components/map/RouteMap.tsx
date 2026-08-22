@@ -18,6 +18,8 @@ export interface LatLng {
 interface RouteMapProps {
   pickup: LatLng;
   drop: LatLng;
+  /** Phase 6.3 — ordered intermediate waypoints between pickup and drop. Omit/empty = unchanged single-leg route. */
+  stops?: LatLng[];
   /** Assigned driver/hamali's current position, once matched — omit before then. */
   liveMarker?: LatLng;
   /** Which glyph the live marker renders as — truck for a vehicle, a walking-person glyph for a hamali. Defaults to 'truck'. */
@@ -43,6 +45,19 @@ function pinIcon(color: string) {
 
 const pickupIcon = pinIcon('#BF5020');
 const dropIcon = pinIcon('#0A6F66');
+
+// Phase 6.3 — a small numbered dot per intermediate stop, deliberately
+// smaller/plainer than the pickup/drop pins so the route's two real
+// endpoints stay visually primary and a multi-stop route doesn't read as
+// N equally-important destinations.
+function stopIcon(n: number) {
+  return L.divIcon({
+    className: '',
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:9999px;background:#4A4740;color:#fff;font:700 11px sans-serif;border:2px solid white;box-shadow:0 2px 5px rgba(15,14,12,.35);">${n}</span>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
 
 // Real vehicle/person glyphs, not a plain dot — "the pin should glide, not
 // jump" per DESIGN.md. The pulsing ring behind the glyph is what actually
@@ -91,8 +106,8 @@ function FitBounds({ points }: { points: LatLng[] }) {
   return null;
 }
 
-export default function RouteMap({ pickup, drop, liveMarker, liveMarkerType = 'truck', className = '' }: RouteMapProps) {
-  const points = [pickup, drop, ...(liveMarker ? [liveMarker] : [])];
+export default function RouteMap({ pickup, drop, stops = [], liveMarker, liveMarkerType = 'truck', className = '' }: RouteMapProps) {
+  const points = [pickup, ...stops, drop, ...(liveMarker ? [liveMarker] : [])];
 
   return (
     <div className={`overflow-hidden rounded-lg border border-border shadow-sm ${className}`}>
@@ -122,13 +137,13 @@ export default function RouteMap({ pickup, drop, liveMarker, liveMarkerType = 't
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Polyline
-          positions={[
-            [pickup.lat, pickup.lng],
-            [drop.lat, drop.lng],
-          ]}
+          positions={[pickup, ...stops, drop].map((p) => [p.lat, p.lng] as [number, number])}
           pathOptions={{ color: '#BF5020', weight: 3, opacity: 0.55, dashArray: '1 10' }}
         />
         <Marker position={[pickup.lat, pickup.lng]} icon={pickupIcon} />
+        {stops.map((s, i) => (
+          <Marker key={`${s.lat}-${s.lng}-${i}`} position={[s.lat, s.lng]} icon={stopIcon(i + 1)} />
+        ))}
         <Marker position={[drop.lat, drop.lng]} icon={dropIcon} />
         {liveMarker && <Marker position={[liveMarker.lat, liveMarker.lng]} icon={liveIconByType[liveMarkerType]} />}
         <FitBounds points={points} />

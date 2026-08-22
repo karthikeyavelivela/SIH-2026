@@ -56,6 +56,9 @@ type BookingType = 'truck' | 'hamali' | 'combo';
 // to this one region.
 const REGION = 'Visakhapatnam';
 
+// Matches booking.routes.ts's server-side ceiling on body('stops').
+const MAX_STOPS = 5;
+
 const TYPES: { value: BookingType; labelKey: 'typeTruck' | 'typeHamali' | 'typeCombo'; icon: typeof TruckIcon }[] = [
   { value: 'truck', labelKey: 'typeTruck', icon: TruckIcon },
   { value: 'hamali', labelKey: 'typeHamali', icon: BoxIcon },
@@ -187,6 +190,9 @@ function BookForm() {
   }, [initialType]);
   const [pickup, setPickup] = useState<GeoPoint | null>(null);
   const [drop, setDrop] = useState<GeoPoint | null>(null);
+  // Phase 6.3 — ordered intermediate stops, capped at MAX_STOPS to match
+  // the server's own abuse ceiling (booking.routes.ts).
+  const [stops, setStops] = useState<GeoPoint[]>([]);
   const [weightKg, setWeightKg] = useState('');
   // Computed once on mount, not inline in JSX — calling
   // defaultScheduledForValue()/maxScheduledForValue() fresh on every render
@@ -269,7 +275,8 @@ function BookForm() {
   const needsWeight = type !== 'hamali';
   const needsHamali = type !== 'truck';
   const weightValid = !needsWeight || Number(weightKg) > 0;
-  const readyToQuote = pickup && drop && weightValid && (!needsHamali || hamaliCount > 0);
+  const stopsFilled = stops.every((s) => s.address);
+  const readyToQuote = pickup && drop && weightValid && stopsFilled && (!needsHamali || hamaliCount > 0);
 
   useEffect(() => {
     clearTimeout(quoteDebounce.current);
@@ -288,6 +295,7 @@ function BookForm() {
           region: REGION,
           pickupLocation: { coordinates: [pickup!.lng, pickup!.lat], address: pickup!.address },
           dropLocation: { coordinates: [drop!.lng, drop!.lat], address: drop!.address },
+          stops: stops.map((s) => ({ coordinates: [s.lng, s.lat], address: s.address })),
           requiredVehicles: needsWeight ? [{ capacityKg: Number(weightKg), count: 1 }] : [],
           requiredHamaliCount: needsHamali ? hamaliCount : 0,
         });
@@ -306,7 +314,7 @@ function BookForm() {
 
     return () => clearTimeout(quoteDebounce.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, pickup, drop, weightKg, hamaliCount, needsWeight, needsHamali, readyToQuote]);
+  }, [type, pickup, drop, stops, weightKg, hamaliCount, needsWeight, needsHamali, readyToQuote]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -320,6 +328,7 @@ function BookForm() {
         cargoDetails: { weightKg: needsWeight ? Number(weightKg) : 0 },
         pickupLocation: { coordinates: [pickup.lng, pickup.lat], address: pickup.address },
         dropLocation: { coordinates: [drop.lng, drop.lat], address: drop.address },
+        stops: stops.map((s) => ({ coordinates: [s.lng, s.lat], address: s.address })),
         requiredVehicles: needsWeight ? [{ capacityKg: Number(weightKg), count: 1 }] : [],
         requiredHamaliCount: needsHamali ? hamaliCount : 0,
         scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
@@ -419,6 +428,38 @@ function BookForm() {
               )}
             </div>
 
+            {stops.map((stop, i) => (
+              <div key={i} className="flex items-end gap-2">
+                <div className="flex-1">
+                  <AddressField
+                    label={t('stopLabel', { n: i + 1 })}
+                    placeholder={t('stopPlaceholder')}
+                    value={stop}
+                    onChange={(v) => v && setStops((prev) => prev.map((s, idx) => (idx === i ? v : s)))}
+                    markerColorClass="text-ip-on-surface-variant"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStops((prev) => prev.filter((_, idx) => idx !== i))}
+                  aria-label={t('removeStopAria', { n: i + 1 })}
+                  className="min-h-[44px] px-3 text-xs font-semibold text-ip-error"
+                >
+                  {t('removeStop')}
+                </button>
+              </div>
+            ))}
+
+            {stops.length < MAX_STOPS && (
+              <button
+                type="button"
+                onClick={() => setStops((prev) => [...prev, { lat: 0, lng: 0, address: '' }])}
+                className="text-xs font-semibold text-ip-primary text-left"
+              >
+                + {t('addStop')}
+              </button>
+            )}
+
             <div>
               <AddressField
                 label={t('dropLabel')}
@@ -444,6 +485,7 @@ function BookForm() {
               <RouteMap
                 pickup={{ lat: pickup.lat, lng: pickup.lng }}
                 drop={{ lat: drop.lat, lng: drop.lng }}
+                stops={stops.filter((s) => s.address).map((s) => ({ lat: s.lat, lng: s.lng }))}
                 className="h-48"
               />
             </div>

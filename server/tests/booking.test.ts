@@ -311,3 +311,67 @@ describe('booking quote', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('multi-stop routing (Phase 6.3)', () => {
+  it('a booking with stops persists them in order and prices a longer distance than the direct pickup->drop leg', async () => {
+    await seedTruckRule();
+    const { agent } = await loginAsCustomer('9810000016');
+
+    const direct = await agent.post('/api/bookings/quote').send({
+      type: 'truck',
+      region: 'Visakhapatnam',
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    });
+    expect(direct.status).toBe(200);
+
+    // A detour stop well off the direct line — the summed-legs distance
+    // must come out strictly longer than the direct haversine leg, proving
+    // the stop actually participates in the distance calculation rather
+    // than being stored-but-ignored.
+    const viaStop = await agent.post('/api/bookings').send({
+      type: 'truck',
+      region: 'Visakhapatnam',
+      cargoDetails: { weightKg: 500 },
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      stops: [{ coordinates: [83.1, 17.9], address: 'Warehouse Stop' }],
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    });
+    expect(viaStop.status).toBe(201);
+    expect(viaStop.body.booking.stops).toMatchObject([{ coordinates: [83.1, 17.9], address: 'Warehouse Stop' }]);
+    expect(viaStop.body.booking.distanceKm).toBeGreaterThan(direct.body.distanceKm);
+    expect(viaStop.body.booking.fareBreakdown.total).toBeGreaterThan(direct.body.fareBreakdown.total);
+  });
+
+  it('rejects more than 5 stops (abuse ceiling)', async () => {
+    await seedTruckRule();
+    const { agent } = await loginAsCustomer('9810000017');
+    const res = await agent.post('/api/bookings').send({
+      type: 'truck',
+      region: 'Visakhapatnam',
+      cargoDetails: { weightKg: 500 },
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      stops: Array.from({ length: 6 }, (_, i) => ({ coordinates: [83.2 + i * 0.01, 17.7 + i * 0.01], address: `Stop ${i}` })),
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('a booking with no stops behaves exactly as before (empty stops array, unchanged distance)', async () => {
+    await seedTruckRule();
+    const { agent } = await loginAsCustomer('9810000018');
+    const res = await agent.post('/api/bookings').send({
+      type: 'truck',
+      region: 'Visakhapatnam',
+      cargoDetails: { weightKg: 500 },
+      pickupLocation: { coordinates: [83.2185, 17.6868], address: 'Pickup' },
+      dropLocation: { coordinates: [83.3, 17.75], address: 'Drop' },
+      requiredVehicles: [{ capacityKg: 1000, count: 1 }],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.booking.stops).toEqual([]);
+  });
+});

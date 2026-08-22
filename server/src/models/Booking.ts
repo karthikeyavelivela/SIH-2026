@@ -24,6 +24,17 @@ export interface IBooking {
   cargoDetails: { weightKg: number; description?: string };
   pickupLocation: { type: 'Point'; coordinates: [number, number]; address: string };
   dropLocation: { type: 'Point'; coordinates: [number, number]; address: string };
+  // Phase 6.3 — multi-stop routing. Ordered intermediate waypoints between
+  // pickup and drop (e.g. a warehouse hub run collecting from two pickup
+  // points before the final drop). Absent/empty = unchanged existing
+  // behaviour (a single pickup->drop leg). When present, distanceKm sums
+  // every consecutive leg (pickup->stops[0]->...->stops[n-1]->drop) —
+  // see booking.controller.ts's priceBooking. Deliberately routing/fare-
+  // and-map scope only for this pass, not a per-stop status/proof-photo
+  // workflow (that's a genuinely separate feature — assignedDriverIds
+  // already model "one worker for the whole trip", not "check in at each
+  // stop" — documented here as an intentional cut, not a silent gap).
+  stops?: { coordinates: [number, number]; address: string }[];
   requiredVehicles: { capacityKg: number; count: number }[];
   requiredHamaliCount: number;
   assignedDriverIds: Types.ObjectId[];
@@ -86,6 +97,10 @@ const bookingSchema = new Schema<IBooking>(
     },
     pickupLocation: pointWithAddress,
     dropLocation: pointWithAddress,
+    stops: {
+      type: [{ coordinates: { type: [Number], required: true }, address: { type: String, required: true } }],
+      default: [],
+    },
     requiredVehicles: {
       type: [{ capacityKg: Number, count: Number }],
       default: [],

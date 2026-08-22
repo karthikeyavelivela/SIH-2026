@@ -27,6 +27,13 @@ const pricingRules = [
   body('region').isString().trim().isLength({ min: 1 }),
   ...pointRule('pickupLocation'),
   ...pointRule('dropLocation'),
+  // Phase 6.3 — multi-stop routing. Optional ordered waypoints between
+  // pickup and drop; capped at 5 so a route can't be abused into an
+  // arbitrarily expensive distance/geo computation.
+  body('stops').optional().isArray({ max: 5 }),
+  body('stops.*.coordinates').isArray({ min: 2, max: 2 }),
+  body('stops.*.coordinates.*').isFloat(),
+  body('stops.*.address').isString().trim().isLength({ min: 1 }),
   body('requiredVehicles').optional().isArray(),
   // Validates item shape, not just "is an array" — a malformed
   // capacityKg (null/NaN/missing) is now rejected at the edge instead of

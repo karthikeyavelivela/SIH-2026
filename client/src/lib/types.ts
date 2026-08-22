@@ -32,6 +32,8 @@ export interface Booking {
   cargoDetails: { weightKg: number; description?: string };
   pickupLocation: GeoPoint;
   dropLocation: GeoPoint;
+  // Phase 6.3 — multi-stop routing. Ordered intermediate waypoints.
+  stops?: GeoPoint[];
   requiredVehicles: { capacityKg: number; count: number }[];
   requiredHamaliCount: number;
   assignedDriverIds: string[];

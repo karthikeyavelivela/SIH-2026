@@ -591,7 +591,8 @@
     "noBidsYet": "No bids yet — check back soon",
     "acceptBid": "Accept",
     "accepting": "Accepting…",
-    "errorAcceptBid": "Could not accept this bid — try again."
+    "errorAcceptBid": "Could not accept this bid — try again.",
+    "stops": "Stops"
   },
   "customerHistory": {
     "title": "Booking history",
@@ -651,7 +652,12 @@
     "increaseAria": "Increase",
     "biddingTitle": "Open this booking for bidding",
     "biddingHint": "Let drivers/workers propose their own price instead of the fixed fare above — you pick the best offer.",
-    "postForBidding": "Post for bidding"
+    "postForBidding": "Post for bidding",
+    "stopLabel": "Stop {n}",
+    "stopPlaceholder": "Search for a stop address",
+    "removeStop": "Remove",
+    "removeStopAria": "Remove stop {n}",
+    "addStop": "Add a stop"
   },
   "muthaMemberJob": {
     "hello": "Hello,",

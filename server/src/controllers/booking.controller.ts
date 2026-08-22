@@ -23,6 +23,9 @@ interface QuoteInput {
   region: string;
   pickupLocation: { coordinates: [number, number] };
   dropLocation: { coordinates: [number, number] };
+  // Phase 6.3 — ordered intermediate waypoints. Optional/absent = unchanged
+  // existing single-leg behaviour.
+  stops?: { coordinates: [number, number] }[];
   requiredVehicles?: { capacityKg: number; count: number }[];
   requiredHamaliCount?: number;
 }
@@ -32,12 +35,26 @@ interface QuoteInput {
 // client-facing "estimate" the customer confirms against is the exact same
 // code path that produces the fareBreakdown actually saved on the Booking.
 async function priceBooking(input: QuoteInput) {
-  const { type, region, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } = input;
+  const { type, region, pickupLocation, dropLocation, stops, requiredVehicles, requiredHamaliCount } = input;
 
-  const distanceKm = haversineKm(
-    { lat: pickupLocation.coordinates[1], lng: pickupLocation.coordinates[0] },
-    { lat: dropLocation.coordinates[1], lng: dropLocation.coordinates[0] }
-  );
+  // Phase 6.3 — multi-stop routing. Sums every consecutive leg
+  // (pickup -> stops[0] -> ... -> stops[n-1] -> drop) instead of a single
+  // pickup->drop haversine — still the same straight-line-per-leg
+  // approximation distance.service.ts's own doc comment already commits
+  // to ("No routing-engine integration is in scope"), just summed over
+  // more than one leg now.
+  const legPoints = [
+    pickupLocation.coordinates,
+    ...(stops ?? []).map((s) => s.coordinates),
+    dropLocation.coordinates,
+  ];
+  let distanceKm = 0;
+  for (let i = 0; i < legPoints.length - 1; i++) {
+    distanceKm += haversineKm(
+      { lat: legPoints[i][1], lng: legPoints[i][0] },
+      { lat: legPoints[i + 1][1], lng: legPoints[i + 1][0] }
+    );
+  }
 
   let vehicleRule: IFareRule | null = null;
   if (type === 'truck' || type === 'combo') {
@@ -106,12 +123,13 @@ async function priceBooking(input: QuoteInput) {
 // exact same route-level validators) so a quote can never diverge from
 // what create would actually charge.
 export const quoteBooking = asyncHandler(async (req: Request, res: Response) => {
-  const { type, region, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } = req.body;
+  const { type, region, pickupLocation, dropLocation, stops, requiredVehicles, requiredHamaliCount } = req.body;
   const { fareBreakdown, distanceKm } = await priceBooking({
     type,
     region,
     pickupLocation,
     dropLocation,
+    stops,
     requiredVehicles,
     requiredHamaliCount,
   });
@@ -138,6 +156,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     cargoDetails,
     pickupLocation,
     dropLocation,
+    stops,
     requiredVehicles,
     requiredHamaliCount,
     scheduledFor,
@@ -175,6 +194,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     region,
     pickupLocation,
     dropLocation,
+    stops,
     requiredVehicles,
     requiredHamaliCount,
   });
@@ -187,6 +207,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     cargoDetails,
     pickupLocation: { type: 'Point', coordinates: pickupLocation.coordinates, address: pickupLocation.address },
     dropLocation: { type: 'Point', coordinates: dropLocation.coordinates, address: dropLocation.address },
+    stops: Array.isArray(stops) ? stops.map((s: { coordinates: [number, number]; address: string }) => ({ coordinates: s.coordinates, address: s.address })) : [],
     requiredVehicles: requiredVehicles ?? [],
     requiredHamaliCount: requiredHamaliCount ?? 0,
     status: initialStatus,
