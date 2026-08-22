@@ -4,6 +4,7 @@ import { InsurancePolicy } from '../models/InsurancePolicy';
 import { User } from '../models/User';
 import { callAgent } from './client';
 import { AgentResult } from './types';
+import type { AgentLocale } from './locale';
 import type { Role } from '@fyro/shared';
 
 /**
@@ -24,7 +25,7 @@ export async function runSupportAgent(userId: string, role: Role, question: stri
       .lean(),
     Complaint.find({ raisedByUserId: userId }).sort({ createdAt: -1 }).limit(5).lean(),
     InsurancePolicy.find({ userId }).lean(),
-    User.findById(userId).select('kycStatus kycDocs name role').lean(),
+    User.findById(userId).select('kycStatus kycDocs name role preferredLocale').lean(),
   ]);
 
   const context = {
@@ -53,7 +54,7 @@ confidence "high" only when the context directly answers the question. "low" whe
   const userPrompt = `Question: "${question}"\n\nContext:\n${JSON.stringify(context, null, 2)}`;
 
   return callAgent(
-    { agentName: 'support', systemPrompt, userPrompt, context },
+    { agentName: 'support', systemPrompt, userPrompt, context, locale: user?.preferredLocale as AgentLocale | undefined },
     (ctx) => {
       const c = ctx as typeof context;
       if (c.recentBookings.length === 0) {

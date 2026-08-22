@@ -9,6 +9,7 @@ import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   RoleSwitcherSection,
   HamaliSkillsSection,
@@ -43,6 +44,7 @@ export default function HamaliProfilePage() {
         </div>
       </div>
 
+      <LanguageSection />
       <ProfileIdentitySection />
       <RoleSwitcherSection />
       <HamaliSkillsSection />

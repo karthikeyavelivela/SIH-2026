@@ -9,6 +9,7 @@ import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import { ChevronRightIcon, UsersIcon } from '@/components/ui/icons';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   RoleSwitcherSection,
   NotificationPreferencesSection,
@@ -44,6 +45,7 @@ export default function MuthaLeaderProfilePage() {
         </div>
       </Card>
 
+      <LanguageSection />
       <ProfileIdentitySection />
       <RoleSwitcherSection />
 

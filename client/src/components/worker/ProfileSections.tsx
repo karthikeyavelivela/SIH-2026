@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth, AuthUser } from '@/lib/auth-context';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
+import { setLocaleAction } from '@/i18n/setLocale';
 import { StarIcon, LockIcon, EyeIcon, TrashIcon, BankIcon, SwitchIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 // ═══════════════════════════════════════════════════════════════════
@@ -50,6 +53,42 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
         }`}
       />
     </button>
+  );
+}
+
+// ---- Language: the client cookie (client/src/i18n/setLocale.ts) is
+// per-device; syncing it to User.preferredLocale (server) is what lets
+// server-side code — specifically the 4 AI agents, which have no access to
+// a browser cookie — respond in the caller's language. Phase 1 remediation:
+// LanguagePill.tsx's own doc comment already claimed it "appears on...
+// profile_settings" before this section existed anywhere reachable after
+// signup; this is what makes that true. ----
+
+export function LanguageSection() {
+  const t = useTranslations('profile.language');
+  const locale = useLocale() as LanguageCode;
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleChange(code: LanguageCode) {
+    if (code === locale) return;
+    startTransition(async () => {
+      await setLocaleAction(code);
+      // Best-effort — the cookie (which next-intl actually reads) is
+      // already set regardless of whether this PATCH succeeds, so a
+      // transient API failure never blocks the language from changing on
+      // this device; it just means the AI agents fall back to English
+      // until the next successful sync.
+      await api.patch('/api/auth/me/locale', { locale: code }).catch(() => {});
+      router.refresh();
+    });
+  }
+
+  return (
+    <SectionCard title={t('title')}>
+      <LanguagePill value={locale} onChange={handleChange} className={isPending ? 'opacity-60 pointer-events-none' : ''} />
+      <p className="text-xs text-ip-on-surface-variant">{t('hint')}</p>
+    </SectionCard>
   );
 }
 

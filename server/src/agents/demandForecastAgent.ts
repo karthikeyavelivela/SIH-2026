@@ -1,6 +1,7 @@
 import { Booking } from '../models/Booking';
 import { callAgent } from './client';
 import { AgentResult } from './types';
+import type { AgentLocale } from './locale';
 
 const MS_PER_DAY = 86_400_000;
 const LOOKBACK_DAYS = 14;
@@ -44,14 +45,26 @@ async function bookingDensityByHour(region: string): Promise<{ total: number; by
  */
 export async function runDemandForecastAgent(
   region: string,
-  audience: 'worker' | 'admin' | 'mutha_leader'
+  audience: 'worker' | 'admin' | 'mutha_leader',
+  locale?: AgentLocale
 ): Promise<AgentResult> {
   const { total, byHour } = await bookingDensityByHour(region);
 
   if (total < MIN_BOOKINGS_FOR_FORECAST) {
+    // This guardrail response never calls the model (there's nothing to
+    // forecast), so callAgent's locale instruction never runs for it —
+    // translated directly here instead, the same three languages as
+    // everywhere else in this app, so a Telugu/Hindi-locale user doesn't
+    // hit an English wall on the one guaranteed-honest response this
+    // agent can give with too little data.
+    const lowDataSummary: Record<AgentLocale, string> = {
+      en: `Not enough booking history in ${region} yet (${total} bookings in the last ${LOOKBACK_DAYS} days, need at least ${MIN_BOOKINGS_FOR_FORECAST}) to forecast demand honestly. Check back once more jobs have run through this region.`,
+      te: `${region}లో ఇంకా తగినంత బుకింగ్ చరిత్ర లేదు (గత ${LOOKBACK_DAYS} రోజుల్లో ${total} బుకింగ్‌లు, కనీసం ${MIN_BOOKINGS_FOR_FORECAST} కావాలి) — నిజాయితీగా అంచనా వేయడానికి సరిపోదు. ఈ ప్రాంతంలో మరిన్ని పనులు జరిగాక మళ్లీ చూడండి.`,
+      hi: `${region} में अभी पर्याप्त बुकिंग इतिहास नहीं है (पिछले ${LOOKBACK_DAYS} दिनों में ${total} बुकिंग, कम से कम ${MIN_BOOKINGS_FOR_FORECAST} चाहिए) — ईमानदारी से अनुमान लगाने के लिए काफी नहीं। इस क्षेत्र में और काम होने के बाद फिर देखें।`,
+    };
     return {
       agentName: 'demand_forecast',
-      summary: `Not enough booking history in ${region} yet (${total} bookings in the last ${LOOKBACK_DAYS} days, need at least ${MIN_BOOKINGS_FOR_FORECAST}) to forecast demand honestly. Check back once more jobs have run through this region.`,
+      summary: lowDataSummary[locale ?? 'en'],
       confidence: 'low',
       evidence: [{ label: 'Bookings in window', value: `${total} / ${MIN_BOOKINGS_FOR_FORECAST} minimum` }],
       mock: true,
@@ -76,7 +89,7 @@ confidence "high" only with a clear, consistent peak across the data; "moderate"
 
   const userPrompt = `Region: ${region}\nHourly booking counts (last ${LOOKBACK_DAYS} days, ${total} total):\n${JSON.stringify(byHour)}`;
 
-  return callAgent({ agentName: 'demand_forecast', systemPrompt, userPrompt, context }, (ctx) => {
+  return callAgent({ agentName: 'demand_forecast', systemPrompt, userPrompt, context, locale }, (ctx) => {
     const c = ctx as typeof context;
     const peak = [...c.byHour].sort((a, b) => b.count - a.count)[0];
     return {

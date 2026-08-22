@@ -581,6 +581,10 @@
     "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें"
   },
   "profile": {
+    "language": {
+      "title": "भाषा",
+      "hint": "FYRO का AI असिस्टेंट भी आपसे इसी भाषा में बात करेगा।"
+    },
     "identity": {
       "title": "पहचान",
       "name": "नाम",

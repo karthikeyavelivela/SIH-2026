@@ -3,6 +3,7 @@ import { env } from '../config/env';
 import { ApiError } from '../utils/ApiError';
 import { callAgent } from './client';
 import { AgentResult } from './types';
+import { localeInstruction, type AgentLocale } from './locale';
 import type { KycDocumentType } from '@fyro/shared';
 
 const DOC_TYPE_LABEL: Record<KycDocumentType, string> = {
@@ -49,7 +50,8 @@ async function fetchImageAsBase64(url: string): Promise<{ data: string; mediaTyp
  * actually having looked at it.
  */
 export async function runDocumentPrecheckAgent(userId: string, documentType: KycDocumentType): Promise<AgentResult> {
-  const user = await User.findById(userId).select('kycDocs role name').lean();
+  const user = await User.findById(userId).select('kycDocs role name preferredLocale').lean();
+  const locale = (user?.preferredLocale as AgentLocale | undefined) ?? 'en';
   if (!user) throw new ApiError(404, 'User not found');
   const doc = user.kycDocs.find((d) => d.type === documentType);
   if (!doc) throw new ApiError(404, 'No document of this type on file — upload it first');
@@ -67,8 +69,8 @@ export async function runDocumentPrecheckAgent(userId: string, documentType: Kyc
   };
 
   if (env.MOCK_EXTERNAL_SERVICES || !env.ANTHROPIC_API_KEY) {
-    return callAgent({ agentName: 'document_precheck', systemPrompt: '', userPrompt: '', context }, (ctx) =>
-      mockPrecheck(ctx as typeof context)
+    return callAgent({ agentName: 'document_precheck', systemPrompt: '', userPrompt: '', context, locale }, (ctx) =>
+      mockPrecheck(ctx as typeof context, locale)
     );
   }
 
@@ -88,20 +90,21 @@ Respond ONLY with JSON: {"summary": "<what you found, plain language, tell the w
     // No real vision input available — still a real (non-mock) response,
     // just metadata-only, and the model is told exactly that so it
     // doesn't invent visual findings.
-    return callAgent({ agentName: 'document_precheck', systemPrompt, userPrompt, context }, (ctx) =>
-      mockPrecheck(ctx as typeof context)
+    return callAgent({ agentName: 'document_precheck', systemPrompt, userPrompt, context, locale }, (ctx) =>
+      mockPrecheck(ctx as typeof context, locale)
     );
   }
 
   // Real vision call — bypasses callAgent's text-only path since this one
   // needs an image content block; still goes through the same Anthropic
-  // client construction and JSON-parsing discipline.
+  // client construction and JSON-parsing discipline, including the locale
+  // instruction callAgent would otherwise have appended.
   const Anthropic = (await import('@anthropic-ai/sdk')).default;
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
   const message = await client.messages.create({
     model: 'claude-sonnet-5',
     max_tokens: 1024,
-    system: systemPrompt,
+    system: locale === 'en' ? systemPrompt : systemPrompt + localeInstruction(locale),
     messages: [
       {
         role: 'user',
@@ -131,20 +134,25 @@ Respond ONLY with JSON: {"summary": "<what you found, plain language, tell the w
   return { agentName: 'document_precheck', mock: false, generatedAt: new Date().toISOString(), ...parsed };
 }
 
-function mockPrecheck(ctx: {
-  documentLabel: string;
-  expiryAlreadyPassed: boolean | null;
-  hasFetchableImage: boolean;
-}): { summary: string; confidence: 'low' | 'moderate' | 'high'; evidence: { label: string; value: string }[] } {
+function mockPrecheck(
+  ctx: { documentLabel: string; expiryAlreadyPassed: boolean | null; hasFetchableImage: boolean },
+  locale: AgentLocale
+): { summary: string; confidence: 'low' | 'moderate' | 'high'; evidence: { label: string; value: string }[] } {
   if (ctx.expiryAlreadyPassed) {
-    return {
-      summary: `This ${ctx.documentLabel}'s expiry date is already in the past — it needs to be renewed and re-uploaded before it can be verified.`,
-      confidence: 'high',
-      evidence: [{ label: 'Expiry check', value: 'Already expired' }],
+    const summary: Record<AgentLocale, string> = {
+      en: `This ${ctx.documentLabel}'s expiry date is already in the past — it needs to be renewed and re-uploaded before it can be verified.`,
+      te: `ఈ ${ctx.documentLabel} గడువు తేదీ ఇప్పటికే గడిచిపోయింది — దీన్ని ధృవీకరించడానికి ముందు రెన్యూ చేసి మళ్లీ అప్‌లోడ్ చేయాలి.`,
+      hi: `इस ${ctx.documentLabel} की समय-सीमा पहले ही खत्म हो चुकी है — इसे वेरिफाई करने से पहले नवीनीकरण करके फिर से अपलोड करना होगा।`,
     };
+    return { summary: summary[locale], confidence: 'high', evidence: [{ label: 'Expiry check', value: 'Already expired' }] };
   }
+  const summary: Record<AgentLocale, string> = {
+    en: `No image could be checked for this ${ctx.documentLabel} — a human reviewer will need to look at it directly. This is a metadata-only pre-check, not a visual one.`,
+    te: `ఈ ${ctx.documentLabel} కోసం ఏ చిత్రాన్ని తనిఖీ చేయలేకపోయాము — ఒక వ్యక్తి నేరుగా దీన్ని చూడాల్సి ఉంటుంది. ఇది కేవలం మెటాడేటా తనిఖీ మాత్రమే, చిత్రం చూసి చేసింది కాదు.`,
+    hi: `इस ${ctx.documentLabel} के लिए कोई फोटो जांच नहीं हो सकी — एक इंसान को इसे सीधे देखना होगा। यह सिर्फ मेटाडेटा जांच है, फोटो देखकर की गई जांच नहीं।`,
+  };
   return {
-    summary: `No image could be checked for this ${ctx.documentLabel} — a human reviewer will need to look at it directly. This is a metadata-only pre-check, not a visual one.`,
+    summary: summary[locale],
     confidence: 'low',
     evidence: [{ label: 'Visual check performed', value: ctx.hasFetchableImage ? 'yes' : 'no' }],
   };

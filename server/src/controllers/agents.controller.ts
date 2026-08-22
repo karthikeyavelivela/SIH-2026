@@ -7,6 +7,8 @@ import { cached } from '../agents/cache';
 import { runSupportAgent } from '../agents/supportAgent';
 import { runDisputeTriageAgent } from '../agents/disputeTriageAgent';
 import { runDemandForecastAgent } from '../agents/demandForecastAgent';
+import { User } from '../models/User';
+import type { AgentLocale } from '../agents/locale';
 import { runDocumentPrecheckAgent } from '../agents/documentPrecheckAgent';
 import type { Role, KycDocumentType } from '@fyro/shared';
 
@@ -54,7 +56,16 @@ export const triageDispute = asyncHandler(async (req: Request, res: Response) =>
   const exists = await Dispute.exists({ _id: disputeId });
   if (!exists) throw new ApiError(404, 'Dispute not found');
 
-  const result = await cached(`dispute_triage:${disputeId}`, () => runDisputeTriageAgent(disputeId));
+  // Phase 1 (agent localization) — the admin reading this triage result
+  // gets it in THEIR OWN preferredLocale, not the disputing party's.
+  // Locale is in the cache key precisely because it isn't in the
+  // disputeId: two admins with different locales viewing the same dispute
+  // inside the 5-minute cache window must not see each other's language.
+  const admin = await User.findById(req.user!.id).select('preferredLocale').lean();
+  const adminLocale = admin?.preferredLocale as AgentLocale | undefined;
+  const result = await cached(`dispute_triage:${disputeId}:${adminLocale ?? 'en'}`, () =>
+    runDisputeTriageAgent(disputeId, adminLocale)
+  );
 
   await writeAuditLog({
     actorId: req.user!.id,
@@ -86,7 +97,13 @@ export const forecastDemand = asyncHandler(async (req: Request, res: Response) =
   const audience = AUDIENCE_BY_ROLE[role];
   if (!audience) throw new ApiError(403, 'This role has no demand-forecast view');
 
-  const result = await cached(`demand_forecast:${region}:${audience}`, () => runDemandForecastAgent(region, audience));
+  // Same reasoning as triageDispute above — region+audience alone isn't a
+  // unique-enough cache key once locale affects the response text.
+  const caller = await User.findById(req.user!.id).select('preferredLocale').lean();
+  const callerLocale = caller?.preferredLocale as AgentLocale | undefined;
+  const result = await cached(`demand_forecast:${region}:${audience}:${callerLocale ?? 'en'}`, () =>
+    runDemandForecastAgent(region, audience, callerLocale)
+  );
 
   await writeAuditLog({
     actorId: req.user!.id,

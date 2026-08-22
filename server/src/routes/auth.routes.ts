@@ -173,6 +173,14 @@ authRouter.patch(
 );
 
 authRouter.patch(
+  '/me/locale',
+  verifyJwt,
+  [body('locale').isIn(['en', 'te', 'hi'])],
+  validate,
+  authController.updateMyLocale
+);
+
+authRouter.patch(
   '/me/payout-details',
   verifyJwt,
   [

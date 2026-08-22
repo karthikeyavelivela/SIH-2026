@@ -581,6 +581,10 @@
     "rateLastCustomer": "Rate your last customer"
   },
   "profile": {
+    "language": {
+      "title": "Language",
+      "hint": "This is also the language FYRO's AI assistant answers you in."
+    },
     "identity": {
       "title": "Identity",
       "name": "Name",

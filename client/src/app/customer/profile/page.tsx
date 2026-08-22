@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { AlertIcon, ChevronRightIcon, MapPinIcon, XIcon } from '@/components/ui/icons';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   RoleSwitcherSection,
   BusinessProfileSection,
@@ -40,6 +41,7 @@ export default function CustomerProfilePage() {
         </div>
       </Card>
 
+      <LanguageSection />
       <ProfileIdentitySection />
       <RoleSwitcherSection />
 

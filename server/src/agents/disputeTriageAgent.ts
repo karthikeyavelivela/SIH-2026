@@ -4,6 +4,7 @@ import { ChatMessage } from '../models/ChatMessage';
 import { ApiError } from '../utils/ApiError';
 import { callAgent } from './client';
 import { AgentResult } from './types';
+import type { AgentLocale } from './locale';
 
 /**
  * Agent B — Dispute Triage. Assembles the real evidence packet (chat log,
@@ -13,7 +14,7 @@ import { AgentResult } from './types';
  * a one-sided verdict. An admin still clicks resolveDispute (unchanged,
  * dispute.controller.ts) to actually act; this only informs that click.
  */
-export async function runDisputeTriageAgent(disputeId: string): Promise<AgentResult> {
+export async function runDisputeTriageAgent(disputeId: string, adminLocale?: AgentLocale): Promise<AgentResult> {
   const dispute = await Dispute.findById(disputeId).populate('raisedBy', 'name role');
   if (!dispute) throw new ApiError(404, 'Dispute not found');
 
@@ -40,7 +41,7 @@ Respond ONLY with JSON: {"summary": "<recommendation + one-sentence reasoning ci
   const userPrompt = `Dispute claim: "${context.claim}"\n\nEvidence packet:\n${JSON.stringify(context, null, 2)}`;
 
   return callAgent(
-    { agentName: 'dispute_triage', systemPrompt, userPrompt, context },
+    { agentName: 'dispute_triage', systemPrompt, userPrompt, context, locale: adminLocale },
     (ctx) => {
       const c = ctx as typeof context;
       const hasBothPhotos = c.proofPhotos.pickup === 'present' && c.proofPhotos.delivery === 'present';

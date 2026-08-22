@@ -9,6 +9,7 @@ import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import { XIcon } from '@/components/ui/icons';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   NotificationPreferencesSection,
   PrivacySettingsSection,
@@ -182,6 +183,7 @@ export default function WarehouseHubProfilePage() {
       </div>
 
       <div className="max-w-2xl">
+        <LanguageSection />
         <ProfileIdentitySection />
         <FacilityProfileSection />
         <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.warehouse_hub} />

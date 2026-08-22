@@ -8,6 +8,7 @@ import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   NotificationPreferencesSection,
   PrivacySettingsSection,
@@ -121,6 +122,7 @@ export default function FleetOwnerProfilePage() {
       </div>
 
       <div className="max-w-2xl">
+        <LanguageSection />
         <ProfileIdentitySection />
         <CompanyProfileSection />
         <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.fleet_owner} />

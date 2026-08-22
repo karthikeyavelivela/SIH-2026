@@ -114,6 +114,15 @@ export interface IUser {
   // detector can cluster genuinely suspicious signups. Not shown to the
   // user themself or any non-admin role.
   signupIp?: string;
+  // Phase 1 (agent localization) — the client's NEXT_LOCALE cookie
+  // (client/src/i18n/request.ts) is per-device, not per-account, and
+  // server-side code has no access to a browser cookie at all when an
+  // agent module runs. This is the one place "what language does this
+  // person want" is actually persisted — synced from the cookie whenever
+  // an authenticated user changes language (see auth.controller.ts's
+  // updateMyLocale), read by every agents/*.ts module to instruct the
+  // model to respond in the caller's language instead of always English.
+  preferredLocale: 'en' | 'te' | 'hi';
 }
 
 const userSchema = new Schema<IUser>(
@@ -231,6 +240,7 @@ const userSchema = new Schema<IUser>(
       attempts: { type: Number },
     },
     signupIp: { type: String },
+    preferredLocale: { type: String, enum: ['en', 'te', 'hi'], default: 'en' },
   },
   { timestamps: true }
 );

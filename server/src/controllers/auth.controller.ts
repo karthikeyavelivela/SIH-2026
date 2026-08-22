@@ -457,6 +457,22 @@ export const updateNotificationPreferences = asyncHandler(async (req: Request, r
 });
 
 /** PATCH /api/auth/me/privacy */
+/**
+ * PATCH /api/auth/me/locale — Phase 1 (agent localization). The client's
+ * NEXT_LOCALE cookie (client/src/i18n/setLocale.ts) is per-device and
+ * invisible to server-side code (no browser cookie access from within an
+ * agents/*.ts module) — this is what actually lets an AI agent respond in
+ * the caller's language instead of always English. Called by the client's
+ * language switcher immediately after it sets the cookie, whenever the
+ * caller is authenticated (a pre-login visitor has nothing to sync yet).
+ */
+export const updateMyLocale = asyncHandler(async (req: Request, res: Response) => {
+  const { locale } = req.body as { locale: 'en' | 'te' | 'hi' };
+  const user = await User.findByIdAndUpdate(req.user!.id, { preferredLocale: locale }, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ preferredLocale: user.preferredLocale });
+});
+
 export const updateMyPrivacy = asyncHandler(async (req: Request, res: Response) => {
   const { shareLocationWhileOffline, profileVisibility } = req.body as {
     shareLocationWhileOffline?: boolean;

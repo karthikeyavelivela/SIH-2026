@@ -6,7 +6,7 @@ import { api, ApiClientError } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { LockIcon } from '@/components/ui/icons';
-import { ProfileIdentitySection, AccountDangerZoneSection } from '@/components/worker/ProfileSections';
+import { LanguageSection, ProfileIdentitySection, AccountDangerZoneSection } from '@/components/worker/ProfileSections';
 
 // Neither admin nor manager had a profile page at all before this — see
 // AUDIT_REPORT.md's finding on the manager route tree (already fixed
@@ -50,6 +50,7 @@ export default function AdminProfilePage() {
       </div>
 
       <div className="max-w-2xl">
+        <LanguageSection />
         <ProfileIdentitySection />
       </div>
 

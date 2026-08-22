@@ -11,6 +11,7 @@ import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   RoleSwitcherSection,
   HamaliSkillsSection,
@@ -177,6 +178,7 @@ export default function MuthaMemberProfilePage() {
         </div>
       </Card>
 
+      <LanguageSection />
       <ProfileIdentitySection />
       <RoleSwitcherSection />
       <MuthaGroupSection />

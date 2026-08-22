@@ -12,6 +12,7 @@ import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { TruckIcon } from '@/components/ui/icons';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
+  LanguageSection,
   ProfileIdentitySection,
   RoleSwitcherSection,
   NotificationPreferencesSection,
@@ -80,6 +81,7 @@ export default function DriverProfilePage() {
         </div>
       </div>
 
+      <LanguageSection />
       <ProfileIdentitySection />
       <RoleSwitcherSection />
 

@@ -1,5 +1,6 @@
 import { env } from '../config/env';
 import { AgentResult, AgentConfidence } from './types';
+import { localeInstruction, type AgentLocale } from './locale';
 
 // AUDIT_REPORT.md Phase 4: "zero LLM SDK exists anywhere in the repo" was
 // the audit's headline finding for the whole AI-agents section. This is
@@ -16,6 +17,8 @@ export interface AgentCallInput {
   userPrompt: string;
   /** Real, already-fetched data being handed to the model — also what a mock response is generated from, so mock mode still reflects real numbers instead of made-up ones. */
   context: Record<string, unknown>;
+  /** Caller's preferredLocale (User.preferredLocale) — 'en' or omitted needs no special handling. See locale.ts's localeInstruction. */
+  locale?: AgentLocale;
 }
 
 interface ParsedModelOutput {
@@ -73,10 +76,11 @@ export async function callAgent(
   const Anthropic = (await import('@anthropic-ai/sdk')).default;
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
 
+  const systemPrompt = input.locale ? input.systemPrompt + localeInstruction(input.locale) : input.systemPrompt;
   const message = await client.messages.create({
     model: AGENT_MODEL,
     max_tokens: MAX_OUTPUT_TOKENS,
-    system: input.systemPrompt,
+    system: systemPrompt,
     messages: [{ role: 'user', content: input.userPrompt }],
   });
 
