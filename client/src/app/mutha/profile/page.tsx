@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -27,12 +28,13 @@ import {
 // Earnings, none of which carry a logout affordance, unlike every other
 // role.
 export default function MuthaLeaderProfilePage() {
+  const t = useTranslations('profile');
   const { user, refetch } = useAuth();
   if (!user) return null;
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-6">Profile</h1>
+      <h1 className="font-heading text-2xl font-bold mb-6">{t('pageTitle')}</h1>
 
       <Card elevation="raised" className="flex items-center gap-4 mb-6">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
@@ -40,7 +42,7 @@ export default function MuthaLeaderProfilePage() {
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-text-muted">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
-            {user.accountStatus}
+            {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
         </div>
       </Card>
@@ -55,7 +57,7 @@ export default function MuthaLeaderProfilePage() {
       >
         <span className="flex items-center gap-2.5 text-sm font-semibold">
           <UsersIcon className="w-4 h-4 text-text-muted" />
-          Group settings — name, region, photo, invite QR
+          {t('groupSettingsLink')}
         </span>
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>

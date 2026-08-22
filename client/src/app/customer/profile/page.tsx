@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { Card } from '@/components/ui/Card';
@@ -22,13 +23,14 @@ import {
 } from '@/components/worker/ProfileSections';
 
 export default function CustomerProfilePage() {
+  const t = useTranslations('profile');
   const { user, refetch } = useAuth();
   const { addresses, remove } = useSavedAddresses();
   if (!user) return null;
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-6">Profile</h1>
+      <h1 className="font-heading text-2xl font-bold mb-6">{t('pageTitle')}</h1>
 
       <Card elevation="raised" className="flex items-center gap-4 mb-6">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
@@ -36,7 +38,7 @@ export default function CustomerProfilePage() {
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-text-muted">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
-            {user.accountStatus}
+            {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
         </div>
       </Card>
@@ -47,7 +49,7 @@ export default function CustomerProfilePage() {
 
       {addresses.length > 0 && (
         <Card elevation="raised" className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Saved addresses</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('savedAddresses.title')}</p>
           <div className="space-y-2.5">
             {addresses.map((a) => (
               <div key={a._id} className="flex items-start gap-2.5">
@@ -58,7 +60,7 @@ export default function CustomerProfilePage() {
                 </div>
                 <button
                   type="button"
-                  aria-label={`Remove ${a.label}`}
+                  aria-label={t('savedAddresses.removeAria', { label: a.label })}
                   onClick={() => remove(a._id)}
                   className="flex-shrink-0 text-text-muted hover:text-red-600"
                 >
@@ -86,7 +88,7 @@ export default function CustomerProfilePage() {
           <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
             <AlertIcon className="w-5 h-5" />
           </span>
-          <p className="text-sm font-semibold">Support</p>
+          <p className="text-sm font-semibold">{t('support.title')}</p>
         </div>
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
@@ -36,6 +37,7 @@ interface MyGroup {
 // directly, bypasses the leader entirely, see mutha.controller.ts's
 // flagEarningsDiscrepancy doc comment).
 function MuthaGroupSection() {
+  const t = useTranslations('muthaGroup');
   const [group, setGroup] = useState<MyGroup | null>(null);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
@@ -59,7 +61,7 @@ function MuthaGroupSection() {
       await api.post('/api/mutha/leave');
       window.location.reload();
     } catch (err) {
-      setLeaveError(err instanceof ApiClientError ? err.message : 'Could not leave the group.');
+      setLeaveError(err instanceof ApiClientError ? err.message : t('errorLeave'));
       setLeaving(false);
     }
   }
@@ -71,7 +73,7 @@ function MuthaGroupSection() {
       await api.post('/api/mutha/earnings-discrepancy', { bookingId, description });
       setFlagSubmitted(true);
     } catch (err) {
-      setFlagError(err instanceof ApiClientError ? err.message : 'Could not submit this report.');
+      setFlagError(err instanceof ApiClientError ? err.message : t('errorFlag'));
     } finally {
       setFlagSubmitting(false);
     }
@@ -81,53 +83,47 @@ function MuthaGroupSection() {
 
   return (
     <div className="mb-6">
-      <h2 className="font-heading text-lg font-bold mb-3">My Mutha</h2>
+      <h2 className="font-heading text-lg font-bold mb-3">{t('title')}</h2>
       <div className="ip-card space-y-3">
         <div>
           <p className="font-semibold">{group.mutha.name}</p>
           <p className="text-xs text-ip-on-surface-variant">
-            {group.mutha.ratingCount > 0 ? `${group.mutha.ratingAvg.toFixed(1)}★ (${group.mutha.ratingCount})` : 'New group'}
+            {group.mutha.ratingCount > 0 ? `${group.mutha.ratingAvg.toFixed(1)}★ (${group.mutha.ratingCount})` : t('newGroup')}
           </p>
         </div>
         <div className="pt-3 border-t border-ip-outline/10 text-sm">
-          <p className="text-xs text-ip-on-surface-variant">Leader</p>
+          <p className="text-xs text-ip-on-surface-variant">{t('leader')}</p>
           <p className="font-medium">{group.leader.name}</p>
           <p className="text-ip-on-surface-variant">{group.leader.phone}</p>
         </div>
         <div className="flex gap-3 pt-3 border-t border-ip-outline/10">
           <button type="button" onClick={() => setFlagOpen(true)} className="flex items-center gap-1 text-sm font-semibold text-ip-error">
-            <AlertIcon className="w-3.5 h-3.5" /> Flag earnings issue
+            <AlertIcon className="w-3.5 h-3.5" /> {t('flagIssue')}
           </button>
           <button type="button" onClick={() => setLeaveOpen(true)} className="text-sm font-semibold text-ip-on-surface-variant">
-            Leave group
+            {t('leaveGroup')}
           </button>
         </div>
       </div>
 
-      <Modal open={leaveOpen} onClose={() => setLeaveOpen(false)} title="Leave this Mutha group?">
+      <Modal open={leaveOpen} onClose={() => setLeaveOpen(false)} title={t('leaveModalTitle')}>
         <div className="space-y-3">
-          <p className="text-sm text-ip-on-surface-variant">
-            You&apos;ll stop receiving jobs through this group. Blocked while you&apos;re assigned to an active job.
-          </p>
+          <p className="text-sm text-ip-on-surface-variant">{t('leaveModalBody')}</p>
           {leaveError && <p className="text-xs text-ip-error">{leaveError}</p>}
           <Button variant="danger" className="w-full" disabled={leaving} onClick={leave}>
-            {leaving ? 'Leaving…' : 'Leave group'}
+            {leaving ? t('leaving') : t('leaveGroup')}
           </Button>
         </div>
       </Modal>
 
-      <Modal open={flagOpen} onClose={() => setFlagOpen(false)} title="Flag an earnings discrepancy">
+      <Modal open={flagOpen} onClose={() => setFlagOpen(false)} title={t('flagModalTitle')}>
         {flagSubmitted ? (
-          <p className="text-sm">
-            Sent directly to FYRO support — your group leader is not notified. We&apos;ll follow up with you.
-          </p>
+          <p className="text-sm">{t('flagSentNotice')}</p>
         ) : (
           <div className="space-y-3">
-            <p className="text-xs text-ip-on-surface-variant">
-              This goes straight to platform support, not your leader.
-            </p>
+            <p className="text-xs text-ip-on-surface-variant">{t('flagHint')}</p>
             <label className="block">
-              <span className="text-xs text-ip-on-surface-variant">Booking ID</span>
+              <span className="text-xs text-ip-on-surface-variant">{t('bookingIdLabel')}</span>
               <input
                 value={bookingId}
                 onChange={(e) => setBookingId(e.target.value)}
@@ -135,7 +131,7 @@ function MuthaGroupSection() {
               />
             </label>
             <label className="block">
-              <span className="text-xs text-ip-on-surface-variant">What happened?</span>
+              <span className="text-xs text-ip-on-surface-variant">{t('whatHappenedLabel')}</span>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -150,7 +146,7 @@ function MuthaGroupSection() {
               disabled={flagSubmitting || !bookingId || !description}
               onClick={submitFlag}
             >
-              {flagSubmitting ? 'Sending…' : 'Send to platform support'}
+              {flagSubmitting ? t('sending') : t('sendToSupport')}
             </Button>
           </div>
         )}
@@ -160,12 +156,13 @@ function MuthaGroupSection() {
 }
 
 export default function MuthaMemberProfilePage() {
+  const t = useTranslations('profile');
   const { user, refetch } = useAuth();
   if (!user) return null;
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-6">Profile</h1>
+      <h1 className="font-heading text-2xl font-bold mb-6">{t('pageTitle')}</h1>
 
       <Card elevation="raised" className="flex items-center gap-4 mb-6">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
@@ -173,7 +170,7 @@ export default function MuthaMemberProfilePage() {
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-text-muted">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
-            {user.accountStatus}
+            {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
         </div>
       </Card>

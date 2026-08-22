@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { Badge } from '@/components/ui/Badge';
 import { TopBar } from '@/components/ui/TopBar';
@@ -24,13 +25,14 @@ import {
 } from '@/components/worker/ProfileSections';
 
 export default function HamaliProfilePage() {
+  const t = useTranslations('profile');
   const { user, refetch } = useAuth();
   const [licenseExpiryAt, setLicenseExpiryAt] = useState<string | null>(user?.licenseExpiryAt ?? null);
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-ip-surface pb-24">
-      <TopBar title="Profile" showBack={false} />
+      <TopBar title={t('pageTitle')} showBack={false} />
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
 
       <div className="ip-card flex items-center gap-4 mb-6">
@@ -39,7 +41,7 @@ export default function HamaliProfilePage() {
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
-            {user.accountStatus}
+            {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
         </div>
       </div>

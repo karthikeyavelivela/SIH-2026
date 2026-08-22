@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
@@ -27,6 +28,7 @@ interface Hub {
 }
 
 function FacilityProfileSection() {
+  const t = useTranslations('facilityProfile');
   const [hub, setHub] = useState<Hub | null>(null);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
@@ -57,7 +59,7 @@ function FacilityProfileSection() {
       setHub((h) => (h ? { ...h, name, address, operatingHours, gateContacts } : h));
       setEditing(false);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not save.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setSaving(false);
     }
@@ -67,25 +69,25 @@ function FacilityProfileSection() {
 
   return (
     <div className="mb-6">
-      <h2 className="font-heading text-lg font-bold mb-3">Facility profile</h2>
+      <h2 className="font-heading text-lg font-bold mb-3">{t('title')}</h2>
       <div className="ip-card space-y-3">
         {!editing ? (
           <>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">Facility name</span>
+              <span className="text-ip-on-surface-variant">{t('facilityName')}</span>
               <span className="font-medium">{hub.name}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">Dock slots</span>
+              <span className="text-ip-on-surface-variant">{t('dockSlots')}</span>
               <span className="font-medium">{hub.totalDockSlots}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">Operating hours</span>
-              <span className="font-medium">{hub.operatingHours || 'Not set'}</span>
+              <span className="text-ip-on-surface-variant">{t('operatingHours')}</span>
+              <span className="font-medium">{hub.operatingHours || t('notSet')}</span>
             </div>
             {hub.gateContacts.length > 0 && (
               <div className="pt-2 border-t border-ip-outline/10">
-                <p className="text-xs text-ip-on-surface-variant mb-1.5">Gate contacts</p>
+                <p className="text-xs text-ip-on-surface-variant mb-1.5">{t('gateContacts')}</p>
                 {hub.gateContacts.map((c, i) => (
                   <p key={i} className="text-sm">
                     {c.name} — {c.phone}
@@ -94,41 +96,41 @@ function FacilityProfileSection() {
               </div>
             )}
             <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
-              Edit
+              {t('edit')}
             </button>
           </>
         ) : (
           <>
             <input
-              placeholder="Facility name"
+              placeholder={t('facilityNamePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
             />
             <input
-              placeholder="Address"
+              placeholder={t('addressPlaceholder')}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
             />
             <input
-              placeholder="Operating hours, e.g. 06:00–22:00 IST"
+              placeholder={t('operatingHoursPlaceholder')}
               value={operatingHours}
               onChange={(e) => setOperatingHours(e.target.value)}
               className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
             />
             <div className="space-y-2">
-              <p className="text-xs text-ip-on-surface-variant">Gate contacts</p>
+              <p className="text-xs text-ip-on-surface-variant">{t('gateContacts')}</p>
               {gateContacts.map((c, i) => (
                 <div key={i} className="flex gap-2">
                   <input
-                    placeholder="Name"
+                    placeholder={t('contactNamePlaceholder')}
                     value={c.name}
                     onChange={(e) => setGateContacts((prev) => prev.map((x, xi) => (xi === i ? { ...x, name: e.target.value } : x)))}
                     className="flex-1 min-h-[36px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
                   />
                   <input
-                    placeholder="Phone"
+                    placeholder={t('contactPhonePlaceholder')}
                     value={c.phone}
                     onChange={(e) => setGateContacts((prev) => prev.map((x, xi) => (xi === i ? { ...x, phone: e.target.value } : x)))}
                     className="flex-1 min-h-[36px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
@@ -143,16 +145,16 @@ function FacilityProfileSection() {
                 onClick={() => setGateContacts((prev) => [...prev, { name: '', phone: '' }])}
                 className="text-xs font-semibold text-ip-primary"
               >
-                + Add contact
+                {t('addContact')}
               </button>
             </div>
             {error && <p className="text-xs text-ip-error">{error}</p>}
             <div className="flex gap-2">
               <button type="button" disabled={saving} onClick={save} className="text-sm font-semibold text-ip-primary">
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? t('saving') : t('save')}
               </button>
               <button type="button" onClick={() => setEditing(false)} className="text-sm text-ip-on-surface-variant">
-                Cancel
+                {t('cancel')}
               </button>
             </div>
           </>
@@ -163,13 +165,14 @@ function FacilityProfileSection() {
 }
 
 export default function WarehouseHubProfilePage() {
+  const t = useTranslations('profile');
   const { user, refetch } = useAuth();
   if (!user) return null;
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Account</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-6">Profile</h1>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('accountEyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-6">{t('pageTitle')}</h1>
 
       <div className="ip-card flex items-center gap-4 mb-6 max-w-2xl">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
@@ -177,7 +180,7 @@ export default function WarehouseHubProfilePage() {
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
-            {user.accountStatus}
+            {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
         </div>
       </div>

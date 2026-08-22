@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
@@ -35,6 +36,7 @@ interface Vehicle {
 }
 
 export default function DriverProfilePage() {
+  const t = useTranslations('profile');
   const { user, refetch } = useAuth();
   const { data, state, reload } = usePolling(() => api.get<{ vehicle: Vehicle }>('/api/vehicles/me').catch((err) => {
     if (err instanceof ApiClientError && err.status === 404) return { vehicle: null as unknown as Vehicle };
@@ -67,7 +69,7 @@ export default function DriverProfilePage() {
 
   return (
     <div className="min-h-screen bg-ip-surface pb-24">
-      <TopBar title="Profile" showBack={false} />
+      <TopBar title={t('pageTitle')} showBack={false} />
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
 
       <div className="ip-card flex items-center gap-4 mb-6">
@@ -76,7 +78,7 @@ export default function DriverProfilePage() {
           <p className="font-heading font-bold text-lg">{user.name}</p>
           <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
-            {user.accountStatus}
+            {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
         </div>
       </div>
@@ -85,12 +87,12 @@ export default function DriverProfilePage() {
       <ProfileIdentitySection />
       <RoleSwitcherSection />
 
-      <h2 className="font-heading text-lg font-bold mb-3">Vehicle</h2>
+      <h2 className="font-heading text-lg font-bold mb-3">{t('vehicle.sectionTitle')}</h2>
       {state === 'loading' && <div className="h-24 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />}
       {state !== 'loading' && !data?.vehicle && (
         <div className="ip-card text-center py-8 mb-6">
           <TruckIcon className="w-8 h-8 text-ip-on-surface-variant/50 mx-auto mb-3" />
-          <p className="text-sm text-ip-on-surface-variant">No vehicle on file yet.</p>
+          <p className="text-sm text-ip-on-surface-variant">{t('vehicle.noneYet')}</p>
         </div>
       )}
       {data?.vehicle && (
@@ -99,17 +101,17 @@ export default function DriverProfilePage() {
             <p className="font-heading font-bold capitalize">{data.vehicle.type.replace('_', ' ')}</p>
             <div className="flex gap-1.5">
               <Badge tone={data.vehicle.verified ? 'success' : 'muted'}>
-                {data.vehicle.verified ? 'Verified' : 'Verification pending'}
+                {data.vehicle.verified ? t('vehicle.verified') : t('vehicle.verificationPending')}
               </Badge>
-              {data.vehicle.complianceStatus === 'non_compliant' && <Badge tone="danger">Compliance failed</Badge>}
+              {data.vehicle.complianceStatus === 'non_compliant' && <Badge tone="danger">{t('vehicle.complianceFailed')}</Badge>}
             </div>
           </div>
-          <p className="text-sm text-ip-on-surface-variant">Reg. {data.vehicle.registrationNumber}</p>
+          <p className="text-sm text-ip-on-surface-variant">{t('vehicle.reg', { reg: data.vehicle.registrationNumber })}</p>
           {!editingVehicle ? (
             <div className="flex items-center justify-between mt-1">
-              <p className="text-sm text-ip-on-surface-variant">Capacity {data.vehicle.capacityKg} kg</p>
+              <p className="text-sm text-ip-on-surface-variant">{t('vehicle.capacity', { kg: data.vehicle.capacityKg })}</p>
               <button type="button" onClick={() => setEditingVehicle(true)} className="text-xs font-semibold text-ip-primary">
-                Edit capacity
+                {t('vehicle.editCapacity')}
               </button>
             </div>
           ) : (
@@ -121,10 +123,10 @@ export default function DriverProfilePage() {
                 className="flex-1 min-h-[40px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
               />
               <button type="button" disabled={vehicleSaving} onClick={saveVehicle} className="text-xs font-semibold text-ip-primary">
-                {vehicleSaving ? 'Saving…' : 'Save'}
+                {vehicleSaving ? t('vehicle.saving') : t('vehicle.save')}
               </button>
               <button type="button" onClick={() => setEditingVehicle(false)} className="text-xs text-ip-on-surface-variant">
-                Cancel
+                {t('vehicle.cancel')}
               </button>
             </div>
           )}
