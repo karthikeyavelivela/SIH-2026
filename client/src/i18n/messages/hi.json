@@ -585,7 +585,13 @@
     "paidAmount": "₹{amount} का भुगतान हो गया।",
     "processing": "प्रोसेस हो रहा है…",
     "payNow": "अभी भुगतान करें",
-    "errorPayment": "भुगतान असफल — फिर से कोशिश करें।"
+    "errorPayment": "भुगतान असफल — फिर से कोशिश करें।",
+    "waitingForBids": "बोली के लिए खुला है — प्रस्तावों का इंतज़ार है",
+    "bidsReceived": "प्राप्त बोलियां",
+    "noBidsYet": "अभी तक कोई बोली नहीं — जल्द ही फिर देखें",
+    "acceptBid": "स्वीकार करें",
+    "accepting": "स्वीकार हो रहा है…",
+    "errorAcceptBid": "यह बोली स्वीकार नहीं हो सकी — फिर से प्रयास करें।"
   },
   "customerHistory": {
     "title": "बुकिंग इतिहास",
@@ -642,7 +648,10 @@
     "booking": "बुक हो रहा है…",
     "confirmAmount": "पुष्टि करें — ₹{amount}",
     "decreaseAria": "घटाएं",
-    "increaseAria": "बढ़ाएं"
+    "increaseAria": "बढ़ाएं",
+    "biddingTitle": "इस बुकिंग को बोली के लिए खोलें",
+    "biddingHint": "ऊपर दिए गए तय किराए के बजाय ड्राइवरों/श्रमिकों को अपनी कीमत सुझाने दें — आप सबसे अच्छा प्रस्ताव चुनें।",
+    "postForBidding": "बोली के लिए पोस्ट करें"
   },
   "muthaMemberJob": {
     "hello": "नमस्ते,",
@@ -697,7 +706,8 @@
     "rejecting": "अस्वीकार हो रहा है…",
     "accept": "स्वीकार करें",
     "accepting": "स्वीकार हो रहा है…",
-    "workersConfirmed": "{required} में से {confirmed} वर्कर पक्के"
+    "workersConfirmed": "{required} में से {confirmed} वर्कर पक्के",
+    "loadBoardLink": "लोड बोर्ड देखें — खुले लोड पर अपनी कीमत की बोली लगाएं"
   },
   "offerCard": {
     "newJobTitle": "नया काम — सिर्फ आपके लिए",
@@ -2121,5 +2131,22 @@
   "offline": {
     "offline": "आप ऑफ़लाइन हैं",
     "offlineDesc": "आपका कनेक्शन वापस आने तक कुछ कार्रवाई काम न करे।"
+  },
+  "loadBoard": {
+    "pageTitle": "लोड बोर्ड",
+    "subtitle": "बोली स्वीकार करने वाले खुले लोड — अपनी खुद की कीमत सुझाएं",
+    "noLoads": "अभी बोली के लिए कोई खुला लोड नहीं है",
+    "load": "लोड",
+    "distanceTrip": "{km} किमी की यात्रा",
+    "referenceFare": "संदर्भ किराया",
+    "yourBidPlaceholder": "आपकी बोली (₹)",
+    "submitting": "सबमिट हो रहा है…",
+    "updateBid": "बोली अपडेट करें",
+    "placeBid": "बोली लगाएं",
+    "messagePlaceholder": "वैकल्पिक नोट (जैसे 10 मिनट में ले जा सकता हूं)",
+    "yourCurrentBid": "आपकी वर्तमान बोली: ₹{amount}",
+    "withdraw": "वापस लें",
+    "errorBid": "बोली नहीं लगाई जा सकी — फिर से प्रयास करें।",
+    "errorWithdraw": "बोली वापस नहीं ली जा सकी — फिर से प्रयास करें।"
   }
 }

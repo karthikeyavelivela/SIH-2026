@@ -585,7 +585,13 @@
     "paidAmount": "Paid ₹{amount}.",
     "processing": "Processing…",
     "payNow": "Pay now",
-    "errorPayment": "Payment failed — try again."
+    "errorPayment": "Payment failed — try again.",
+    "waitingForBids": "Open for bidding — waiting for offers",
+    "bidsReceived": "Bids received",
+    "noBidsYet": "No bids yet — check back soon",
+    "acceptBid": "Accept",
+    "accepting": "Accepting…",
+    "errorAcceptBid": "Could not accept this bid — try again."
   },
   "customerHistory": {
     "title": "Booking history",
@@ -642,7 +648,10 @@
     "booking": "Booking…",
     "confirmAmount": "Confirm — ₹{amount}",
     "decreaseAria": "Decrease",
-    "increaseAria": "Increase"
+    "increaseAria": "Increase",
+    "biddingTitle": "Open this booking for bidding",
+    "biddingHint": "Let drivers/workers propose their own price instead of the fixed fare above — you pick the best offer.",
+    "postForBidding": "Post for bidding"
   },
   "muthaMemberJob": {
     "hello": "Hello,",
@@ -697,7 +706,8 @@
     "rejecting": "Rejecting…",
     "accept": "Accept",
     "accepting": "Accepting…",
-    "workersConfirmed": "{confirmed} of {required} workers confirmed"
+    "workersConfirmed": "{confirmed} of {required} workers confirmed",
+    "loadBoardLink": "Browse the Load Board — bid your own price on open loads"
   },
   "offerCard": {
     "newJobTitle": "New job — just for you",
@@ -2121,5 +2131,22 @@
   "offline": {
     "offline": "You're offline",
     "offlineDesc": "Some actions may not work until your connection is back."
+  },
+  "loadBoard": {
+    "pageTitle": "Load Board",
+    "subtitle": "Open loads accepting bids — propose your own price",
+    "noLoads": "No loads open for bidding right now",
+    "load": "load",
+    "distanceTrip": "{km} km trip",
+    "referenceFare": "Reference fare",
+    "yourBidPlaceholder": "Your bid (₹)",
+    "submitting": "Submitting…",
+    "updateBid": "Update bid",
+    "placeBid": "Place bid",
+    "messagePlaceholder": "Optional note (e.g. can pick up in 10 min)",
+    "yourCurrentBid": "Your current bid: ₹{amount}",
+    "withdraw": "Withdraw",
+    "errorBid": "Could not place bid — try again.",
+    "errorWithdraw": "Could not withdraw bid — try again."
   }
 }

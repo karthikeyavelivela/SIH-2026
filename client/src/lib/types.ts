@@ -42,6 +42,9 @@ export interface Booking {
   distanceKm: number;
   statusHistory: { status: BookingStatus; timestamp: string }[];
   proofPhotos?: { pickup?: string; delivery?: string };
+  // Phase 6.2 — load board with bidding. See server's Booking.openForBidding
+  // doc comment for the full scoping (truck/hamali only, never combo).
+  openForBidding?: boolean;
   createdAt: string;
   // Only present on /api/requests/mine (a worker's own assigned-bookings
   // view) — who they're actually meeting, mirroring the AssignedRow the

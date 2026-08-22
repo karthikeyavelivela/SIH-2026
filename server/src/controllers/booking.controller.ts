@@ -132,8 +132,26 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 
   // Only these fields are ever read from the body — fareBreakdown, status,
   // customerId, or anything else the client sends is silently ignored.
-  const { type, region, cargoDetails, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount, scheduledFor } =
-    req.body;
+  const {
+    type,
+    region,
+    cargoDetails,
+    pickupLocation,
+    dropLocation,
+    requiredVehicles,
+    requiredHamaliCount,
+    scheduledFor,
+    openForBidding,
+  } = req.body;
+
+  // Phase 6.2 — load board with bidding. See Booking.openForBidding's doc
+  // comment for the full scoping rationale (truck/hamali only, never
+  // combo/scheduled — a single winning bidder maps onto the existing
+  // single-actor accept functions, a combo/mutha crew winning bid does not).
+  if (openForBidding) {
+    if (type === 'combo') throw new ApiError(400, 'Bidding is not available for combo bookings yet');
+    if (scheduledFor) throw new ApiError(400, 'Bidding is not available for scheduled bookings');
+  }
 
   // Phase 6 — scheduled booking. scheduledFor is optional; when present it
   // must be far enough out that "scheduled" actually means something
@@ -176,12 +194,18 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     distanceKm,
     statusHistory: [{ status: initialStatus, timestamp: new Date() }],
     scheduledFor: scheduledForDate,
+    openForBidding: !!openForBidding,
   });
 
   // A scheduled booking's matching is deliberately deferred —
   // scheduledBooking.service.ts's release loop starts offers once
-  // scheduledFor arrives, not now.
-  if (!scheduledForDate) {
+  // scheduledFor arrives, not now. An open-for-bidding booking's matching
+  // is deliberately skipped entirely — Phase 3's push-offer engine offers
+  // at the fixed computed fareBreakdown.total, which doesn't make sense
+  // for a booking whose whole point is letting workers propose their own
+  // price instead. It's still visible on the ordinary browse list AND on
+  // GET /api/loadboard; workers place a Bid instead of hitting accept.
+  if (!scheduledForDate && !booking.openForBidding) {
     // Kick off Phase 3's sequential-timed-offer flow immediately — fire and
     // forget from the HTTP handler's perspective (the booking is already
     // created and returned to the customer regardless of matching progress;

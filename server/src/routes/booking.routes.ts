@@ -57,6 +57,10 @@ bookingRouter.post(
     // (30 min .. 14 days out) are enforced again in the controller with a
     // friendlier per-case message; this is just the shape check.
     body('scheduledFor').optional().isISO8601(),
+    // Phase 6.2 — load board with bidding. Absent/false = unchanged
+    // existing behaviour; the combo/scheduled scope restriction is
+    // enforced in the controller (needs both fields together to check).
+    body('openForBidding').optional().isBoolean(),
   ],
   validate,
   bookingController.createBooking

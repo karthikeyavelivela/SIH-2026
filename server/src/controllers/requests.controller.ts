@@ -84,6 +84,12 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       assignedDriverIds: { $size: 0 },
       rejectedByUserIds: { $ne: userId },
       'requiredVehicles.0.capacityKg': { $lte: vehicle.capacityKg },
+      // Phase 6.2 — a booking open for bidding isn't flat-fare acceptable
+      // (bookingAssignment.service.ts's acceptAsDriver rejects it with a
+      // 409 either way); excluded here too so this browse list never shows
+      // a doomed "Accept" button for one — GET /api/loadboard is where it
+      // belongs, with a bid form instead.
+      openForBidding: { $ne: true },
     };
     // Same two-tier search as matching.service: live GPS at the normal
     // radius, plus a second wider pass anchored on the driver's own
@@ -126,6 +132,8 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       type: { $in: ['hamali', 'combo'] as const },
       rejectedByUserIds: { $ne: userId },
       $expr: { $lt: [{ $size: '$assignedHamaliIds' }, '$requiredHamaliCount'] },
+      // See the matching comment on driverBase above.
+      openForBidding: { $ne: true },
     };
     const [live, willing] = await Promise.all([
       Booking.find({
@@ -159,6 +167,8 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       type: { $in: ['hamali', 'combo'] },
       rejectedByUserIds: { $ne: userId },
       $expr: { $lt: [{ $size: '$assignedHamaliIds' }, '$requiredHamaliCount'] },
+      // See the matching comment on driverBase above.
+      openForBidding: { $ne: true },
     })
       .sort({ createdAt: -1 })
       .limit(MUTHA_FEED_SCAN_LIMIT);

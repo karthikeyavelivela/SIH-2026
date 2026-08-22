@@ -75,6 +75,12 @@ export async function acceptAsDriver(userId: string, bookingId: string): Promise
       type: { $in: ['truck', 'combo'] },
       assignedDriverIds: { $size: 0 },
       'requiredVehicles.0.capacityKg': { $lte: vehicle.capacityKg },
+      // A booking still open for bidding (Phase 6.2) is never flat-fare
+      // acceptable this way — loadboard.controller.ts's acceptBid is the
+      // only path that assigns one of these, and it clears
+      // openForBidding first, so this guard never blocks a legitimate
+      // bid-win flowing through this same function.
+      openForBidding: { $ne: true },
     },
     { $push: { assignedDriverIds: userId } },
     { new: true }
@@ -104,6 +110,8 @@ export async function acceptAsHamaliSolo(userId: string, bookingId: string): Pro
       status: openStatus,
       type: { $in: ['hamali', 'combo'] },
       $expr: { $lt: [{ $size: '$assignedHamaliIds' }, '$requiredHamaliCount'] },
+      // See the matching comment in acceptAsDriver above.
+      openForBidding: { $ne: true },
     },
     { $push: { assignedHamaliIds: userId } },
     { new: true }
@@ -150,6 +158,8 @@ export async function acceptAsMuthaLeader(
       $expr: {
         $lte: [{ $add: [{ $size: '$assignedHamaliIds' }, memberIds.length] }, '$requiredHamaliCount'],
       },
+      // See the matching comment in acceptAsDriver above.
+      openForBidding: { $ne: true },
     },
     { $push: { assignedHamaliIds: { $each: memberIds } }, $set: { assignedMuthaId: mutha._id } },
     { new: true }

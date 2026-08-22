@@ -6,10 +6,11 @@ import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useIncomingOffer } from '@/lib/useIncomingOffer';
 import { Booking } from '@/lib/types';
+import Link from 'next/link';
 import { RequestCard } from '@/components/worker/RequestCard';
 import { OfferCard } from '@/components/worker/OfferCard';
 import { TopBar } from '@/components/ui/TopBar';
-import { LayersIcon, AlertIcon } from '@/components/ui/icons';
+import { LayersIcon, AlertIcon, SparkleIcon } from '@/components/ui/icons';
 
 export default function HamaliRequestsPage() {
   const t = useTranslations('workerRequests');
@@ -43,7 +44,15 @@ export default function HamaliRequestsPage() {
     <div className="min-h-screen bg-ip-surface pb-24">
       <TopBar title={t('pageTitle')} showBack={false} />
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
-      <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitleHamali')}</p>
+      <p className="text-sm text-ip-on-surface-variant mb-4">{t('subtitleHamali')}</p>
+
+      <Link
+        href="/hamali/loadboard"
+        className="flex items-center gap-2.5 mb-6 p-3 rounded-ip-card bg-secondary/10 text-secondary-700 hover:bg-secondary/15 transition-colors duration-fast text-sm font-semibold"
+      >
+        <SparkleIcon className="w-4 h-4 flex-shrink-0" />
+        {t('loadBoardLink')}
+      </Link>
 
       {offer && (
         <div className="mb-6">

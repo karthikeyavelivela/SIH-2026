@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
+import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
 import { useBookingSocket } from '@/lib/useBookingSocket';
 import { Payment } from '@/lib/types';
@@ -31,6 +32,78 @@ interface BookingDetail {
   dropLocation: { address: string; coordinates: [number, number] };
   statusHistory: { status: string; timestamp: string }[];
   proofPhotos?: { pickup?: string; delivery?: string };
+  // Phase 6.2 — load board with bidding.
+  openForBidding?: boolean;
+}
+
+interface Bid {
+  _id: string;
+  amount: number;
+  message?: string;
+  bidderId: { _id: string; name: string; ratingAvg: number; ratingCount: number };
+}
+
+// Phase 6.2 — shown on a customer's own track page only while
+// booking.openForBidding is still true (cleared the instant one bid is
+// accepted, same booking object the rest of this page already polls/
+// live-updates). Cheapest-first, matches loadboard.controller.ts's own
+// listBidsForBooking sort — this is a decision screen, not just a log.
+function BidsReviewSection({ bookingId, onAccepted }: { bookingId: string; onAccepted: (booking: BookingDetail) => void }) {
+  const t = useTranslations('trackBooking');
+  const { data, state } = usePolling(() => api.get<{ bids: Bid[] }>(`/api/loadboard/${bookingId}/bids`), 6000);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function accept(bidId: string) {
+    setAcceptingId(bidId);
+    setError(null);
+    try {
+      const res = await api.post<{ booking: BookingDetail }>(`/api/loadboard/${bookingId}/bids/${bidId}/accept`);
+      onAccepted(res.booking);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : t('errorAcceptBid'));
+    } finally {
+      setAcceptingId(null);
+    }
+  }
+
+  const bids = data?.bids ?? [];
+
+  return (
+    <Card elevation="raised" className="mb-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('bidsReceived')}</p>
+      {state === 'loading' && !data && <div className="h-16 rounded-lg bg-surface animate-pulse" />}
+      {state !== 'loading' && bids.length === 0 && (
+        <p className="text-sm text-text-muted">{t('noBidsYet')}</p>
+      )}
+      {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
+      <div className="space-y-3">
+        {bids.map((bid) => (
+          <div key={bid._id} className="flex items-center justify-between gap-3 p-3 rounded-md bg-surface">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">{bid.bidderId.name}</p>
+              {bid.message && <p className="text-xs text-text-muted truncate">{bid.message}</p>}
+              <span className="inline-flex items-center gap-0.5 mt-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <StarIcon
+                    key={i}
+                    className={`w-3 h-3 ${i < Math.round(bid.bidderId.ratingAvg) ? 'text-primary-600' : 'text-border-strong'}`}
+                    fill={i < Math.round(bid.bidderId.ratingAvg) ? 'currentColor' : 'none'}
+                  />
+                ))}
+              </span>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="font-heading font-bold mb-1.5">₹{bid.amount}</p>
+              <Button className="!px-4 !py-2 !text-xs !min-h-0" disabled={acceptingId !== null} onClick={() => accept(bid._id)}>
+                {acceptingId === bid._id ? t('accepting') : t('acceptBid')}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
 }
 
 const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
@@ -295,8 +368,16 @@ export default function TrackBookingPage() {
       {(booking.status === 'requested' || booking.status === 'searching') && (
         <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-primary/10 text-sm text-primary-600">
           <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-600/30 border-t-primary-600 animate-spin flex-shrink-0" />
-          {booking.status === 'requested' ? t('waitingRequested') : t('waitingSearching')}
+          {booking.openForBidding
+            ? t('waitingForBids')
+            : booking.status === 'requested'
+              ? t('waitingRequested')
+              : t('waitingSearching')}
         </div>
+      )}
+
+      {booking.openForBidding && ['requested', 'searching'].includes(booking.status) && (
+        <BidsReviewSection bookingId={bookingId} onAccepted={setBooking} />
       )}
 
       <RouteMap

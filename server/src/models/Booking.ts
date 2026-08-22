@@ -51,6 +51,21 @@ export interface IBooking {
   // deliberately NOT started until scheduledBooking.service.ts's release
   // loop finds it due — see that file for the mechanism.
   scheduledFor?: Date;
+  // Phase 6.2 — load board with bidding. Absent/false = unchanged existing
+  // behaviour (Phase 3's sequential-timed-offer push flow at the fixed
+  // computed fareBreakdown.total). True = the customer chose to let
+  // drivers/hamali_solo workers bid their own price instead of the fixed
+  // one — createBooking skips startVehicleOffers/startHamaliOffers for
+  // these (see loadboard.controller.ts), the booking still appears on the
+  // ordinary GET /api/requests browse list (nothing hides it there), but
+  // also appears on GET /api/loadboard and workers submit a Bid instead of
+  // hitting the flat-fare accept button. Scoped to type 'truck' or 'hamali'
+  // only, never 'combo' or a 'scheduled' booking — a single bidder winning
+  // maps cleanly onto the existing single-actor acceptAsDriver/
+  // acceptAsHamaliSolo functions; a combo/mutha crew winning bid would need
+  // a genuinely different multi-party acceptance flow, out of scope here
+  // and left as a documented follow-up, not silently half-supported.
+  openForBidding?: boolean;
   createdAt: Date;
 }
 
@@ -104,6 +119,7 @@ const bookingSchema = new Schema<IBooking>(
       delivery: { type: String },
     },
     scheduledFor: { type: Date },
+    openForBidding: { type: Boolean, default: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

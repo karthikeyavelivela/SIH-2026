@@ -259,6 +259,11 @@ function BookForm() {
   // Phase 6 — scheduled booking. '' = instant (matches API's "absent =
   // instant" contract exactly — never send an empty string as scheduledFor).
   const [scheduledFor, setScheduledFor] = useState('');
+  // Phase 6.2 — load board with bidding. Only meaningful for truck/hamali
+  // (never combo — see Booking.openForBidding's server-side doc comment)
+  // and only for an instant booking (never combined with scheduledFor,
+  // enforced again server-side in createBooking).
+  const [openForBidding, setOpenForBidding] = useState(false);
   const quoteDebounce = useRef<ReturnType<typeof setTimeout>>();
 
   const needsWeight = type !== 'hamali';
@@ -318,6 +323,7 @@ function BookForm() {
         requiredVehicles: needsWeight ? [{ capacityKg: Number(weightKg), count: 1 }] : [],
         requiredHamaliCount: needsHamali ? hamaliCount : 0,
         scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
+        openForBidding: type !== 'combo' && !scheduledFor ? openForBidding : undefined,
       });
       router.push(`/customer/track/${res.booking._id}`);
     } catch (err) {
@@ -512,6 +518,21 @@ function BookForm() {
 
           <FareCard state={fareState} fare={fare} errorMessage={fareError} />
 
+          {type !== 'combo' && !scheduledFor && (
+            <label className="ip-card flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={openForBidding}
+                onChange={(e) => setOpenForBidding(e.target.checked)}
+                className="mt-0.5 w-5 h-5 rounded border-ip-outline/40 text-ip-primary focus:ring-ip-primary/30"
+              />
+              <div>
+                <p className="text-sm font-semibold text-ip-on-surface">{t('biddingTitle')}</p>
+                <p className="text-xs text-ip-on-surface-variant">{t('biddingHint')}</p>
+              </div>
+            </label>
+          )}
+
           {fareState === 'ready' && pickup && drop && (
             <PricingQuoteWidget
               region={REGION}
@@ -528,7 +549,13 @@ function BookForm() {
           )}
 
           <Button type="submit" disabled={submitting || fareState !== 'ready'} className="w-full" size="lg">
-            {submitting ? t('booking') : fare ? t('confirmAmount', { amount: fare.total }) : t('confirmBooking')}
+            {submitting
+              ? t('booking')
+              : openForBidding && type !== 'combo' && !scheduledFor
+                ? t('postForBidding')
+                : fare
+                  ? t('confirmAmount', { amount: fare.total })
+                  : t('confirmBooking')}
           </Button>
         </form>
       </div>
