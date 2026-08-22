@@ -172,6 +172,13 @@ export interface InsurancePlan {
   description: string;
   forRoles: string[];
   active: boolean;
+  premium: number;
+  defaultTrigger?: {
+    condition: ParametricCondition;
+    thresholdValue: number;
+    periodDays: number;
+    payoutAmount: number;
+  };
 }
 
 export interface InsurancePolicyWithPlan {
@@ -211,6 +218,8 @@ export interface ParametricTriggerStatus {
   periodStart: string;
   periodEnd: string;
   paidAt?: string;
+  payoutId?: string;
+  payoutFailureReason?: string;
   fromExistingEvent: boolean;
 }
 
@@ -222,6 +231,7 @@ export interface ParametricTriggerEvent {
   actualValue: number;
   triggered: boolean;
   paidAt?: string;
+  payoutFailureReason?: string;
 }
 
 export interface ParametricTriggerHistory {

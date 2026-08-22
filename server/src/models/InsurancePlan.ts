@@ -19,6 +19,20 @@ export interface IInsurancePlan {
   // driver/hamali_solo/mutha_member, not customer/admin.
   forRoles: Role[];
   active: boolean;
+  premium: number;
+  // Phase 3 (AUDIT_REPORT.md remediation) — only meaningful when
+  // type:'parametric'. Enrolling in a parametric plan (insurance.controller.ts's
+  // enroll handler) creates the worker's InsurancePolicy AND a real
+  // ParametricTrigger from these values in the same call — a plan with no
+  // default trigger config would enroll someone into "automatic payouts"
+  // that can never actually fire, which is exactly the kind of built-but-
+  // inert feature this whole remediation exists to close.
+  defaultTrigger?: {
+    condition: 'earnings_below_threshold' | 'days_unable_to_work';
+    thresholdValue: number;
+    periodDays: number;
+    payoutAmount: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +60,13 @@ const insurancePlanSchema = new Schema<IInsurancePlan>(
       ],
     },
     active: { type: Boolean, default: true },
+    premium: { type: Number, required: true, min: 0 },
+    defaultTrigger: {
+      condition: { type: String, enum: ['earnings_below_threshold', 'days_unable_to_work'] },
+      thresholdValue: { type: Number, min: 0 },
+      periodDays: { type: Number, min: 1 },
+      payoutAmount: { type: Number, min: 0 },
+    },
   },
   { timestamps: true }
 );

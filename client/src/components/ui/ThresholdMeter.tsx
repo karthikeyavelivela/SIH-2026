@@ -5,23 +5,49 @@ interface ThresholdMeterProps {
   /** e.g. "If you earn below ₹8,000 this month, ₹2,000 is paid automatically — no claim needed." */
   explainer: string;
   triggered?: boolean;
+  /**
+   * Present when triggered but NOT auto-paid (kill switch, a cap, or a
+   * failed disbursement retry — see parametricInsurance.service.ts's
+   * disburseParametricPayout). Without this, the meter's own "payout
+   * sent" label was claiming money moved even on the exact runs where
+   * Phase 1.4's caps/kill-switch left it pending for a human — the
+   * literal thing this whole remediation exists to stop happening.
+   */
+  payoutFailureReason?: string;
 }
 
 // Parametric-insurance trigger, shown as a plain-language threshold bar —
 // per the spec: "no claims process... show the trigger visually as a
 // threshold meter in plain language." Bar fills from 0 to thresholdValue's
 // position; currentValue's marker shows where the person actually is.
-export function ThresholdMeter({ currentValue, thresholdValue, unit = '₹', explainer, triggered = false }: ThresholdMeterProps) {
+export function ThresholdMeter({
+  currentValue,
+  thresholdValue,
+  unit = '₹',
+  explainer,
+  triggered = false,
+  payoutFailureReason,
+}: ThresholdMeterProps) {
   const scaleMax = Math.max(currentValue, thresholdValue) * 1.4 || 1;
   const currentPct = Math.min(100, (currentValue / scaleMax) * 100);
   const thresholdPct = Math.min(100, (thresholdValue / scaleMax) * 100);
+  const autoPaid = triggered && !payoutFailureReason;
 
   return (
     <div className="ip-card">
       <div className="flex items-center justify-between mb-2">
         <p className="text-ip-body-sm font-semibold uppercase tracking-wide text-ip-on-surface-variant">Parametric trigger</p>
-        {triggered && <span className="text-xs font-bold text-emerald-700">Triggered — payout sent</span>}
+        {autoPaid && <span className="text-xs font-bold text-emerald-700">Triggered — payout sent</span>}
+        {triggered && payoutFailureReason && (
+          <span className="text-xs font-bold text-amber-700">Triggered — pending review</span>
+        )}
       </div>
+      {triggered && payoutFailureReason && (
+        <p className="text-xs text-amber-700 bg-amber-50 rounded-ip-input px-3 py-2 mb-2">
+          Your condition was met, but the automatic payout is on hold: {payoutFailureReason} A human will review and
+          release it.
+        </p>
+      )}
       <div className="relative h-3 rounded-ip-pill bg-ip-surface-container-high mb-2 mt-4">
         <div
           className={`absolute inset-y-0 left-0 rounded-ip-pill ${triggered ? 'bg-emerald-500' : 'bg-ip-primary'}`}

@@ -1,12 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
 import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { WalletIcon, StarIcon } from '@/components/ui/icons';
+import { WalletIcon, StarIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 export default function MuthaMemberEarningsPage() {
   const { data, state } = usePolling(() => api.get<EarningsResponse>('/api/earnings/me'), 30000);
@@ -29,6 +30,22 @@ export default function MuthaMemberEarningsPage() {
       )}
 
       <IncentiveProgressBar accent="secondary" />
+
+      {/* Phase 3.1 — /mutha-member/insurance existed as a route with no
+          nav entry anywhere (not even in the bottom tab bar), reachable
+          only by typing the URL directly. */}
+      <Link
+        href="/mutha-member/insurance"
+        className="flex items-center justify-between p-4 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base mb-6"
+      >
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
+            <ShieldIcon className="w-5 h-5" />
+          </span>
+          <p className="text-sm font-semibold">Insurance & protection</p>
+        </div>
+        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+      </Link>
 
       <h2 className="font-heading text-lg font-bold mb-3">Order history</h2>
       {state === 'loading' && <div className="h-24 rounded-lg bg-surface animate-pulse" />}

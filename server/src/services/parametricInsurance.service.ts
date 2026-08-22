@@ -5,8 +5,23 @@ import { Booking, IBooking } from '../models/Booking';
 import { InsurancePolicy } from '../models/InsurancePolicy';
 import { ParametricTrigger, IParametricTrigger } from '../models/ParametricTrigger';
 import { Payout } from '../models/Payout';
+import { PlatformSetting, PLATFORM_SETTING_ID } from '../models/PlatformSetting';
 import { writeLedgerEntry } from './ledger.service';
 import { writeAuditLog } from './audit.service';
+
+/**
+ * Two kill switches, either one halts every automatic payout: the env var
+ * (deploy-time, requires a redeploy to flip) and this DB-backed setting
+ * (runtime, an admin toggles it from /admin/insurance without redeploying —
+ * see insuranceAdmin.controller.ts's updateParametricKillSwitch). Missing
+ * document = enabled (the default), same "absent means default" convention
+ * as everything else in this codebase.
+ */
+async function parametricPayoutsEnabled(): Promise<boolean> {
+  if (!env.PARAMETRIC_PAYOUTS_ENABLED) return false;
+  const setting = await PlatformSetting.findById(PLATFORM_SETTING_ID).lean();
+  return setting?.parametricPayoutsEnabled ?? true;
+}
 
 const MS_PER_DAY = 86_400_000;
 
@@ -196,7 +211,7 @@ async function disburseParametricPayout(
     return { payoutId: payout._id, failureReason: reason };
   }
 
-  if (!env.PARAMETRIC_PAYOUTS_ENABLED) {
+  if (!(await parametricPayoutsEnabled())) {
     return leaveForHumanReview('Automatic parametric payouts are currently disabled platform-wide (kill switch).');
   }
 

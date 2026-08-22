@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import type {
@@ -286,6 +286,7 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
 export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
   const { data, state, reload } = usePolling(() => api.get<InsuranceMeResponse>('/api/insurance/me'), 30000);
   const [reportOpen, setReportOpen] = useState(false);
+  const [enrollOpen, setEnrollOpen] = useState(false);
 
   const activePolicies = useMemo(() => (data?.policies ?? []).filter((p) => p.status === 'active'), [data]);
 
@@ -326,9 +327,14 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
       <div className="px-5 pt-5">
         <p className="text-sm text-text-muted mb-6">Your coverage, claims, and automatic payouts.</p>
 
-        <Button variant="danger" size="lg" className="w-full mb-8" onClick={() => setReportOpen(true)}>
-          Report New Incident
-        </Button>
+        <div className="flex gap-3 mb-8">
+          <Button size="lg" className="flex-1" onClick={() => setEnrollOpen(true)}>
+            Explore plans
+          </Button>
+          <Button variant="danger" size="lg" className="flex-1" onClick={() => setReportOpen(true)}>
+            Report New Incident
+          </Button>
+        </div>
 
         {state === 'loading' && (
           <div className="space-y-4 mb-8">
@@ -361,26 +367,45 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
               </div>
             )}
 
-            {(data?.parametricTriggers.length ?? 0) > 0 && (
-              <>
-                <h2 className="font-heading text-lg font-bold mb-3">Parametric Protection</h2>
-                <div className="space-y-4 mb-8">
-                  {data!.parametricTriggers.map((trigger) => (
-                    <ThresholdMeter
-                      key={trigger.triggerId}
-                      currentValue={trigger.actualValue}
-                      thresholdValue={trigger.thresholdValue}
-                      triggered={trigger.triggered}
-                      explainer={
-                        `If you earn below ₹${trigger.thresholdValue.toLocaleString('en-IN')} over ${trigger.periodDays} days, ` +
-                        `₹${trigger.payoutAmount.toLocaleString('en-IN')} is paid automatically — no claim needed.` +
-                        (trigger.triggered && trigger.paidAt ? ` Paid on ${formatDate(trigger.paidAt)}.` : '')
-                      }
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+            {(() => {
+              // 'days_unable_to_work' has no real backing data source
+              // anywhere in this codebase (see parametricInsurance.service.ts's
+              // doc comment) — it always evaluates actualValue:0,
+              // triggered:false. Showing a meter for it would present a
+              // condition as "being tracked" when nothing is actually
+              // computing it. Only 'earnings_below_threshold' — the one
+              // condition that's real — gets a meter.
+              const realTriggers = (data?.parametricTriggers ?? []).filter((t) => t.condition === 'earnings_below_threshold');
+              const comingSoonCount = (data?.parametricTriggers.length ?? 0) - realTriggers.length;
+              if (realTriggers.length === 0 && comingSoonCount === 0) return null;
+              return (
+                <>
+                  <h2 className="font-heading text-lg font-bold mb-3">Parametric Protection</h2>
+                  <div className="space-y-4 mb-8">
+                    {realTriggers.map((trigger) => (
+                      <ThresholdMeter
+                        key={trigger.triggerId}
+                        currentValue={trigger.actualValue}
+                        thresholdValue={trigger.thresholdValue}
+                        triggered={trigger.triggered}
+                        payoutFailureReason={trigger.payoutFailureReason}
+                        explainer={
+                          `If you earn below ₹${trigger.thresholdValue.toLocaleString('en-IN')} over ${trigger.periodDays} days, ` +
+                          `₹${trigger.payoutAmount.toLocaleString('en-IN')} is paid automatically — no claim needed.` +
+                          (trigger.triggered && trigger.paidAt ? ` Paid on ${formatDate(trigger.paidAt)}.` : '')
+                        }
+                      />
+                    ))}
+                    {comingSoonCount > 0 && (
+                      <div className="ip-card text-sm text-text-muted">
+                        Coverage for time unable to work is coming soon — not tracked yet, so it isn&apos;t shown as active
+                        here.
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
 
             <h2 className="font-heading text-lg font-bold mb-3">Claim Status</h2>
             {(data?.claims.length ?? 0) === 0 ? (
@@ -443,6 +468,125 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
         policies={activePolicies}
         onFiled={reload}
       />
+      <EnrollModal open={enrollOpen} onClose={() => setEnrollOpen(false)} enrolledPlanIds={activePolicies.map((p) => p.planId)} onEnrolled={reload} />
     </div>
+  );
+}
+
+interface AvailablePlan {
+  _id: string;
+  name: string;
+  type: 'standard' | 'parametric';
+  category: InsurancePlanCategory;
+  coverageAmount: number;
+  description: string;
+  premium: number;
+  defaultTrigger?: { condition: string; thresholdValue: number; periodDays: number; payoutAmount: number };
+}
+
+// Phase 3.2 — enrolment with explicit consent, and plain-language framing
+// for a worker with limited financial literacy for the parametric case,
+// per the spec's own example copy.
+function EnrollModal({
+  open,
+  onClose,
+  enrolledPlanIds,
+  onEnrolled,
+}: {
+  open: boolean;
+  onClose: () => void;
+  enrolledPlanIds: string[];
+  onEnrolled: () => void;
+}) {
+  const [plans, setPlans] = useState<AvailablePlan[] | null>(null);
+  const [selected, setSelected] = useState<AvailablePlan | null>(null);
+  const [consent, setConsent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [enrolling, setEnrolling] = useState(false);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setSelected(null);
+    setConsent(false);
+    setError(null);
+    setDone(false);
+    api
+      .get<{ plans: AvailablePlan[] }>('/api/insurance/plans')
+      .then((res) => setPlans(res.plans.filter((p) => !enrolledPlanIds.includes(p._id))))
+      .catch(() => setPlans([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  async function enroll() {
+    if (!selected) return;
+    setEnrolling(true);
+    setError(null);
+    try {
+      await api.post('/api/insurance/enroll', { planId: selected._id, consent: true });
+      setDone(true);
+      onEnrolled();
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Could not enrol — try again.');
+    } finally {
+      setEnrolling(false);
+    }
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Explore insurance plans">
+      {done ? (
+        <p className="text-sm">You&apos;re enrolled. It now shows under Active Coverage.</p>
+      ) : selected ? (
+        <div className="space-y-4">
+          <button type="button" onClick={() => setSelected(null)} className="text-xs font-semibold text-ip-primary">
+            ← Back to plans
+          </button>
+          <div className="ip-card">
+            <p className="font-heading font-bold mb-1">{selected.name}</p>
+            <p className="text-sm text-text-muted mb-3">{selected.description}</p>
+            {selected.type === 'parametric' && selected.defaultTrigger && (
+              <p className="text-sm bg-ip-primary/5 text-ip-on-surface rounded-ip-input px-3 py-2.5 mb-3">
+                If you earn below ₹{selected.defaultTrigger.thresholdValue.toLocaleString('en-IN')} over{' '}
+                {selected.defaultTrigger.periodDays} days, ₹{selected.defaultTrigger.payoutAmount.toLocaleString('en-IN')}{' '}
+                is paid to you automatically. No claim. No paperwork.
+              </p>
+            )}
+            <div className="flex justify-between text-sm">
+              <span className="text-text-muted">Coverage</span>
+              <span className="font-semibold">₹{selected.coverageAmount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-text-muted">Premium</span>
+              <span className="font-semibold">₹{selected.premium.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+          <label className="flex items-start gap-2.5 text-sm">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
+            <span>I understand the premium and coverage terms above and want to enrol.</span>
+          </label>
+          {error && <p className="text-xs text-red-600">{error}</p>}
+          <Button className="w-full" disabled={!consent || enrolling} onClick={enroll}>
+            {enrolling ? 'Enrolling…' : 'Confirm enrolment'}
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {plans === null && <p className="text-sm text-text-muted">Loading…</p>}
+          {plans?.length === 0 && <p className="text-sm text-text-muted">No new plans available — you&apos;re already enrolled in everything offered to your role.</p>}
+          {plans?.map((p) => (
+            <button
+              key={p._id}
+              type="button"
+              onClick={() => setSelected(p)}
+              className="w-full text-left ip-card hover:bg-ip-surface-container transition-colors"
+            >
+              <p className="font-heading font-bold">{p.name}</p>
+              <p className="text-xs text-text-muted">{p.type === 'parametric' ? 'Parametric — automatic payout' : 'Standard — file a claim'} · ₹{p.premium}/mo</p>
+            </button>
+          ))}
+        </div>
+      )}
+    </Modal>
   );
 }

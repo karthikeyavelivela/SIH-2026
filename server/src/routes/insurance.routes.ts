@@ -16,6 +16,13 @@ export const insuranceRouter = Router();
 insuranceRouter.use(verifyJwt, requireRole(...WORKER_ROLES));
 
 insuranceRouter.get('/me', insuranceController.getMyInsurance);
+insuranceRouter.get('/plans', insuranceController.listAvailablePlans);
+insuranceRouter.post(
+  '/enroll',
+  [body('planId').isMongoId(), body('consent').isBoolean()],
+  validate,
+  insuranceController.enrollInPlan
+);
 
 insuranceRouter.post(
   '/claims',
@@ -65,3 +72,51 @@ adminInsuranceRouter.patch(
 );
 
 adminInsuranceRouter.post('/parametric/run-check', insuranceController.runParametricCheck);
+
+const PLAN_CATEGORIES = ['commercial_auto', 'work_compensation', 'cargo_transit'];
+const ROLES = ['customer', 'driver', 'hamali_solo', 'mutha_leader', 'mutha_member', 'manager', 'admin', 'fleet_owner', 'warehouse_hub'];
+const triggerBodyRules = [
+  body('defaultTrigger.condition').if(body('type').equals('parametric')).isIn(['earnings_below_threshold', 'days_unable_to_work']),
+  body('defaultTrigger.thresholdValue').if(body('type').equals('parametric')).isFloat({ min: 0 }),
+  body('defaultTrigger.periodDays').if(body('type').equals('parametric')).isInt({ min: 1, max: 365 }),
+  body('defaultTrigger.payoutAmount').if(body('type').equals('parametric')).isFloat({ min: 0, max: 100_000 }),
+];
+
+adminInsuranceRouter.get('/plans', insuranceController.listAllPlans);
+adminInsuranceRouter.post(
+  '/plans',
+  [
+    body('name').isString().trim().isLength({ min: 1, max: 100 }),
+    body('type').isIn(['standard', 'parametric']),
+    body('category').isIn(PLAN_CATEGORIES),
+    body('coverageAmount').isFloat({ min: 0 }),
+    body('description').isString().trim().isLength({ min: 1, max: 1000 }),
+    body('forRoles').isArray({ min: 1 }),
+    body('forRoles.*').isIn(ROLES),
+    body('premium').isFloat({ min: 0 }),
+    ...triggerBodyRules,
+  ],
+  validate,
+  insuranceController.createPlan
+);
+adminInsuranceRouter.patch(
+  '/plans/:id',
+  [
+    param('id').isMongoId(),
+    body('name').optional().isString().trim().isLength({ min: 1, max: 100 }),
+    body('active').optional().isBoolean(),
+    body('coverageAmount').optional().isFloat({ min: 0 }),
+    body('description').optional().isString().trim().isLength({ min: 1, max: 1000 }),
+    body('premium').optional().isFloat({ min: 0 }),
+  ],
+  validate,
+  insuranceController.updatePlan
+);
+
+adminInsuranceRouter.get('/payout-monitor', insuranceController.getPayoutMonitor);
+adminInsuranceRouter.patch(
+  '/kill-switch',
+  [body('enabled').isBoolean()],
+  validate,
+  insuranceController.updateKillSwitch
+);

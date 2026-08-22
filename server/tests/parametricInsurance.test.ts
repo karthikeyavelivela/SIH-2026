@@ -22,6 +22,7 @@ async function makeDriverWithPolicy(phone: string) {
     coverageAmount: 2500,
     description: 'x',
     forRoles: ['driver'],
+    premium: 100,
   });
   const policy = await InsurancePolicy.create({
     userId: driver._id,

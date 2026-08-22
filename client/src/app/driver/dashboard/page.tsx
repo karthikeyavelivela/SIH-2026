@@ -15,7 +15,7 @@ import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { TopBar } from '@/components/ui/TopBar';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { DRIVER_WILLING_RADIUS_KM } from '@/lib/matchingConstants';
-import { TruckIcon, WalletIcon, StarIcon, ChevronRightIcon, MapPinIcon } from '@/components/ui/icons';
+import { TruckIcon, WalletIcon, StarIcon, ChevronRightIcon, MapPinIcon, ShieldIcon } from '@/components/ui/icons';
 
 function startOfToday(): number {
   const d = new Date();
@@ -144,12 +144,25 @@ export default function DriverDashboardPage() {
           <ServiceAreaCard initial={willingLocation} radiusKm={DRIVER_WILLING_RADIUS_KM} accent="primary" />
         )}
 
-        <Link href="/driver/earnings" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base">
+        <Link href="/driver/earnings" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-3">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
               <WalletIcon className="w-5 h-5" />
             </span>
             <p className="text-sm font-semibold">View earnings</p>
+          </div>
+          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        </Link>
+
+        {/* Phase 3.1 — a worker should find this without being told it
+            exists, not buried in a settings menu. Same visual weight as
+            the earnings link right above it. */}
+        <Link href="/driver/insurance" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+              <ShieldIcon className="w-5 h-5" />
+            </span>
+            <p className="text-sm font-semibold">Insurance & protection</p>
           </div>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>

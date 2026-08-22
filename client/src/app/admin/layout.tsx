@@ -45,6 +45,7 @@ function navItems(role: string, permissions: string[]): SidebarNavItem[] {
       show: isAdmin,
     },
     { href: '/admin/payouts', label: 'Payouts', icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/insurance', label: 'Insurance', icon: <ShieldIcon className="w-5 h-5" />, show: isAdmin },
     { href: '/admin/ledger', label: 'Ledger', icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
     {
       href: '/admin/surge-zones',

@@ -15,7 +15,7 @@ import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { TopBar } from '@/components/ui/TopBar';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { HAMALI_WILLING_RADIUS_KM } from '@/lib/matchingConstants';
-import { BoxIcon, WalletIcon, StarIcon, ChevronRightIcon, MapPinIcon } from '@/components/ui/icons';
+import { BoxIcon, WalletIcon, StarIcon, ChevronRightIcon, MapPinIcon, ShieldIcon } from '@/components/ui/icons';
 
 function startOfToday(): number {
   const d = new Date();
@@ -133,12 +133,22 @@ export default function HamaliDashboardPage() {
           <ServiceAreaCard initial={willingLocation} radiusKm={HAMALI_WILLING_RADIUS_KM} accent="secondary" />
         )}
 
-        <Link href="/hamali/earnings" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base">
+        <Link href="/hamali/earnings" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-3">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
               <WalletIcon className="w-5 h-5" />
             </span>
             <p className="text-sm font-semibold">View earnings</p>
+          </div>
+          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        </Link>
+
+        <Link href="/hamali/insurance" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
+              <ShieldIcon className="w-5 h-5" />
+            </span>
+            <p className="text-sm font-semibold">Insurance & protection</p>
           </div>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
