@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -55,29 +56,21 @@ function dockStatusTone(status: DockSlotStatus): 'success' | 'primary' | 'warnin
   return 'muted';
 }
 
-function dockStatusLabel(status: DockSlotStatus): string {
-  return status.charAt(0).toUpperCase() + status.slice(1);
-}
-
-const GATE_EVENT_LABEL: Record<GateEventType, string> = {
-  vehicle_entered: 'Vehicle entered',
-  vehicle_exited: 'Vehicle exited',
-  crew_signed_in: 'Crew signed in',
-  crew_signed_out: 'Crew signed out',
-};
-
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.max(0, Math.round(diffMs / 60000));
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs} hr${hrs === 1 ? '' : 's'} ago`;
-  const days = Math.round(hrs / 24);
-  return `${days} day${days === 1 ? '' : 's'} ago`;
-}
-
 export default function WarehouseHubDashboardPage() {
+  const t = useTranslations('warehouseDashboard');
+  function dockStatusLabel(status: DockSlotStatus): string {
+    return t(`status.${status}`);
+  }
+  function relativeTime(iso: string): string {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.max(0, Math.round(diffMs / 60000));
+    if (mins < 1) return t('justNow');
+    if (mins < 60) return mins === 1 ? t('minAgo', { count: mins }) : t('minsAgo', { count: mins });
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return hrs === 1 ? t('hrAgo', { count: hrs }) : t('hrsAgo', { count: hrs });
+    const days = Math.round(hrs / 24);
+    return days === 1 ? t('dayAgo', { count: days }) : t('daysAgo', { count: days });
+  }
   const { data, state, error, reload } = usePolling(() => api.get<HubResponse>('/api/warehouse-hub/me'), 15000);
   const hub = data?.hub;
   const dockSlots = data?.dockSlots ?? [];
@@ -99,7 +92,7 @@ export default function WarehouseHubDashboardPage() {
       setAddSlotOpen(false);
       await reload();
     } catch (err) {
-      setFormError(err instanceof ApiClientError ? err.message : 'Could not add dock slot');
+      setFormError(err instanceof ApiClientError ? err.message : t('errorAdd'));
     } finally {
       setSubmitting(false);
     }
@@ -114,7 +107,7 @@ export default function WarehouseHubDashboardPage() {
       setEditSlot(null);
       await reload();
     } catch (err) {
-      setFormError(err instanceof ApiClientError ? err.message : 'Could not update dock slot');
+      setFormError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setSubmitting(false);
     }
@@ -141,11 +134,11 @@ export default function WarehouseHubDashboardPage() {
         <div className="ip-card">
           <EmptyState
             icon={<AlertIcon className="w-7 h-7" />}
-            title="Couldn't load your hub"
-            description={error ?? 'No warehouse hub found for this account.'}
+            title={t('couldNotLoad')}
+            description={error ?? t('noHubFound')}
             action={
               <Button variant="ghost" onClick={() => reload()}>
-                Try again
+                {t('tryAgain')}
               </Button>
             }
           />
@@ -160,7 +153,7 @@ export default function WarehouseHubDashboardPage() {
     <div className="max-w-6xl mx-auto animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Hub console</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
           <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{hub.name}</h1>
           {hub.address && (
             <p className="text-sm text-ip-on-surface-variant flex items-center gap-1.5">
@@ -169,29 +162,29 @@ export default function WarehouseHubDashboardPage() {
           )}
         </div>
         <Button variant="primary" onClick={() => { setFormError(null); setNewLabel(''); setAddSlotOpen(true); }}>
-          <PlusIcon className="w-4 h-4 mr-1.5" /> Add dock slot
+          <PlusIcon className="w-4 h-4 mr-1.5" /> {t('addDockSlot')}
         </Button>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4 mb-10">
-        <MetricCard label="Total docks" value={dockSlots.length} icon={<BoxIcon className="w-5 h-5" />} />
-        <MetricCard label="Occupied" value={occupiedCount} icon={<BoxIcon className="w-5 h-5" />} />
+        <MetricCard label={t('totalDocks')} value={dockSlots.length} icon={<BoxIcon className="w-5 h-5" />} />
+        <MetricCard label={t('occupied')} value={occupiedCount} icon={<BoxIcon className="w-5 h-5" />} />
         <MetricCard
-          label="On-site crew"
-          value={<span className="text-base font-semibold text-ip-on-surface-variant italic">Not yet tracked</span>}
+          label={t('onSiteCrew')}
+          value={<span className="text-base font-semibold text-ip-on-surface-variant italic">{t('notYetTracked')}</span>}
           icon={<UsersIcon className="w-5 h-5" />}
         />
       </div>
 
       <div className="mb-10">
-        <h2 className="font-heading text-xl font-bold mb-4">Dock spaces</h2>
+        <h2 className="font-heading text-xl font-bold mb-4">{t('dockSpaces')}</h2>
         {dockSlots.length === 0 ? (
           <div className="ip-card">
             <EmptyState
               icon={<BoxIcon className="w-7 h-7" />}
-              title="No dock slots yet"
-              description="Add your first dock slot to start tracking bay status."
-              action={<Button onClick={() => setAddSlotOpen(true)}>Add dock slot</Button>}
+              title={t('noDockSlotsYet')}
+              description={t('noDockSlotsYetDesc')}
+              action={<Button onClick={() => setAddSlotOpen(true)}>{t('addDockSlot')}</Button>}
             />
           </div>
         ) : (
@@ -214,14 +207,14 @@ export default function WarehouseHubDashboardPage() {
       </div>
 
       <div>
-        <h2 className="font-heading text-xl font-bold mb-4">Live gate feed</h2>
+        <h2 className="font-heading text-xl font-bold mb-4">{t('liveGateFeed')}</h2>
         <div className="ip-card">
           {gateEvents.length === 0 ? (
-            <EmptyState icon={<AlertIcon className="w-7 h-7" />} title="No gate activity yet" />
+            <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('noGateActivity')} />
           ) : (
             gateEvents.map((ev, i) => (
               <div key={ev._id}>
-                <DataRow label={relativeTime(ev.createdAt)} value={GATE_EVENT_LABEL[ev.type]} />
+                <DataRow label={relativeTime(ev.createdAt)} value={t(`gateEvent.${ev.type}`)} />
                 {i < gateEvents.length - 1 && <ListDivider />}
               </div>
             ))
@@ -229,15 +222,15 @@ export default function WarehouseHubDashboardPage() {
         </div>
       </div>
 
-      <BottomSheet open={addSlotOpen} onClose={() => setAddSlotOpen(false)} title="Add dock slot">
+      <BottomSheet open={addSlotOpen} onClose={() => setAddSlotOpen(false)} title={t('addDockSlot')}>
         <form onSubmit={handleAddSlot} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Dock label
+              {t('dockLabel')}
             </label>
             <input
               required
-              placeholder="e.g. Dock A3"
+              placeholder={t('dockLabelPlaceholder')}
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
               className={inputClass}
@@ -245,15 +238,15 @@ export default function WarehouseHubDashboardPage() {
           </div>
           {formError && <p className="text-sm text-ip-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Adding…' : 'Add dock slot'}
+            {submitting ? t('adding') : t('addDockSlot')}
           </Button>
         </form>
       </BottomSheet>
 
-      <BottomSheet open={!!editSlot} onClose={() => setEditSlot(null)} title={editSlot ? `Update ${editSlot.label}` : undefined}>
+      <BottomSheet open={!!editSlot} onClose={() => setEditSlot(null)} title={editSlot ? t('updateSlot', { label: editSlot.label }) : undefined}>
         {editSlot && (
           <div className="space-y-3">
-            <p className="text-sm text-ip-on-surface-variant mb-2">Set the current status for this dock slot.</p>
+            <p className="text-sm text-ip-on-surface-variant mb-2">{t('setStatusHint')}</p>
             <div className="grid grid-cols-2 gap-2.5">
               {DOCK_STATUS_OPTIONS.map((status) => (
                 <button

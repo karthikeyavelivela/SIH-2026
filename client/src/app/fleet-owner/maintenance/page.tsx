@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { CircularGauge } from '@/components/ui/CircularGauge';
@@ -51,6 +52,7 @@ function formatDate(iso?: string): string {
 }
 
 export default function FleetMaintenancePage() {
+  const t = useTranslations('fleetMaintenance');
   const { data: health, state: healthState, reload: reloadHealth } = usePolling(
     () => api.get<HealthResponse>('/api/fleet/health'),
     20000
@@ -90,7 +92,7 @@ export default function FleetMaintenancePage() {
       setBookOpen(false);
       await reloadAll();
     } catch (err) {
-      setFormError(err instanceof ApiClientError ? err.message : 'Could not book this service');
+      setFormError(err instanceof ApiClientError ? err.message : t('errorBook'));
     } finally {
       setSubmitting(false);
     }
@@ -123,19 +125,23 @@ export default function FleetMaintenancePage() {
     <div className="max-w-3xl mx-auto animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Fleet console</p>
-          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Fleet Maintenance</h1>
-          <p className="text-sm text-ip-on-surface-variant">Health, upcoming service, and inspection compliance.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+          <p className="text-sm text-ip-on-surface-variant">{t('subtitle')}</p>
         </div>
         <Button variant="primary" onClick={() => { setFormError(null); setBookOpen(true); }}>
-          Book repair
+          {t('bookRepair')}
         </Button>
       </div>
 
       {critical.length > 0 && (
         <AlertBanner tone="danger" icon={<AlertIcon className="w-4 h-4" />} className="mb-6">
-          <span className="font-semibold">Action required.</span>{' '}
-          {critical.length} unit{critical.length === 1 ? '' : 's'} need{critical.length === 1 ? 's' : ''} attention:{' '}
+          <span className="font-semibold">{t('actionRequired')}</span>{' '}
+          {t('unitsNeedAttention', {
+            count: critical.length,
+            unitPlural: critical.length === 1 ? '' : 's',
+            needsPlural: critical.length === 1 ? 's' : '',
+          })}{' '}
           {critical.map((s) => vehicleLabel(s.vehicleId)).join(', ')}.
         </AlertBanner>
       )}
@@ -147,14 +153,14 @@ export default function FleetMaintenancePage() {
           <div className="ip-card flex items-center gap-5">
             <CircularGauge value={health?.healthPct ?? 100} accent={((health?.healthPct ?? 100) < 70 ? 'error' : 'primary')} />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1">Fleet health</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1">{t('fleetHealth')}</p>
               <p className="text-sm text-ip-on-surface-variant">
-                {health?.vehiclesNeedingAttention ?? 0} of {health?.totalVehicles ?? 0} units need attention
+                {t('unitsNeedAttentionOf', { needing: health?.vehiclesNeedingAttention ?? 0, total: health?.totalVehicles ?? 0 })}
               </p>
             </div>
           </div>
           <div className="ip-card">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">Next service</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t('nextService')}</p>
             {health?.nextService ? (
               <>
                 <p className="font-heading font-extrabold text-ip-display-md text-ip-on-surface flex items-center gap-2">
@@ -165,19 +171,19 @@ export default function FleetMaintenancePage() {
                 </p>
               </>
             ) : (
-              <p className="text-sm text-ip-on-surface-variant italic">Nothing scheduled</p>
+              <p className="text-sm text-ip-on-surface-variant italic">{t('nothingScheduled')}</p>
             )}
           </div>
         </div>
       )}
 
       <div>
-        <h2 className="font-heading text-xl font-bold mb-4">Upcoming schedule</h2>
+        <h2 className="font-heading text-xl font-bold mb-4">{t('upcomingSchedule')}</h2>
         {scheduleState === 'loading' ? (
           <Skeleton className="h-48" />
         ) : openSchedules.length === 0 ? (
           <div className="ip-card">
-            <EmptyState title="No maintenance scheduled" description="Every unit is up to date." />
+            <EmptyState title={t('noMaintenanceScheduled')} description={t('everyUnitUpToDate')} />
           </div>
         ) : (
           <div className="ip-card">
@@ -190,7 +196,7 @@ export default function FleetMaintenancePage() {
                 <ChecklistItem
                   key={s._id}
                   label={`${vehicleLabel(s.vehicleId)} — ${s.description}`}
-                  note={s.type === 'date_triggered' ? `Due ${formatDate(s.dueAt)}` : `Due at ${s.dueMileageKm ?? '?'} km`}
+                  note={s.type === 'date_triggered' ? t('dueOn', { date: formatDate(s.dueAt) }) : t('dueAtKm', { km: s.dueMileageKm ?? '?' })}
                   state={s.status === 'overdue' ? 'fail' : s.status === 'due' ? 'warn' : 'pending'}
                   onStateChange={(next) => {
                     if (next === 'pass') markCompleted(s._id);
@@ -203,44 +209,44 @@ export default function FleetMaintenancePage() {
       </div>
 
       <p className="text-xs text-ip-on-surface-variant mt-6">
-        Need to inspect a specific unit?{' '}
+        {t('inspectPrompt')}{' '}
         {vehicles.length > 0 ? (
           <Link href={`/fleet-owner/vehicles/${vehicles[0]._id}/inspection`} className="text-ip-primary font-semibold hover:underline">
-            Start a compliance inspection
+            {t('startInspection')}
           </Link>
         ) : (
-          'Register a vehicle first.'
+          t('registerVehicleFirst')
         )}
       </p>
 
-      <BottomSheet open={bookOpen} onClose={() => setBookOpen(false)} title="Book repair">
+      <BottomSheet open={bookOpen} onClose={() => setBookOpen(false)} title={t('bookRepair')}>
         <form onSubmit={handleBookRepair} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">Vehicle</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">{t('vehicleFieldLabel')}</label>
             <select
               required
               value={form.vehicleId}
               onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}
               className={inputClass}
             >
-              <option value="" disabled>Select a vehicle</option>
+              <option value="" disabled>{t('selectVehicle')}</option>
               {vehicles.map((v) => (
                 <option key={v._id} value={v._id}>{v.registrationNumber}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">What needs doing</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">{t('whatNeedsDoing')}</label>
             <input
               required
-              placeholder="e.g. Brake inspection"
+              placeholder={t('descriptionPlaceholder')}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               className={inputClass}
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">Due date</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">{t('dueDate')}</label>
             <input
               required
               type="date"
@@ -251,7 +257,7 @@ export default function FleetMaintenancePage() {
           </div>
           {formError && <p className="text-sm text-ip-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Booking…' : 'Book repair'}
+            {submitting ? t('booking') : t('bookRepair')}
           </Button>
         </form>
       </BottomSheet>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -38,12 +39,6 @@ interface FleetDoc {
   driverIds: FleetDriverSummary[];
 }
 
-const VEHICLE_TYPE_OPTIONS = [
-  { value: 'mini_truck', label: 'Mini truck' },
-  { value: 'medium_truck', label: 'Medium truck' },
-  { value: 'large_truck', label: 'Large truck' },
-];
-
 const inputClass =
   'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
 
@@ -53,13 +48,18 @@ function availabilityTone(status: FleetVehicleSummary['availabilityStatus']): 's
   return 'muted';
 }
 
-function availabilityLabel(status: FleetVehicleSummary['availabilityStatus']): string {
-  if (status === 'on_job') return 'On job';
-  if (status === 'online') return 'Online';
-  return 'Offline';
-}
-
 export default function FleetOwnerDashboardPage() {
+  const t = useTranslations('fleetDashboard');
+  const VEHICLE_TYPE_OPTIONS = [
+    { value: 'mini_truck', label: t('vehicleTypeOptions.mini_truck') },
+    { value: 'medium_truck', label: t('vehicleTypeOptions.medium_truck') },
+    { value: 'large_truck', label: t('vehicleTypeOptions.large_truck') },
+  ];
+  function availabilityLabel(status: FleetVehicleSummary['availabilityStatus']): string {
+    if (status === 'on_job') return t('onJob');
+    if (status === 'online') return t('online');
+    return t('offline');
+  }
   const { data, state, error, reload } = usePolling(() => api.get<{ fleet: FleetDoc }>('/api/fleet/me'), 20000);
   const fleet = data?.fleet;
 
@@ -84,7 +84,7 @@ export default function FleetOwnerDashboardPage() {
       setRegisterOpen(false);
       await reload();
     } catch (err) {
-      setFormError(err instanceof ApiClientError ? err.message : 'Could not register vehicle');
+      setFormError(err instanceof ApiClientError ? err.message : t('errorRegister'));
     } finally {
       setSubmitting(false);
     }
@@ -100,7 +100,7 @@ export default function FleetOwnerDashboardPage() {
       setAssignOpen(false);
       await reload();
     } catch (err) {
-      setFormError(err instanceof ApiClientError ? err.message : 'Could not assign driver');
+      setFormError(err instanceof ApiClientError ? err.message : t('errorAssign'));
     } finally {
       setSubmitting(false);
     }
@@ -133,11 +133,11 @@ export default function FleetOwnerDashboardPage() {
         <div className="ip-card">
           <EmptyState
             icon={<AlertIcon className="w-7 h-7" />}
-            title="Couldn't load your fleet"
-            description={error ?? 'No fleet found for this account.'}
+            title={t('couldNotLoad')}
+            description={error ?? t('noFleetFound')}
             action={
               <Button variant="ghost" onClick={() => reload()}>
-                Try again
+                {t('tryAgain')}
               </Button>
             }
           />
@@ -154,51 +154,51 @@ export default function FleetOwnerDashboardPage() {
     <div className="max-w-6xl mx-auto animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Fleet console</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
           <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{fleet.name}</h1>
-          <p className="text-sm text-ip-on-surface-variant">Real-time overview of your logistics assets.</p>
+          <p className="text-sm text-ip-on-surface-variant">{t('subtitle')}</p>
         </div>
         <div className="flex gap-2.5">
           <Button variant="ghost" onClick={() => { setFormError(null); setRegisterOpen(true); }}>
-            <PlusIcon className="w-4 h-4 mr-1.5" /> Register vehicle
+            <PlusIcon className="w-4 h-4 mr-1.5" /> {t('registerVehicle')}
           </Button>
           <Button
             variant="primary"
             onClick={() => { setFormError(null); setAssignForm({ vehicleId: '', driverId: '' }); setAssignOpen(true); }}
           >
-            Assign driver
+            {t('assignDriver')}
           </Button>
         </div>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4 mb-10">
-        <MetricCard label="Total vehicles" value={totalVehicles} icon={<TruckIcon className="w-5 h-5" />} />
-        <MetricCard label="Active drivers" value={activeDrivers} icon={<UsersIcon className="w-5 h-5" />} />
-        <MetricCard label="Unassigned units" value={unassignedUnits} icon={<AlertIcon className="w-5 h-5" />} />
+        <MetricCard label={t('totalVehicles')} value={totalVehicles} icon={<TruckIcon className="w-5 h-5" />} />
+        <MetricCard label={t('activeDrivers')} value={activeDrivers} icon={<UsersIcon className="w-5 h-5" />} />
+        <MetricCard label={t('unassignedUnits')} value={unassignedUnits} icon={<AlertIcon className="w-5 h-5" />} />
       </div>
 
       <div>
-        <h2 className="font-heading text-xl font-bold mb-4">Fleet roster</h2>
+        <h2 className="font-heading text-xl font-bold mb-4">{t('fleetRoster')}</h2>
         <DataTable<FleetVehicleSummary>
           rows={fleet.vehicleIds}
           rowKey={(v) => v._id}
-          emptyTitle="No vehicles yet"
-          emptyDescription="Register your first vehicle to start building your roster."
+          emptyTitle={t('noVehiclesYet')}
+          emptyDescription={t('noVehiclesYetDesc')}
           columns={[
             {
               key: 'unit',
-              header: 'Unit ID',
+              header: t('unitId'),
               render: (v) => <span className="font-heading font-semibold">{v.registrationNumber}</span>,
             },
             {
               key: 'driver',
-              header: 'Assigned driver',
+              header: t('assignedDriverCol'),
               render: (v) =>
-                v.assignedDriverId ? v.assignedDriverId.name : <span className="italic text-ip-on-surface-variant">Unassigned</span>,
+                v.assignedDriverId ? v.assignedDriverId.name : <span className="italic text-ip-on-surface-variant">{t('unassigned')}</span>,
             },
             {
               key: 'status',
-              header: 'Status',
+              header: t('statusCol'),
               render: (v) => (
                 <StatusChip tone={availabilityTone(v.availabilityStatus)} dot>
                   {availabilityLabel(v.availabilityStatus)}
@@ -207,8 +207,8 @@ export default function FleetOwnerDashboardPage() {
             },
             {
               key: 'health',
-              header: 'Health',
-              render: () => <span className="text-ip-on-surface-variant text-xs italic">Not yet tracked</span>,
+              header: t('healthCol'),
+              render: () => <span className="text-ip-on-surface-variant text-xs italic">{t('notYetTracked')}</span>,
             },
             {
               key: 'action',
@@ -220,7 +220,7 @@ export default function FleetOwnerDashboardPage() {
                   onClick={() => openAssignFor(v._id)}
                   className="text-ip-primary text-xs font-semibold uppercase tracking-wide hover:underline"
                 >
-                  {v.assignedDriverId ? 'Reassign' : 'Assign driver'}
+                  {v.assignedDriverId ? t('reassign') : t('assignDriver')}
                 </button>
               ),
             },
@@ -228,11 +228,11 @@ export default function FleetOwnerDashboardPage() {
         />
       </div>
 
-      <BottomSheet open={registerOpen} onClose={() => setRegisterOpen(false)} title="Register vehicle">
+      <BottomSheet open={registerOpen} onClose={() => setRegisterOpen(false)} title={t('registerVehicle')}>
         <form onSubmit={handleRegisterVehicle} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Vehicle type
+              {t('vehicleType')}
             </label>
             <select
               value={vehicleForm.vehicleType}
@@ -248,7 +248,7 @@ export default function FleetOwnerDashboardPage() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Capacity (kg)
+              {t('capacityKg')}
             </label>
             <input
               type="number"
@@ -261,7 +261,7 @@ export default function FleetOwnerDashboardPage() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Registration number
+              {t('registrationNumber')}
             </label>
             <input
               required
@@ -272,16 +272,16 @@ export default function FleetOwnerDashboardPage() {
           </div>
           {formError && <p className="text-sm text-ip-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Registering…' : 'Register vehicle'}
+            {submitting ? t('registering') : t('registerVehicle')}
           </Button>
         </form>
       </BottomSheet>
 
-      <BottomSheet open={assignOpen} onClose={() => setAssignOpen(false)} title="Assign driver">
+      <BottomSheet open={assignOpen} onClose={() => setAssignOpen(false)} title={t('assignDriver')}>
         <form onSubmit={handleAssignDriver} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Vehicle
+              {t('vehicle')}
             </label>
             <select
               required
@@ -290,34 +290,31 @@ export default function FleetOwnerDashboardPage() {
               className={inputClass}
             >
               <option value="" disabled>
-                Select a vehicle
+                {t('selectVehicle')}
               </option>
               {fleet.vehicleIds.map((v) => (
                 <option key={v._id} value={v._id}>
-                  {v.registrationNumber} {v.assignedDriverId ? `(currently ${v.assignedDriverId.name})` : '(unassigned)'}
+                  {v.registrationNumber} {v.assignedDriverId ? t('currentlyAssigned', { name: v.assignedDriverId.name }) : t('unassignedTag')}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Driver's user ID
+              {t('driverUserId')}
             </label>
             <input
               required
-              placeholder="e.g. 65f1a2b3c4d5e6f7a8b9c0d1"
+              placeholder={t('driverIdPlaceholder')}
               value={assignForm.driverId}
               onChange={(e) => setAssignForm({ ...assignForm, driverId: e.target.value })}
               className={inputClass}
             />
-            <p className="text-xs text-ip-on-surface-variant mt-1.5">
-              The driver must already hold a driver account on FYRO. Ask them for their account ID, or have an admin
-              share it with you.
-            </p>
+            <p className="text-xs text-ip-on-surface-variant mt-1.5">{t('driverIdHint')}</p>
           </div>
           {formError && <p className="text-sm text-ip-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Assigning…' : 'Assign driver'}
+            {submitting ? t('assigning') : t('assignDriver')}
           </Button>
         </form>
       </BottomSheet>
