@@ -8,6 +8,7 @@ import { Payout } from '../models/Payout';
 import { PlatformSetting, PLATFORM_SETTING_ID } from '../models/PlatformSetting';
 import { writeLedgerEntry } from './ledger.service';
 import { writeAuditLog } from './audit.service';
+import { createNotification } from './notification.service';
 
 /**
  * Two kill switches, either one halts every automatic payout: the env var
@@ -264,6 +265,12 @@ async function disburseParametricPayout(
       payout.decidedAt = at;
       await payout.save();
     });
+
+    // The actual "worker receives the notification" half of the money
+    // chain that Phase 0.2's live audit found was completely missing
+    // infrastructure for — this fires at the exact moment of real,
+    // automatic disbursement, not from a polling job.
+    await createNotification(userId, 'insurance_trigger', { amount: trigger.payoutAmount });
   } catch (err) {
     return leaveForHumanReview(
       `Automatic disbursement failed after retries: ${err instanceof Error ? err.message : 'unknown error'}`

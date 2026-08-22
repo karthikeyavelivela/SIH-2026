@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { SidebarNav, SidebarNavItem } from '@/components/admin/SidebarNav';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 import {
   HomeIcon,
   UsersIcon,
@@ -128,11 +129,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex bg-ip-surface text-ip-on-surface">
       <aside className="w-64 shrink-0 border-r border-ip-outline/10 bg-ip-surface-container-lowest p-6 hidden md:flex md:flex-col overflow-y-auto">
-        <div className="mb-8">
-          <p className="font-heading font-bold text-lg text-ip-primary tracking-tight">FYRO</p>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ip-on-surface-variant mt-0.5">
-            {user.role === 'admin' ? t('adminConsole') : t('managerConsole')}
-          </p>
+        <div className="mb-8 flex items-start justify-between gap-2">
+          <div>
+            <p className="font-heading font-bold text-lg text-ip-primary tracking-tight">FYRO</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ip-on-surface-variant mt-0.5">
+              {user.role === 'admin' ? t('adminConsole') : t('managerConsole')}
+            </p>
+          </div>
+          <NotificationBell href="/admin/notifications" />
         </div>
         <SidebarNav items={items} />
         <div className="mt-auto pt-6 border-t border-ip-outline/10">
@@ -154,6 +158,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <p className="font-heading font-bold text-ip-primary">
           FYRO {user.role === 'admin' ? t('admin') : t('manager')}
         </p>
+        <div className="flex items-center gap-1">
+        <NotificationBell href="/admin/notifications" />
         <button
           type="button"
           onClick={() => setMobileNavOpen((o) => !o)}
@@ -169,6 +175,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             )}
           </svg>
         </button>
+        </div>
       </div>
       {mobileNavOpen && (
         <div className="md:hidden fixed top-[57px] inset-x-0 z-30 bg-ip-surface-container-lowest border-b border-ip-outline/10 shadow-lg px-4 py-4 max-h-[75vh] overflow-y-auto animate-[fadeIn_200ms_ease-out]">

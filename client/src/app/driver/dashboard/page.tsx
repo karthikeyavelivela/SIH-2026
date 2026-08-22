@@ -15,6 +15,7 @@ import { ServiceAreaCard } from '@/components/worker/ServiceAreaCard';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
 import { TopBar } from '@/components/ui/TopBar';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { DRIVER_WILLING_RADIUS_KM } from '@/lib/matchingConstants';
 import { TruckIcon, WalletIcon, StarIcon, ChevronRightIcon, MapPinIcon, ShieldIcon } from '@/components/ui/icons';
@@ -70,7 +71,7 @@ export default function DriverDashboardPage() {
 
   return (
     <div className="min-h-screen bg-ip-surface pb-24">
-      <TopBar title="FYRO" showBack={false} />
+      <TopBar title="FYRO" showBack={false} right={<NotificationBell href="/driver/notifications" />} />
 
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
         <div className="flex items-center gap-3.5 mb-6">

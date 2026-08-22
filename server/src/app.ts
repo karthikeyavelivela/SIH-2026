@@ -40,6 +40,7 @@ import { surgeZoneRouter } from './routes/surgeZone.routes';
 import { analyticsRouter } from './routes/analytics.routes';
 import { opsHubRouter } from './routes/opsHub.routes';
 import { reportsRouter } from './routes/reports.routes';
+import { notificationRouter } from './routes/notification.routes';
 import { ApiError } from './utils/ApiError';
 import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
@@ -160,6 +161,7 @@ app.use('/api/insurance', insuranceRouter);
 app.use('/api/training', trainingRouter);
 app.use('/api/referrals', referralRouter);
 app.use('/api/load-manifests', loadManifestRouter);
+app.use('/api/notifications', notificationRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

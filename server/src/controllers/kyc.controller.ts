@@ -5,6 +5,7 @@ import { ApiError } from '../utils/ApiError';
 import { publicUser } from '../utils/publicUser';
 import { User } from '../models/User';
 import { writeAuditLog } from '../services/audit.service';
+import { createNotification } from '../services/notification.service';
 
 /**
  * GET /api/admin/kyc-queue — users actually awaiting KYC review, oldest
@@ -73,6 +74,11 @@ export const updateKycStatus = asyncHandler(async (req: Request, res: Response) 
     targetType: 'User',
     targetId: user._id.toString(),
     details: { before, after: status, rejectionReason: rejectionReason ?? null, documentsUpdated },
+  });
+
+  await createNotification(user._id.toString(), 'kyc_decision', {
+    status,
+    reason: rejectionReason ?? '',
   });
 
   res.status(200).json({ user: publicUser(user) });

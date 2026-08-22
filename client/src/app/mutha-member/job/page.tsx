@@ -14,6 +14,7 @@ import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { Avatar } from '@/components/ui/Avatar';
 import { MapPinIcon, TruckIcon, UsersIcon } from '@/components/ui/icons';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
@@ -51,8 +52,13 @@ export default function MuthaMemberJobPage() {
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <p className="text-xs text-text-muted">{t('hello')}</p>
-      <h1 className="font-heading text-2xl font-bold mb-6">{firstName} 👋</h1>
+      <div className="flex items-start justify-between gap-3 mb-6">
+        <div>
+          <p className="text-xs text-text-muted">{t('hello')}</p>
+          <h1 className="font-heading text-2xl font-bold">{firstName} 👋</h1>
+        </div>
+        <NotificationBell href="/mutha-member/notifications" />
+      </div>
 
       {status !== null && (
         <div className="mb-6">

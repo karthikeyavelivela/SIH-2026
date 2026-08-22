@@ -2091,5 +2091,16 @@
   "goToHomepage": "Go to homepage",
   "notFoundTitle": "Page not found",
   "notFoundDescription": "The page you're looking for doesn't exist or may have moved."
+ },
+ "notifications": {
+  "bellAria": "Notifications ({count} unread)",
+  "bellAriaNone": "Notifications",
+  "title": "Notifications",
+  "markAllRead": "Mark all read",
+  "empty": "No notifications yet",
+  "emptyDesc": "Updates about your bookings, payouts, and account will show up here.",
+  "loadError": "Couldn't load your notifications",
+  "tryAgain": "Try again",
+  "errorMarkRead": "Could not mark all as read."
  }
 }

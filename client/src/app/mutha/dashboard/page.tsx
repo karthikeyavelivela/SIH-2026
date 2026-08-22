@@ -9,6 +9,7 @@ import { usePolling } from '@/lib/usePolling';
 import { Booking, EarningsResponse, MuthaResponse } from '@/lib/types';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
 import { AvatarStack } from '@/components/ui/AvatarStack';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -45,8 +46,13 @@ export default function MuthaDashboardPage() {
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <p className="text-xs text-ip-on-surface-variant">{t('hello')}</p>
-      <h1 className="font-heading text-2xl font-bold mb-6">{firstName} 👋</h1>
+      <div className="flex items-start justify-between gap-3 mb-6">
+        <div>
+          <p className="text-xs text-ip-on-surface-variant">{t('hello')}</p>
+          <h1 className="font-heading text-2xl font-bold">{firstName} 👋</h1>
+        </div>
+        <NotificationBell href="/mutha/notifications" />
+      </div>
 
       <NotificationPrompt accent="secondary" copy={t('notifyPrompt')} />
 

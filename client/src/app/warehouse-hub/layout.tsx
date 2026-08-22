@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { SidebarNav } from '@/components/admin/SidebarNav';
 import { BoxIcon, HomeIcon, UsersIcon } from '@/components/ui/icons';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 
 // Dense-data desk surface for the warehouse_hub role — mirrors
 // client/src/app/admin/layout.tsx exactly (desktop SidebarNav + mobile
@@ -43,16 +44,19 @@ export default function WarehouseHubLayout({ children }: { children: React.React
   return (
     <div className="min-h-screen flex bg-ip-surface text-ip-on-surface">
       <aside className="w-64 shrink-0 border-r border-ip-outline/10 bg-ip-surface-container-lowest p-6 hidden md:flex md:flex-col">
-        <div className="mb-10 flex items-center gap-2.5">
-          <span className="w-9 h-9 rounded-full bg-ip-secondary-container/30 text-ip-secondary flex items-center justify-center flex-shrink-0">
-            <BoxIcon className="w-5 h-5" />
-          </span>
-          <div>
-            <p className="font-heading font-bold text-lg text-ip-primary tracking-tight leading-none">FYRO</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ip-on-surface-variant mt-0.5">
-              {t('hubConsole')}
-            </p>
+        <div className="mb-10 flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-full bg-ip-secondary-container/30 text-ip-secondary flex items-center justify-center flex-shrink-0">
+              <BoxIcon className="w-5 h-5" />
+            </span>
+            <div>
+              <p className="font-heading font-bold text-lg text-ip-primary tracking-tight leading-none">FYRO</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ip-on-surface-variant mt-0.5">
+                {t('hubConsole')}
+              </p>
+            </div>
           </div>
+          <NotificationBell href="/warehouse-hub/notifications" />
         </div>
         <SidebarNav items={NAV_ITEMS} />
         <div className="mt-auto pt-6 border-t border-ip-outline/10">
@@ -71,6 +75,8 @@ export default function WarehouseHubLayout({ children }: { children: React.React
 
       <div className="md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 py-3 bg-ip-surface-container-lowest border-b border-ip-outline/10 shadow-sm">
         <p className="font-heading font-bold text-ip-primary">{t('fyroHub')}</p>
+        <div className="flex items-center gap-1">
+        <NotificationBell href="/warehouse-hub/notifications" />
         <button
           type="button"
           onClick={() => setMobileNavOpen((o) => !o)}
@@ -82,6 +88,7 @@ export default function WarehouseHubLayout({ children }: { children: React.React
             {mobileNavOpen ? <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" /> : <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />}
           </svg>
         </button>
+        </div>
       </div>
       {mobileNavOpen && (
         <div className="md:hidden fixed top-[57px] inset-x-0 z-30 bg-ip-surface-container-lowest border-b border-ip-outline/10 shadow-lg px-4 py-4 animate-[fadeIn_200ms_ease-out]">

@@ -3,6 +3,7 @@ import { User } from '../models/User';
 import { Vehicle } from '../models/Vehicle';
 import { Mutha } from '../models/Mutha';
 import { tryGetIo, bookingRoom, userRoom } from './io';
+import { createNotification } from '../services/notification.service';
 
 /**
  * booking:matched — pushed to the customer the instant a booking becomes
@@ -20,6 +21,12 @@ import { tryGetIo, bookingRoom, userRoom } from './io';
  */
 export async function emitBookingMatched(booking: IBooking): Promise<void> {
   if (booking.status !== 'accepted') return; // only fire once fully staffed
+
+  // Persisted regardless of whether a socket server is running — unlike
+  // the live push below, a Notification is meant to survive a closed tab
+  // or an offline device, so it must not be gated on tryGetIo().
+  await createNotification(booking.customerId.toString(), 'booking_matched', {}, `/customer/track/${booking._id.toString()}`);
+
   const io = tryGetIo();
   if (!io) return;
 
@@ -77,7 +84,23 @@ export async function emitBookingMatched(booking: IBooking): Promise<void> {
 }
 
 /** Generic status-change push (start/complete/cancel) to everyone already in the booking room. */
-export function emitBookingStatus(booking: IBooking): void {
+export async function emitBookingStatus(booking: IBooking): Promise<void> {
+  // Persisted notification for the two states worth a worker/customer
+  // going back and reading later — matches the set useBookingSocket.ts's
+  // ephemeral browser-notification already pushes for, this is just the
+  // durable half of the same event that survives a closed tab.
+  if (booking.status === 'in_progress' || booking.status === 'completed') {
+    const bookingId = booking._id.toString();
+    const notifyParties: { userId: string; link: string }[] = [
+      { userId: booking.customerId.toString(), link: `/customer/track/${bookingId}` },
+      ...booking.assignedDriverIds.map((id) => ({ userId: id.toString(), link: `/driver/active-job/${bookingId}` })),
+      ...booking.assignedHamaliIds.map((id) => ({ userId: id.toString(), link: `/hamali/active-job/${bookingId}` })),
+    ];
+    await Promise.all(
+      notifyParties.map((p) => createNotification(p.userId, 'booking_status', { status: booking.status }, p.link))
+    );
+  }
+
   const io = tryGetIo();
   if (!io) return;
   io.to(bookingRoom(booking._id.toString())).emit('booking:status', {

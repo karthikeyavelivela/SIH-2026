@@ -6,6 +6,7 @@ import { Payout } from '../models/Payout';
 import { writeAuditLog } from '../services/audit.service';
 import { writeLedgerEntry } from '../services/ledger.service';
 import { generateEarningsPayouts } from '../services/payoutGeneration.service';
+import { createNotification } from '../services/notification.service';
 
 /** GET /api/admin/payouts — approval queue, filterable by status. */
 export const listPayouts = asyncHandler(async (req: Request, res: Response) => {
@@ -53,6 +54,17 @@ async function decidePayout(
       description: `Payout for ${payout.period}`,
       status: 'posted',
     });
+
+    // This is the notification half of the money chain proved live during
+    // Phase 0.2 — that audit found the payout/ledger writes were real but
+    // "the worker receives the notification" was false (no infrastructure
+    // existed at all). Same distinction for parametric-insurance-sourced
+    // payouts vs regular earnings payouts as the rest of this codebase.
+    if (payout.source === 'parametric_insurance') {
+      await createNotification(payout.userId.toString(), 'insurance_trigger', { amount: payout.amount });
+    } else {
+      await createNotification(payout.userId.toString(), 'payout', { amount: payout.amount, period: payout.period });
+    }
   }
 
   res.status(200).json({ payout });

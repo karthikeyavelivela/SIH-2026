@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { useNotificationPermission } from '@/lib/useNotificationPermission';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 import { StatusChip } from '@/components/ui/StatusChip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -114,16 +115,19 @@ export default function CustomerDashboardPage() {
           </div>
           <h1 className="font-heading font-extrabold text-ip-headline-sm text-ip-primary tracking-tight uppercase truncate">FYRO</h1>
         </div>
-        <button
-          type="button"
-          aria-label={permission === 'granted' ? t('alertsOn') : t('enableAlerts')}
-          onClick={() => permission === 'default' && request()}
-          className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center transition-colors ${
-            permission === 'granted' ? 'bg-ip-primary-container/25 text-ip-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
-          }`}
-        >
-          <BellIcon className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <NotificationBell href="/customer/notifications" />
+          <button
+            type="button"
+            aria-label={permission === 'granted' ? t('alertsOn') : t('enableAlerts')}
+            onClick={() => permission === 'default' && request()}
+            className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center transition-colors ${
+              permission === 'granted' ? 'bg-ip-primary-container/25 text-ip-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
+            }`}
+          >
+            <BellIcon className="w-5 h-5" />
+          </button>
+        </div>
       </header>
 
       <main className="max-w-[600px] mx-auto px-ip-edge pt-ip-lg pb-ip-xl flex flex-col gap-ip-xl">
