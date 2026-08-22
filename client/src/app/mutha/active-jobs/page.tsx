@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Booking } from '@/lib/types';
@@ -11,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { TruckIcon, MapPinIcon, UsersIcon } from '@/components/ui/icons';
 
 function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Promise<void> }) {
+  const t = useTranslations('muthaActiveJobs');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,7 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
       await api.post(`/api/requests/${booking._id}/${action}`);
       await onChanged();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update this job.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setPending(false);
     }
@@ -32,7 +34,7 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
     <div className="ip-card">
       <div className="flex items-center justify-between mb-3">
         <StatusChip tone={booking.status === 'in_progress' ? 'primary' : 'secondary'}>
-          {booking.status === 'in_progress' ? 'Working' : 'Accepted'}
+          {booking.status === 'in_progress' ? t('working') : t('accepted')}
         </StatusChip>
         <p className="font-heading font-bold">₹{booking.fareBreakdown.total}</p>
       </div>
@@ -48,20 +50,20 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
       </div>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs text-ip-on-surface-variant">
-          {booking.assignedHamaliIds.length}/{booking.requiredHamaliCount} member(s) assigned
+          {t('membersAssigned', { assigned: booking.assignedHamaliIds.length, required: booking.requiredHamaliCount })}
         </p>
         <Link
           href={`/mutha/assign-members?bookingId=${booking._id}`}
           className="inline-flex items-center gap-1 text-xs font-semibold text-ip-secondary hover:underline"
         >
           <UsersIcon className="w-3.5 h-3.5" />
-          Manage crew
+          {t('manageCrew')}
         </Link>
       </div>
       {error && <p className="text-xs text-ip-error mb-3">{error}</p>}
       {booking.status !== 'completed' && (
         <Button variant="secondary" size="md" disabled={pending} onClick={advance} className="w-full">
-          {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start job' : 'Mark complete'}
+          {pending ? t('updating') : booking.status === 'accepted' ? t('startJob') : t('markComplete')}
         </Button>
       )}
     </div>
@@ -69,18 +71,19 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
 }
 
 export default function MuthaActiveJobsPage() {
+  const t = useTranslations('muthaActiveJobs');
   const { data, state, reload } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 8000);
   const jobs = (data?.bookings ?? []).filter((b) => b.status === 'accepted' || b.status === 'in_progress');
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-1">Active jobs</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">Every job your group is currently running, at once if split across sites.</p>
+      <h1 className="font-heading text-2xl font-bold mb-1">{t('pageTitle')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-6">{t('pageSubtitle')}</p>
 
       {state === 'loading' && <div className="h-40 rounded-ip-card bg-ip-surface-container animate-pulse" />}
 
       {state !== 'loading' && jobs.length === 0 && (
-        <EmptyState icon={<TruckIcon className="w-6 h-6" />} title="No active jobs" description="Accepted jobs your group is working will show up here." />
+        <EmptyState icon={<TruckIcon className="w-6 h-6" />} title={t('noActiveJobs')} description={t('noActiveJobsDesc')} />
       )}
 
       <div className="space-y-4">

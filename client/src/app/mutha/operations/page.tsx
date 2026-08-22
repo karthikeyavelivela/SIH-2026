@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Booking, EarningsResponse, MuthaResponse } from '@/lib/types';
@@ -13,6 +14,7 @@ import { ListDivider } from '@/components/ui/ListDivider';
 import { TruckIcon, UsersIcon, WalletIcon } from '@/components/ui/icons';
 
 export default function MuthaOperationsPage() {
+  const t = useTranslations('muthaOperations');
   const { data: bookingsData, state } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 8000);
   const { data: muthaData } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const { data: earningsData } = usePolling(() => api.get<EarningsResponse>('/api/earnings/me'), 30000);
@@ -23,26 +25,24 @@ export default function MuthaOperationsPage() {
 
   return (
     <div className="max-w-lg mx-auto pb-6">
-      <BackHeader title="Operations" fallbackHref="/mutha/dashboard" />
+      <BackHeader title={t('title')} fallbackHref="/mutha/dashboard" />
 
       <div className="px-5 pt-5">
-        <p className="text-sm text-ip-on-surface-variant mb-5">
-          Crew deployments across every job your group is currently running.
-        </p>
+        <p className="text-sm text-ip-on-surface-variant mb-5">{t('subtitle')}</p>
 
         <div className="grid grid-cols-3 gap-2.5 mb-6">
-          <MetricCard label="Active jobs" value={activeJobs.length} icon={<TruckIcon className="w-4 h-4" />} />
-          <MetricCard label="Deployed" value={totalDeployed} icon={<UsersIcon className="w-4 h-4" />} />
-          <MetricCard label="Earned" value={`₹${earningsData?.total ?? 0}`} icon={<WalletIcon className="w-4 h-4" />} />
+          <MetricCard label={t('activeJobs')} value={activeJobs.length} icon={<TruckIcon className="w-4 h-4" />} />
+          <MetricCard label={t('deployed')} value={totalDeployed} icon={<UsersIcon className="w-4 h-4" />} />
+          <MetricCard label={t('earned')} value={`₹${earningsData?.total ?? 0}`} icon={<WalletIcon className="w-4 h-4" />} />
         </div>
 
-        <h2 className="font-heading text-lg font-bold mb-3">Active deployments</h2>
+        <h2 className="font-heading text-lg font-bold mb-3">{t('activeDeployments')}</h2>
 
         {state === 'loading' && <div className="h-40 rounded-ip-card bg-ip-surface-container animate-pulse" />}
 
         {state !== 'loading' && activeJobs.length === 0 && (
           <div className="ip-card">
-            <EmptyState icon={<TruckIcon className="w-6 h-6" />} title="No active deployments" description="Accepted jobs and their crews will show up here." />
+            <EmptyState icon={<TruckIcon className="w-6 h-6" />} title={t('noActiveDeployments')} description={t('noActiveDeploymentsDesc')} />
           </div>
         )}
 
@@ -54,18 +54,16 @@ export default function MuthaOperationsPage() {
             return (
               <div key={b._id} className="ip-card">
                 <div className="flex items-start justify-between gap-3 mb-1">
-                  <p className="font-heading font-bold capitalize">{b.type} job</p>
+                  <p className="font-heading font-bold capitalize">{t('jobLabel', { type: b.type })}</p>
                   <StatusChip tone={b.status === 'in_progress' ? 'primary' : 'secondary'}>
-                    {b.status === 'in_progress' ? 'Working' : 'Accepted'}
+                    {b.status === 'in_progress' ? t('working') : t('accepted')}
                   </StatusChip>
                 </div>
                 <p className="text-xs text-ip-on-surface-variant truncate mb-3">{b.pickupLocation.address}</p>
                 <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">
-                  <span>
-                    {b.assignedHamaliIds.length}/{b.requiredHamaliCount} assigned
-                  </span>
+                  <span>{t('assigned', { assigned: b.assignedHamaliIds.length, required: b.requiredHamaliCount })}</span>
                   <Link href={`/mutha/assign-members?bookingId=${b._id}`} className="text-ip-secondary normal-case font-semibold hover:underline">
-                    Manage crew
+                    {t('manageCrew')}
                   </Link>
                 </div>
                 {assigned.length > 0 && (

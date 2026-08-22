@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Booking, MuthaResponse } from '@/lib/types';
@@ -21,6 +22,7 @@ export default function AssignMembersPage() {
 }
 
 function AssignMembersInner() {
+  const t = useTranslations('muthaAssignMembers');
   const params = useSearchParams();
   const router = useRouter();
   const bookingId = params.get('bookingId');
@@ -66,7 +68,7 @@ function AssignMembersInner() {
       await reloadBookings();
       router.push('/mutha/active-jobs');
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update the crew for this job.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setPending(false);
     }
@@ -75,12 +77,12 @@ function AssignMembersInner() {
   if (!bookingId) {
     return (
       <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title="Assign crew" fallbackHref="/mutha/active-jobs" />
+        <BackHeader title={t('title')} fallbackHref="/mutha/active-jobs" />
         <EmptyState
           className="mt-4"
           icon={<UsersIcon className="w-6 h-6" />}
-          title="No job selected"
-          description="Open a job from Active jobs to manage its crew."
+          title={t('noJobSelected')}
+          description={t('noJobSelectedDesc')}
         />
       </div>
     );
@@ -89,22 +91,22 @@ function AssignMembersInner() {
   if (!booking) {
     return (
       <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title="Assign crew" fallbackHref="/mutha/active-jobs" />
-        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">Loading job…</p>
+        <BackHeader title={t('title')} fallbackHref="/mutha/active-jobs" />
+        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">{t('loadingJob')}</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-lg mx-auto pb-6">
-      <BackHeader title="Assign crew" fallbackHref="/mutha/active-jobs" />
+      <BackHeader title={t('title')} fallbackHref="/mutha/active-jobs" />
 
       <div className="px-5 pt-5">
         <div className="ip-card mb-6">
           <div className="flex items-start justify-between gap-3 mb-3">
-            <p className="font-heading text-xl font-bold capitalize">{booking.type} job</p>
+            <p className="font-heading text-xl font-bold capitalize">{t('jobLabel', { type: booking.type })}</p>
             <StatusChip tone={booking.status === 'in_progress' ? 'primary' : 'secondary'}>
-              {booking.status === 'in_progress' ? 'Working' : 'Accepted'}
+              {booking.status === 'in_progress' ? t('working') : t('accepted')}
             </StatusChip>
           </div>
           <div className="flex items-start gap-2.5 mb-4">
@@ -112,19 +114,19 @@ function AssignMembersInner() {
             <p className="text-sm">{booking.pickupLocation.address}</p>
           </div>
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">
-            <span>Workers needed: {required}</span>
-            <span>Selected: {activeSelection.size}</span>
+            <span>{t('workersNeeded', { count: required })}</span>
+            <span>{t('selected', { count: activeSelection.size })}</span>
           </div>
         </div>
 
         <p className="text-xs font-semibold text-ip-on-surface-variant uppercase tracking-wide mb-2">
-          Available members
+          {t('availableMembers')}
         </p>
         {candidates.length === 0 ? (
           <EmptyState
             icon={<UsersIcon className="w-6 h-6" />}
-            title="No members available"
-            description="Bring a member online to assign them to this job."
+            title={t('noMembersAvailable')}
+            description={t('noMembersAvailableDesc')}
           />
         ) : (
           <div className="ip-card mb-6 space-y-1">
@@ -133,7 +135,7 @@ function AssignMembersInner() {
                 key={m._id}
                 name={m.name}
                 photoUrl={m.profilePhoto}
-                subtitle={m.availabilityStatus === 'online' ? 'Currently active' : 'Assigned to this job'}
+                subtitle={m.availabilityStatus === 'online' ? t('currentlyActive') : t('assignedToJob')}
                 selected={activeSelection.has(m._id)}
                 disabled={!activeSelection.has(m._id) && activeSelection.size >= required}
                 onToggle={() => toggle(m._id)}
@@ -155,7 +157,7 @@ function AssignMembersInner() {
           disabled={pending || activeSelection.size === 0}
           onClick={submit}
         >
-          {pending ? 'Assigning…' : `Assign & notify ${activeSelection.size || ''}`}
+          {pending ? t('assigning') : t('assignAndNotify', { count: activeSelection.size || '' })}
         </Button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useIncomingOffer } from '@/lib/useIncomingOffer';
@@ -20,6 +21,7 @@ function MemberPicker({
   members: MuthaResponse['members'];
   onAssigned: () => void;
 }) {
+  const t = useTranslations('muthaRequests');
   const remaining = booking.requiredHamaliCount - booking.assignedHamaliIds.length;
   const onlineMembers = members.filter((m) => m.availabilityStatus === 'online');
   const [selected, setSelected] = useState<string[]>([]);
@@ -39,7 +41,7 @@ function MemberPicker({
       await api.post(`/api/requests/${booking._id}/accept`, { memberIds: selected });
       onAssigned();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not assign members to this job.');
+      setError(err instanceof ApiClientError ? err.message : t('errorAssign'));
     } finally {
       setPending(false);
     }
@@ -63,8 +65,10 @@ function MemberPicker({
             <LayersIcon className="w-5 h-5" />
           </span>
           <div className="min-w-0">
-            <p className="font-heading font-bold text-base capitalize">{booking.type} job</p>
-            <p className="text-xs text-ip-on-surface-variant">Needs {remaining} more worker{remaining === 1 ? '' : 's'}</p>
+            <p className="font-heading font-bold text-base capitalize">{t('jobLabel', { type: booking.type })}</p>
+            <p className="text-xs text-ip-on-surface-variant">
+              {t('needsMore', { count: remaining, plural: remaining === 1 ? '' : 's' })}
+            </p>
           </div>
         </div>
         <p className="font-heading font-bold text-lg whitespace-nowrap">₹{booking.fareBreakdown.total}</p>
@@ -82,10 +86,10 @@ function MemberPicker({
       </div>
 
       <p className="text-xs font-semibold text-ip-on-surface-variant uppercase tracking-wide mb-2">
-        Assign online members ({selected.length}/{remaining})
+        {t('assignOnline', { selected: selected.length, remaining })}
       </p>
       {onlineMembers.length === 0 ? (
-        <p className="text-sm text-ip-on-surface-variant mb-4">No members online right now — bring someone online to assign this job.</p>
+        <p className="text-sm text-ip-on-surface-variant mb-4">{t('noneOnline')}</p>
       ) : (
         <div className="space-y-1 mb-4">
           {onlineMembers.map((m) => {
@@ -95,7 +99,7 @@ function MemberPicker({
                 key={m._id}
                 name={m.name}
                 photoUrl={m.profilePhoto}
-                subtitle="Currently active"
+                subtitle={t('currentlyActive')}
                 selected={checked}
                 disabled={!checked && selected.length >= remaining}
                 onToggle={() => toggle(m._id)}
@@ -113,7 +117,7 @@ function MemberPicker({
 
       <div className="flex gap-3">
         <Button variant="ghost" className="flex-1" disabled={pending} onClick={reject}>
-          Reject
+          {t('reject')}
         </Button>
         <Button
           variant="secondary"
@@ -121,7 +125,7 @@ function MemberPicker({
           disabled={pending || selected.length !== remaining}
           onClick={assign}
         >
-          {pending ? 'Assigning…' : `Assign ${selected.length || ''}`}
+          {pending ? t('assigning') : t('assign', { count: selected.length || '' })}
         </Button>
       </div>
     </div>
@@ -129,6 +133,7 @@ function MemberPicker({
 }
 
 export default function MuthaRequestsPage() {
+  const t = useTranslations('muthaRequests');
   const { data: requestsData, state, reload: reloadRequests } = usePolling(
     () => api.get<{ requests: Booking[] }>('/api/requests'),
     6000
@@ -153,8 +158,8 @@ export default function MuthaRequestsPage() {
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <h1 className="font-heading text-2xl font-bold mb-1">Job requests</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">Assign specific online members to each job.</p>
+      <h1 className="font-heading text-2xl font-bold mb-1">{t('pageTitle')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-6">{t('pageSubtitle')}</p>
 
       {offer && (
         <div className="mb-6">
@@ -162,13 +167,11 @@ export default function MuthaRequestsPage() {
             offer={offer}
             accent="secondary"
             responding={responding}
-            acceptLabel="Accept & assign"
+            acceptLabel={t('acceptAndAssign')}
             onAccept={() => respondToOffer(true)}
             onReject={() => respondToOffer(false)}
           />
-          <p className="text-xs text-ip-on-surface-variant mt-2">
-            Accepting holds this job for your group — pick members from the list below to confirm.
-          </p>
+          <p className="text-xs text-ip-on-surface-variant mt-2">{t('holdNotice')}</p>
           {offerError && (
             <div role="alert" className="flex items-start gap-2 mt-2 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-3.5 py-2.5 text-xs text-ip-on-error-container">
               <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
@@ -187,7 +190,7 @@ export default function MuthaRequestsPage() {
       )}
 
       {state !== 'loading' && requests.length === 0 && (
-        <EmptyState icon={<LayersIcon className="w-6 h-6" />} title="No open requests" description="Jobs your group qualifies for will show up here." />
+        <EmptyState icon={<LayersIcon className="w-6 h-6" />} title={t('noOpenRequests')} description={t('noOpenRequestsDesc')} />
       )}
 
       <div className="space-y-4">

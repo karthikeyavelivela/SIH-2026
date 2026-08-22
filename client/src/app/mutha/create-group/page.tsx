@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MuthaResponse } from '@/lib/types';
@@ -29,6 +30,7 @@ function readAsDataUrl(file: File): Promise<string> {
 // photo and surfaces the same invite-code/QR sharing block the Stitch
 // design specs, scoped to the group the leader already has.
 export default function MuthaGroupSettingsPage() {
+  const t = useTranslations('muthaCreateGroup');
   const { data, reload } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -71,7 +73,7 @@ export default function MuthaGroupSettingsPage() {
       await reload();
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not save your group settings.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setPending(false);
     }
@@ -93,10 +95,10 @@ export default function MuthaGroupSettingsPage() {
 
   return (
     <div className="max-w-lg mx-auto pb-8">
-      <BackHeader title="Group settings" fallbackHref="/mutha/dashboard" />
+      <BackHeader title={t('title')} fallbackHref="/mutha/dashboard" />
 
       <div className="px-5 pt-5">
-        <p className="text-sm text-ip-on-surface-variant mb-6">Update your Mutha group's name, region, and photo.</p>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
 
         <div className="ip-card mb-6">
           <div className="flex flex-col items-center mb-5">
@@ -104,7 +106,7 @@ export default function MuthaGroupSettingsPage() {
               type="button"
               onClick={() => inputRef.current?.click()}
               className="relative w-20 h-20 rounded-full bg-ip-surface-container-high flex items-center justify-center overflow-hidden mb-2"
-              aria-label="Change group photo"
+              aria-label={t('changePhotoAria')}
             >
               {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -114,40 +116,38 @@ export default function MuthaGroupSettingsPage() {
               )}
             </button>
             <input ref={inputRef} type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
-            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">Group photo</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">{t('groupPhoto')}</p>
           </div>
 
           <label className="block mb-4">
             <span className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Mutha name
+              {t('muthaName')}
             </span>
             <input
               className={inputClass}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Red Lions"
+              placeholder={t('muthaNamePlaceholder')}
               maxLength={80}
             />
           </label>
 
           <label className="block">
             <span className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-              Operating region
+              {t('operatingRegion')}
             </span>
             <input
               className={inputClass}
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              placeholder="e.g. Visakhapatnam"
+              placeholder={t('regionPlaceholder')}
               maxLength={80}
             />
           </label>
         </div>
 
-        <h2 className="font-heading text-lg font-bold mb-1">Invite members</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-3">
-          New members sign up as a Hamali, choose "Join a group", and enter this code.
-        </p>
+        <h2 className="font-heading text-lg font-bold mb-1">{t('inviteMembers')}</h2>
+        <p className="text-sm text-ip-on-surface-variant mb-3">{t('inviteHint')}</p>
 
         <div className="ip-card mb-6 flex flex-col items-center">
           {data && <QRCodeDisplay value={data.mutha.inviteCode} className="mb-4" />}
@@ -159,7 +159,7 @@ export default function MuthaGroupSettingsPage() {
               type="button"
               onClick={copyCode}
               className="flex-shrink-0 w-9 h-9 rounded-full bg-ip-surface-container-high flex items-center justify-center text-ip-on-surface-variant"
-              aria-label="Copy invite code"
+              aria-label={t('copyCodeAria')}
             >
               {copied ? <CheckIcon className="w-4 h-4 text-ip-secondary" /> : <span className="text-xs font-bold">⧉</span>}
             </button>
@@ -173,12 +173,12 @@ export default function MuthaGroupSettingsPage() {
         )}
         {saved && !error && (
           <div role="status" className="mb-4 rounded-ip-input border border-ip-secondary/30 bg-ip-secondary-container/20 px-4 py-3 text-sm text-ip-secondary">
-            Saved.
+            {t('saved')}
           </div>
         )}
 
         <Button variant="secondary" size="lg" className="w-full" disabled={pending || !name.trim()} onClick={save}>
-          {pending ? 'Saving…' : 'Save changes'}
+          {pending ? t('saving') : t('saveChanges')}
         </Button>
       </div>
     </div>
