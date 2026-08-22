@@ -63,9 +63,20 @@ export type ManagerBasePermission = (typeof MANAGER_PERMISSIONS)[number];
 // Managers can additionally hold `manage_region:<regionName>` strings.
 export type ManagerPermission = ManagerBasePermission | `manage_region:${string}`;
 
+export type AppLocale = 'en' | 'te' | 'hi';
+
 export interface JwtAccessPayload {
   id: string;
   role: Role;
+  // Phase 2 (server-side i18n) — embedded at sign time so every request
+  // knows the caller's language without a DB round-trip on every error
+  // path (same reasoning `role` is already embedded, not re-fetched).
+  // Optional so a token signed before this field existed still verifies;
+  // every reader treats a missing value as 'en'. Refreshes automatically
+  // within 15 minutes (the access token TTL) or on next login/refresh
+  // after a User.preferredLocale change — same staleness window `role`
+  // already has.
+  locale?: AppLocale;
 }
 
 export interface JwtRefreshPayload {

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { ApiError } from '../utils/ApiError';
+import { t } from '../i18n/messages';
+import { resolveLocale } from '../i18n/resolveLocale';
 
 export function validate(req: Request, _res: Response, next: NextFunction): void {
   const errors = validationResult(req);
@@ -16,7 +18,7 @@ export function validate(req: Request, _res: Response, next: NextFunction): void
       const { value: _value, ...rest } = e as Record<string, unknown>;
       return rest;
     });
-    next(new ApiError(400, 'Validation failed', safeErrors));
+    next(new ApiError(400, t('Validation failed', resolveLocale(req)), safeErrors));
     return;
   }
   next();

@@ -42,6 +42,8 @@ import { opsHubRouter } from './routes/opsHub.routes';
 import { reportsRouter } from './routes/reports.routes';
 import { ApiError } from './utils/ApiError';
 import { globalMutationLimiter } from './middleware/rateLimit';
+import { t } from './i18n/messages';
+import { resolveLocale } from './i18n/resolveLocale';
 
 export const app = express();
 
@@ -165,13 +167,20 @@ app.use((req: Request, res: Response) => {
 });
 
 // Central error handler — never leaks stack traces or internals to the client.
+// Phase 2 (server-side i18n): translates the small set of most-common
+// literal ApiError messages via server/src/i18n/messages.ts's exact-string
+// table; anything not in that table falls back to its original English
+// text (t() itself is a no-op for keys it doesn't recognize) — see that
+// file's doc comment for why this isn't every message in the codebase.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ApiError) {
-    res.status(err.statusCode).json({ error: err.message, details: err.details });
+    const locale = resolveLocale(req);
+    res.status(err.statusCode).json({ error: t(err.message, locale), details: err.details });
     return;
   }
   // eslint-disable-next-line no-console
   console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  const locale = resolveLocale(req);
+  res.status(500).json({ error: t('Internal server error', locale) });
 });

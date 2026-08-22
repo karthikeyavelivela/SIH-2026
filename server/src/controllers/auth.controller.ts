@@ -16,7 +16,7 @@ import { Mutha } from '../models/Mutha';
 import { Fleet } from '../models/Fleet';
 import { WarehouseHub } from '../models/WarehouseHub';
 import { detectRapidAccountCreation } from '../services/fraudDetection.service';
-import type { Role } from '@fyro/shared';
+import type { Role, AppLocale } from '@fyro/shared';
 import {
   signAccessToken,
   signRefreshToken,
@@ -40,8 +40,18 @@ const cookieOpts = {
   sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'strict') as 'none' | 'strict',
 };
 
-function setAuthCookies(res: Response, userId: string, role: string, tokenVersion: number) {
-  const accessToken = signAccessToken({ id: userId, role: role as never });
+// locale is optional (not every call site has it fetched already, e.g. a
+// fresh signup before preferredLocale is ever set beyond its 'en' default)
+// — omitted means the JWT carries no locale claim and every reader treats
+// that the same as 'en' (see JwtAccessPayload's doc comment in shared/src/types.ts).
+function setAuthCookies(
+  res: Response,
+  userId: string,
+  role: string,
+  tokenVersion: number,
+  locale?: AppLocale
+) {
+  const accessToken = signAccessToken({ id: userId, role: role as never, locale });
   const refreshToken = signRefreshToken({ id: userId, tokenVersion });
   res.cookie('accessToken', accessToken, { ...cookieOpts, maxAge: ACCESS_TOKEN_MAX_AGE_MS });
   res.cookie('refreshToken', refreshToken, { ...cookieOpts, maxAge: REFRESH_TOKEN_MAX_AGE_MS });
@@ -62,7 +72,7 @@ export const signupCustomer = asyncHandler(async (req: Request, res: Response) =
     rethrowAsConflict(err, 'Phone number');
   }
   detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user) });
 });
 
@@ -95,7 +105,7 @@ export const signupDriver = asyncHandler(async (req: Request, res: Response) => 
     rethrowAsConflict(err, 'Vehicle registration number');
   }
   detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user) });
 });
 
@@ -115,7 +125,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
     }
     await HamaliProfile.create({ userId: user._id, type: 'solo' });
     detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-    setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+    setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res.status(201).json({ user: publicUser(user) });
     return;
   }
@@ -135,7 +145,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
       inviteCode: code,
     });
     detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-    setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+    setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res
       .status(201)
       .json({ user: publicUser(user), mutha: { id: mutha._id, inviteCode: mutha.inviteCode } });
@@ -158,7 +168,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
     await mutha.save();
 
     detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-    setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+    setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res.status(201).json({ user: publicUser(user) });
     return;
   }
@@ -180,7 +190,7 @@ export const signupFleetOwner = asyncHandler(async (req: Request, res: Response)
   }
   const fleet = await Fleet.create({ ownerId: user._id, name: fleetName, vehicleIds: [], driverIds: [] });
   detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user), fleet: { id: fleet._id, name: fleet.name } });
 });
 
@@ -198,7 +208,7 @@ export const signupWarehouseHub = asyncHandler(async (req: Request, res: Respons
   }
   const hub = await WarehouseHub.create({ ownerId: user._id, name: hubName, address: address ?? '' });
   detectRapidAccountCreation(user._id, req.ip).catch(() => {});
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user), hub: { id: hub._id, name: hub.name } });
 });
 
@@ -210,7 +220,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw new ApiError(401, 'Invalid credentials');
 
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ user: publicUser(user) });
 });
 
@@ -234,7 +244,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   user.tokenVersion += 1;
   await user.save();
 
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ ok: true });
 });
 
@@ -261,7 +271,7 @@ export const switchRole = asyncHandler(async (req: Request, res: Response) => {
   }
   user.role = role;
   await user.save();
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ user: publicUser(user) });
 });
 
@@ -431,7 +441,7 @@ export const updateMyPassword = asyncHandler(async (req: Request, res: Response)
   user.tokenVersion += 1;
   await user.save();
 
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ ok: true });
 });
 
@@ -470,6 +480,10 @@ export const updateMyLocale = asyncHandler(async (req: Request, res: Response) =
   const { locale } = req.body as { locale: 'en' | 'te' | 'hi' };
   const user = await User.findByIdAndUpdate(req.user!.id, { preferredLocale: locale }, { new: true });
   if (!user) throw new ApiError(401, 'User not found');
+  // Re-issue cookies with the new locale baked into the access token —
+  // otherwise the switch wouldn't take effect (agents/server-error text)
+  // until the old token expires, up to 15 minutes later.
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ preferredLocale: user.preferredLocale });
 });
 
@@ -533,7 +547,7 @@ export const updateMyPayoutDetails = asyncHandler(async (req: Request, res: Resp
 export const logoutEverywhere = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findByIdAndUpdate(req.user!.id, { $inc: { tokenVersion: 1 } }, { new: true });
   if (!user) throw new ApiError(401, 'User not found');
-  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ ok: true });
 });
 

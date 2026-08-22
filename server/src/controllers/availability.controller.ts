@@ -73,7 +73,7 @@ export const setAvailability = asyncHandler(async (req: Request, res: Response) 
     if (!requester) throw new ApiError(404, 'User not found');
     const outstanding = outstandingKycDocs(requester);
     if (outstanding.length > 0) {
-      throw new ApiError(403, kycGateMessage(outstanding));
+      throw new ApiError(403, kycGateMessage(outstanding, req.user!.locale));
     }
   }
 
