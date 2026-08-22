@@ -33,6 +33,12 @@ const envSchema = z.object({
     .string()
     .default('true')
     .transform((v) => v === 'true'),
+  // Phase 4 AI agents. Same mock/real split as every other external
+  // integration in this codebase — absent key means agents run in mock
+  // mode (deterministic, clearly-labeled placeholder analysis) rather
+  // than either failing outright or silently pretending to call a model
+  // that was never configured.
+  ANTHROPIC_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

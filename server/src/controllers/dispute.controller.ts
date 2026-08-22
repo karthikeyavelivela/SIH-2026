@@ -67,6 +67,60 @@ export const createDispute = asyncHandler(async (req: Request, res: Response) =>
   res.status(201).json({ dispute });
 });
 
+/**
+ * POST /api/disputes — Phase 4 (Agent B item): a customer or worker
+ * raising a dispute on their OWN booking directly, rather than only an
+ * admin being able to open one. `raisedBy` is derived from req.user!.id
+ * here, never taken from the body — createDispute (admin route, above)
+ * still accepts a client-supplied raisedBy because an admin genuinely
+ * needs to open a dispute on someone else's behalf; this self-service
+ * route has no such need and no such trust.
+ */
+export const createMyDispute = asyncHandler(async (req: Request, res: Response) => {
+  const { bookingId, claim, priority } = req.body;
+  const userId = req.user!.id;
+
+  const booking = await Booking.findOne({
+    _id: bookingId,
+    $or: [{ customerId: userId }, { assignedDriverIds: userId }, { assignedHamaliIds: userId }],
+  });
+  if (!booking) throw new ApiError(404, 'Booking not found, or you were not a party to it');
+
+  const dispute = await Dispute.create({
+    bookingId,
+    raisedBy: userId,
+    claim,
+    priority: priority ?? 'medium',
+    status: 'open',
+    systemRecord: {
+      status: booking.status,
+      fareTotal: booking.fareBreakdown.total,
+      distanceKm: booking.distanceKm,
+      pickupAddress: booking.pickupLocation.address,
+      dropAddress: booking.dropLocation.address,
+      statusHistory: booking.statusHistory,
+    },
+    communicationLog: [],
+  });
+
+  await writeAuditLog({
+    actorId: userId,
+    actorRole: req.user!.role,
+    action: 'dispute_created_self_service',
+    targetType: 'Dispute',
+    targetId: dispute._id.toString(),
+    details: { bookingId, priority: dispute.priority },
+  });
+
+  res.status(201).json({ dispute });
+});
+
+/** GET /api/disputes/mine — the caller's own raised disputes. */
+export const listMyDisputes = asyncHandler(async (req: Request, res: Response) => {
+  const disputes = await Dispute.find({ raisedBy: req.user!.id }).sort({ createdAt: -1 });
+  res.status(200).json({ disputes });
+});
+
 /** POST /api/admin/disputes/:id/messages — append to the communication log. */
 export const addDisputeMessage = asyncHandler(async (req: Request, res: Response) => {
   const { message } = req.body;

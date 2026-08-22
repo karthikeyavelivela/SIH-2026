@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { api, ApiClientError } from '@/lib/api';
 import { DocumentUploadCard } from '@/components/ui/DocumentUploadCard';
+import { AgentResultCard, type AgentResult } from '@/components/ui/AgentResultCard';
 import type { KycDocumentType } from '@fyro/shared';
 
 interface KycDocument {
@@ -49,6 +50,8 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
   const [docs, setDocs] = useState<KycDocument[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadingType, setUploadingType] = useState<KycDocumentType | null>(null);
+  const [precheckType, setPrecheckType] = useState<KycDocumentType | null>(null);
+  const [precheckResults, setPrecheckResults] = useState<Partial<Record<KycDocumentType, AgentResult>>>({});
 
   useEffect(() => {
     api
@@ -74,6 +77,19 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
     }
   }
 
+  async function handlePrecheck(type: KycDocumentType) {
+    setPrecheckType(type);
+    setError(null);
+    try {
+      const res = await api.post<{ result: AgentResult }>('/api/agents/document-precheck', { documentType: type });
+      setPrecheckResults((prev) => ({ ...prev, [type]: res.result }));
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Could not run precheck — try again.');
+    } finally {
+      setPrecheckType(null);
+    }
+  }
+
   if (requiredTypes.length === 0) return null;
   if (docs === null) {
     return <div className="h-32 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />;
@@ -85,14 +101,32 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
       <div className="space-y-2.5">
         {requiredTypes.map((type) => {
           const doc = docs.find((d) => d.type === type);
+          const precheckResult = precheckResults[type];
           return (
-            <DocumentUploadCard
-              key={type}
-              label={DOC_TYPE_LABEL[type]}
-              status={uploadingType === type ? 'pending' : doc ? doc.status === 'under_review' ? 'pending' : doc.status : 'missing'}
-              rejectionReason={doc?.rejectionReason}
-              onUpload={(file) => handleUpload(type, file)}
-            />
+            <div key={type}>
+              <DocumentUploadCard
+                label={DOC_TYPE_LABEL[type]}
+                status={uploadingType === type ? 'pending' : doc ? doc.status === 'under_review' ? 'pending' : doc.status : 'missing'}
+                rejectionReason={doc?.rejectionReason}
+                onUpload={(file) => handleUpload(type, file)}
+              />
+              {doc && doc.status !== 'verified' && (
+                <div className="mt-1.5 ml-1">
+                  {precheckResult ? (
+                    <AgentResultCard result={precheckResult} accent="secondary" />
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={precheckType === type}
+                      onClick={() => handlePrecheck(type)}
+                      className="text-xs font-semibold text-ip-secondary hover:underline disabled:opacity-50"
+                    >
+                      {precheckType === type ? 'Checking…' : 'AI precheck — catch issues before review'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>

@@ -75,3 +75,20 @@ export const requestsLimiter = rateLimit({
   message: { error: 'Too many requests, try again in a minute.' },
   keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
 });
+
+// Phase 4 AI agents — "rate limit and cache agent calls; do not invoke on
+// every page load" is an explicit guardrail. Real (non-mock) calls cost
+// real money per request, so this cap is tighter than the other
+// per-account limiters above; agents.controller.ts's 5-minute result
+// cache (server/src/agents/cache.ts) is what actually keeps normal usage
+// (a user re-opening the same page) from ever hitting this limit at all —
+// this is the backstop against a client bypassing the cache (different
+// cache keys) or retrying aggressively.
+export const agentLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many AI assistant requests, try again in a minute.' },
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+});

@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MetricCard } from '@/components/ui/MetricCard';
+import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
 import {
   UsersIcon,
   LayersIcon,
@@ -87,6 +88,11 @@ export default function AdminDashboardPage() {
             </div>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-8 max-w-lg">
+        <DemandForecastWidget region={user?.region} accent="primary" />
+        <SupportAgentWidget accent="primary" />
       </div>
     </div>
   );

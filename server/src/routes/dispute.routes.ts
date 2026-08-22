@@ -7,6 +7,28 @@ import * as disputeController from '../controllers/dispute.controller';
 
 export const disputeRouter = Router();
 
+// Self-service — customer/driver/hamali_solo/mutha_member/mutha_leader
+// raising or viewing THEIR OWN disputes. Mounted separately at
+// /api/disputes (see app.ts) from the admin-only router below (mounted at
+// /api/admin/disputes) — same split pattern as insurance.routes.ts's
+// insuranceRouter/adminInsuranceRouter.
+export const myDisputeRouter = Router();
+myDisputeRouter.use(
+  verifyJwt,
+  requireRole('customer', 'driver', 'hamali_solo', 'mutha_member', 'mutha_leader')
+);
+myDisputeRouter.get('/mine', disputeController.listMyDisputes);
+myDisputeRouter.post(
+  '/',
+  [
+    body('bookingId').isMongoId(),
+    body('claim').isString().trim().isLength({ min: 1, max: 2000 }),
+    body('priority').optional().isIn(['low', 'medium', 'high', 'critical']),
+  ],
+  validate,
+  disputeController.createMyDispute
+);
+
 // Admin-only — dispute_refund_resolution is listed under the Admin (not
 // Manager) hierarchy in DESIGN_INVENTORY.md.
 disputeRouter.use(verifyJwt, requireRole('admin'));

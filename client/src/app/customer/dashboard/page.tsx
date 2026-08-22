@@ -10,6 +10,7 @@ import { StatusChip } from '@/components/ui/StatusChip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ListDivider } from '@/components/ui/ListDivider';
+import { SupportAgentWidget } from '@/components/worker/AgentWidgets';
 import {
   BellIcon,
   MapPinIcon,
@@ -261,6 +262,10 @@ export default function CustomerDashboardPage() {
             </div>
           )}
         </section>
+
+        <div className="mt-5">
+          <SupportAgentWidget accent="primary" />
+        </div>
       </main>
     </div>
   );

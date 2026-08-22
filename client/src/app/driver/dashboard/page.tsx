@@ -12,6 +12,7 @@ import { StatusPill } from '@/components/worker/StatusPill';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { ServiceAreaCard } from '@/components/worker/ServiceAreaCard';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
+import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
 import { TopBar } from '@/components/ui/TopBar';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { DRIVER_WILLING_RADIUS_KM } from '@/lib/matchingConstants';
@@ -166,6 +167,11 @@ export default function DriverDashboardPage() {
           </div>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
+
+        <div className="mt-5">
+          <DemandForecastWidget region={user?.region} accent="primary" />
+          <SupportAgentWidget accent="primary" />
+        </div>
 
         {pendingRatingId && (
           <RatingModal

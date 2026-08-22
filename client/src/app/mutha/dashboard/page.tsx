@@ -8,6 +8,7 @@ import { usePolling } from '@/lib/usePolling';
 import { Booking, EarningsResponse, MuthaResponse } from '@/lib/types';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
+import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
 import { AvatarStack } from '@/components/ui/AvatarStack';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { CrewAttendanceCard } from '@/components/ui/CrewAttendanceCard';
@@ -153,6 +154,11 @@ export default function MuthaDashboardPage() {
           </span>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
+      </div>
+
+      <div className="mt-5">
+        <DemandForecastWidget region={user?.region} accent="secondary" />
+        <SupportAgentWidget accent="secondary" />
       </div>
 
       {pendingRatingId && (

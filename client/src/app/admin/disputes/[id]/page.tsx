@@ -9,6 +9,7 @@ import { Timeline } from '@/components/ui/Timeline';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ChevronLeftIcon } from '@/components/ui/icons';
+import { AgentResultCard, type AgentResult } from '@/components/ui/AgentResultCard';
 
 interface DisputeDetail {
   _id: string;
@@ -61,6 +62,23 @@ export default function AdminDisputeDetailPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [triage, setTriage] = useState<AgentResult | null>(null);
+  const [triageLoading, setTriageLoading] = useState(false);
+  const [triageError, setTriageError] = useState<string | null>(null);
+
+  async function runTriage() {
+    setTriageLoading(true);
+    setTriageError(null);
+    try {
+      const res = await api.post<{ result: AgentResult }>(`/api/agents/dispute-triage/${id}`);
+      setTriage(res.result);
+    } catch (err) {
+      setTriageError(err instanceof ApiClientError ? err.message : 'Could not run triage — try again.');
+    } finally {
+      setTriageLoading(false);
+    }
+  }
 
   async function resolve() {
     if (!note.trim()) return;
@@ -143,6 +161,27 @@ export default function AdminDisputeDetailPage() {
             <div className="flex justify-between gap-2"><dt className="text-ip-on-surface-variant flex-shrink-0">Drop</dt><dd className="font-medium text-right truncate">{dispute.systemRecord.dropAddress}</dd></div>
           </dl>
         </div>
+      </div>
+
+      <div className="mb-8">
+        {triage ? (
+          <AgentResultCard result={triage} />
+        ) : (
+          <div className="ip-card">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-ip-on-surface">AI dispute triage</p>
+                <p className="text-xs text-ip-on-surface-variant mt-0.5">
+                  Compares the claim against the system record and comms log, and suggests where to look first.
+                </p>
+              </div>
+              <Button variant="ghost" disabled={triageLoading} onClick={runTriage}>
+                {triageLoading ? 'Analysing…' : 'Run triage'}
+              </Button>
+            </div>
+            {triageError && <p className="text-sm text-ip-error mt-2">{triageError}</p>}
+          </div>
+        )}
       </div>
 
       <div className="ip-card mb-8">
