@@ -172,6 +172,16 @@ function BookForm() {
   const [pickup, setPickup] = useState<GeoPoint | null>(null);
   const [drop, setDrop] = useState<GeoPoint | null>(null);
   const [weightKg, setWeightKg] = useState('');
+  // Computed once on mount, not inline in JSX — calling
+  // defaultScheduledForValue()/maxScheduledForValue() fresh on every render
+  // means `min` keeps creeping forward as real time passes while the form
+  // is being filled out, which can invalidate a value the user already
+  // picked (native datetime-local validation then silently blocks submit
+  // with no error shown anywhere in our own UI). Found live: pick a
+  // schedule time, spend a few seconds on the rest of the form, hit
+  // Confirm — nothing happens because `min` had already drifted past the
+  // selected value.
+  const [scheduleBounds] = useState(() => ({ min: defaultScheduledForValue(), max: maxScheduledForValue() }));
   const [hamaliCount, setHamaliCount] = useState(1);
   const { addresses: savedAddresses, save: saveAddress } = useSavedAddresses();
 
@@ -462,7 +472,7 @@ function BookForm() {
                   type="button"
                   role="radio"
                   aria-checked={!!scheduledFor}
-                  onClick={() => setScheduledFor((v) => v || defaultScheduledForValue())}
+                  onClick={() => setScheduledFor((v) => v || scheduleBounds.min)}
                   className={`px-3 py-1.5 rounded-ip-pill text-xs font-semibold transition-colors ${scheduledFor ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant'}`}
                 >
                   Schedule
@@ -474,8 +484,8 @@ function BookForm() {
                 <input
                   type="datetime-local"
                   value={scheduledFor}
-                  min={defaultScheduledForValue()}
-                  max={maxScheduledForValue()}
+                  min={scheduleBounds.min}
+                  max={scheduleBounds.max}
                   onChange={(e) => setScheduledFor(e.target.value)}
                   className="w-full min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
                 />
