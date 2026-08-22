@@ -10,6 +10,8 @@ import { runDemandForecastAgent } from '../agents/demandForecastAgent';
 import { User } from '../models/User';
 import type { AgentLocale } from '../agents/locale';
 import { runDocumentPrecheckAgent } from '../agents/documentPrecheckAgent';
+import { runPricingQuoteAgent, type FareCategory } from '../agents/pricingQuoteAgent';
+import { runMarketInsightsAgent } from '../agents/marketInsightsAgent';
 import type { Role, KycDocumentType } from '@fyro/shared';
 
 /**
@@ -135,6 +137,69 @@ export const precheckDocument = asyncHandler(async (req: Request, res: Response)
     targetType: 'User',
     targetId: userId,
     details: { documentType, confidence: result.confidence, mock: result.mock },
+  });
+
+  res.status(200).json({ result });
+});
+
+// Agent E — Pricing & Quote. Any authenticated role may sanity-check a
+// quote for a region+category+distance they're about to book or price —
+// there's nothing user-scoped in the underlying data (fare rules and
+// completed-booking aggregates are already public-ish platform facts, same
+// exposure level as the existing GET /api/fare-rules endpoint), so no
+// ownership check is needed beyond being logged in.
+export const getPricingQuote = asyncHandler(async (req: Request, res: Response) => {
+  const { region, category, distanceKm, hamaliCount } = req.body as {
+    region: string;
+    category: FareCategory;
+    distanceKm: number;
+    hamaliCount?: number;
+  };
+  const userId = req.user!.id;
+
+  const caller = await User.findById(userId).select('preferredLocale').lean();
+  const callerLocale = caller?.preferredLocale as AgentLocale | undefined;
+
+  const result = await cached(
+    `pricing_quote:${region}:${category}:${distanceKm}:${hamaliCount ?? 0}:${callerLocale ?? 'en'}`,
+    () => runPricingQuoteAgent(region, category, distanceKm, hamaliCount ?? 0, callerLocale)
+  );
+
+  await writeAuditLog({
+    actorId: userId,
+    actorRole: req.user!.role,
+    action: 'agent_pricing_quote_run',
+    targetType: 'Region',
+    targetId: userId,
+    details: { region, category, distanceKm, confidence: result.confidence, mock: result.mock },
+  });
+
+  res.status(200).json({ result });
+});
+
+// Agent F — Market Insights. Admin/manager only, same posture as
+// analytics.routes.ts — this is a narrative layer over the same category
+// of aggregate data the analytics dashboard already exposes to that role,
+// never a new data-access surface.
+export const getMarketInsights = asyncHandler(async (req: Request, res: Response) => {
+  const { region } = req.body as { region?: string };
+  const userId = req.user!.id;
+
+  const caller = await User.findById(userId).select('preferredLocale').lean();
+  const callerLocale = caller?.preferredLocale as AgentLocale | undefined;
+
+  const result = await cached(
+    `market_insights:${region ?? 'all'}:${callerLocale ?? 'en'}`,
+    () => runMarketInsightsAgent(region, callerLocale)
+  );
+
+  await writeAuditLog({
+    actorId: userId,
+    actorRole: req.user!.role,
+    action: 'agent_market_insights_run',
+    targetType: 'Region',
+    targetId: userId,
+    details: { region: region ?? 'all', confidence: result.confidence, mock: result.mock },
   });
 
   res.status(200).json({ result });

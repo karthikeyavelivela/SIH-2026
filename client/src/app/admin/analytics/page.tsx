@@ -9,6 +9,7 @@ import { TrendChart } from '@/components/ui/TrendChart';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { WalletIcon, TruckIcon, LayersIcon, ClockIcon } from '@/components/ui/icons';
+import { MarketInsightsWidget } from '@/components/worker/AgentWidgets';
 
 const HeatmapMap = dynamic(() => import('@/components/map/HeatmapMap'), { ssr: false });
 
@@ -83,6 +84,11 @@ export default function AdminAnalyticsPage() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-10">
+        <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('marketInsights')}</h2>
+        <MarketInsightsWidget />
       </div>
     </div>
   );

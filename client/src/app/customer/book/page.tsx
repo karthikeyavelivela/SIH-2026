@@ -12,6 +12,7 @@ import { AddressField, GeoPoint } from '@/components/booking/AddressField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/components/ui/icons';
+import { PricingQuoteWidget, type FareCategory } from '@/components/worker/AgentWidgets';
 
 // How far a selected pickup can be from the device's GPS reading before we
 // ask "is this pickup for you or someone else?" — big enough that normal
@@ -26,6 +27,17 @@ function toDatetimeLocalValue(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+// Same three-tier thresholds as fare.service.ts's bucketVehicleCategoryFromCapacity
+// (server-side, authoritative) — mirrored here only to pick which category
+// label to show the pricing-quote agent widget for; the server never
+// trusts this, it re-derives its own category from the real active
+// FareRule lookup keyed on whatever category string this sends.
+function bucketVehicleCategory(capacityKg: number): FareCategory {
+  if (capacityKg <= 1000) return 'vehicle_small';
+  if (capacityKg <= 5000) return 'vehicle_medium';
+  return 'vehicle_large';
+}
+
 function defaultScheduledForValue(): string {
   return toDatetimeLocalValue(new Date(Date.now() + 35 * 60 * 1000));
 }
@@ -499,6 +511,15 @@ function BookForm() {
           </div>
 
           <FareCard state={fareState} fare={fare} errorMessage={fareError} />
+
+          {fareState === 'ready' && pickup && drop && (
+            <PricingQuoteWidget
+              region={REGION}
+              category={type === 'hamali' ? 'hamali' : bucketVehicleCategory(Number(weightKg) || 1)}
+              distanceKm={distanceKm(pickup, drop)}
+              hamaliCount={needsHamali ? hamaliCount : undefined}
+            />
+          )}
 
           {submitError && (
             <div role="alert" className="rounded-ip-card bg-ip-error-container text-ip-on-error-container px-4 py-3 text-sm">

@@ -1,2112 +1,2125 @@
 {
- "nav": {
-  "home": "Home",
-  "book": "Book",
-  "history": "History",
-  "profile": "Profile",
-  "requests": "Requests",
-  "earnings": "Earnings",
-  "group": "Group",
-  "jobs": "Jobs",
-  "members": "Members",
-  "job": "Job"
- },
- "languageSwitcher": {
-  "label": "Language"
- },
- "marketing": {
-  "layout": {
-   "howItWorks": "How it works",
-   "pricing": "Pricing",
-   "safety": "Safety",
-   "faq": "FAQ",
-   "about": "About",
-   "contact": "Contact",
-   "login": "Log in",
-   "bookDelivery": "Book a delivery",
-   "openMenu": "Open menu",
-   "closeMenu": "Close menu",
-   "copyright": "© 2026 FYRO. Andhra Pradesh.",
-   "backToHome": "Back to home"
+  "nav": {
+    "home": "Home",
+    "book": "Book",
+    "history": "History",
+    "profile": "Profile",
+    "requests": "Requests",
+    "earnings": "Earnings",
+    "group": "Group",
+    "jobs": "Jobs",
+    "members": "Members",
+    "job": "Job"
   },
-  "home": {
-   "liveBadge": "Live in Andhra Pradesh — real-time matching",
-   "heroTitleLine1": "Move anything.",
-   "heroTitleAccent": "Anywhere in AP.",
-   "heroSubtitle": "Trucks for 1kg or 1000 tons. Hamali labor on demand. Book in minutes, watch it move on a live map, pay and rate when it's done.",
-   "searchPlaceholder": "Where do you need a pickup?",
-   "searchCta": "Get moving",
-   "ctaBookDelivery": "Book a delivery",
-   "ctaDriveWithUs": "Drive with us",
-   "ctaJoinMutha": "Join a Mutha",
-   "statCargoRangeValue": "1kg–1000t",
-   "statCargoRangeLabel": "cargo range",
-   "statOfferTimeValue": "< 60s",
-   "statOfferTimeLabel": "to a live offer",
-   "statDistrictsValue": "13",
-   "statDistrictsLabel": "districts in AP",
-   "trust": {
-    "realMatchesTitle": "Real matches, not fake ones",
-    "realMatchesBody": "Jobs go to nearby drivers and Hamali workers one at a time, just like a ride-hailing app. If nothing's found, you're told honestly — never shown a fake instant match.",
-    "photoProofTitle": "Photo proof, both ends",
-    "photoProofBody": "A pickup and delivery photo is attached to every job — a real record, not just a status label.",
-    "ratingsTitle": "Two-way ratings",
-    "ratingsBody": "Customers and workers rate each other after every job — mandatory before either side's next one, so it's never a self-selected sample.",
-    "liveMapTitle": "Live on the map",
-    "liveMapBody": "Once a job is picked up, you watch it move — the driver or Hamali's location updates in real time."
-   },
-   "howItWorksHeading": "How FYRO works",
-   "steps": {
-    "tellUsTitle": "Tell us what you need",
-    "tellUsBody": "Cargo weight, pickup and drop points, or how many hands you need for loading.",
-    "findTitle": "We find the right one",
-    "findBody": "Nearby drivers and Hamali workers get sequential job offers, just like a ride-hailing captain app.",
-    "trackTitle": "Track it live",
-    "trackBody": "Live map, in-app chat, transparent fare — from pickup to delivery.",
-    "payTitle": "Pay and rate",
-    "payBody": "A fixed fare shown upfront, no surprises after. Pay your driver or Hamali team, then rate them."
-   },
-   "whereWeOperateHeading": "Where we operate",
-   "whereWeOperateSubtitle": "Live across Andhra Pradesh today, expanding district by district.",
-   "districts": {
-    "visakhapatnam": "Visakhapatnam",
-    "vijayawada": "Vijayawada",
-    "guntur": "Guntur",
-    "nellore": "Nellore",
-    "kurnool": "Kurnool",
-    "kakinada": "Kakinada",
-    "rajahmundry": "Rajahmundry",
-    "tirupati": "Tirupati",
-    "anantapur": "Anantapur",
-    "kadapa": "Kadapa",
-    "eluru": "Eluru",
-    "ongole": "Ongole",
-    "srikakulam": "Srikakulam"
-   },
-   "closingHeading": "Own a truck? Ready to work?",
-   "closingSubtitle": "Set your own hours, get matched to nearby jobs, and get paid for every trip — solo or as part of a Mutha.",
-   "closingDriveCta": "Drive with FYRO",
-   "closingHamaliCta": "Join as Hamali"
+  "languageSwitcher": {
+    "label": "Language"
   },
-  "about": {
-   "title": "About FYRO",
-   "body": "FYRO — Find Your Right One — is an on-demand logistics marketplace launching in Andhra Pradesh. We connect customers who need cargo moved or loaded with verified truck drivers and Hamali labor, matched in real time, tracked live, at a fixed fare shown upfront."
-  },
-  "contact": {
-   "title": "Contact",
-   "supportLabel": "Support",
-   "supportEmail": "support@fyro.example",
-   "partnershipsLabel": "Partnerships",
-   "partnershipsEmail": "partners@fyro.example"
-  },
-  "faq": {
-   "title": "Frequently asked questions",
-   "cantFindPrefix": "Can't find what you need?",
-   "contactUsLink": "Contact us",
-   "items": {
-    "fare": {
-     "q": "How is my fare calculated?",
-     "a": "A base fare plus a per-kilometre rate for the route, with a guaranteed minimum — set per region and vehicle/Hamali category. You see the full breakdown and total before you confirm a booking, and it doesn't change after you do."
+  "marketing": {
+    "layout": {
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "safety": "Safety",
+      "faq": "FAQ",
+      "about": "About",
+      "contact": "Contact",
+      "login": "Log in",
+      "bookDelivery": "Book a delivery",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "copyright": "© 2026 FYRO. Andhra Pradesh.",
+      "backToHome": "Back to home"
     },
-    "payment": {
-     "q": "How do I pay?",
-     "a": "FYRO shows you the fixed fare upfront. Payment is settled directly with your driver or Hamali team at the end of the job — there's no surprise afterward, since the amount was fixed from the moment you booked."
+    "home": {
+      "liveBadge": "Live in Andhra Pradesh — real-time matching",
+      "heroTitleLine1": "Move anything.",
+      "heroTitleAccent": "Anywhere in AP.",
+      "heroSubtitle": "Trucks for 1kg or 1000 tons. Hamali labor on demand. Book in minutes, watch it move on a live map, pay and rate when it's done.",
+      "searchPlaceholder": "Where do you need a pickup?",
+      "searchCta": "Get moving",
+      "ctaBookDelivery": "Book a delivery",
+      "ctaDriveWithUs": "Drive with us",
+      "ctaJoinMutha": "Join a Mutha",
+      "statCargoRangeValue": "1kg–1000t",
+      "statCargoRangeLabel": "cargo range",
+      "statOfferTimeValue": "< 60s",
+      "statOfferTimeLabel": "to a live offer",
+      "statDistrictsValue": "13",
+      "statDistrictsLabel": "districts in AP",
+      "trust": {
+        "realMatchesTitle": "Real matches, not fake ones",
+        "realMatchesBody": "Jobs go to nearby drivers and Hamali workers one at a time, just like a ride-hailing app. If nothing's found, you're told honestly — never shown a fake instant match.",
+        "photoProofTitle": "Photo proof, both ends",
+        "photoProofBody": "A pickup and delivery photo is attached to every job — a real record, not just a status label.",
+        "ratingsTitle": "Two-way ratings",
+        "ratingsBody": "Customers and workers rate each other after every job — mandatory before either side's next one, so it's never a self-selected sample.",
+        "liveMapTitle": "Live on the map",
+        "liveMapBody": "Once a job is picked up, you watch it move — the driver or Hamali's location updates in real time."
+      },
+      "howItWorksHeading": "How FYRO works",
+      "steps": {
+        "tellUsTitle": "Tell us what you need",
+        "tellUsBody": "Cargo weight, pickup and drop points, or how many hands you need for loading.",
+        "findTitle": "We find the right one",
+        "findBody": "Nearby drivers and Hamali workers get sequential job offers, just like a ride-hailing captain app.",
+        "trackTitle": "Track it live",
+        "trackBody": "Live map, in-app chat, transparent fare — from pickup to delivery.",
+        "payTitle": "Pay and rate",
+        "payBody": "A fixed fare shown upfront, no surprises after. Pay your driver or Hamali team, then rate them."
+      },
+      "whereWeOperateHeading": "Where we operate",
+      "whereWeOperateSubtitle": "Live across Andhra Pradesh today, expanding district by district.",
+      "districts": {
+        "visakhapatnam": "Visakhapatnam",
+        "vijayawada": "Vijayawada",
+        "guntur": "Guntur",
+        "nellore": "Nellore",
+        "kurnool": "Kurnool",
+        "kakinada": "Kakinada",
+        "rajahmundry": "Rajahmundry",
+        "tirupati": "Tirupati",
+        "anantapur": "Anantapur",
+        "kadapa": "Kadapa",
+        "eluru": "Eluru",
+        "ongole": "Ongole",
+        "srikakulam": "Srikakulam"
+      },
+      "closingHeading": "Own a truck? Ready to work?",
+      "closingSubtitle": "Set your own hours, get matched to nearby jobs, and get paid for every trip — solo or as part of a Mutha.",
+      "closingDriveCta": "Drive with FYRO",
+      "closingHamaliCta": "Join as Hamali"
     },
-    "cancel": {
-     "q": "Can I cancel a booking?",
-     "a": "Yes, any time before it's marked completed. There's no cancellation fee — go to the booking's tracking page and use \"Cancel booking.\""
+    "about": {
+      "title": "About FYRO",
+      "body": "FYRO — Find Your Right One — is an on-demand logistics marketplace launching in Andhra Pradesh. We connect customers who need cargo moved or loaded with verified truck drivers and Hamali labor, matched in real time, tracked live, at a fixed fare shown upfront."
     },
-    "coverage": {
-     "q": "Where does FYRO operate?",
-     "a": "Across Andhra Pradesh, expanding district by district — see the full list on the homepage. If you book outside an active district, you'll be told plainly rather than left waiting on a match that will never come."
+    "contact": {
+      "title": "Contact",
+      "supportLabel": "Support",
+      "supportEmail": "support@fyro.example",
+      "partnershipsLabel": "Partnerships",
+      "partnershipsEmail": "partners@fyro.example"
     },
-    "accountability": {
-     "q": "What keeps a job accountable?",
-     "a": "A pickup and delivery photo attached to every job, live location while it's in progress, and a rating both sides give right after — mandatory before either can start their next job. See the Trust & Safety page for the full list."
+    "faq": {
+      "title": "Frequently asked questions",
+      "cantFindPrefix": "Can't find what you need?",
+      "contactUsLink": "Contact us",
+      "items": {
+        "fare": {
+          "q": "How is my fare calculated?",
+          "a": "A base fare plus a per-kilometre rate for the route, with a guaranteed minimum — set per region and vehicle/Hamali category. You see the full breakdown and total before you confirm a booking, and it doesn't change after you do."
+        },
+        "payment": {
+          "q": "How do I pay?",
+          "a": "FYRO shows you the fixed fare upfront. Payment is settled directly with your driver or Hamali team at the end of the job — there's no surprise afterward, since the amount was fixed from the moment you booked."
+        },
+        "cancel": {
+          "q": "Can I cancel a booking?",
+          "a": "Yes, any time before it's marked completed. There's no cancellation fee — go to the booking's tracking page and use \"Cancel booking.\""
+        },
+        "coverage": {
+          "q": "Where does FYRO operate?",
+          "a": "Across Andhra Pradesh, expanding district by district — see the full list on the homepage. If you book outside an active district, you'll be told plainly rather than left waiting on a match that will never come."
+        },
+        "accountability": {
+          "q": "What keeps a job accountable?",
+          "a": "A pickup and delivery photo attached to every job, live location while it's in progress, and a rating both sides give right after — mandatory before either can start their next job. See the Trust & Safety page for the full list."
+        },
+        "noAccept": {
+          "q": "What if no one accepts my booking?",
+          "a": "You'll see it plainly on the tracking screen — FYRO doesn't fake a match. If nothing nearby is available, widen your pickup point or try again shortly as more workers come online."
+        },
+        "mutha": {
+          "q": "What's a Mutha?",
+          "a": "A Mutha is a registered group of Hamali workers with one leader. For jobs that need multiple hands, a Mutha leader receives the request on behalf of the group and assigns members — including splitting one group across more than one job at once."
+        },
+        "issue": {
+          "q": "What if something goes wrong during a job?",
+          "a": "Use \"Report an issue\" on the booking's tracking page — no-shows, damage, payment disputes, or misconduct go straight to our team as a complaint logged against that specific job."
+        }
+      }
     },
-    "noAccept": {
-     "q": "What if no one accepts my booking?",
-     "a": "You'll see it plainly on the tracking screen — FYRO doesn't fake a match. If nothing nearby is available, widen your pickup point or try again shortly as more workers come online."
+    "howItWorks": {
+      "title": "How it works",
+      "customers": {
+        "title": "For customers",
+        "body": "Post a booking with pickup/drop points and cargo details, or request Hamali labor for loading and unloading — or bundle both. Nearby drivers and Hamali workers are offered your job one at a time, so you always get a real acceptance, not a fake instant match. Track your assigned driver or team live on the map, chat in-app, and pay the fixed fare you saw upfront when the job is done."
+      },
+      "drivers": {
+        "title": "For drivers",
+        "body": "Go online and receive job requests matched to your vehicle capacity and location. Accept or reject within a visible countdown. Follow a clear status stepper from pickup to delivery, and track your earnings and incentives in one place."
+      },
+      "hamaliWorkers": {
+        "title": "For Hamali workers",
+        "body": "Work solo, or as part of a Mutha (labor group). Solo workers accept jobs directly. Mutha leaders receive requests on behalf of their group and assign members — even splitting one group across multiple job sites at once."
+      }
     },
-    "mutha": {
-     "q": "What's a Mutha?",
-     "a": "A Mutha is a registered group of Hamali workers with one leader. For jobs that need multiple hands, a Mutha leader receives the request on behalf of the group and assigns members — including splitting one group across more than one job at once."
+    "pricing": {
+      "title": "Pricing",
+      "subtitle": "Illustrative Andhra Pradesh rate card. Final fare is calculated per booking based on distance, cargo, and live demand, and shown in full before you confirm.",
+      "tableHeaders": {
+        "category": "Category",
+        "baseFare": "Base fare",
+        "perKm": "Per km",
+        "minimum": "Minimum"
+      },
+      "rows": {
+        "smallVehicle": {
+          "category": "Small vehicle (up to 1T)",
+          "base": "₹150",
+          "perKm": "₹18/km",
+          "min": "₹250"
+        },
+        "mediumVehicle": {
+          "category": "Medium vehicle (1T–5T)",
+          "base": "₹400",
+          "perKm": "₹28/km",
+          "min": "₹600"
+        },
+        "largeVehicle": {
+          "category": "Large vehicle (5T+)",
+          "base": "₹900",
+          "perKm": "₹45/km",
+          "min": "₹1200"
+        },
+        "hamali": {
+          "category": "Hamali (per worker)",
+          "base": "₹100",
+          "perKm": "—",
+          "min": "₹300"
+        }
+      }
     },
-    "issue": {
-     "q": "What if something goes wrong during a job?",
-     "a": "Use \"Report an issue\" on the booking's tracking page — no-shows, damage, payment disputes, or misconduct go straight to our team as a complaint logged against that specific job."
+    "safety": {
+      "title": "Trust & safety",
+      "subtitle": "What actually protects you on FYRO — every item below is a feature already running in the product, not a promise for later.",
+      "measures": {
+        "cancelWithoutPenalty": {
+          "title": "Cancel without penalty",
+          "body": "Change your mind any time before a job is marked completed and cancel it — no fee, and you don't owe an explanation."
+        },
+        "photoProof": {
+          "title": "Photo proof at pickup and delivery",
+          "body": "Drivers and Hamali workers attach a photo before they can advance a job past pickup, and again before marking it delivered — a real record attached to the booking, not just a status label."
+        },
+        "twoWayRatings": {
+          "title": "Two-way ratings, every job",
+          "body": "Customers rate their driver or Hamali team, and workers rate the customer, right after each job — it's mandatory before either side can start their next one, so the rating history you see is genuinely complete, not a self-selected sample."
+        },
+        "liveLocation": {
+          "title": "Live location while a job is in progress",
+          "body": "Once a driver or Hamali worker marks a job \"in transit,\" their location streams to your tracking screen in real time until delivery — you're never guessing where your shipment is."
+        },
+        "inAppChat": {
+          "title": "In-app chat, no raw numbers shared",
+          "body": "Coordinate pickup details through the booking's in-app chat. FYRO doesn't hand your phone number to the other side, or theirs to you."
+        },
+        "reportIssue": {
+          "title": "Report an issue on any booking",
+          "body": "Every booking has a \"Report an issue\" action that opens a complaint straight to our team — no-shows, damage, payment disputes, or misconduct, logged against that specific job."
+        }
+      }
     }
-   }
   },
-  "howItWorks": {
-   "title": "How it works",
-   "customers": {
-    "title": "For customers",
-    "body": "Post a booking with pickup/drop points and cargo details, or request Hamali labor for loading and unloading — or bundle both. Nearby drivers and Hamali workers are offered your job one at a time, so you always get a real acceptance, not a fake instant match. Track your assigned driver or team live on the map, chat in-app, and pay the fixed fare you saw upfront when the job is done."
-   },
-   "drivers": {
-    "title": "For drivers",
-    "body": "Go online and receive job requests matched to your vehicle capacity and location. Accept or reject within a visible countdown. Follow a clear status stepper from pickup to delivery, and track your earnings and incentives in one place."
-   },
-   "hamaliWorkers": {
-    "title": "For Hamali workers",
-    "body": "Work solo, or as part of a Mutha (labor group). Solo workers accept jobs directly. Mutha leaders receive requests on behalf of their group and assign members — even splitting one group across multiple job sites at once."
-   }
-  },
-  "pricing": {
-   "title": "Pricing",
-   "subtitle": "Illustrative Andhra Pradesh rate card. Final fare is calculated per booking based on distance, cargo, and live demand, and shown in full before you confirm.",
-   "tableHeaders": {
-    "category": "Category",
-    "baseFare": "Base fare",
-    "perKm": "Per km",
-    "minimum": "Minimum"
-   },
-   "rows": {
-    "smallVehicle": {
-     "category": "Small vehicle (up to 1T)",
-     "base": "₹150",
-     "perKm": "₹18/km",
-     "min": "₹250"
+  "auth": {
+    "login": {
+      "eyebrow": "Welcome back",
+      "title": "Log in",
+      "subtitle": "Enter your phone and password to continue.",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password",
+      "submit": "Log in",
+      "submitLoading": "Logging in…",
+      "signupPrompt": "New here?",
+      "signupLink": "Sign up",
+      "backToHome": "Back to home",
+      "genericError": "Login failed"
     },
-    "mediumVehicle": {
-     "category": "Medium vehicle (1T–5T)",
-     "base": "₹400",
-     "perKm": "₹28/km",
-     "min": "₹600"
+    "signupCustomer": {
+      "eyebrow": "Get started",
+      "title": "Book with FYRO",
+      "subtitle": "Create an account to start booking loads.",
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "emailPlaceholder": "Email (optional)",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
     },
-    "largeVehicle": {
-     "category": "Large vehicle (5T+)",
-     "base": "₹900",
-     "perKm": "₹45/km",
-     "min": "₹1200"
+    "signupDriver": {
+      "eyebrow": "Partner with us",
+      "title": "Drive with FYRO",
+      "subtitle": "Register your vehicle to start hauling loads.",
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "vehicleTypeLabel": "Vehicle type",
+      "vehicleOptions": {
+        "miniTruck": "Mini truck",
+        "mediumTruck": "Medium truck",
+        "largeTruck": "Large truck"
+      },
+      "capacityPlaceholder": "Capacity (kg)",
+      "registrationPlaceholder": "Registration number",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
     },
-    "hamali": {
-     "category": "Hamali (per worker)",
-     "base": "₹100",
-     "perKm": "—",
-     "min": "₹300"
+    "signupHamali": {
+      "eyebrow": "Join the crew",
+      "title": "Join FYRO as Hamali",
+      "subtitle": "Pick how you'd like to get started.",
+      "joinTypeAria": "How would you like to join?",
+      "joinTypes": {
+        "solo": {
+          "label": "Solo",
+          "hint": "Work independently"
+        },
+        "leader": {
+          "label": "Create Mutha",
+          "hint": "Lead a new group"
+        },
+        "member": {
+          "label": "Join Mutha",
+          "hint": "Join with a code"
+        }
+      },
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "muthaNamePlaceholder": "Mutha (group) name",
+      "inviteCodePlaceholder": "Invite code from your leader",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
+    },
+    "signupFleetOwner": {
+      "eyebrow": "Partner with us",
+      "title": "Run your fleet on FYRO",
+      "subtitle": "Register your fleet to start deploying vehicles and drivers.",
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "fleetNamePlaceholder": "Fleet name",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
+    },
+    "signupWarehouseHub": {
+      "eyebrow": "Partner with us",
+      "title": "List your warehouse hub",
+      "subtitle": "Register your hub to start tracking dock space and gate activity.",
+      "namePlaceholder": "Full name",
+      "phonePlaceholder": "Phone number",
+      "passwordPlaceholder": "Password (min 8 characters)",
+      "hubNamePlaceholder": "Hub name",
+      "addressPlaceholder": "Address (optional)",
+      "submit": "Create account",
+      "submitLoading": "Creating account…",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Log in",
+      "genericError": "Signup failed"
     }
-   }
   },
-  "safety": {
-   "title": "Trust & safety",
-   "subtitle": "What actually protects you on FYRO — every item below is a feature already running in the product, not a promise for later.",
-   "measures": {
-    "cancelWithoutPenalty": {
-     "title": "Cancel without penalty",
-     "body": "Change your mind any time before a job is marked completed and cancel it — no fee, and you don't owe an explanation."
+  "shared": {
+    "languageSelection": {
+      "title": "Choose your language",
+      "subtitle": "Select a language to get started with FYRO.",
+      "continue": "Continue"
+    },
+    "roleSelection": {
+      "title": "Who are you?",
+      "subtitle": "Select your primary role to customize your experience.",
+      "roles": {
+        "customer": {
+          "title": "Customer",
+          "body": "I want to book transport or labor for my goods."
+        },
+        "driver": {
+          "title": "Truck Driver",
+          "body": "I own or operate a vehicle and want to find loads."
+        },
+        "hamali": {
+          "title": "Hamali Worker",
+          "body": "I provide loading, unloading, and labor services."
+        },
+        "fleetOwner": {
+          "title": "Fleet Owner",
+          "body": "I manage a fleet of vehicles and want to grow my business."
+        },
+        "warehouseHub": {
+          "title": "Warehouse Hub",
+          "body": "I run a warehouse or dock and coordinate incoming loads."
+        }
+      },
+      "continue": "Continue",
+      "backToHome": "Back to home"
+    },
+    "onboarding": {
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Get started",
+      "slides": {
+        "book": {
+          "eyebrow": "Instant logistics",
+          "title": "Book a truck or find labor in minutes.",
+          "body": "Seamlessly connect with verified drivers and Hamali groups near you."
+        },
+        "track": {
+          "eyebrow": "Live, end to end",
+          "title": "Watch it move on a real map.",
+          "body": "From pickup to delivery, track your driver or Hamali team in real time — no guessing."
+        },
+        "trust": {
+          "eyebrow": "Honest by design",
+          "title": "Real offers, real accountability.",
+          "body": "Sequential job offers, photo proof at both ends, and mandatory two-way ratings — never a fake instant match."
+        }
+      }
+    },
+    "terms": {
+      "back": "Back",
+      "eyebrow": "Legal documents",
+      "lastUpdated": "Last updated: August 2026",
+      "title": "Terms of Service & Privacy Policy",
+      "subtitle": "Please read these terms carefully before using the FYRO logistics platform. These documents define your rights and responsibilities.",
+      "sections": {
+        "userResponsibilities": {
+          "heading": "01. User Responsibilities",
+          "body1": "By creating an account or using the FYRO platform, you agree to provide accurate booking, vehicle, and identity details, and to conduct every pickup, delivery, and labor job in accordance with applicable local and state regulations.",
+          "body2": "You are responsible for keeping your account credentials confidential. Any activity under your account, authorized or not, remains your responsibility until you notify FYRO support of a suspected breach."
+        },
+        "liability": {
+          "heading": "02. Liability",
+          "body1": "FYRO connects customers with independent drivers and Hamali workers; it does not itself own vehicles or employ workers. Fares shown before you confirm a booking are final for that job, but FYRO is not a party to the underlying transport or labor contract.",
+          "body2": "To the extent permitted by law, FYRO is not liable for indirect or consequential loss arising from a delay, cancellation, or dispute between a customer and a driver or Hamali worker — use \"Report an issue\" on the booking to escalate any problem to our team."
+        },
+        "dataPrivacy": {
+          "heading": "03. Data Privacy",
+          "body1": "We collect the location, booking, and account data needed to match you with a driver or Hamali worker, show live tracking, and process ratings. Data in transit and at rest is protected using industry-standard encryption.",
+          "note": "FYRO never sells your individual booking or location data to third parties. Aggregated, anonymized data may be used to improve matching and route quality."
+        },
+        "governingLaw": {
+          "heading": "04. Governing Law",
+          "body1": "These Terms of Service and Privacy Policy are governed by the laws of India, without regard to conflict-of-law principles.",
+          "body2": "Any dispute arising from these terms shall be resolved exclusively in the competent courts of Andhra Pradesh."
+        }
+      },
+      "acknowledgment": "By continuing to use the FYRO platform, you acknowledge that you have read and understood these terms."
+    },
+    "otp": {
+      "back": "Back",
+      "stepPhoneTitle": "Enter your number",
+      "stepPhoneSubtitle": "We'll send a code to verify your account.",
+      "phonePlaceholder": "Phone number",
+      "sendCode": "Send code",
+      "stepCodeTitle": "Enter code",
+      "sentTo": "Sent to {phone}",
+      "resend": "Resend code",
+      "resendIn": "Resend in {seconds}s",
+      "changeNumber": "Change number",
+      "verify": "Verify",
+      "verifying": "Verifying…",
+      "disclaimerTitle": "This screen is a preview",
+      "disclaimer": "FYRO signs you in with a phone number and password today, not an SMS code — this screen isn't wired to a real verification flow yet, so no message will actually be sent.",
+      "backToLogin": "Go to log in instead"
+    }
+  },
+  "worker": {
+    "onlineToggle": {
+      "onJob": "On a job",
+      "online": "You're online",
+      "offline": "You're offline",
+      "onJobHint": "Finish your current job to go offline",
+      "onlineHint": "Receiving nearby requests",
+      "offlineHint": "Go online to start receiving requests",
+      "noGeoSupport": "This device/browser has no location support — FYRO needs it to send you nearby jobs.",
+      "goOfflineError": "Could not go offline right now.",
+      "goOnlineError": "Could not go online right now.",
+      "permissionDenied": "Location access was denied. Enable it in your browser/device settings so nearby jobs can find you.",
+      "locationUnavailable": "Could not get your location. Check your device's location settings and try again."
+    },
+    "statusPill": {
+      "requested": "Requested",
+      "searching": "Finding a match…",
+      "matched": "Matched",
+      "accepted": "Accepted",
+      "inProgress": "On the way",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "bookingNotify": {
+      "statusUpdate": "Your booking is now {status}.",
+      "matched": "You're matched — someone's on the way."
+    },
+    "ratingModal": {
+      "defaultTitle": "Rate your trip",
+      "feedbackHint": "Your feedback keeps the platform trustworthy for everyone.",
+      "starRatingAria": "Star rating",
+      "starAria": "{n} star{plural}",
+      "commentPlaceholder": "Add a comment (optional)",
+      "commentAria": "Comment",
+      "errorPickStar": "Pick a star rating first.",
+      "errorSubmit": "Could not submit your rating.",
+      "submitting": "Submitting…",
+      "submitRating": "Submit rating"
     },
     "photoProof": {
-     "title": "Photo proof at pickup and delivery",
-     "body": "Drivers and Hamali workers attach a photo before they can advance a job past pickup, and again before marking it delivered — a real record attached to the booking, not just a status label."
+      "takePickupPhoto": "Take pickup photo",
+      "takeDeliveryPhoto": "Take delivery photo",
+      "pickupPhotoCaptured": "Pickup photo captured",
+      "deliveryPhotoCaptured": "Delivery photo captured",
+      "retake": "Retake",
+      "uploading": "Uploading…",
+      "errorUpload": "Could not upload photo — try again."
     },
-    "twoWayRatings": {
-     "title": "Two-way ratings, every job",
-     "body": "Customers rate their driver or Hamali team, and workers rate the customer, right after each job — it's mandatory before either side can start their next one, so the rating history you see is genuinely complete, not a self-selected sample."
+    "documentExpiry": {
+      "documents": "Documents",
+      "edit": "Edit",
+      "licenseId": "License / ID",
+      "vehicleInsurance": "Vehicle insurance",
+      "notSet": "Not set",
+      "expired": "Expired",
+      "expiresIn": "Expires in {days}d",
+      "valid": "Valid",
+      "renewSoon": "Renew soon to avoid a sudden account pause.",
+      "licenseExpiryLabel": "License / ID expiry",
+      "insuranceExpiryLabel": "Vehicle insurance expiry",
+      "errorSave": "Could not save — try again.",
+      "saving": "Saving…",
+      "save": "Save",
+      "cancel": "Cancel"
     },
-    "liveLocation": {
-     "title": "Live location while a job is in progress",
-     "body": "Once a driver or Hamali worker marks a job \"in transit,\" their location streams to your tracking screen in real time until delivery — you're never guessing where your shipment is."
+    "serviceArea": {
+      "serviceArea": "Service area",
+      "radiusKm": "{radius} km radius",
+      "setHint": "Set a home base and get matched to jobs anchored near it — even before your live location does.",
+      "notSet": "Not set",
+      "change": "Change",
+      "set": "Set",
+      "searchAddressLabel": "Search an address",
+      "searchAddressPlaceholder": "e.g. your depot, home town…",
+      "findingYou": "Finding you…",
+      "useMyLocation": "Use my current location",
+      "errorSave": "Could not save your service area — try again.",
+      "errorNoGeo": "This device/browser has no location support.",
+      "errorDenied": "Location access was denied — search for an address instead.",
+      "saving": "Saving…",
+      "save": "Save",
+      "clear": "Clear",
+      "cancel": "Cancel"
     },
-    "inAppChat": {
-     "title": "In-app chat, no raw numbers shared",
-     "body": "Coordinate pickup details through the booking's in-app chat. FYRO doesn't hand your phone number to the other side, or theirs to you."
-    },
-    "reportIssue": {
-     "title": "Report an issue on any booking",
-     "body": "Every booking has a \"Report an issue\" action that opens a complaint straight to our team — no-shows, damage, payment disputes, or misconduct, logged against that specific job."
+    "trainingAcademy": {
+      "completed": "Completed",
+      "available": "Available",
+      "locked": "Locked",
+      "errorComplete": "Could not mark this module complete.",
+      "couldNotLoad": "Couldn't load your training curriculum",
+      "tryAgain": "Try again",
+      "noModulesYet": "No training modules yet",
+      "noModulesYetDesc": "Check back soon — your curriculum will appear here.",
+      "dismiss": "Dismiss",
+      "certified": "Certified!",
+      "certifiedBody": "You've earned “{title}”. Find it under Certifications.",
+      "curriculumProgress": "Curriculum progress",
+      "completedOfTotal": "{completed} of {total} modules completed",
+      "moduleN": "Module {n}",
+      "minutesShort": "{mins} min",
+      "hideLesson": "Hide lesson",
+      "readLesson": "Read lesson",
+      "saving": "Saving…",
+      "markComplete": "Mark complete",
+      "unlockHint": "Complete previous modules to unlock"
     }
-   }
-  }
- },
- "auth": {
-  "login": {
-   "eyebrow": "Welcome back",
-   "title": "Log in",
-   "subtitle": "Enter your phone and password to continue.",
-   "phonePlaceholder": "Phone number",
-   "passwordPlaceholder": "Password",
-   "submit": "Log in",
-   "submitLoading": "Logging in…",
-   "signupPrompt": "New here?",
-   "signupLink": "Sign up",
-   "backToHome": "Back to home",
-   "genericError": "Login failed"
   },
-  "signupCustomer": {
-   "eyebrow": "Get started",
-   "title": "Book with FYRO",
-   "subtitle": "Create an account to start booking loads.",
-   "namePlaceholder": "Full name",
-   "phonePlaceholder": "Phone number",
-   "emailPlaceholder": "Email (optional)",
-   "passwordPlaceholder": "Password (min 8 characters)",
-   "submit": "Create account",
-   "submitLoading": "Creating account…",
-   "loginPrompt": "Already have an account?",
-   "loginLink": "Log in",
-   "genericError": "Signup failed"
-  },
-  "signupDriver": {
-   "eyebrow": "Partner with us",
-   "title": "Drive with FYRO",
-   "subtitle": "Register your vehicle to start hauling loads.",
-   "namePlaceholder": "Full name",
-   "phonePlaceholder": "Phone number",
-   "passwordPlaceholder": "Password (min 8 characters)",
-   "vehicleTypeLabel": "Vehicle type",
-   "vehicleOptions": {
-    "miniTruck": "Mini truck",
-    "mediumTruck": "Medium truck",
-    "largeTruck": "Large truck"
-   },
-   "capacityPlaceholder": "Capacity (kg)",
-   "registrationPlaceholder": "Registration number",
-   "submit": "Create account",
-   "submitLoading": "Creating account…",
-   "loginPrompt": "Already have an account?",
-   "loginLink": "Log in",
-   "genericError": "Signup failed"
-  },
-  "signupHamali": {
-   "eyebrow": "Join the crew",
-   "title": "Join FYRO as Hamali",
-   "subtitle": "Pick how you'd like to get started.",
-   "joinTypeAria": "How would you like to join?",
-   "joinTypes": {
-    "solo": {
-     "label": "Solo",
-     "hint": "Work independently"
+  "trackBooking": {
+    "pageTitle": "Track booking",
+    "loadError": "Could not load this booking.",
+    "trackingId": "Tracking ID",
+    "type": "Type",
+    "status": "Status",
+    "totalFare": "Total fare",
+    "waitingRequested": "Confirming your request…",
+    "waitingSearching": "Waiting for a driver or Hamali to respond…",
+    "liveLocationUpdated": "Live location — updated {seconds}s ago",
+    "waitingForLiveLocation": "Waiting for their live location…",
+    "statusTimeline": "Status timeline",
+    "historyStatus": {
+      "requested": "Requested",
+      "searching": "Finding a match",
+      "matched": "Matched",
+      "accepted": "Accepted",
+      "in_progress": "Picked up — on the way",
+      "completed": "Delivered",
+      "cancelled": "Cancelled",
+      "scheduled": "Scheduled"
     },
-    "leader": {
-     "label": "Create Mutha",
-     "hint": "Lead a new group"
-    },
-    "member": {
-     "label": "Join Mutha",
-     "hint": "Join with a code"
+    "assignedToYou": "Assigned to you",
+    "muthaGroup": "Mutha group",
+    "new": "New",
+    "messageAria": "Message {name}",
+    "booking": "booking",
+    "pickupLabel": "Pickup: ",
+    "dropLabel": "Drop: ",
+    "photoProof": "Photo proof",
+    "pickupPhotoCaption": "Pickup",
+    "deliveryPhotoCaption": "Delivery",
+    "fare": "Fare",
+    "baseFare": "Base fare",
+    "distance": "Distance",
+    "hamali": "Hamali",
+    "total": "Total",
+    "reportIssue": "Report an issue with this booking",
+    "cancelling": "Cancelling…",
+    "cancelBooking": "Cancel booking",
+    "errorCancel": "Could not cancel this booking.",
+    "payment": "Payment",
+    "paidAmount": "Paid ₹{amount}.",
+    "processing": "Processing…",
+    "payNow": "Pay now",
+    "errorPayment": "Payment failed — try again."
+  },
+  "customerHistory": {
+    "title": "Booking history",
+    "unavailableTitle": "History unavailable",
+    "unavailableDescription": "Booking history isn't available right now.",
+    "emptyTitle": "No bookings yet",
+    "emptyDescription": "Everything you book will show up here.",
+    "bookFirst": "Book your first delivery →",
+    "status": {
+      "completed": "completed",
+      "in_progress": "in progress",
+      "matched": "matched",
+      "accepted": "accepted",
+      "searching": "searching",
+      "requested": "requested",
+      "cancelled": "cancelled",
+      "scheduled": "scheduled"
     }
-   },
-   "namePlaceholder": "Full name",
-   "phonePlaceholder": "Phone number",
-   "passwordPlaceholder": "Password (min 8 characters)",
-   "muthaNamePlaceholder": "Mutha (group) name",
-   "inviteCodePlaceholder": "Invite code from your leader",
-   "submit": "Create account",
-   "submitLoading": "Creating account…",
-   "loginPrompt": "Already have an account?",
-   "loginLink": "Log in",
-   "genericError": "Signup failed"
   },
-  "signupFleetOwner": {
-   "eyebrow": "Partner with us",
-   "title": "Run your fleet on FYRO",
-   "subtitle": "Register your fleet to start deploying vehicles and drivers.",
-   "namePlaceholder": "Full name",
-   "phonePlaceholder": "Phone number",
-   "passwordPlaceholder": "Password (min 8 characters)",
-   "fleetNamePlaceholder": "Fleet name",
-   "submit": "Create account",
-   "submitLoading": "Creating account…",
-   "loginPrompt": "Already have an account?",
-   "loginLink": "Log in",
-   "genericError": "Signup failed"
+  "customerBook": {
+    "title": "Book a delivery",
+    "subtitle": "Trucks, Hamali labor, or both — in {region}.",
+    "typeTruck": "Truck",
+    "typeHamali": "Hamali",
+    "typeCombo": "Combo",
+    "bookingTypeAria": "Booking type",
+    "pickupLabel": "Pickup",
+    "pickupPlaceholder": "Where should we collect from?",
+    "findingLocation": "Finding your current location…",
+    "mismatchText": "This pickup doesn't match your current location — is it for you or someone else?",
+    "mismatchUseMyLocation": "It's me — use my location",
+    "mismatchSomeoneElse": "It's for someone else",
+    "dropLabel": "Drop",
+    "dropPlaceholder": "Where is this headed?",
+    "sameAsPickup": "Same as pickup",
+    "cargoWeightLabel": "Cargo weight (kg)",
+    "hamaliWorkersTitle": "Hamali workers",
+    "hamaliWorkersHint": "How many hands do you need?",
+    "whenLabel": "When",
+    "now": "Now",
+    "schedule": "Schedule",
+    "scheduleHint": "We'll start finding a match closer to this time, not immediately.",
+    "fareIdle": "Add pickup, drop, and load details to see your fare.",
+    "fareErrorGeneric": "Could not estimate a fare for this trip.",
+    "fareEstimate": "Fare estimate",
+    "baseFare": "Base fare",
+    "distance": "Distance",
+    "hamaliLabor": "Hamali labor",
+    "surge": "Surge",
+    "total": "Total",
+    "errorFareEstimate": "Could not estimate a fare — check your connection and try again.",
+    "errorSubmit": "Could not create this booking. Try again.",
+    "confirmBooking": "Confirm booking",
+    "booking": "Booking…",
+    "confirmAmount": "Confirm — ₹{amount}",
+    "decreaseAria": "Decrease",
+    "increaseAria": "Increase"
   },
-  "signupWarehouseHub": {
-   "eyebrow": "Partner with us",
-   "title": "List your warehouse hub",
-   "subtitle": "Register your hub to start tracking dock space and gate activity.",
-   "namePlaceholder": "Full name",
-   "phonePlaceholder": "Phone number",
-   "passwordPlaceholder": "Password (min 8 characters)",
-   "hubNamePlaceholder": "Hub name",
-   "addressPlaceholder": "Address (optional)",
-   "submit": "Create account",
-   "submitLoading": "Creating account…",
-   "loginPrompt": "Already have an account?",
-   "loginLink": "Log in",
-   "genericError": "Signup failed"
-  }
- },
- "shared": {
-  "languageSelection": {
-   "title": "Choose your language",
-   "subtitle": "Select a language to get started with FYRO.",
-   "continue": "Continue"
+  "muthaMemberJob": {
+    "hello": "Hello,",
+    "teamLeader": "Team leader",
+    "noJobTitle": "No job assigned right now. Your Mutha leader assigns jobs to you.",
+    "yourJob": "Your job",
+    "leaderControlsNote": "Your Mutha leader controls start/complete for this job.",
+    "rateLastCustomer": "Rate your last customer"
   },
-  "roleSelection": {
-   "title": "Who are you?",
-   "subtitle": "Select your primary role to customize your experience.",
-   "roles": {
-    "customer": {
-     "title": "Customer",
-     "body": "I want to book transport or labor for my goods."
+  "muthaDashboard": {
+    "hello": "Hello,",
+    "notifyPrompt": "Get notified the instant a new job request arrives.",
+    "newGroup": "New group",
+    "inviteCode": "Invite code",
+    "groupSettings": "Group settings",
+    "members": "Members",
+    "online": "Online",
+    "activeJobs": "Active jobs",
+    "viewAll": "View all",
+    "noActiveJobsTitle": "No active jobs",
+    "noActiveJobsDescription": "Accept a request to put your crew to work.",
+    "job": "job",
+    "working": "Working",
+    "accepted": "Accepted",
+    "crew": "Crew",
+    "roster": "Roster",
+    "noMembersTitle": "No members yet",
+    "noMembersDescription": "Share your invite code above.",
+    "viewOpenRequests": "View open job requests",
+    "crewOperations": "Crew operations",
+    "groupEarningsToDate": "Group earnings — ₹{amount} to date",
+    "rateLastCustomer": "Rate your last customer"
+  },
+  "workerEarnings": {
+    "pageTitle": "Earnings",
+    "walletBalance": "Wallet balance",
+    "completedJobs": "{count} completed jobs",
+    "bonusEarned": "₹{amount} in rating-based bonuses earned",
+    "totalEarned": "Total earned",
+    "orderHistory": "Order history",
+    "noCompletedJobs": "No completed jobs yet."
+  },
+  "workerRequests": {
+    "pageTitle": "Job requests",
+    "subtitleTruck": "Nearby truck jobs matching your vehicle. Refreshes automatically.",
+    "subtitleHamali": "Nearby loading/unloading jobs. Refreshes automatically.",
+    "noRequests": "No open requests right now. Make sure you're online — new jobs will appear here.",
+    "job": "job",
+    "distanceTrip": "{km} km trip",
+    "errorUpdate": "Could not update this request — try again.",
+    "reject": "Reject",
+    "rejecting": "Rejecting…",
+    "accept": "Accept",
+    "accepting": "Accepting…",
+    "workersConfirmed": "{confirmed} of {required} workers confirmed"
+  },
+  "offerCard": {
+    "newJobTitle": "New job — just for you",
+    "fare": "Fare",
+    "decline": "Decline",
+    "sending": "Sending…",
+    "accept": "Accept"
+  },
+  "workerDashboard": {
+    "welcomeBack": "Welcome back,",
+    "new": "New",
+    "notifyPrompt": "Get notified the instant a new job request arrives.",
+    "todaysEarnings": "Today's earnings",
+    "viewEarnings": "View earnings",
+    "trips": "Trips",
+    "jobs": "Jobs",
+    "rating": "Rating",
+    "activeJob": "Active job",
+    "viewJob": "View job",
+    "noActiveJob": "No active job. Go online and check Requests for new jobs nearby.",
+    "insuranceProtection": "Insurance & protection",
+    "rateLastCustomer": "Rate your last customer"
+  },
+  "profile": {
+    "language": {
+      "title": "Language",
+      "hint": "This is also the language FYRO's AI assistant answers you in."
+    },
+    "identity": {
+      "title": "Identity",
+      "name": "Name",
+      "email": "Email",
+      "notSet": "Not set",
+      "phone": "Phone",
+      "change": "Change",
+      "accountCreated": "Account created",
+      "userId": "User ID",
+      "editNameEmail": "Edit name / email",
+      "changePassword": "Change password",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "errorSave": "Could not save."
+    },
+    "phoneModal": {
+      "title": "Change phone number",
+      "newPhoneLabel": "New phone number",
+      "sendCode": "Send verification code",
+      "sending": "Sending…",
+      "enterCode": "Enter the 6-digit code sent to {phone}.",
+      "devModeNotice": "Dev mode — no SMS provider is configured, your code is {otp}.",
+      "confirm": "Confirm",
+      "verifying": "Verifying…",
+      "errorSend": "Could not send a code.",
+      "errorConfirm": "Incorrect code."
+    },
+    "passwordModal": {
+      "title": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password (min. 8 characters)",
+      "changePassword": "Change password",
+      "saving": "Saving…",
+      "done": "Password changed. Every other device you were logged in on has been signed out.",
+      "errorSave": "Could not change password."
+    },
+    "hamaliSkills": {
+      "title": "Skills & specialisation",
+      "capacityLabel": "Physical capacity (kg you can carry)",
+      "save": "Save",
+      "saving": "Saving…",
+      "skills": {
+        "cement": "Cement",
+        "steel": "Steel",
+        "fragile": "Fragile goods",
+        "furniture": "Furniture",
+        "appliances": "Appliances",
+        "agricultural": "Agricultural",
+        "constructionMaterial": "Construction material"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "push": "Push",
+      "sms": "SMS",
+      "categories": {
+        "jobUpdates": "Job updates",
+        "payments": "Payments",
+        "promotions": "Promotions"
+      }
+    },
+    "privacy": {
+      "title": "Privacy",
+      "shareLocation": "Share location while offline",
+      "shareLocationHint": "Off by default — your live location is always shared while online (that's how jobs find you).",
+      "profileVisibility": "Profile visibility",
+      "public": "Public",
+      "private": "Private"
+    },
+    "ratings": {
+      "title": "Ratings received",
+      "none": "No ratings yet.",
+      "recentComments": "Recent comments"
+    },
+    "complaints": {
+      "title": "Complaint history",
+      "none": "No complaints raised."
+    },
+    "payout": {
+      "title": "Payout details",
+      "none": "No payout method on file.",
+      "update": "Update",
+      "add": "Add payout method",
+      "upi": "UPI",
+      "bank": "Bank transfer",
+      "upiPlaceholder": "yourname@upi",
+      "accountHolderPlaceholder": "Account holder name",
+      "accountNumberPlaceholder": "Account number",
+      "ifscPlaceholder": "IFSC",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "errorSave": "Could not save."
+    },
+    "business": {
+      "title": "Business / GST profile",
+      "toggleLabel": "Booking on behalf of a business",
+      "companyNamePlaceholder": "Company name",
+      "gstinPlaceholder": "GSTIN",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "frequentRoutes": {
+      "title": "Frequent routes"
+    },
+    "referral": {
+      "title": "Refer & earn",
+      "yourCode": "Your code",
+      "copyLink": "Copy link",
+      "copied": "Copied!",
+      "earnedSoFar": "Earned so far"
+    },
+    "support": {
+      "title": "Support",
+      "helpCentre": "Help centre / FAQ"
+    },
+    "roleSwitcher": {
+      "title": "Switch role",
+      "subtitle": "This phone number also holds these roles:",
+      "errorSwitch": "Could not switch roles.",
+      "roles": {
+        "customer": "Customer",
+        "driver": "Driver",
+        "hamali_solo": "Hamali",
+        "mutha_leader": "Mutha Leader",
+        "mutha_member": "Mutha Member",
+        "fleet_owner": "Fleet Owner",
+        "warehouse_hub": "Warehouse Hub",
+        "manager": "Manager",
+        "admin": "Admin"
+      }
+    },
+    "account": {
+      "title": "Account",
+      "logout": "Log out",
+      "deleteAccount": "Delete account",
+      "deleteModalTitle": "Delete your account?",
+      "deleteModalBody": "This deactivates your account permanently. You won't be able to log in again. This is blocked while you have a booking in progress or a payout awaiting approval or payment — settle those first.",
+      "confirmLabel": "Type DELETE to confirm",
+      "deleting": "Deleting…",
+      "confirmDelete": "Permanently delete my account",
+      "errorDelete": "Could not delete your account.",
+      "statusLabels": {
+        "active": "Active",
+        "suspended": "Suspended",
+        "deleted": "Deleted"
+      }
+    },
+    "pageTitle": "Profile",
+    "savedAddresses": {
+      "title": "Saved addresses",
+      "removeAria": "Remove {label}"
+    },
+    "vehicle": {
+      "sectionTitle": "Vehicle",
+      "noneYet": "No vehicle on file yet.",
+      "verified": "Verified",
+      "verificationPending": "Verification pending",
+      "complianceFailed": "Compliance failed",
+      "reg": "Reg. {reg}",
+      "capacity": "Capacity {kg} kg",
+      "editCapacity": "Edit capacity",
+      "saving": "Saving…",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "groupSettingsLink": "Group settings — name, region, photo, invite QR",
+    "accountEyebrow": "Account"
+  },
+  "certifications": {
+    "loadError": "Couldn't load your certifications",
+    "tryAgain": "Try again",
+    "emptyTitle": "No certifications yet",
+    "emptyDescription": "Complete every module in your training curriculum to earn your first certificate.",
+    "pageTitle": "Certifications",
+    "pageSubtitle": "Endorsed skills, valid dates, and a scannable site-verification code."
+  },
+  "agents": {
+    "aiChip": "AI",
+    "demoMode": "Demo mode — no live model call",
+    "confidence": {
+      "low": "Low confidence",
+      "moderate": "Moderate confidence",
+      "high": "High confidence"
+    },
+    "evidence": "Evidence",
+    "recommendedNotApplied": "Recommended, not applied — a human decides.",
+    "support": {
+      "collapsedTitle": "Ask about your bookings, payouts, or KYC",
+      "collapsedHint": "AI assistant, answers from your own account data",
+      "askTitle": "Ask a question",
+      "close": "Close",
+      "placeholder": "e.g. Why is my last payout still pending?",
+      "ask": "Ask",
+      "error": "Could not get an answer — try again."
+    },
+    "demandForecast": {
+      "titleFor": "Demand forecast for {region}",
+      "loading": "Forecasting…",
+      "subtitle": "Based on real recent booking history",
+      "error": "Could not forecast demand — try again."
+    },
+    "documentPrecheck": {
+      "action": "AI precheck — catch issues before review",
+      "checking": "Checking…",
+      "error": "Could not run precheck — try again."
+    },
+    "disputeTriage": {
+      "title": "AI dispute triage",
+      "subtitle": "Compares the claim against the system record and comms log, and suggests where to look first.",
+      "run": "Run triage",
+      "analysing": "Analysing…",
+      "error": "Could not run triage — try again."
+    },
+    "pricingQuote": {
+      "title": "AI price check",
+      "subtitle": "Compares this quote to the active fare rule and recent real bookings",
+      "loading": "Checking price…",
+      "error": "Could not run the price check — try again."
+    },
+    "marketInsights": {
+      "title": "AI market insights",
+      "subtitle": "Week-over-week trend from real bookings and fleet supply",
+      "loading": "Analysing…",
+      "error": "Could not load market insights — try again."
+    }
+  },
+  "insurance": {
+    "headerTitle": "Insurance",
+    "subtitle": "Your coverage, claims, and automatic payouts.",
+    "explorePlans": "Explore plans",
+    "reportIncident": "Report New Incident",
+    "loadError": "Could not load your insurance details. Try again in a moment.",
+    "category": {
+      "commercial_auto": "Commercial Auto",
+      "work_compensation": "Work Compensation",
+      "cargo_transit": "Cargo Transit"
+    },
+    "parametric": "Parametric",
+    "standard": "Standard",
+    "policyStatus": {
+      "active": "Active",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "genericPolicyName": "Insurance Policy",
+    "coverageAmount": "Coverage amount",
+    "validUntil": "Valid until",
+    "activeCoverage": "Active Coverage",
+    "noCoverageTitle": "No active coverage yet",
+    "noCoverageDescription": "Your active insurance policies will appear here once assigned by FYRO.",
+    "parametricProtection": "Parametric Protection",
+    "parametricExplainer": "If you earn below ₹{threshold} over {days} days, ₹{amount} is paid automatically — no claim needed.",
+    "parametricPaidOn": " Paid on {date}.",
+    "comingSoonNotice": "Coverage for time unable to work is coming soon — not tracked yet, so it isn't shown as active here.",
+    "claimStatus": "Claim Status",
+    "noClaimsTitle": "No claims filed",
+    "noClaimsDescription": "Use Report New Incident above if something happens on the job.",
+    "claim": {
+      "submitted": "Submitted",
+      "under_review": "Under Review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "paid": "Paid"
+    },
+    "payoutHistory": "Payout History",
+    "noPayoutsTitle": "No payouts yet",
+    "noPayoutsDescription": "Automatic parametric payouts and paid claims will show up here.",
+    "claimPayoutLabel": "Claim payout",
+    "parametricPayoutLabel": "Parametric payout",
+    "parametricAutoHint": "Automatic — earnings below ₹{threshold}",
+    "report": {
+      "title": "Report New Incident",
+      "noPolicies": "You have no active policy to file a claim against.",
+      "policy": "Policy",
+      "genericPolicy": "Policy",
+      "incidentDate": "Incident date",
+      "whatHappened": "What happened?",
+      "describePlaceholder": "Describe the incident — where, when, what was damaged or affected…",
+      "photosOptional": "Photos (optional)",
+      "removePhoto": "Remove photo",
+      "addPhoto": "Add photo",
+      "cancel": "Cancel",
+      "submitting": "Submitting…",
+      "submit": "Submit Claim",
+      "errorSelectPolicy": "Select which policy this incident is against.",
+      "errorDescribe": "Describe what happened.",
+      "errorSubmit": "Could not file the claim — try again."
+    },
+    "enroll": {
+      "title": "Explore insurance plans",
+      "done": "You're enrolled. It now shows under Active Coverage.",
+      "backToPlans": "← Back to plans",
+      "parametricExplainer": "If you earn below ₹{threshold} over {days} days, ₹{amount} is paid to you automatically. No claim. No paperwork.",
+      "coverage": "Coverage",
+      "premium": "Premium",
+      "consentLabel": "I understand the premium and coverage terms above and want to enrol.",
+      "confirming": "Enrolling…",
+      "confirm": "Confirm enrolment",
+      "loading": "Loading…",
+      "noNewPlans": "No new plans available — you're already enrolled in everything offered to your role.",
+      "parametricTag": "Parametric — automatic payout",
+      "standardTag": "Standard — file a claim",
+      "errorEnroll": "Could not enrol — try again."
+    }
+  },
+  "referrals": {
+    "loadError": "Couldn't load your referrals",
+    "tryAgain": "Try again",
+    "yourCode": "Your referral code",
+    "linkCopied": "Link copied!",
+    "copyLink": "Copy invite link",
+    "totalEarned": "Total earned",
+    "pending": "Pending",
+    "logInvite": "Log an invite",
+    "phonePlaceholder": "Phone number",
+    "saving": "Saving…",
+    "add": "Add",
+    "errorInvite": "Could not save this invite.",
+    "trackHint": "Track someone you've invited by phone. We'll link them up automatically once they join FYRO.",
+    "statusHeading": "Referral status",
+    "emptyTitle": "No referrals yet",
+    "emptyDescription": "Share your code to start earning bonuses.",
+    "status": {
+      "invited": "Invited",
+      "signed_up": "Signed up — awaiting 1st job",
+      "first_job_completed": "First job done",
+      "bonus_paid": "Bonus earned"
+    },
+    "pageTitle": "Invite & Earn",
+    "pageSubtitle": "Grow the FYRO network. Refer drivers and Hamali groups to earn bonuses when they complete their first verified trip."
+  },
+  "training": {
+    "academyTitle": "Training Academy",
+    "academySubtitle": "Complete your curriculum to unlock full certified status."
+  },
+  "muthaGroup": {
+    "title": "My Mutha",
+    "newGroup": "New group",
+    "leader": "Leader",
+    "flagIssue": "Flag earnings issue",
+    "leaveGroup": "Leave group",
+    "leaveModalTitle": "Leave this Mutha group?",
+    "leaveModalBody": "You'll stop receiving jobs through this group. Blocked while you're assigned to an active job.",
+    "leaving": "Leaving…",
+    "errorLeave": "Could not leave the group.",
+    "flagModalTitle": "Flag an earnings discrepancy",
+    "flagSentNotice": "Sent directly to FYRO support — your group leader is not notified. We'll follow up with you.",
+    "flagHint": "This goes straight to platform support, not your leader.",
+    "bookingIdLabel": "Booking ID",
+    "whatHappenedLabel": "What happened?",
+    "sending": "Sending…",
+    "sendToSupport": "Send to platform support",
+    "errorFlag": "Could not submit this report."
+  },
+  "companyProfile": {
+    "title": "Company profile",
+    "companyName": "Company name",
+    "fleetSize": "Fleet size",
+    "fleetSizeValue": "{vehicles} vehicles, {drivers} drivers",
+    "gstinNote": "GSTIN is verified as a KYC document below, not free text here. Billing isn't built — there's no platform-charges-fleet-owner model in this product yet.",
+    "editName": "Edit name",
+    "saving": "Saving…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errorSave": "Could not save."
+  },
+  "facilityProfile": {
+    "title": "Facility profile",
+    "facilityName": "Facility name",
+    "dockSlots": "Dock slots",
+    "operatingHours": "Operating hours",
+    "notSet": "Not set",
+    "gateContacts": "Gate contacts",
+    "edit": "Edit",
+    "facilityNamePlaceholder": "Facility name",
+    "addressPlaceholder": "Address",
+    "operatingHoursPlaceholder": "Operating hours, e.g. 06:00–22:00 IST",
+    "contactNamePlaceholder": "Name",
+    "contactPhonePlaceholder": "Phone",
+    "addContact": "+ Add contact",
+    "saving": "Saving…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errorSave": "Could not save."
+  },
+  "adminProfile": {
+    "manager": "Manager",
+    "admin": "Admin",
+    "errorGeneric": "Could not do this.",
+    "accessTitle": "Access",
+    "assignedRegion": "Assigned region",
+    "allRegions": "All regions",
+    "grantedPermissions": "Granted permissions (read-only — set by an admin)",
+    "noneGranted": "None granted yet",
+    "securityTitle": "Security",
+    "signingOut": "Signing out…",
+    "logoutEverywhere": "Log out of every device",
+    "logoutDone": "Done — every other session (and this one, next request) needs to log in again.",
+    "logoutNote": "A per-device session list isn't available — this account's auth is stateless (JWT + refresh token version), so the real, honest control here is signing out everywhere at once, not picking one device."
+  },
+  "activeJob": {
+    "common": {
+      "title": "Active job",
+      "loadingJob": "Loading job…",
+      "jobStatus": "Job status",
+      "sharingLocation": "Sharing your live location with the customer",
+      "stepAccepted": "Accepted",
+      "newRating": "New",
+      "messageCustomer": "Message customer",
+      "cargoDescription": "Cargo description",
+      "notProvided": "Not provided",
+      "updating": "Updating…",
+      "takePhotoToContinue": "Take a {stage} photo above to continue.",
+      "stagePickup": "pickup",
+      "stageDelivery": "delivery",
+      "errorUpdate": "Could not update this job.",
+      "rateCustomer": "Rate the customer"
     },
     "driver": {
-     "title": "Truck Driver",
-     "body": "I own or operate a vehicle and want to find loads."
+      "stepInTransit": "In transit",
+      "stepDelivered": "Delivered",
+      "cargoVerification": "Cargo verification",
+      "weightDeclared": "Weight declared",
+      "pickupPhotoCaptured": "Pickup photo captured",
+      "manifestTitle": "Load Manifest & BOL",
+      "manifestSubtitle": "Review cargo and sign off before you set off",
+      "manifestOpen": "Open",
+      "deliveryPhotoBanner": "Take a delivery photo once you've reached the drop-off point, then mark this job delivered.",
+      "startTrip": "Start trip",
+      "markDelivered": "Mark delivered"
     },
     "hamali": {
-     "title": "Hamali Worker",
-     "body": "I provide loading, unloading, and labor services."
-    },
-    "fleetOwner": {
-     "title": "Fleet Owner",
-     "body": "I manage a fleet of vehicles and want to grow my business."
-    },
-    "warehouseHub": {
-     "title": "Warehouse Hub",
-     "body": "I run a warehouse or dock and coordinate incoming loads."
+      "stepWorking": "Working",
+      "stepDone": "Done",
+      "siteArrival": "Site arrival",
+      "weightToLoad": "Weight to load",
+      "loadingPhotoCaptured": "Loading photo captured",
+      "unloadingPhotoBanner": "Take an unloading photo once the job is done, then mark it complete.",
+      "startJob": "Start job",
+      "markDone": "Mark done"
     }
-   },
-   "continue": "Continue",
-   "backToHome": "Back to home"
   },
-  "onboarding": {
-   "skip": "Skip",
-   "next": "Next",
-   "getStarted": "Get started",
-   "slides": {
-    "book": {
-     "eyebrow": "Instant logistics",
-     "title": "Book a truck or find labor in minutes.",
-     "body": "Seamlessly connect with verified drivers and Hamali groups near you."
-    },
-    "track": {
-     "eyebrow": "Live, end to end",
-     "title": "Watch it move on a real map.",
-     "body": "From pickup to delivery, track your driver or Hamali team in real time — no guessing."
-    },
-    "trust": {
-     "eyebrow": "Honest by design",
-     "title": "Real offers, real accountability.",
-     "body": "Sequential job offers, photo proof at both ends, and mandatory two-way ratings — never a fake instant match."
+  "loadManifest": {
+    "title": "Load Manifest",
+    "errorLoad": "Could not load the manifest.",
+    "errorSignFirst": "Sign in the box above before confirming the load.",
+    "errorSubmit": "Could not submit the signature — try again.",
+    "loading": "Loading manifest…",
+    "signed": "Signed",
+    "pendingPickup": "Pending Pickup",
+    "downloadPdf": "Download BOL (PDF)",
+    "cargoManifest": "Cargo manifest",
+    "pickupLocation": "Pickup location",
+    "qty": "Qty: {count}",
+    "noLineItems": "No line items on file.",
+    "loadConfirmed": "Load confirmed",
+    "signedImmutableNote": "This manifest is signed and can no longer be changed.",
+    "driverSignOff": "Driver sign-off",
+    "signOffConfirmation": "I confirm that the cargo listed above has been loaded and inspected.",
+    "submitting": "Submitting…",
+    "confirmAndAccept": "Confirm & Accept Load"
+  },
+  "customerDashboard": {
+    "alertsOn": "Alerts on",
+    "enableAlerts": "Enable alerts",
+    "notifyPrompt": "Get notified the instant a driver or Hamali is on the way.",
+    "welcomeBack": "Welcome back,",
+    "thereFallback": "there",
+    "bookTruck": "Book a Truck",
+    "bookTruckHint": "Instant logistics support",
+    "hamaliLabor": "Hamali Labor",
+    "hamaliLaborHint": "Hire loaders",
+    "history": "History",
+    "historyHint": "View past trips",
+    "activeTracking": "Active Tracking",
+    "recentBookings": "Recent bookings",
+    "seeAll": "See all",
+    "noBookingsTitle": "No bookings yet",
+    "noBookingsDescription": "Book your first truck or Hamali crew to see it here.",
+    "bookFirst": "Book your first delivery →",
+    "onlyActiveNote": "Nothing else yet — your active shipment above is the only one so far.",
+    "status": {
+      "scheduled": "Scheduled",
+      "requested": "Requested",
+      "searching": "Finding a match…",
+      "matched": "Matched",
+      "accepted": "Accepted",
+      "in_progress": "In Transit",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     }
-   }
   },
-  "terms": {
-   "back": "Back",
-   "eyebrow": "Legal documents",
-   "lastUpdated": "Last updated: August 2026",
-   "title": "Terms of Service & Privacy Policy",
-   "subtitle": "Please read these terms carefully before using the FYRO logistics platform. These documents define your rights and responsibilities.",
-   "sections": {
-    "userResponsibilities": {
-     "heading": "01. User Responsibilities",
-     "body1": "By creating an account or using the FYRO platform, you agree to provide accurate booking, vehicle, and identity details, and to conduct every pickup, delivery, and labor job in accordance with applicable local and state regulations.",
-     "body2": "You are responsible for keeping your account credentials confidential. Any activity under your account, authorized or not, remains your responsibility until you notify FYRO support of a suspected breach."
+  "customerSupport": {
+    "title": "Support",
+    "subtitle": "Raise an issue tied to a booking, or browse common questions.",
+    "reportIssue": "Report an issue",
+    "bookingAria": "Booking",
+    "selectBooking": "Select a booking",
+    "categoryAria": "Category",
+    "category": {
+      "no_show": "No-show",
+      "damage": "Cargo damage",
+      "payment": "Payment issue",
+      "misconduct": "Misconduct",
+      "other": "Other"
     },
-    "liability": {
-     "heading": "02. Liability",
-     "body1": "FYRO connects customers with independent drivers and Hamali workers; it does not itself own vehicles or employ workers. Fares shown before you confirm a booking are final for that job, but FYRO is not a party to the underlying transport or labor contract.",
-     "body2": "To the extent permitted by law, FYRO is not liable for indirect or consequential loss arising from a delay, cancellation, or dispute between a customer and a driver or Hamali worker — use \"Report an issue\" on the booking to escalate any problem to our team."
+    "descriptionPlaceholder": "Describe what happened",
+    "descriptionAria": "Description",
+    "errorSubmit": "Could not submit your complaint.",
+    "submittedNotice": "Submitted — we'll review it shortly.",
+    "submitting": "Submitting…",
+    "submit": "Submit",
+    "yourReports": "Your reports",
+    "status": {
+      "open": "open",
+      "in_review": "in review",
+      "resolved": "resolved"
     },
-    "dataPrivacy": {
-     "heading": "03. Data Privacy",
-     "body1": "We collect the location, booking, and account data needed to match you with a driver or Hamali worker, show live tracking, and process ratings. Data in transit and at rest is protected using industry-standard encryption.",
-     "note": "FYRO never sells your individual booking or location data to third parties. Aggregated, anonymized data may be used to improve matching and route quality."
-    },
-    "governingLaw": {
-     "heading": "04. Governing Law",
-     "body1": "These Terms of Service and Privacy Policy are governed by the laws of India, without regard to conflict-of-law principles.",
-     "body2": "Any dispute arising from these terms shall be resolved exclusively in the competent courts of Andhra Pradesh."
+    "resolutionLabel": "Resolution: ",
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "q": "How is the fare calculated?",
+        "a": "Base fare + distance × rate, shown itemized before you confirm. Never guessed on your device — always computed by the server."
+      },
+      {
+        "q": "Can I cancel a booking?",
+        "a": "Yes, any time before it's completed, from the tracking screen."
+      },
+      {
+        "q": "What happens if no driver responds?",
+        "a": "You'll see an honest \"waiting\" status — we never fake a match. Try widening your pickup time or checking back shortly."
+      }
+    ]
+  },
+  "muthaEarnings": {
+    "title": "Group earnings",
+    "groupTotal": "Group total",
+    "completedJobs": "{count} completed jobs",
+    "bonusEarned": "₹{amount} in group rating-based bonuses earned",
+    "perMember": "Per member",
+    "noCompletedJobs": "No completed jobs yet",
+    "orderHistory": "Order history"
+  },
+  "muthaRequests": {
+    "pageTitle": "Job requests",
+    "pageSubtitle": "Assign specific online members to each job.",
+    "jobLabel": "{type} job",
+    "needsMore": "Needs {count} more worker{plural}",
+    "assignOnline": "Assign online members ({selected}/{remaining})",
+    "noneOnline": "No members online right now, bring someone online to assign this job.",
+    "currentlyActive": "Currently active",
+    "errorAssign": "Could not assign members to this job.",
+    "reject": "Reject",
+    "assigning": "Assigning…",
+    "assign": "Assign {count}",
+    "acceptAndAssign": "Accept & assign",
+    "holdNotice": "Accepting holds this job for your group, pick members from the list below to confirm.",
+    "noOpenRequests": "No open requests",
+    "noOpenRequestsDesc": "Jobs your group qualifies for will show up here."
+  },
+  "muthaActiveJobs": {
+    "pageTitle": "Active jobs",
+    "pageSubtitle": "Every job your group is currently running, at once if split across sites.",
+    "working": "Working",
+    "accepted": "Accepted",
+    "membersAssigned": "{assigned}/{required} member(s) assigned",
+    "manageCrew": "Manage crew",
+    "errorUpdate": "Could not update this job.",
+    "updating": "Updating…",
+    "startJob": "Start job",
+    "markComplete": "Mark complete",
+    "noActiveJobs": "No active jobs",
+    "noActiveJobsDesc": "Accepted jobs your group is working will show up here."
+  },
+  "muthaAssignMembers": {
+    "title": "Assign crew",
+    "noJobSelected": "No job selected",
+    "noJobSelectedDesc": "Open a job from Active jobs to manage its crew.",
+    "loadingJob": "Loading job…",
+    "jobLabel": "{type} job",
+    "working": "Working",
+    "accepted": "Accepted",
+    "workersNeeded": "Workers needed: {count}",
+    "selected": "Selected: {count}",
+    "availableMembers": "Available members",
+    "noMembersAvailable": "No members available",
+    "noMembersAvailableDesc": "Bring a member online to assign them to this job.",
+    "currentlyActive": "Currently active",
+    "assignedToJob": "Assigned to this job",
+    "errorUpdate": "Could not update the crew for this job.",
+    "assigning": "Assigning…",
+    "assignAndNotify": "Assign & notify {count}"
+  },
+  "muthaCreateGroup": {
+    "title": "Group settings",
+    "subtitle": "Update your Mutha groups name, region, and photo.",
+    "changePhotoAria": "Change group photo",
+    "groupPhoto": "Group photo",
+    "muthaName": "Mutha name",
+    "muthaNamePlaceholder": "e.g. Red Lions",
+    "operatingRegion": "Operating region",
+    "regionPlaceholder": "e.g. Visakhapatnam",
+    "inviteMembers": "Invite members",
+    "inviteHint": "New members sign up as a Hamali, choose Join a group, and enter this code.",
+    "copyCodeAria": "Copy invite code",
+    "errorSave": "Could not save your group settings.",
+    "saved": "Saved.",
+    "saving": "Saving…",
+    "saveChanges": "Save changes"
+  },
+  "muthaMembers": {
+    "title": "Members",
+    "groupSettings": "Group settings",
+    "selfJoinHint": "New members join themselves from the sign-up screen using your invite code.",
+    "yourInviteCode": "Your invite code",
+    "noMembersYet": "No members yet",
+    "noMembersYetDesc": "Share the invite code above.",
+    "errorRemove": "Could not remove this member.",
+    "remove": "Remove",
+    "removeMemberTitle": "Remove member?",
+    "removeMemberBody": "{name} will no longer be matched to jobs through your group. Their account is not deleted.",
+    "cancel": "Cancel",
+    "removing": "Removing…"
+  },
+  "muthaOperations": {
+    "title": "Operations",
+    "subtitle": "Crew deployments across every job your group is currently running.",
+    "activeJobs": "Active jobs",
+    "deployed": "Deployed",
+    "earned": "Earned",
+    "activeDeployments": "Active deployments",
+    "noActiveDeployments": "No active deployments",
+    "noActiveDeploymentsDesc": "Accepted jobs and their crews will show up here.",
+    "jobLabel": "{type} job",
+    "working": "Working",
+    "accepted": "Accepted",
+    "assigned": "{assigned}/{required} assigned",
+    "manageCrew": "Manage crew"
+  },
+  "consoleLayout": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "loading": "Loading…",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "signedInAs": "Signed in as",
+    "logout": "Log out",
+    "fleetConsole": "Fleet console",
+    "hubConsole": "Hub console",
+    "fyroFleet": "FYRO Fleet",
+    "fyroHub": "FYRO Hub"
+  },
+  "fleetDashboard": {
+    "eyebrow": "Fleet console",
+    "subtitle": "Real-time overview of your logistics assets.",
+    "registerVehicle": "Register vehicle",
+    "assignDriver": "Assign driver",
+    "reassign": "Reassign",
+    "totalVehicles": "Total vehicles",
+    "activeDrivers": "Active drivers",
+    "unassignedUnits": "Unassigned units",
+    "fleetRoster": "Fleet roster",
+    "noVehiclesYet": "No vehicles yet",
+    "noVehiclesYetDesc": "Register your first vehicle to start building your roster.",
+    "unitId": "Unit ID",
+    "assignedDriverCol": "Assigned driver",
+    "unassigned": "Unassigned",
+    "statusCol": "Status",
+    "healthCol": "Health",
+    "notYetTracked": "Not yet tracked",
+    "onJob": "On job",
+    "online": "Online",
+    "offline": "Offline",
+    "couldNotLoad": "Could not load your fleet",
+    "noFleetFound": "No fleet found for this account.",
+    "tryAgain": "Try again",
+    "errorRegister": "Could not register vehicle",
+    "errorAssign": "Could not assign driver",
+    "vehicleType": "Vehicle type",
+    "capacityKg": "Capacity (kg)",
+    "registrationNumber": "Registration number",
+    "registering": "Registering…",
+    "vehicle": "Vehicle",
+    "selectVehicle": "Select a vehicle",
+    "currentlyAssigned": "(currently {name})",
+    "unassignedTag": "(unassigned)",
+    "driverUserId": "Driver's user ID",
+    "driverIdPlaceholder": "e.g. 65f1a2b3c4d5e6f7a8b9c0d1",
+    "driverIdHint": "The driver must already hold a driver account on FYRO. Ask them for their account ID, or have an admin share it with you.",
+    "assigning": "Assigning…",
+    "vehicleTypeOptions": {
+      "mini_truck": "Mini truck",
+      "medium_truck": "Medium truck",
+      "large_truck": "Large truck"
     }
-   },
-   "acknowledgment": "By continuing to use the FYRO platform, you acknowledge that you have read and understood these terms."
   },
-  "otp": {
-   "back": "Back",
-   "stepPhoneTitle": "Enter your number",
-   "stepPhoneSubtitle": "We'll send a code to verify your account.",
-   "phonePlaceholder": "Phone number",
-   "sendCode": "Send code",
-   "stepCodeTitle": "Enter code",
-   "sentTo": "Sent to {phone}",
-   "resend": "Resend code",
-   "resendIn": "Resend in {seconds}s",
-   "changeNumber": "Change number",
-   "verify": "Verify",
-   "verifying": "Verifying…",
-   "disclaimerTitle": "This screen is a preview",
-   "disclaimer": "FYRO signs you in with a phone number and password today, not an SMS code — this screen isn't wired to a real verification flow yet, so no message will actually be sent.",
-   "backToLogin": "Go to log in instead"
-  }
- },
- "worker": {
-  "onlineToggle": {
-   "onJob": "On a job",
-   "online": "You're online",
-   "offline": "You're offline",
-   "onJobHint": "Finish your current job to go offline",
-   "onlineHint": "Receiving nearby requests",
-   "offlineHint": "Go online to start receiving requests",
-   "noGeoSupport": "This device/browser has no location support — FYRO needs it to send you nearby jobs.",
-   "goOfflineError": "Could not go offline right now.",
-   "goOnlineError": "Could not go online right now.",
-   "permissionDenied": "Location access was denied. Enable it in your browser/device settings so nearby jobs can find you.",
-   "locationUnavailable": "Could not get your location. Check your device's location settings and try again."
+  "fleetMaintenance": {
+    "eyebrow": "Fleet console",
+    "title": "Fleet Maintenance",
+    "subtitle": "Health, upcoming service, and inspection compliance.",
+    "bookRepair": "Book repair",
+    "actionRequired": "Action required.",
+    "unitsNeedAttention": "{count} unit{unitPlural} need{needsPlural} attention:",
+    "fleetHealth": "Fleet health",
+    "unitsNeedAttentionOf": "{needing} of {total} units need attention",
+    "nextService": "Next service",
+    "nothingScheduled": "Nothing scheduled",
+    "upcomingSchedule": "Upcoming schedule",
+    "noMaintenanceScheduled": "No maintenance scheduled",
+    "everyUnitUpToDate": "Every unit is up to date.",
+    "dueOn": "Due {date}",
+    "dueAtKm": "Due at {km} km",
+    "inspectPrompt": "Need to inspect a specific unit?",
+    "startInspection": "Start a compliance inspection",
+    "registerVehicleFirst": "Register a vehicle first.",
+    "whatNeedsDoing": "What needs doing",
+    "dueDate": "Due date",
+    "descriptionPlaceholder": "e.g. Brake inspection",
+    "errorBook": "Could not book this service",
+    "booking": "Booking…",
+    "selectVehicle": "Select a vehicle",
+    "vehicleFieldLabel": "Vehicle"
   },
-  "statusPill": {
-   "requested": "Requested",
-   "searching": "Finding a match…",
-   "matched": "Matched",
-   "accepted": "Accepted",
-   "inProgress": "On the way",
-   "completed": "Completed",
-   "cancelled": "Cancelled"
+  "fleetTraining": {
+    "eyebrow": "Partner hub",
+    "title": "Training Academy",
+    "subtitle": "Complete your mandatory training modules to unlock active fleet-partner status."
   },
-  "bookingNotify": {
-   "statusUpdate": "Your booking is now {status}.",
-   "matched": "You're matched — someone's on the way."
+  "vehicleInspection": {
+    "eyebrow": "Fleet console",
+    "title": "Vehicle Inspection",
+    "unit": "Unit {reg}",
+    "lastInspected": " • Last inspected {date}",
+    "nonCompliantBanner": "This vehicle is currently non-compliant",
+    "nonCompliantBannerRest": "and is being held out of job matching until it passes a fresh inspection.",
+    "submittedVerdict": "Inspection submitted — verdict: ",
+    "compliant": "Compliant",
+    "nonCompliant": "Non-compliant",
+    "exteriorPhotos": "Exterior photos",
+    "angleFront": "Front",
+    "angleRear": "Rear",
+    "angleDriverSide": "Driver side",
+    "anglePassengerSide": "Passenger side",
+    "inspectionChecklist": "Inspection checklist",
+    "overallVerdict": "Overall verdict (from checklist above)",
+    "errorAllPhotos": "Capture all 4 exterior angles before submitting.",
+    "errorAllChecklist": "Every checklist item needs a pass/warn/fail result.",
+    "errorSubmit": "Could not submit this inspection",
+    "submitting": "Submitting…",
+    "addInspection": "Add new inspection",
+    "inspectionHistory": "Inspection history",
+    "noInspections": "No inspections on record",
+    "submitFirstAbove": "Submit the first one above.",
+    "checklistItems": {
+      "engineFluid": "Engine & fluid levels",
+      "tyresBrakes": "Tyres & brakes",
+      "lightsSignals": "Lights & signals",
+      "documents": "Documents & registration"
+    }
   },
-  "ratingModal": {
-   "defaultTitle": "Rate your trip",
-   "feedbackHint": "Your feedback keeps the platform trustworthy for everyone.",
-   "starRatingAria": "Star rating",
-   "starAria": "{n} star{plural}",
-   "commentPlaceholder": "Add a comment (optional)",
-   "commentAria": "Comment",
-   "errorPickStar": "Pick a star rating first.",
-   "errorSubmit": "Could not submit your rating.",
-   "submitting": "Submitting…",
-   "submitRating": "Submit rating"
+  "warehouseDashboard": {
+    "eyebrow": "Hub console",
+    "addDockSlot": "Add dock slot",
+    "totalDocks": "Total docks",
+    "occupied": "Occupied",
+    "onSiteCrew": "On-site crew",
+    "notYetTracked": "Not yet tracked",
+    "dockSpaces": "Dock spaces",
+    "noDockSlotsYet": "No dock slots yet",
+    "noDockSlotsYetDesc": "Add your first dock slot to start tracking bay status.",
+    "liveGateFeed": "Live gate feed",
+    "noGateActivity": "No gate activity yet",
+    "couldNotLoad": "Could not load your hub",
+    "noHubFound": "No warehouse hub found for this account.",
+    "tryAgain": "Try again",
+    "errorAdd": "Could not add dock slot",
+    "errorUpdate": "Could not update dock slot",
+    "dockLabel": "Dock label",
+    "dockLabelPlaceholder": "e.g. Dock A3",
+    "adding": "Adding…",
+    "updateSlot": "Update {label}",
+    "setStatusHint": "Set the current status for this dock slot.",
+    "status": {
+      "available": "Available",
+      "occupied": "Occupied",
+      "reserved": "Reserved",
+      "closed": "Closed"
+    },
+    "gateEvent": {
+      "vehicle_entered": "Vehicle entered",
+      "vehicle_exited": "Vehicle exited",
+      "crew_signed_in": "Crew signed in",
+      "crew_signed_out": "Crew signed out"
+    },
+    "justNow": "Just now",
+    "minAgo": "{count} min ago",
+    "minsAgo": "{count} mins ago",
+    "hrAgo": "{count} hr ago",
+    "hrsAgo": "{count} hrs ago",
+    "dayAgo": "{count} day ago",
+    "daysAgo": "{count} days ago"
   },
-  "photoProof": {
-   "takePickupPhoto": "Take pickup photo",
-   "takeDeliveryPhoto": "Take delivery photo",
-   "pickupPhotoCaptured": "Pickup photo captured",
-   "deliveryPhotoCaptured": "Delivery photo captured",
-   "retake": "Retake",
-   "uploading": "Uploading…",
-   "errorUpload": "Could not upload photo — try again."
+  "adminLayout": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "kycQueue": "KYC queue",
+      "disputes": "Disputes",
+      "fraudAlerts": "Fraud alerts",
+      "payouts": "Payouts",
+      "insurance": "Insurance",
+      "ledger": "Ledger",
+      "surgeZones": "Surge zones",
+      "analytics": "Analytics",
+      "opsHub": "Ops hub",
+      "reports": "Reports",
+      "users": "Users",
+      "managers": "Managers",
+      "fares": "Fares",
+      "complaints": "Complaints",
+      "incentives": "Incentives",
+      "regions": "Regions",
+      "auditLog": "Audit log",
+      "profile": "Profile"
+    },
+    "adminConsole": "Admin console",
+    "managerConsole": "Manager console",
+    "admin": "Admin",
+    "manager": "Manager"
   },
-  "documentExpiry": {
-   "documents": "Documents",
-   "edit": "Edit",
-   "licenseId": "License / ID",
-   "vehicleInsurance": "Vehicle insurance",
-   "notSet": "Not set",
-   "expired": "Expired",
-   "expiresIn": "Expires in {days}d",
-   "valid": "Valid",
-   "renewSoon": "Renew soon to avoid a sudden account pause.",
-   "licenseExpiryLabel": "License / ID expiry",
-   "insuranceExpiryLabel": "Vehicle insurance expiry",
-   "errorSave": "Could not save — try again.",
-   "saving": "Saving…",
-   "save": "Save",
-   "cancel": "Cancel"
+  "adminUsers": {
+    "eyebrow": "Directory",
+    "title": "Users",
+    "subtitle": "Manage roles and account status across the platform.",
+    "searchPlaceholder": "Search by name or phone"
   },
-  "serviceArea": {
-   "serviceArea": "Service area",
-   "radiusKm": "{radius} km radius",
-   "setHint": "Set a home base and get matched to jobs anchored near it — even before your live location does.",
-   "notSet": "Not set",
-   "change": "Change",
-   "set": "Set",
-   "searchAddressLabel": "Search an address",
-   "searchAddressPlaceholder": "e.g. your depot, home town…",
-   "findingYou": "Finding you…",
-   "useMyLocation": "Use my current location",
-   "errorSave": "Could not save your service area — try again.",
-   "errorNoGeo": "This device/browser has no location support.",
-   "errorDenied": "Location access was denied — search for an address instead.",
-   "saving": "Saving…",
-   "save": "Save",
-   "clear": "Clear",
-   "cancel": "Cancel"
+  "userTable": {
+    "name": "Name",
+    "phone": "Phone",
+    "role": "Role",
+    "status": "Status",
+    "actions": "Actions",
+    "noUsers": "No users found.",
+    "roleAria": "Role for {name}",
+    "suspendAria": "Suspend {name}",
+    "deleteAria": "Delete {name}",
+    "suspend": "Suspend",
+    "delete": "Delete",
+    "confirmAction": "Confirm action",
+    "cancel": "Cancel",
+    "working": "Working…",
+    "confirm": "Confirm",
+    "changeRoleTo": "Change role to \"{role}\"?",
+    "suspendConfirm": "Suspend this account?",
+    "deleteConfirm": "Delete this account? This is a soft delete and can be reversed by an admin.",
+    "roles": {
+      "customer": "Customer",
+      "driver": "Driver",
+      "hamali_solo": "Hamali (solo)",
+      "mutha_leader": "Mutha Leader",
+      "mutha_member": "Mutha Member"
+    },
+    "accountStatus": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "deleted": "Deleted"
+    }
   },
-  "trainingAcademy": {
-   "completed": "Completed",
-   "available": "Available",
-   "locked": "Locked",
-   "errorComplete": "Could not mark this module complete.",
-   "couldNotLoad": "Couldn't load your training curriculum",
-   "tryAgain": "Try again",
-   "noModulesYet": "No training modules yet",
-   "noModulesYetDesc": "Check back soon — your curriculum will appear here.",
-   "dismiss": "Dismiss",
-   "certified": "Certified!",
-   "certifiedBody": "You've earned “{title}”. Find it under Certifications.",
-   "curriculumProgress": "Curriculum progress",
-   "completedOfTotal": "{completed} of {total} modules completed",
-   "moduleN": "Module {n}",
-   "minutesShort": "{mins} min",
-   "hideLesson": "Hide lesson",
-   "readLesson": "Read lesson",
-   "saving": "Saving…",
-   "markComplete": "Mark complete",
-   "unlockHint": "Complete previous modules to unlock"
-  }
- },
- "trackBooking": {
-  "pageTitle": "Track booking",
-  "loadError": "Could not load this booking.",
-  "trackingId": "Tracking ID",
-  "type": "Type",
-  "status": "Status",
-  "totalFare": "Total fare",
-  "waitingRequested": "Confirming your request…",
-  "waitingSearching": "Waiting for a driver or Hamali to respond…",
-  "liveLocationUpdated": "Live location — updated {seconds}s ago",
-  "waitingForLiveLocation": "Waiting for their live location…",
-  "statusTimeline": "Status timeline",
-  "historyStatus": {
-   "requested": "Requested",
-   "searching": "Finding a match",
-   "matched": "Matched",
-   "accepted": "Accepted",
-   "in_progress": "Picked up — on the way",
-   "completed": "Delivered",
-   "cancelled": "Cancelled",
-   "scheduled": "Scheduled"
+  "adminDashboard": {
+    "eyebrow": "Console",
+    "welcome": "Welcome, {name}",
+    "subtitle": "Platform snapshot and everything you can manage.",
+    "activeBookings": "Active bookings",
+    "gmv": "GMV (completed)",
+    "openComplaints": "Open complaints",
+    "links": {
+      "kycQueue": {
+        "label": "KYC queue",
+        "hint": "Approve or reject pending submissions"
+      },
+      "disputes": {
+        "label": "Disputes",
+        "hint": "Claim vs system-record resolution"
+      },
+      "fraudAlerts": {
+        "label": "Fraud alerts",
+        "hint": "Severity-ranked case queue"
+      },
+      "payouts": {
+        "label": "Payouts",
+        "hint": "Approve driver/Mutha payout requests"
+      },
+      "ledger": {
+        "label": "Ledger",
+        "hint": "Platform transaction ledger"
+      },
+      "surgeZones": {
+        "label": "Surge zones",
+        "hint": "Demand-surge overrides"
+      },
+      "analytics": {
+        "label": "Analytics",
+        "hint": "KPIs, heatmap, revenue trend"
+      },
+      "opsHub": {
+        "label": "Ops hub",
+        "hint": "Live incident dashboard"
+      },
+      "reports": {
+        "label": "Reports",
+        "hint": "Custom exports"
+      },
+      "users": {
+        "label": "Users",
+        "hint": "Org tree, roles, suspend/delete"
+      },
+      "managers": {
+        "label": "Managers",
+        "hint": "Create managers, scope permissions"
+      },
+      "fares": {
+        "label": "Fare rules",
+        "hint": "Region × category rate cards"
+      },
+      "complaints": {
+        "label": "Complaints",
+        "hint": "Resolution queue"
+      },
+      "incentives": {
+        "label": "Incentives",
+        "hint": "Rating-threshold bonus rules"
+      },
+      "regions": {
+        "label": "Regions",
+        "hint": "Enable/launch new regions"
+      },
+      "auditLog": {
+        "label": "Audit log",
+        "hint": "Immutable action history"
+      }
+    }
   },
-  "assignedToYou": "Assigned to you",
-  "muthaGroup": "Mutha group",
-  "new": "New",
-  "messageAria": "Message {name}",
-  "booking": "booking",
-  "pickupLabel": "Pickup: ",
-  "dropLabel": "Drop: ",
-  "photoProof": "Photo proof",
-  "pickupPhotoCaption": "Pickup",
-  "deliveryPhotoCaption": "Delivery",
-  "fare": "Fare",
-  "baseFare": "Base fare",
-  "distance": "Distance",
-  "hamali": "Hamali",
-  "total": "Total",
-  "reportIssue": "Report an issue with this booking",
-  "cancelling": "Cancelling…",
-  "cancelBooking": "Cancel booking",
-  "errorCancel": "Could not cancel this booking.",
-  "payment": "Payment",
-  "paidAmount": "Paid ₹{amount}.",
-  "processing": "Processing…",
-  "payNow": "Pay now",
-  "errorPayment": "Payment failed — try again."
- },
- "customerHistory": {
-  "title": "Booking history",
-  "unavailableTitle": "History unavailable",
-  "unavailableDescription": "Booking history isn't available right now.",
-  "emptyTitle": "No bookings yet",
-  "emptyDescription": "Everything you book will show up here.",
-  "bookFirst": "Book your first delivery →",
-  "status": {
-   "completed": "completed",
-   "in_progress": "in progress",
-   "matched": "matched",
-   "accepted": "accepted",
-   "searching": "searching",
-   "requested": "requested",
-   "cancelled": "cancelled",
-   "scheduled": "scheduled"
-  }
- },
- "customerBook": {
-  "title": "Book a delivery",
-  "subtitle": "Trucks, Hamali labor, or both — in {region}.",
-  "typeTruck": "Truck",
-  "typeHamali": "Hamali",
-  "typeCombo": "Combo",
-  "bookingTypeAria": "Booking type",
-  "pickupLabel": "Pickup",
-  "pickupPlaceholder": "Where should we collect from?",
-  "findingLocation": "Finding your current location…",
-  "mismatchText": "This pickup doesn't match your current location — is it for you or someone else?",
-  "mismatchUseMyLocation": "It's me — use my location",
-  "mismatchSomeoneElse": "It's for someone else",
-  "dropLabel": "Drop",
-  "dropPlaceholder": "Where is this headed?",
-  "sameAsPickup": "Same as pickup",
-  "cargoWeightLabel": "Cargo weight (kg)",
-  "hamaliWorkersTitle": "Hamali workers",
-  "hamaliWorkersHint": "How many hands do you need?",
-  "whenLabel": "When",
-  "now": "Now",
-  "schedule": "Schedule",
-  "scheduleHint": "We'll start finding a match closer to this time, not immediately.",
-  "fareIdle": "Add pickup, drop, and load details to see your fare.",
-  "fareErrorGeneric": "Could not estimate a fare for this trip.",
-  "fareEstimate": "Fare estimate",
-  "baseFare": "Base fare",
-  "distance": "Distance",
-  "hamaliLabor": "Hamali labor",
-  "surge": "Surge",
-  "total": "Total",
-  "errorFareEstimate": "Could not estimate a fare — check your connection and try again.",
-  "errorSubmit": "Could not create this booking. Try again.",
-  "confirmBooking": "Confirm booking",
-  "booking": "Booking…",
-  "confirmAmount": "Confirm — ₹{amount}",
-  "decreaseAria": "Decrease",
-  "increaseAria": "Increase"
- },
- "muthaMemberJob": {
-  "hello": "Hello,",
-  "teamLeader": "Team leader",
-  "noJobTitle": "No job assigned right now. Your Mutha leader assigns jobs to you.",
-  "yourJob": "Your job",
-  "leaderControlsNote": "Your Mutha leader controls start/complete for this job.",
-  "rateLastCustomer": "Rate your last customer"
- },
- "muthaDashboard": {
-  "hello": "Hello,",
-  "notifyPrompt": "Get notified the instant a new job request arrives.",
-  "newGroup": "New group",
-  "inviteCode": "Invite code",
-  "groupSettings": "Group settings",
-  "members": "Members",
-  "online": "Online",
-  "activeJobs": "Active jobs",
-  "viewAll": "View all",
-  "noActiveJobsTitle": "No active jobs",
-  "noActiveJobsDescription": "Accept a request to put your crew to work.",
-  "job": "job",
-  "working": "Working",
-  "accepted": "Accepted",
-  "crew": "Crew",
-  "roster": "Roster",
-  "noMembersTitle": "No members yet",
-  "noMembersDescription": "Share your invite code above.",
-  "viewOpenRequests": "View open job requests",
-  "crewOperations": "Crew operations",
-  "groupEarningsToDate": "Group earnings — ₹{amount} to date",
-  "rateLastCustomer": "Rate your last customer"
- },
- "workerEarnings": {
-  "pageTitle": "Earnings",
-  "walletBalance": "Wallet balance",
-  "completedJobs": "{count} completed jobs",
-  "bonusEarned": "₹{amount} in rating-based bonuses earned",
-  "totalEarned": "Total earned",
-  "orderHistory": "Order history",
-  "noCompletedJobs": "No completed jobs yet."
- },
- "workerRequests": {
-  "pageTitle": "Job requests",
-  "subtitleTruck": "Nearby truck jobs matching your vehicle. Refreshes automatically.",
-  "subtitleHamali": "Nearby loading/unloading jobs. Refreshes automatically.",
-  "noRequests": "No open requests right now. Make sure you're online — new jobs will appear here.",
-  "job": "job",
-  "distanceTrip": "{km} km trip",
-  "errorUpdate": "Could not update this request — try again.",
-  "reject": "Reject",
-  "rejecting": "Rejecting…",
-  "accept": "Accept",
-  "accepting": "Accepting…",
-  "workersConfirmed": "{confirmed} of {required} workers confirmed"
- },
- "offerCard": {
-  "newJobTitle": "New job — just for you",
-  "fare": "Fare",
-  "decline": "Decline",
-  "sending": "Sending…",
-  "accept": "Accept"
- },
- "workerDashboard": {
-  "welcomeBack": "Welcome back,",
-  "new": "New",
-  "notifyPrompt": "Get notified the instant a new job request arrives.",
-  "todaysEarnings": "Today's earnings",
-  "viewEarnings": "View earnings",
-  "trips": "Trips",
-  "jobs": "Jobs",
-  "rating": "Rating",
-  "activeJob": "Active job",
-  "viewJob": "View job",
-  "noActiveJob": "No active job. Go online and check Requests for new jobs nearby.",
-  "insuranceProtection": "Insurance & protection",
-  "rateLastCustomer": "Rate your last customer"
- },
- "profile": {
-  "language": {
-   "title": "Language",
-   "hint": "This is also the language FYRO's AI assistant answers you in."
+  "adminDisputes": {
+    "eyebrow": "Trust & safety",
+    "title": "Disputes & refunds",
+    "subtitle": "Claim vs system-record resolution queue.",
+    "all": "All",
+    "noDisputes": "No disputes",
+    "noDisputesDesc": "Nothing in this queue right now.",
+    "unknown": "Unknown",
+    "priorityLabel": "{priority} priority",
+    "status": {
+      "open": "Open",
+      "investigating": "Investigating",
+      "resolved": "Resolved",
+      "escalated": "Escalated"
+    }
   },
-  "identity": {
-   "title": "Identity",
-   "name": "Name",
-   "email": "Email",
-   "notSet": "Not set",
-   "phone": "Phone",
-   "change": "Change",
-   "accountCreated": "Account created",
-   "userId": "User ID",
-   "editNameEmail": "Edit name / email",
-   "changePassword": "Change password",
-   "save": "Save",
-   "saving": "Saving…",
-   "cancel": "Cancel",
-   "errorSave": "Could not save."
+  "adminAnalytics": {
+    "eyebrow": "Insights",
+    "title": "Performance analytics",
+    "subtitle": "Live KPIs, demand hotspots, and revenue trend.",
+    "revenue": "Revenue",
+    "activeTrips": "Active trips",
+    "completedTrips": "Completed trips",
+    "fleetUtilization": "Fleet utilization",
+    "avgDeliveryTime": "Avg delivery time",
+    "minSuffix": "{mins} min",
+    "demandHotspots": "Demand hotspots",
+    "noPickupData": "No pickup data yet",
+    "noPickupDataDesc": "Hotspots appear here once bookings start coming in.",
+    "revenueTrend": "Revenue trend (14 days)",
+    "notEnoughData": "Not enough data",
+    "notEnoughDataDesc": "Revenue trend needs at least two days of completed bookings.",
+    "marketInsights": "Market insights"
   },
-  "phoneModal": {
-   "title": "Change phone number",
-   "newPhoneLabel": "New phone number",
-   "sendCode": "Send verification code",
-   "sending": "Sending…",
-   "enterCode": "Enter the 6-digit code sent to {phone}.",
-   "devModeNotice": "Dev mode — no SMS provider is configured, your code is {otp}.",
-   "confirm": "Confirm",
-   "verifying": "Verifying…",
-   "errorSend": "Could not send a code.",
-   "errorConfirm": "Incorrect code."
+  "adminComplaints": {
+    "eyebrow": "Trust & safety",
+    "title": "Complaints",
+    "subtitle": "Resolution queue for issues raised against a booking.",
+    "all": "All",
+    "errorUpdate": "Could not update this complaint.",
+    "review": "Review",
+    "noComplaints": "No complaints here.",
+    "resolveTitle": "Resolve complaint",
+    "notePlaceholder": "Resolution note",
+    "noteAria": "Resolution note",
+    "markInReview": "Mark in review",
+    "resolve": "Resolve",
+    "category": {
+      "no_show": "No-show",
+      "damage": "Cargo damage",
+      "payment": "Payment issue",
+      "misconduct": "Misconduct",
+      "other": "Other"
+    },
+    "status": {
+      "open": "open",
+      "in_review": "in review",
+      "resolved": "resolved"
+    }
   },
-  "passwordModal": {
-   "title": "Change password",
-   "currentPassword": "Current password",
-   "newPassword": "New password (min. 8 characters)",
-   "changePassword": "Change password",
-   "saving": "Saving…",
-   "done": "Password changed. Every other device you were logged in on has been signed out.",
-   "errorSave": "Could not change password."
+  "adminAuditLog": {
+    "eyebrow": "Trust & safety",
+    "title": "Audit log",
+    "subtitle": "Every admin/manager action — role changes, deletions, fare rule edits, complaint resolutions. Append-only: nothing here can be edited or removed.",
+    "filterByAction": "Filter by action…",
+    "filterByTarget": "Filter by target type…",
+    "noMatching": "No matching entries",
+    "time": "Time",
+    "actor": "Actor",
+    "action": "Action",
+    "target": "Target",
+    "details": "Details",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {totalPages}"
   },
-  "hamaliSkills": {
-   "title": "Skills & specialisation",
-   "capacityLabel": "Physical capacity (kg you can carry)",
-   "save": "Save",
-   "saving": "Saving…",
-   "skills": {
-    "cement": "Cement",
-    "steel": "Steel",
-    "fragile": "Fragile goods",
-    "furniture": "Furniture",
-    "appliances": "Appliances",
-    "agricultural": "Agricultural",
-    "constructionMaterial": "Construction material"
-   }
+  "adminFraudAlerts": {
+    "eyebrow": "Trust & safety",
+    "title": "Security & fraud alerts",
+    "subtitle": "Severity-ranked suspicious-activity case queue.",
+    "all": "All",
+    "noFraudCases": "No fraud cases",
+    "noFraudCasesDesc": "Nothing flagged right now.",
+    "investigate": "Investigate",
+    "severityStatus": "{severity} severity · {status}",
+    "unknownUser": "Unknown user",
+    "flaggedAt": "{name} ({role}) · flagged {date}",
+    "caseTitle": "Case — {name}",
+    "caseFallback": "Case",
+    "evidence": "Evidence",
+    "noEvidence": "No signal evidence recorded.",
+    "notes": "Notes",
+    "errorClear": "Could not clear this case.",
+    "errorSuspend": "Could not suspend this account.",
+    "clearFalsePositive": "Clear (false positive)",
+    "suspendAccount": "Suspend account",
+    "suspendWarning": "This immediately suspends {name}. They will not be able to use FYRO until an admin reinstates them. Confirm?",
+    "cancel": "Cancel",
+    "suspending": "Suspending…",
+    "confirmSuspend": "Confirm suspend",
+    "alreadyResolved": "This case is already resolved ({status}).",
+    "status": {
+      "open": "Open",
+      "investigating": "Investigating",
+      "cleared": "Cleared",
+      "suspended": "Suspended"
+    }
+  },
+  "adminFares": {
+    "eyebrow": "Pricing",
+    "title": "Fare rules",
+    "subtitle": "Region × category rate cards. Creating a new active rule for the same region+category retires the previous one automatically.",
+    "noRulesYet": "No fare rules yet",
+    "noRulesYetDesc": "Bookings can't be created until at least one exists per region/category.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "base": "Base",
+    "perKm": "Per km",
+    "minimum": "Minimum",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "addEyebrow": "Add",
+    "newRule": "New fare rule",
+    "newRuleSubtitle": "Launch region is Visakhapatnam until Phase 5's region picker.",
+    "regionPlaceholder": "Region",
+    "categoryAria": "Category",
+    "baseFarePlaceholder": "Base fare (₹)",
+    "perKmPlaceholder": "Per-km rate (₹)",
+    "minFarePlaceholder": "Minimum fare (₹)",
+    "errorCreate": "Failed to create fare rule",
+    "saving": "Saving…",
+    "createRule": "Create fare rule",
+    "categories": {
+      "vehicle_small": "Vehicle — small (≤1,000 kg)",
+      "vehicle_medium": "Vehicle — medium (≤5,000 kg)",
+      "vehicle_large": "Vehicle — large (>5,000 kg)",
+      "hamali": "Hamali (per worker)"
+    }
+  },
+  "adminIncentives": {
+    "eyebrow": "Rewards",
+    "title": "Incentive rules",
+    "subtitle": "Rating + completed-job thresholds that grant a bonus. Run manually below (scheduled runs are a Phase 5+ addition once a job scheduler exists).",
+    "bonusLabel": "₹{amount} bonus",
+    "active": "Active",
+    "inactive": "Inactive",
+    "ruleSummary": "Rating ≥ {rating} · {jobs}+ completed jobs{region}",
+    "deactivate": "Deactivate",
+    "noRulesYet": "No rules yet.",
+    "runAllNow": "Run all active rules now",
+    "running": "Running…",
+    "run": "Run",
+    "grantedResult": "Granted {count} new incentive(s).",
+    "addEyebrow": "Add",
+    "newRule": "New rule",
+    "newRuleSubtitle": "Applies to drivers, solo Hamalis, Mutha members, and Muthas.",
+    "minRatingPlaceholder": "Minimum rating (0-5)",
+    "minJobsPlaceholder": "Minimum completed jobs",
+    "bonusPlaceholder": "Bonus amount (₹)",
+    "regionPlaceholder": "Region (optional)",
+    "errorCreate": "Could not create rule",
+    "saving": "Saving…",
+    "createRule": "Create rule"
+  },
+  "adminKyc": {
+    "eyebrow": "Trust & safety",
+    "title": "KYC verification queue",
+    "subtitle": "Review and approve or reject pending identity/document submissions.",
+    "pendingReview": "Pending review",
+    "queueEmpty": "Queue is empty",
+    "queueEmptyDesc": "No pending KYC submissions right now.",
+    "docsSubmitted": "{count} document{plural} submitted",
+    "reviewTitle": "Review — {name}",
+    "reviewFallback": "Review submission",
+    "submittedDocs": "Submitted documents",
+    "noDocsOnFile": "No documents on file.",
+    "rejectionReason": "Rejection reason",
+    "rejectionPlaceholder": "e.g. Photo is blurry, document expired…",
+    "errorApprove": "Could not approve this submission.",
+    "errorReject": "Could not reject this submission.",
+    "reject": "Reject",
+    "approving": "Approving…",
+    "approve": "Approve",
+    "back": "Back",
+    "rejecting": "Rejecting…",
+    "confirmReject": "Confirm reject",
+    "docStatus": {
+      "under_review": "Under review",
+      "verified": "Verified",
+      "rejected": "Rejected"
+    },
+    "docType": {
+      "driving_licence": "Driving Licence",
+      "vehicle_rc": "Vehicle RC",
+      "fastag": "FASTag",
+      "goods_carriage_permit": "Goods Carriage Permit",
+      "puc": "PUC Certificate",
+      "vehicle_fitness": "Vehicle Fitness Certificate",
+      "aadhaar": "Aadhaar",
+      "pan": "PAN",
+      "gstin": "GSTIN"
+    }
+  },
+  "adminLedger": {
+    "eyebrow": "Finance",
+    "title": "Transaction ledger",
+    "subtitle": "Append-only platform financial record.",
+    "exportCsv": "Export CSV",
+    "revenue": "Revenue",
+    "payouts": "Payouts",
+    "fees": "Fees",
+    "refunds": "Refunds",
+    "all": "All",
+    "noEntriesYet": "No ledger entries yet",
+    "noEntriesYetDesc": "Entries appear here as real bookings, payouts, fees, and refunds are recorded.",
+    "time": "Time",
+    "type": "Type",
+    "description": "Description",
+    "entity": "Entity",
+    "amount": "Amount",
+    "status": "Status",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {totalPages}",
+    "types": {
+      "revenue": "Revenue",
+      "payout": "Payout",
+      "fee": "Fee",
+      "refund": "Refund"
+    },
+    "entryStatus": {
+      "posted": "Posted",
+      "pending": "Pending",
+      "failed": "Failed"
+    }
+  },
+  "adminPayouts": {
+    "eyebrow": "Finance",
+    "title": "Payout approvals",
+    "subtitle": "Queue of driver/Mutha payout requests.",
+    "all": "All",
+    "generateButton": "Generate this period’s payouts",
+    "generating": "Generating…",
+    "generateResult": "{created} new payout{createdPlural} queued (₹{total}), {existed} already existed this period, {zero} had no earnings.",
+    "errorGenerate": "Could not generate payouts.",
+    "errorUpdate": "Could not update this payout.",
+    "noPayouts": "No payouts here",
+    "noPayoutsDesc": "Nothing in this filter right now.",
+    "unknown": "Unknown",
+    "reject": "Reject",
+    "approve": "Approve",
+    "marking": "Marking…",
+    "markPaid": "Mark paid",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "paid": "Paid"
+    }
+  },
+  "adminRegions": {
+    "eyebrow": "Expansion",
+    "title": "Regions",
+    "subtitle": "A region only matters once fare rules exist for it (Fares tab) — launching it here just marks it live.",
+    "launched": "Launched {date}",
+    "live": "Live",
+    "disabled": "Disabled",
+    "disable": "Disable",
+    "reenable": "Re-enable",
+    "noRegionsYet": "No regions launched yet.",
+    "errorLaunch": "Could not launch this region.",
+    "launchEyebrow": "Launch",
+    "newRegion": "New region",
+    "newRegionHint": "e.g. \"Vijayawada\" — must match the region string used on fare rules.",
+    "regionNamePlaceholder": "Region name",
+    "launching": "Launching…",
+    "launchRegion": "Launch region"
+  },
+  "adminSurgeZones": {
+    "eyebrow": "Demand",
+    "title": "Surge zones",
+    "subtitle": "Active manual demand-surge overrides by region. Multiplier is capped at {max}x.",
+    "noActiveSurge": "No active surge",
+    "noActiveSurgeDesc": "No manual overrides are currently in effect.",
+    "expiresIn": "Expires in {mins} min · {kind}",
+    "manual": "Manual override",
+    "automatic": "Automatic",
+    "ending": "Ending…",
+    "endNow": "End now",
+    "recentlyEnded": "Recently ended",
+    "errorCreate": "Could not create this override.",
+    "overrideEyebrow": "Override",
+    "newOverride": "Manual surge override",
+    "newOverrideHint": "Applies to a region name (must match FareRule region strings).",
+    "regionNamePlaceholder": "Region name",
+    "multiplierLabel": "Multiplier (max {max}x)",
+    "durationLabel": "Duration (minutes)",
+    "applying": "Applying…",
+    "applyOverride": "Apply override"
+  },
+  "adminReports": {
+    "eyebrow": "Reporting",
+    "title": "Custom exports",
+    "subtitle": "Build a filtered export of real platform data. Exports as CSV — a spreadsheet-compatible substitute for Excel, added without a new dependency. PDF generation is deferred until a PDF library is added to the project.",
+    "exportBuilder": "Export builder",
+    "dataSource": "Data source",
+    "from": "From",
+    "to": "To",
+    "regionOptional": "Region (optional)",
+    "regionPlaceholder": "e.g. Visakhapatnam",
+    "format": "Format",
+    "pdfDeferredTitle": "Deferred — no PDF library in the project yet",
+    "pdfDeferred": "PDF (deferred)",
+    "downloadCsv": "Download CSV",
+    "sources": {
+      "ledger": "Financial ledger",
+      "bookings": "Bookings"
+    },
+    "downloadPdf": "Download PDF",
+    "pdfNote": "PDF is capped at 500 rows — use CSV for the full data set."
+  },
+  "adminOpsHub": {
+    "eyebrow": "Operations",
+    "title": "Ops hub",
+    "subtitle": "Live incident dashboard and action-required queue.",
+    "latePickups": "Late pickups",
+    "openDisputes": "Open disputes",
+    "fraudCases": "Fraud cases",
+    "pendingPayouts": "Pending payouts",
+    "criticalAlerts": "Critical alerts",
+    "noLatePickups": "No late pickups",
+    "noLatePickupsDesc": "Every accepted booking is on schedule.",
+    "pickupOverdue": "Pickup overdue — {name}",
+    "unknownCustomer": "Unknown customer",
+    "accepted": "Accepted {date}",
+    "actionRequired": "Action required",
+    "allClear": "All clear",
+    "allClearDesc": "No open disputes, fraud cases, or pending payouts.",
+    "kind": {
+      "dispute": "dispute",
+      "fraud_case": "fraud case",
+      "payout": "payout"
+    }
+  },
+  "adminManagers": {
+    "structureEyebrow": "Structure",
+    "orgTree": "Org tree",
+    "orgTreeSubtitle": "Admin at the root, managers and their granted permissions below.",
+    "onboardEyebrow": "Onboard",
+    "createManager": "Create manager",
+    "createManagerSubtitle": "Grant a new manager access with scoped permissions.",
+    "namePlaceholder": "Name",
+    "phonePlaceholder": "Phone",
+    "passwordPlaceholder": "Password",
+    "errorCreate": "Failed to create manager",
+    "errorUpdate": "Failed to update permissions",
+    "editPermissions": "Edit permissions — {name}",
+    "editPermissionsFallback": "Edit permissions",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save"
+  },
+  "treeView": {
+    "adminRoot": "Admin (root)",
+    "noManagersYet": "No managers yet. Create one to build out the tree.",
+    "noPermissions": "No permissions granted",
+    "editPermissions": "Edit permissions",
+    "editPermissionsAria": "Edit permissions for {name}"
+  },
+  "permissionPicker": {
+    "permissions": "Permissions",
+    "regionNamePlaceholder": "Region name (e.g. Visakhapatnam)",
+    "regionNameAria": "Region name",
+    "addRegionScope": "Add region scope",
+    "selected": "Selected",
+    "removeAria": "Remove {permission}",
+    "options": {
+      "verify_kyc": "Verify KYC",
+      "resolve_complaints": "Resolve complaints",
+      "edit_fare_rules": "Edit fare rules",
+      "view_analytics": "View analytics"
+    }
+  },
+  "adminInsurance": {
+    "eyebrow": "Finance",
+    "title": "Insurance",
+    "subtitle": "Plans, parametric triggers, and the automatic-payout kill switch.",
+    "autoPayoutsToday": "Automatic parametric payouts — today",
+    "capLabel": " / ₹{cap} cap",
+    "runtimeKillSwitch": "Runtime kill switch",
+    "deployOff": "Deploy-level switch is OFF — this toggle cannot override it.",
+    "plans": "Plans",
+    "newPlan": "New plan",
+    "active": "Active",
+    "inactive": "Inactive",
+    "planMeta": "{type} · {category} · ₹{premium}/mo",
+    "parametric": "Parametric",
+    "standard": "Standard",
+    "triggerLabel": "Trigger: {condition} < ₹{threshold} / {days}d → pays ₹{payout}",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "newPlanTitle": "New insurance plan",
+    "namePlaceholder": "Name",
+    "descriptionPlaceholder": "Description",
+    "coveragePlaceholder": "Coverage ₹",
+    "premiumPlaceholder": "Premium ₹/mo",
+    "availableTo": "Available to",
+    "triggerHeading": "Trigger: earnings below threshold",
+    "thresholdPlaceholder": "Threshold ₹",
+    "periodPlaceholder": "Period days",
+    "payoutPlaceholder": "Payout ₹",
+    "errorCreate": "Could not create plan.",
+    "creating": "Creating…",
+    "createPlan": "Create plan",
+    "categories": {
+      "commercial_auto": "Commercial auto",
+      "work_compensation": "Work compensation",
+      "cargo_transit": "Cargo transit"
+    },
+    "roles": {
+      "driver": "Driver",
+      "hamali_solo": "Hamali solo",
+      "mutha_leader": "Mutha leader",
+      "mutha_member": "Mutha member",
+      "fleet_owner": "Fleet owner",
+      "warehouse_hub": "Warehouse hub"
+    }
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "We hit an unexpected error. This has been logged — try again, or go back to your dashboard if it keeps happening.",
+    "tryAgain": "Try again",
+    "goHome": "Go to dashboard",
+    "goToHomepage": "Go to homepage",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you're looking for doesn't exist or may have moved."
   },
   "notifications": {
-   "title": "Notifications",
-   "push": "Push",
-   "sms": "SMS",
-   "categories": {
-    "jobUpdates": "Job updates",
-    "payments": "Payments",
-    "promotions": "Promotions"
-   }
+    "bellAria": "Notifications ({count} unread)",
+    "bellAriaNone": "Notifications",
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet",
+    "emptyDesc": "Updates about your bookings, payouts, and account will show up here.",
+    "loadError": "Couldn't load your notifications",
+    "tryAgain": "Try again",
+    "errorMarkRead": "Could not mark all as read."
   },
-  "privacy": {
-   "title": "Privacy",
-   "shareLocation": "Share location while offline",
-   "shareLocationHint": "Off by default — your live location is always shared while online (that's how jobs find you).",
-   "profileVisibility": "Profile visibility",
-   "public": "Public",
-   "private": "Private"
-  },
-  "ratings": {
-   "title": "Ratings received",
-   "none": "No ratings yet.",
-   "recentComments": "Recent comments"
-  },
-  "complaints": {
-   "title": "Complaint history",
-   "none": "No complaints raised."
-  },
-  "payout": {
-   "title": "Payout details",
-   "none": "No payout method on file.",
-   "update": "Update",
-   "add": "Add payout method",
-   "upi": "UPI",
-   "bank": "Bank transfer",
-   "upiPlaceholder": "yourname@upi",
-   "accountHolderPlaceholder": "Account holder name",
-   "accountNumberPlaceholder": "Account number",
-   "ifscPlaceholder": "IFSC",
-   "save": "Save",
-   "saving": "Saving…",
-   "cancel": "Cancel",
-   "errorSave": "Could not save."
-  },
-  "business": {
-   "title": "Business / GST profile",
-   "toggleLabel": "Booking on behalf of a business",
-   "companyNamePlaceholder": "Company name",
-   "gstinPlaceholder": "GSTIN",
-   "save": "Save",
-   "saving": "Saving…"
-  },
-  "frequentRoutes": {
-   "title": "Frequent routes"
-  },
-  "referral": {
-   "title": "Refer & earn",
-   "yourCode": "Your code",
-   "copyLink": "Copy link",
-   "copied": "Copied!",
-   "earnedSoFar": "Earned so far"
-  },
-  "support": {
-   "title": "Support",
-   "helpCentre": "Help centre / FAQ"
-  },
-  "roleSwitcher": {
-   "title": "Switch role",
-   "subtitle": "This phone number also holds these roles:",
-   "errorSwitch": "Could not switch roles.",
-   "roles": {
-    "customer": "Customer",
-    "driver": "Driver",
-    "hamali_solo": "Hamali",
-    "mutha_leader": "Mutha Leader",
-    "mutha_member": "Mutha Member",
-    "fleet_owner": "Fleet Owner",
-    "warehouse_hub": "Warehouse Hub",
-    "manager": "Manager",
-    "admin": "Admin"
-   }
-  },
-  "account": {
-   "title": "Account",
-   "logout": "Log out",
-   "deleteAccount": "Delete account",
-   "deleteModalTitle": "Delete your account?",
-   "deleteModalBody": "This deactivates your account permanently. You won't be able to log in again. This is blocked while you have a booking in progress or a payout awaiting approval or payment — settle those first.",
-   "confirmLabel": "Type DELETE to confirm",
-   "deleting": "Deleting…",
-   "confirmDelete": "Permanently delete my account",
-   "errorDelete": "Could not delete your account.",
-   "statusLabels": {
-    "active": "Active",
-    "suspended": "Suspended",
-    "deleted": "Deleted"
-   }
-  },
-  "pageTitle": "Profile",
-  "savedAddresses": {
-   "title": "Saved addresses",
-   "removeAria": "Remove {label}"
-  },
-  "vehicle": {
-   "sectionTitle": "Vehicle",
-   "noneYet": "No vehicle on file yet.",
-   "verified": "Verified",
-   "verificationPending": "Verification pending",
-   "complianceFailed": "Compliance failed",
-   "reg": "Reg. {reg}",
-   "capacity": "Capacity {kg} kg",
-   "editCapacity": "Edit capacity",
-   "saving": "Saving…",
-   "save": "Save",
-   "cancel": "Cancel"
-  },
-  "groupSettingsLink": "Group settings — name, region, photo, invite QR",
-  "accountEyebrow": "Account"
- },
- "certifications": {
-  "loadError": "Couldn't load your certifications",
-  "tryAgain": "Try again",
-  "emptyTitle": "No certifications yet",
-  "emptyDescription": "Complete every module in your training curriculum to earn your first certificate.",
-  "pageTitle": "Certifications",
-  "pageSubtitle": "Endorsed skills, valid dates, and a scannable site-verification code."
- },
- "agents": {
-  "aiChip": "AI",
-  "demoMode": "Demo mode — no live model call",
-  "confidence": {
-   "low": "Low confidence",
-   "moderate": "Moderate confidence",
-   "high": "High confidence"
-  },
-  "evidence": "Evidence",
-  "recommendedNotApplied": "Recommended, not applied — a human decides.",
-  "support": {
-   "collapsedTitle": "Ask about your bookings, payouts, or KYC",
-   "collapsedHint": "AI assistant, answers from your own account data",
-   "askTitle": "Ask a question",
-   "close": "Close",
-   "placeholder": "e.g. Why is my last payout still pending?",
-   "ask": "Ask",
-   "error": "Could not get an answer — try again."
-  },
-  "demandForecast": {
-   "titleFor": "Demand forecast for {region}",
-   "loading": "Forecasting…",
-   "subtitle": "Based on real recent booking history",
-   "error": "Could not forecast demand — try again."
-  },
-  "documentPrecheck": {
-   "action": "AI precheck — catch issues before review",
-   "checking": "Checking…",
-   "error": "Could not run precheck — try again."
-  },
-  "disputeTriage": {
-   "title": "AI dispute triage",
-   "subtitle": "Compares the claim against the system record and comms log, and suggests where to look first.",
-   "run": "Run triage",
-   "analysing": "Analysing…",
-   "error": "Could not run triage — try again."
+  "offline": {
+    "offline": "You're offline",
+    "offlineDesc": "Some actions may not work until your connection is back."
   }
- },
- "insurance": {
-  "headerTitle": "Insurance",
-  "subtitle": "Your coverage, claims, and automatic payouts.",
-  "explorePlans": "Explore plans",
-  "reportIncident": "Report New Incident",
-  "loadError": "Could not load your insurance details. Try again in a moment.",
-  "category": {
-   "commercial_auto": "Commercial Auto",
-   "work_compensation": "Work Compensation",
-   "cargo_transit": "Cargo Transit"
-  },
-  "parametric": "Parametric",
-  "standard": "Standard",
-  "policyStatus": {
-   "active": "Active",
-   "expired": "Expired",
-   "cancelled": "Cancelled"
-  },
-  "genericPolicyName": "Insurance Policy",
-  "coverageAmount": "Coverage amount",
-  "validUntil": "Valid until",
-  "activeCoverage": "Active Coverage",
-  "noCoverageTitle": "No active coverage yet",
-  "noCoverageDescription": "Your active insurance policies will appear here once assigned by FYRO.",
-  "parametricProtection": "Parametric Protection",
-  "parametricExplainer": "If you earn below ₹{threshold} over {days} days, ₹{amount} is paid automatically — no claim needed.",
-  "parametricPaidOn": " Paid on {date}.",
-  "comingSoonNotice": "Coverage for time unable to work is coming soon — not tracked yet, so it isn't shown as active here.",
-  "claimStatus": "Claim Status",
-  "noClaimsTitle": "No claims filed",
-  "noClaimsDescription": "Use Report New Incident above if something happens on the job.",
-  "claim": {
-   "submitted": "Submitted",
-   "under_review": "Under Review",
-   "approved": "Approved",
-   "rejected": "Rejected",
-   "paid": "Paid"
-  },
-  "payoutHistory": "Payout History",
-  "noPayoutsTitle": "No payouts yet",
-  "noPayoutsDescription": "Automatic parametric payouts and paid claims will show up here.",
-  "claimPayoutLabel": "Claim payout",
-  "parametricPayoutLabel": "Parametric payout",
-  "parametricAutoHint": "Automatic — earnings below ₹{threshold}",
-  "report": {
-   "title": "Report New Incident",
-   "noPolicies": "You have no active policy to file a claim against.",
-   "policy": "Policy",
-   "genericPolicy": "Policy",
-   "incidentDate": "Incident date",
-   "whatHappened": "What happened?",
-   "describePlaceholder": "Describe the incident — where, when, what was damaged or affected…",
-   "photosOptional": "Photos (optional)",
-   "removePhoto": "Remove photo",
-   "addPhoto": "Add photo",
-   "cancel": "Cancel",
-   "submitting": "Submitting…",
-   "submit": "Submit Claim",
-   "errorSelectPolicy": "Select which policy this incident is against.",
-   "errorDescribe": "Describe what happened.",
-   "errorSubmit": "Could not file the claim — try again."
-  },
-  "enroll": {
-   "title": "Explore insurance plans",
-   "done": "You're enrolled. It now shows under Active Coverage.",
-   "backToPlans": "← Back to plans",
-   "parametricExplainer": "If you earn below ₹{threshold} over {days} days, ₹{amount} is paid to you automatically. No claim. No paperwork.",
-   "coverage": "Coverage",
-   "premium": "Premium",
-   "consentLabel": "I understand the premium and coverage terms above and want to enrol.",
-   "confirming": "Enrolling…",
-   "confirm": "Confirm enrolment",
-   "loading": "Loading…",
-   "noNewPlans": "No new plans available — you're already enrolled in everything offered to your role.",
-   "parametricTag": "Parametric — automatic payout",
-   "standardTag": "Standard — file a claim",
-   "errorEnroll": "Could not enrol — try again."
-  }
- },
- "referrals": {
-  "loadError": "Couldn't load your referrals",
-  "tryAgain": "Try again",
-  "yourCode": "Your referral code",
-  "linkCopied": "Link copied!",
-  "copyLink": "Copy invite link",
-  "totalEarned": "Total earned",
-  "pending": "Pending",
-  "logInvite": "Log an invite",
-  "phonePlaceholder": "Phone number",
-  "saving": "Saving…",
-  "add": "Add",
-  "errorInvite": "Could not save this invite.",
-  "trackHint": "Track someone you've invited by phone. We'll link them up automatically once they join FYRO.",
-  "statusHeading": "Referral status",
-  "emptyTitle": "No referrals yet",
-  "emptyDescription": "Share your code to start earning bonuses.",
-  "status": {
-   "invited": "Invited",
-   "signed_up": "Signed up — awaiting 1st job",
-   "first_job_completed": "First job done",
-   "bonus_paid": "Bonus earned"
-  },
-  "pageTitle": "Invite & Earn",
-  "pageSubtitle": "Grow the FYRO network. Refer drivers and Hamali groups to earn bonuses when they complete their first verified trip."
- },
- "training": {
-  "academyTitle": "Training Academy",
-  "academySubtitle": "Complete your curriculum to unlock full certified status."
- },
- "muthaGroup": {
-  "title": "My Mutha",
-  "newGroup": "New group",
-  "leader": "Leader",
-  "flagIssue": "Flag earnings issue",
-  "leaveGroup": "Leave group",
-  "leaveModalTitle": "Leave this Mutha group?",
-  "leaveModalBody": "You'll stop receiving jobs through this group. Blocked while you're assigned to an active job.",
-  "leaving": "Leaving…",
-  "errorLeave": "Could not leave the group.",
-  "flagModalTitle": "Flag an earnings discrepancy",
-  "flagSentNotice": "Sent directly to FYRO support — your group leader is not notified. We'll follow up with you.",
-  "flagHint": "This goes straight to platform support, not your leader.",
-  "bookingIdLabel": "Booking ID",
-  "whatHappenedLabel": "What happened?",
-  "sending": "Sending…",
-  "sendToSupport": "Send to platform support",
-  "errorFlag": "Could not submit this report."
- },
- "companyProfile": {
-  "title": "Company profile",
-  "companyName": "Company name",
-  "fleetSize": "Fleet size",
-  "fleetSizeValue": "{vehicles} vehicles, {drivers} drivers",
-  "gstinNote": "GSTIN is verified as a KYC document below, not free text here. Billing isn't built — there's no platform-charges-fleet-owner model in this product yet.",
-  "editName": "Edit name",
-  "saving": "Saving…",
-  "save": "Save",
-  "cancel": "Cancel",
-  "errorSave": "Could not save."
- },
- "facilityProfile": {
-  "title": "Facility profile",
-  "facilityName": "Facility name",
-  "dockSlots": "Dock slots",
-  "operatingHours": "Operating hours",
-  "notSet": "Not set",
-  "gateContacts": "Gate contacts",
-  "edit": "Edit",
-  "facilityNamePlaceholder": "Facility name",
-  "addressPlaceholder": "Address",
-  "operatingHoursPlaceholder": "Operating hours, e.g. 06:00–22:00 IST",
-  "contactNamePlaceholder": "Name",
-  "contactPhonePlaceholder": "Phone",
-  "addContact": "+ Add contact",
-  "saving": "Saving…",
-  "save": "Save",
-  "cancel": "Cancel",
-  "errorSave": "Could not save."
- },
- "adminProfile": {
-  "manager": "Manager",
-  "admin": "Admin",
-  "errorGeneric": "Could not do this.",
-  "accessTitle": "Access",
-  "assignedRegion": "Assigned region",
-  "allRegions": "All regions",
-  "grantedPermissions": "Granted permissions (read-only — set by an admin)",
-  "noneGranted": "None granted yet",
-  "securityTitle": "Security",
-  "signingOut": "Signing out…",
-  "logoutEverywhere": "Log out of every device",
-  "logoutDone": "Done — every other session (and this one, next request) needs to log in again.",
-  "logoutNote": "A per-device session list isn't available — this account's auth is stateless (JWT + refresh token version), so the real, honest control here is signing out everywhere at once, not picking one device."
- },
- "activeJob": {
-  "common": {
-   "title": "Active job",
-   "loadingJob": "Loading job…",
-   "jobStatus": "Job status",
-   "sharingLocation": "Sharing your live location with the customer",
-   "stepAccepted": "Accepted",
-   "newRating": "New",
-   "messageCustomer": "Message customer",
-   "cargoDescription": "Cargo description",
-   "notProvided": "Not provided",
-   "updating": "Updating…",
-   "takePhotoToContinue": "Take a {stage} photo above to continue.",
-   "stagePickup": "pickup",
-   "stageDelivery": "delivery",
-   "errorUpdate": "Could not update this job.",
-   "rateCustomer": "Rate the customer"
-  },
-  "driver": {
-   "stepInTransit": "In transit",
-   "stepDelivered": "Delivered",
-   "cargoVerification": "Cargo verification",
-   "weightDeclared": "Weight declared",
-   "pickupPhotoCaptured": "Pickup photo captured",
-   "manifestTitle": "Load Manifest & BOL",
-   "manifestSubtitle": "Review cargo and sign off before you set off",
-   "manifestOpen": "Open",
-   "deliveryPhotoBanner": "Take a delivery photo once you've reached the drop-off point, then mark this job delivered.",
-   "startTrip": "Start trip",
-   "markDelivered": "Mark delivered"
-  },
-  "hamali": {
-   "stepWorking": "Working",
-   "stepDone": "Done",
-   "siteArrival": "Site arrival",
-   "weightToLoad": "Weight to load",
-   "loadingPhotoCaptured": "Loading photo captured",
-   "unloadingPhotoBanner": "Take an unloading photo once the job is done, then mark it complete.",
-   "startJob": "Start job",
-   "markDone": "Mark done"
-  }
- },
- "loadManifest": {
-  "title": "Load Manifest",
-  "errorLoad": "Could not load the manifest.",
-  "errorSignFirst": "Sign in the box above before confirming the load.",
-  "errorSubmit": "Could not submit the signature — try again.",
-  "loading": "Loading manifest…",
-  "signed": "Signed",
-  "pendingPickup": "Pending Pickup",
-  "downloadPdf": "Download BOL (PDF)",
-  "cargoManifest": "Cargo manifest",
-  "pickupLocation": "Pickup location",
-  "qty": "Qty: {count}",
-  "noLineItems": "No line items on file.",
-  "loadConfirmed": "Load confirmed",
-  "signedImmutableNote": "This manifest is signed and can no longer be changed.",
-  "driverSignOff": "Driver sign-off",
-  "signOffConfirmation": "I confirm that the cargo listed above has been loaded and inspected.",
-  "submitting": "Submitting…",
-  "confirmAndAccept": "Confirm & Accept Load"
- },
- "customerDashboard": {
-  "alertsOn": "Alerts on",
-  "enableAlerts": "Enable alerts",
-  "notifyPrompt": "Get notified the instant a driver or Hamali is on the way.",
-  "welcomeBack": "Welcome back,",
-  "thereFallback": "there",
-  "bookTruck": "Book a Truck",
-  "bookTruckHint": "Instant logistics support",
-  "hamaliLabor": "Hamali Labor",
-  "hamaliLaborHint": "Hire loaders",
-  "history": "History",
-  "historyHint": "View past trips",
-  "activeTracking": "Active Tracking",
-  "recentBookings": "Recent bookings",
-  "seeAll": "See all",
-  "noBookingsTitle": "No bookings yet",
-  "noBookingsDescription": "Book your first truck or Hamali crew to see it here.",
-  "bookFirst": "Book your first delivery →",
-  "onlyActiveNote": "Nothing else yet — your active shipment above is the only one so far.",
-  "status": {
-   "scheduled": "Scheduled",
-   "requested": "Requested",
-   "searching": "Finding a match…",
-   "matched": "Matched",
-   "accepted": "Accepted",
-   "in_progress": "In Transit",
-   "completed": "Completed",
-   "cancelled": "Cancelled"
-  }
- },
- "customerSupport": {
-  "title": "Support",
-  "subtitle": "Raise an issue tied to a booking, or browse common questions.",
-  "reportIssue": "Report an issue",
-  "bookingAria": "Booking",
-  "selectBooking": "Select a booking",
-  "categoryAria": "Category",
-  "category": {
-   "no_show": "No-show",
-   "damage": "Cargo damage",
-   "payment": "Payment issue",
-   "misconduct": "Misconduct",
-   "other": "Other"
-  },
-  "descriptionPlaceholder": "Describe what happened",
-  "descriptionAria": "Description",
-  "errorSubmit": "Could not submit your complaint.",
-  "submittedNotice": "Submitted — we'll review it shortly.",
-  "submitting": "Submitting…",
-  "submit": "Submit",
-  "yourReports": "Your reports",
-  "status": {
-   "open": "open",
-   "in_review": "in review",
-   "resolved": "resolved"
-  },
-  "resolutionLabel": "Resolution: ",
-  "faqTitle": "FAQ",
-  "faq": [
-   {
-    "q": "How is the fare calculated?",
-    "a": "Base fare + distance × rate, shown itemized before you confirm. Never guessed on your device — always computed by the server."
-   },
-   {
-    "q": "Can I cancel a booking?",
-    "a": "Yes, any time before it's completed, from the tracking screen."
-   },
-   {
-    "q": "What happens if no driver responds?",
-    "a": "You'll see an honest \"waiting\" status — we never fake a match. Try widening your pickup time or checking back shortly."
-   }
-  ]
- },
- "muthaEarnings": {
-  "title": "Group earnings",
-  "groupTotal": "Group total",
-  "completedJobs": "{count} completed jobs",
-  "bonusEarned": "₹{amount} in group rating-based bonuses earned",
-  "perMember": "Per member",
-  "noCompletedJobs": "No completed jobs yet",
-  "orderHistory": "Order history"
- },
- "muthaRequests": {
-  "pageTitle": "Job requests",
-  "pageSubtitle": "Assign specific online members to each job.",
-  "jobLabel": "{type} job",
-  "needsMore": "Needs {count} more worker{plural}",
-  "assignOnline": "Assign online members ({selected}/{remaining})",
-  "noneOnline": "No members online right now, bring someone online to assign this job.",
-  "currentlyActive": "Currently active",
-  "errorAssign": "Could not assign members to this job.",
-  "reject": "Reject",
-  "assigning": "Assigning…",
-  "assign": "Assign {count}",
-  "acceptAndAssign": "Accept & assign",
-  "holdNotice": "Accepting holds this job for your group, pick members from the list below to confirm.",
-  "noOpenRequests": "No open requests",
-  "noOpenRequestsDesc": "Jobs your group qualifies for will show up here."
- },
- "muthaActiveJobs": {
-  "pageTitle": "Active jobs",
-  "pageSubtitle": "Every job your group is currently running, at once if split across sites.",
-  "working": "Working",
-  "accepted": "Accepted",
-  "membersAssigned": "{assigned}/{required} member(s) assigned",
-  "manageCrew": "Manage crew",
-  "errorUpdate": "Could not update this job.",
-  "updating": "Updating…",
-  "startJob": "Start job",
-  "markComplete": "Mark complete",
-  "noActiveJobs": "No active jobs",
-  "noActiveJobsDesc": "Accepted jobs your group is working will show up here."
- },
- "muthaAssignMembers": {
-  "title": "Assign crew",
-  "noJobSelected": "No job selected",
-  "noJobSelectedDesc": "Open a job from Active jobs to manage its crew.",
-  "loadingJob": "Loading job…",
-  "jobLabel": "{type} job",
-  "working": "Working",
-  "accepted": "Accepted",
-  "workersNeeded": "Workers needed: {count}",
-  "selected": "Selected: {count}",
-  "availableMembers": "Available members",
-  "noMembersAvailable": "No members available",
-  "noMembersAvailableDesc": "Bring a member online to assign them to this job.",
-  "currentlyActive": "Currently active",
-  "assignedToJob": "Assigned to this job",
-  "errorUpdate": "Could not update the crew for this job.",
-  "assigning": "Assigning…",
-  "assignAndNotify": "Assign & notify {count}"
- },
- "muthaCreateGroup": {
-  "title": "Group settings",
-  "subtitle": "Update your Mutha groups name, region, and photo.",
-  "changePhotoAria": "Change group photo",
-  "groupPhoto": "Group photo",
-  "muthaName": "Mutha name",
-  "muthaNamePlaceholder": "e.g. Red Lions",
-  "operatingRegion": "Operating region",
-  "regionPlaceholder": "e.g. Visakhapatnam",
-  "inviteMembers": "Invite members",
-  "inviteHint": "New members sign up as a Hamali, choose Join a group, and enter this code.",
-  "copyCodeAria": "Copy invite code",
-  "errorSave": "Could not save your group settings.",
-  "saved": "Saved.",
-  "saving": "Saving…",
-  "saveChanges": "Save changes"
- },
- "muthaMembers": {
-  "title": "Members",
-  "groupSettings": "Group settings",
-  "selfJoinHint": "New members join themselves from the sign-up screen using your invite code.",
-  "yourInviteCode": "Your invite code",
-  "noMembersYet": "No members yet",
-  "noMembersYetDesc": "Share the invite code above.",
-  "errorRemove": "Could not remove this member.",
-  "remove": "Remove",
-  "removeMemberTitle": "Remove member?",
-  "removeMemberBody": "{name} will no longer be matched to jobs through your group. Their account is not deleted.",
-  "cancel": "Cancel",
-  "removing": "Removing…"
- },
- "muthaOperations": {
-  "title": "Operations",
-  "subtitle": "Crew deployments across every job your group is currently running.",
-  "activeJobs": "Active jobs",
-  "deployed": "Deployed",
-  "earned": "Earned",
-  "activeDeployments": "Active deployments",
-  "noActiveDeployments": "No active deployments",
-  "noActiveDeploymentsDesc": "Accepted jobs and their crews will show up here.",
-  "jobLabel": "{type} job",
-  "working": "Working",
-  "accepted": "Accepted",
-  "assigned": "{assigned}/{required} assigned",
-  "manageCrew": "Manage crew"
- },
- "consoleLayout": {
-  "dashboard": "Dashboard",
-  "profile": "Profile",
-  "loading": "Loading…",
-  "closeMenu": "Close menu",
-  "openMenu": "Open menu",
-  "signedInAs": "Signed in as",
-  "logout": "Log out",
-  "fleetConsole": "Fleet console",
-  "hubConsole": "Hub console",
-  "fyroFleet": "FYRO Fleet",
-  "fyroHub": "FYRO Hub"
- },
- "fleetDashboard": {
-  "eyebrow": "Fleet console",
-  "subtitle": "Real-time overview of your logistics assets.",
-  "registerVehicle": "Register vehicle",
-  "assignDriver": "Assign driver",
-  "reassign": "Reassign",
-  "totalVehicles": "Total vehicles",
-  "activeDrivers": "Active drivers",
-  "unassignedUnits": "Unassigned units",
-  "fleetRoster": "Fleet roster",
-  "noVehiclesYet": "No vehicles yet",
-  "noVehiclesYetDesc": "Register your first vehicle to start building your roster.",
-  "unitId": "Unit ID",
-  "assignedDriverCol": "Assigned driver",
-  "unassigned": "Unassigned",
-  "statusCol": "Status",
-  "healthCol": "Health",
-  "notYetTracked": "Not yet tracked",
-  "onJob": "On job",
-  "online": "Online",
-  "offline": "Offline",
-  "couldNotLoad": "Could not load your fleet",
-  "noFleetFound": "No fleet found for this account.",
-  "tryAgain": "Try again",
-  "errorRegister": "Could not register vehicle",
-  "errorAssign": "Could not assign driver",
-  "vehicleType": "Vehicle type",
-  "capacityKg": "Capacity (kg)",
-  "registrationNumber": "Registration number",
-  "registering": "Registering…",
-  "vehicle": "Vehicle",
-  "selectVehicle": "Select a vehicle",
-  "currentlyAssigned": "(currently {name})",
-  "unassignedTag": "(unassigned)",
-  "driverUserId": "Driver's user ID",
-  "driverIdPlaceholder": "e.g. 65f1a2b3c4d5e6f7a8b9c0d1",
-  "driverIdHint": "The driver must already hold a driver account on FYRO. Ask them for their account ID, or have an admin share it with you.",
-  "assigning": "Assigning…",
-  "vehicleTypeOptions": {
-   "mini_truck": "Mini truck",
-   "medium_truck": "Medium truck",
-   "large_truck": "Large truck"
-  }
- },
- "fleetMaintenance": {
-  "eyebrow": "Fleet console",
-  "title": "Fleet Maintenance",
-  "subtitle": "Health, upcoming service, and inspection compliance.",
-  "bookRepair": "Book repair",
-  "actionRequired": "Action required.",
-  "unitsNeedAttention": "{count} unit{unitPlural} need{needsPlural} attention:",
-  "fleetHealth": "Fleet health",
-  "unitsNeedAttentionOf": "{needing} of {total} units need attention",
-  "nextService": "Next service",
-  "nothingScheduled": "Nothing scheduled",
-  "upcomingSchedule": "Upcoming schedule",
-  "noMaintenanceScheduled": "No maintenance scheduled",
-  "everyUnitUpToDate": "Every unit is up to date.",
-  "dueOn": "Due {date}",
-  "dueAtKm": "Due at {km} km",
-  "inspectPrompt": "Need to inspect a specific unit?",
-  "startInspection": "Start a compliance inspection",
-  "registerVehicleFirst": "Register a vehicle first.",
-  "whatNeedsDoing": "What needs doing",
-  "dueDate": "Due date",
-  "descriptionPlaceholder": "e.g. Brake inspection",
-  "errorBook": "Could not book this service",
-  "booking": "Booking…",
-  "selectVehicle": "Select a vehicle",
-  "vehicleFieldLabel": "Vehicle"
- },
- "fleetTraining": {
-  "eyebrow": "Partner hub",
-  "title": "Training Academy",
-  "subtitle": "Complete your mandatory training modules to unlock active fleet-partner status."
- },
- "vehicleInspection": {
-  "eyebrow": "Fleet console",
-  "title": "Vehicle Inspection",
-  "unit": "Unit {reg}",
-  "lastInspected": " • Last inspected {date}",
-  "nonCompliantBanner": "This vehicle is currently non-compliant",
-  "nonCompliantBannerRest": "and is being held out of job matching until it passes a fresh inspection.",
-  "submittedVerdict": "Inspection submitted — verdict: ",
-  "compliant": "Compliant",
-  "nonCompliant": "Non-compliant",
-  "exteriorPhotos": "Exterior photos",
-  "angleFront": "Front",
-  "angleRear": "Rear",
-  "angleDriverSide": "Driver side",
-  "anglePassengerSide": "Passenger side",
-  "inspectionChecklist": "Inspection checklist",
-  "overallVerdict": "Overall verdict (from checklist above)",
-  "errorAllPhotos": "Capture all 4 exterior angles before submitting.",
-  "errorAllChecklist": "Every checklist item needs a pass/warn/fail result.",
-  "errorSubmit": "Could not submit this inspection",
-  "submitting": "Submitting…",
-  "addInspection": "Add new inspection",
-  "inspectionHistory": "Inspection history",
-  "noInspections": "No inspections on record",
-  "submitFirstAbove": "Submit the first one above.",
-  "checklistItems": {
-   "engineFluid": "Engine & fluid levels",
-   "tyresBrakes": "Tyres & brakes",
-   "lightsSignals": "Lights & signals",
-   "documents": "Documents & registration"
-  }
- },
- "warehouseDashboard": {
-  "eyebrow": "Hub console",
-  "addDockSlot": "Add dock slot",
-  "totalDocks": "Total docks",
-  "occupied": "Occupied",
-  "onSiteCrew": "On-site crew",
-  "notYetTracked": "Not yet tracked",
-  "dockSpaces": "Dock spaces",
-  "noDockSlotsYet": "No dock slots yet",
-  "noDockSlotsYetDesc": "Add your first dock slot to start tracking bay status.",
-  "liveGateFeed": "Live gate feed",
-  "noGateActivity": "No gate activity yet",
-  "couldNotLoad": "Could not load your hub",
-  "noHubFound": "No warehouse hub found for this account.",
-  "tryAgain": "Try again",
-  "errorAdd": "Could not add dock slot",
-  "errorUpdate": "Could not update dock slot",
-  "dockLabel": "Dock label",
-  "dockLabelPlaceholder": "e.g. Dock A3",
-  "adding": "Adding…",
-  "updateSlot": "Update {label}",
-  "setStatusHint": "Set the current status for this dock slot.",
-  "status": {
-   "available": "Available",
-   "occupied": "Occupied",
-   "reserved": "Reserved",
-   "closed": "Closed"
-  },
-  "gateEvent": {
-   "vehicle_entered": "Vehicle entered",
-   "vehicle_exited": "Vehicle exited",
-   "crew_signed_in": "Crew signed in",
-   "crew_signed_out": "Crew signed out"
-  },
-  "justNow": "Just now",
-  "minAgo": "{count} min ago",
-  "minsAgo": "{count} mins ago",
-  "hrAgo": "{count} hr ago",
-  "hrsAgo": "{count} hrs ago",
-  "dayAgo": "{count} day ago",
-  "daysAgo": "{count} days ago"
- },
- "adminLayout": {
-  "nav": {
-   "dashboard": "Dashboard",
-   "kycQueue": "KYC queue",
-   "disputes": "Disputes",
-   "fraudAlerts": "Fraud alerts",
-   "payouts": "Payouts",
-   "insurance": "Insurance",
-   "ledger": "Ledger",
-   "surgeZones": "Surge zones",
-   "analytics": "Analytics",
-   "opsHub": "Ops hub",
-   "reports": "Reports",
-   "users": "Users",
-   "managers": "Managers",
-   "fares": "Fares",
-   "complaints": "Complaints",
-   "incentives": "Incentives",
-   "regions": "Regions",
-   "auditLog": "Audit log",
-   "profile": "Profile"
-  },
-  "adminConsole": "Admin console",
-  "managerConsole": "Manager console",
-  "admin": "Admin",
-  "manager": "Manager"
- },
- "adminUsers": {
-  "eyebrow": "Directory",
-  "title": "Users",
-  "subtitle": "Manage roles and account status across the platform.",
-  "searchPlaceholder": "Search by name or phone"
- },
- "userTable": {
-  "name": "Name",
-  "phone": "Phone",
-  "role": "Role",
-  "status": "Status",
-  "actions": "Actions",
-  "noUsers": "No users found.",
-  "roleAria": "Role for {name}",
-  "suspendAria": "Suspend {name}",
-  "deleteAria": "Delete {name}",
-  "suspend": "Suspend",
-  "delete": "Delete",
-  "confirmAction": "Confirm action",
-  "cancel": "Cancel",
-  "working": "Working…",
-  "confirm": "Confirm",
-  "changeRoleTo": "Change role to \"{role}\"?",
-  "suspendConfirm": "Suspend this account?",
-  "deleteConfirm": "Delete this account? This is a soft delete and can be reversed by an admin.",
-  "roles": {
-   "customer": "Customer",
-   "driver": "Driver",
-   "hamali_solo": "Hamali (solo)",
-   "mutha_leader": "Mutha Leader",
-   "mutha_member": "Mutha Member"
-  },
-  "accountStatus": {
-   "active": "Active",
-   "suspended": "Suspended",
-   "deleted": "Deleted"
-  }
- },
- "adminDashboard": {
-  "eyebrow": "Console",
-  "welcome": "Welcome, {name}",
-  "subtitle": "Platform snapshot and everything you can manage.",
-  "activeBookings": "Active bookings",
-  "gmv": "GMV (completed)",
-  "openComplaints": "Open complaints",
-  "links": {
-   "kycQueue": {
-    "label": "KYC queue",
-    "hint": "Approve or reject pending submissions"
-   },
-   "disputes": {
-    "label": "Disputes",
-    "hint": "Claim vs system-record resolution"
-   },
-   "fraudAlerts": {
-    "label": "Fraud alerts",
-    "hint": "Severity-ranked case queue"
-   },
-   "payouts": {
-    "label": "Payouts",
-    "hint": "Approve driver/Mutha payout requests"
-   },
-   "ledger": {
-    "label": "Ledger",
-    "hint": "Platform transaction ledger"
-   },
-   "surgeZones": {
-    "label": "Surge zones",
-    "hint": "Demand-surge overrides"
-   },
-   "analytics": {
-    "label": "Analytics",
-    "hint": "KPIs, heatmap, revenue trend"
-   },
-   "opsHub": {
-    "label": "Ops hub",
-    "hint": "Live incident dashboard"
-   },
-   "reports": {
-    "label": "Reports",
-    "hint": "Custom exports"
-   },
-   "users": {
-    "label": "Users",
-    "hint": "Org tree, roles, suspend/delete"
-   },
-   "managers": {
-    "label": "Managers",
-    "hint": "Create managers, scope permissions"
-   },
-   "fares": {
-    "label": "Fare rules",
-    "hint": "Region × category rate cards"
-   },
-   "complaints": {
-    "label": "Complaints",
-    "hint": "Resolution queue"
-   },
-   "incentives": {
-    "label": "Incentives",
-    "hint": "Rating-threshold bonus rules"
-   },
-   "regions": {
-    "label": "Regions",
-    "hint": "Enable/launch new regions"
-   },
-   "auditLog": {
-    "label": "Audit log",
-    "hint": "Immutable action history"
-   }
-  }
- },
- "adminDisputes": {
-  "eyebrow": "Trust & safety",
-  "title": "Disputes & refunds",
-  "subtitle": "Claim vs system-record resolution queue.",
-  "all": "All",
-  "noDisputes": "No disputes",
-  "noDisputesDesc": "Nothing in this queue right now.",
-  "unknown": "Unknown",
-  "priorityLabel": "{priority} priority",
-  "status": {
-   "open": "Open",
-   "investigating": "Investigating",
-   "resolved": "Resolved",
-   "escalated": "Escalated"
-  }
- },
- "adminAnalytics": {
-  "eyebrow": "Insights",
-  "title": "Performance analytics",
-  "subtitle": "Live KPIs, demand hotspots, and revenue trend.",
-  "revenue": "Revenue",
-  "activeTrips": "Active trips",
-  "completedTrips": "Completed trips",
-  "fleetUtilization": "Fleet utilization",
-  "avgDeliveryTime": "Avg delivery time",
-  "minSuffix": "{mins} min",
-  "demandHotspots": "Demand hotspots",
-  "noPickupData": "No pickup data yet",
-  "noPickupDataDesc": "Hotspots appear here once bookings start coming in.",
-  "revenueTrend": "Revenue trend (14 days)",
-  "notEnoughData": "Not enough data",
-  "notEnoughDataDesc": "Revenue trend needs at least two days of completed bookings."
- },
- "adminComplaints": {
-  "eyebrow": "Trust & safety",
-  "title": "Complaints",
-  "subtitle": "Resolution queue for issues raised against a booking.",
-  "all": "All",
-  "errorUpdate": "Could not update this complaint.",
-  "review": "Review",
-  "noComplaints": "No complaints here.",
-  "resolveTitle": "Resolve complaint",
-  "notePlaceholder": "Resolution note",
-  "noteAria": "Resolution note",
-  "markInReview": "Mark in review",
-  "resolve": "Resolve",
-  "category": {
-   "no_show": "No-show",
-   "damage": "Cargo damage",
-   "payment": "Payment issue",
-   "misconduct": "Misconduct",
-   "other": "Other"
-  },
-  "status": {
-   "open": "open",
-   "in_review": "in review",
-   "resolved": "resolved"
-  }
- },
- "adminAuditLog": {
-  "eyebrow": "Trust & safety",
-  "title": "Audit log",
-  "subtitle": "Every admin/manager action — role changes, deletions, fare rule edits, complaint resolutions. Append-only: nothing here can be edited or removed.",
-  "filterByAction": "Filter by action…",
-  "filterByTarget": "Filter by target type…",
-  "noMatching": "No matching entries",
-  "time": "Time",
-  "actor": "Actor",
-  "action": "Action",
-  "target": "Target",
-  "details": "Details",
-  "previous": "Previous",
-  "next": "Next",
-  "pageOf": "Page {page} of {totalPages}"
- },
- "adminFraudAlerts": {
-  "eyebrow": "Trust & safety",
-  "title": "Security & fraud alerts",
-  "subtitle": "Severity-ranked suspicious-activity case queue.",
-  "all": "All",
-  "noFraudCases": "No fraud cases",
-  "noFraudCasesDesc": "Nothing flagged right now.",
-  "investigate": "Investigate",
-  "severityStatus": "{severity} severity · {status}",
-  "unknownUser": "Unknown user",
-  "flaggedAt": "{name} ({role}) · flagged {date}",
-  "caseTitle": "Case — {name}",
-  "caseFallback": "Case",
-  "evidence": "Evidence",
-  "noEvidence": "No signal evidence recorded.",
-  "notes": "Notes",
-  "errorClear": "Could not clear this case.",
-  "errorSuspend": "Could not suspend this account.",
-  "clearFalsePositive": "Clear (false positive)",
-  "suspendAccount": "Suspend account",
-  "suspendWarning": "This immediately suspends {name}. They will not be able to use FYRO until an admin reinstates them. Confirm?",
-  "cancel": "Cancel",
-  "suspending": "Suspending…",
-  "confirmSuspend": "Confirm suspend",
-  "alreadyResolved": "This case is already resolved ({status}).",
-  "status": {
-   "open": "Open",
-   "investigating": "Investigating",
-   "cleared": "Cleared",
-   "suspended": "Suspended"
-  }
- },
- "adminFares": {
-  "eyebrow": "Pricing",
-  "title": "Fare rules",
-  "subtitle": "Region × category rate cards. Creating a new active rule for the same region+category retires the previous one automatically.",
-  "noRulesYet": "No fare rules yet",
-  "noRulesYetDesc": "Bookings can't be created until at least one exists per region/category.",
-  "active": "Active",
-  "inactive": "Inactive",
-  "base": "Base",
-  "perKm": "Per km",
-  "minimum": "Minimum",
-  "deactivate": "Deactivate",
-  "reactivate": "Reactivate",
-  "addEyebrow": "Add",
-  "newRule": "New fare rule",
-  "newRuleSubtitle": "Launch region is Visakhapatnam until Phase 5's region picker.",
-  "regionPlaceholder": "Region",
-  "categoryAria": "Category",
-  "baseFarePlaceholder": "Base fare (₹)",
-  "perKmPlaceholder": "Per-km rate (₹)",
-  "minFarePlaceholder": "Minimum fare (₹)",
-  "errorCreate": "Failed to create fare rule",
-  "saving": "Saving…",
-  "createRule": "Create fare rule",
-  "categories": {
-   "vehicle_small": "Vehicle — small (≤1,000 kg)",
-   "vehicle_medium": "Vehicle — medium (≤5,000 kg)",
-   "vehicle_large": "Vehicle — large (>5,000 kg)",
-   "hamali": "Hamali (per worker)"
-  }
- },
- "adminIncentives": {
-  "eyebrow": "Rewards",
-  "title": "Incentive rules",
-  "subtitle": "Rating + completed-job thresholds that grant a bonus. Run manually below (scheduled runs are a Phase 5+ addition once a job scheduler exists).",
-  "bonusLabel": "₹{amount} bonus",
-  "active": "Active",
-  "inactive": "Inactive",
-  "ruleSummary": "Rating ≥ {rating} · {jobs}+ completed jobs{region}",
-  "deactivate": "Deactivate",
-  "noRulesYet": "No rules yet.",
-  "runAllNow": "Run all active rules now",
-  "running": "Running…",
-  "run": "Run",
-  "grantedResult": "Granted {count} new incentive(s).",
-  "addEyebrow": "Add",
-  "newRule": "New rule",
-  "newRuleSubtitle": "Applies to drivers, solo Hamalis, Mutha members, and Muthas.",
-  "minRatingPlaceholder": "Minimum rating (0-5)",
-  "minJobsPlaceholder": "Minimum completed jobs",
-  "bonusPlaceholder": "Bonus amount (₹)",
-  "regionPlaceholder": "Region (optional)",
-  "errorCreate": "Could not create rule",
-  "saving": "Saving…",
-  "createRule": "Create rule"
- },
- "adminKyc": {
-  "eyebrow": "Trust & safety",
-  "title": "KYC verification queue",
-  "subtitle": "Review and approve or reject pending identity/document submissions.",
-  "pendingReview": "Pending review",
-  "queueEmpty": "Queue is empty",
-  "queueEmptyDesc": "No pending KYC submissions right now.",
-  "docsSubmitted": "{count} document{plural} submitted",
-  "reviewTitle": "Review — {name}",
-  "reviewFallback": "Review submission",
-  "submittedDocs": "Submitted documents",
-  "noDocsOnFile": "No documents on file.",
-  "rejectionReason": "Rejection reason",
-  "rejectionPlaceholder": "e.g. Photo is blurry, document expired…",
-  "errorApprove": "Could not approve this submission.",
-  "errorReject": "Could not reject this submission.",
-  "reject": "Reject",
-  "approving": "Approving…",
-  "approve": "Approve",
-  "back": "Back",
-  "rejecting": "Rejecting…",
-  "confirmReject": "Confirm reject",
-  "docStatus": {
-   "under_review": "Under review",
-   "verified": "Verified",
-   "rejected": "Rejected"
-  },
-  "docType": {
-   "driving_licence": "Driving Licence",
-   "vehicle_rc": "Vehicle RC",
-   "fastag": "FASTag",
-   "goods_carriage_permit": "Goods Carriage Permit",
-   "puc": "PUC Certificate",
-   "vehicle_fitness": "Vehicle Fitness Certificate",
-   "aadhaar": "Aadhaar",
-   "pan": "PAN",
-   "gstin": "GSTIN"
-  }
- },
- "adminLedger": {
-  "eyebrow": "Finance",
-  "title": "Transaction ledger",
-  "subtitle": "Append-only platform financial record.",
-  "exportCsv": "Export CSV",
-  "revenue": "Revenue",
-  "payouts": "Payouts",
-  "fees": "Fees",
-  "refunds": "Refunds",
-  "all": "All",
-  "noEntriesYet": "No ledger entries yet",
-  "noEntriesYetDesc": "Entries appear here as real bookings, payouts, fees, and refunds are recorded.",
-  "time": "Time",
-  "type": "Type",
-  "description": "Description",
-  "entity": "Entity",
-  "amount": "Amount",
-  "status": "Status",
-  "previous": "Previous",
-  "next": "Next",
-  "pageOf": "Page {page} of {totalPages}",
-  "types": {
-   "revenue": "Revenue",
-   "payout": "Payout",
-   "fee": "Fee",
-   "refund": "Refund"
-  },
-  "entryStatus": {
-   "posted": "Posted",
-   "pending": "Pending",
-   "failed": "Failed"
-  }
- },
- "adminPayouts": {
-  "eyebrow": "Finance",
-  "title": "Payout approvals",
-  "subtitle": "Queue of driver/Mutha payout requests.",
-  "all": "All",
-  "generateButton": "Generate this period’s payouts",
-  "generating": "Generating…",
-  "generateResult": "{created} new payout{createdPlural} queued (₹{total}), {existed} already existed this period, {zero} had no earnings.",
-  "errorGenerate": "Could not generate payouts.",
-  "errorUpdate": "Could not update this payout.",
-  "noPayouts": "No payouts here",
-  "noPayoutsDesc": "Nothing in this filter right now.",
-  "unknown": "Unknown",
-  "reject": "Reject",
-  "approve": "Approve",
-  "marking": "Marking…",
-  "markPaid": "Mark paid",
-  "status": {
-   "pending": "Pending",
-   "approved": "Approved",
-   "rejected": "Rejected",
-   "paid": "Paid"
-  }
- },
- "adminRegions": {
-  "eyebrow": "Expansion",
-  "title": "Regions",
-  "subtitle": "A region only matters once fare rules exist for it (Fares tab) — launching it here just marks it live.",
-  "launched": "Launched {date}",
-  "live": "Live",
-  "disabled": "Disabled",
-  "disable": "Disable",
-  "reenable": "Re-enable",
-  "noRegionsYet": "No regions launched yet.",
-  "errorLaunch": "Could not launch this region.",
-  "launchEyebrow": "Launch",
-  "newRegion": "New region",
-  "newRegionHint": "e.g. \"Vijayawada\" — must match the region string used on fare rules.",
-  "regionNamePlaceholder": "Region name",
-  "launching": "Launching…",
-  "launchRegion": "Launch region"
- },
- "adminSurgeZones": {
-  "eyebrow": "Demand",
-  "title": "Surge zones",
-  "subtitle": "Active manual demand-surge overrides by region. Multiplier is capped at {max}x.",
-  "noActiveSurge": "No active surge",
-  "noActiveSurgeDesc": "No manual overrides are currently in effect.",
-  "expiresIn": "Expires in {mins} min · {kind}",
-  "manual": "Manual override",
-  "automatic": "Automatic",
-  "ending": "Ending…",
-  "endNow": "End now",
-  "recentlyEnded": "Recently ended",
-  "errorCreate": "Could not create this override.",
-  "overrideEyebrow": "Override",
-  "newOverride": "Manual surge override",
-  "newOverrideHint": "Applies to a region name (must match FareRule region strings).",
-  "regionNamePlaceholder": "Region name",
-  "multiplierLabel": "Multiplier (max {max}x)",
-  "durationLabel": "Duration (minutes)",
-  "applying": "Applying…",
-  "applyOverride": "Apply override"
- },
- "adminReports": {
-  "eyebrow": "Reporting",
-  "title": "Custom exports",
-  "subtitle": "Build a filtered export of real platform data. Exports as CSV — a spreadsheet-compatible substitute for Excel, added without a new dependency. PDF generation is deferred until a PDF library is added to the project.",
-  "exportBuilder": "Export builder",
-  "dataSource": "Data source",
-  "from": "From",
-  "to": "To",
-  "regionOptional": "Region (optional)",
-  "regionPlaceholder": "e.g. Visakhapatnam",
-  "format": "Format",
-  "pdfDeferredTitle": "Deferred — no PDF library in the project yet",
-  "pdfDeferred": "PDF (deferred)",
-  "downloadCsv": "Download CSV",
-  "sources": {
-   "ledger": "Financial ledger",
-   "bookings": "Bookings"
-  },
-  "downloadPdf": "Download PDF",
-  "pdfNote": "PDF is capped at 500 rows — use CSV for the full data set."
- },
- "adminOpsHub": {
-  "eyebrow": "Operations",
-  "title": "Ops hub",
-  "subtitle": "Live incident dashboard and action-required queue.",
-  "latePickups": "Late pickups",
-  "openDisputes": "Open disputes",
-  "fraudCases": "Fraud cases",
-  "pendingPayouts": "Pending payouts",
-  "criticalAlerts": "Critical alerts",
-  "noLatePickups": "No late pickups",
-  "noLatePickupsDesc": "Every accepted booking is on schedule.",
-  "pickupOverdue": "Pickup overdue — {name}",
-  "unknownCustomer": "Unknown customer",
-  "accepted": "Accepted {date}",
-  "actionRequired": "Action required",
-  "allClear": "All clear",
-  "allClearDesc": "No open disputes, fraud cases, or pending payouts.",
-  "kind": {
-   "dispute": "dispute",
-   "fraud_case": "fraud case",
-   "payout": "payout"
-  }
- },
- "adminManagers": {
-  "structureEyebrow": "Structure",
-  "orgTree": "Org tree",
-  "orgTreeSubtitle": "Admin at the root, managers and their granted permissions below.",
-  "onboardEyebrow": "Onboard",
-  "createManager": "Create manager",
-  "createManagerSubtitle": "Grant a new manager access with scoped permissions.",
-  "namePlaceholder": "Name",
-  "phonePlaceholder": "Phone",
-  "passwordPlaceholder": "Password",
-  "errorCreate": "Failed to create manager",
-  "errorUpdate": "Failed to update permissions",
-  "editPermissions": "Edit permissions — {name}",
-  "editPermissionsFallback": "Edit permissions",
-  "cancel": "Cancel",
-  "saving": "Saving…",
-  "save": "Save"
- },
- "treeView": {
-  "adminRoot": "Admin (root)",
-  "noManagersYet": "No managers yet. Create one to build out the tree.",
-  "noPermissions": "No permissions granted",
-  "editPermissions": "Edit permissions",
-  "editPermissionsAria": "Edit permissions for {name}"
- },
- "permissionPicker": {
-  "permissions": "Permissions",
-  "regionNamePlaceholder": "Region name (e.g. Visakhapatnam)",
-  "regionNameAria": "Region name",
-  "addRegionScope": "Add region scope",
-  "selected": "Selected",
-  "removeAria": "Remove {permission}",
-  "options": {
-   "verify_kyc": "Verify KYC",
-   "resolve_complaints": "Resolve complaints",
-   "edit_fare_rules": "Edit fare rules",
-   "view_analytics": "View analytics"
-  }
- },
- "adminInsurance": {
-  "eyebrow": "Finance",
-  "title": "Insurance",
-  "subtitle": "Plans, parametric triggers, and the automatic-payout kill switch.",
-  "autoPayoutsToday": "Automatic parametric payouts — today",
-  "capLabel": " / ₹{cap} cap",
-  "runtimeKillSwitch": "Runtime kill switch",
-  "deployOff": "Deploy-level switch is OFF — this toggle cannot override it.",
-  "plans": "Plans",
-  "newPlan": "New plan",
-  "active": "Active",
-  "inactive": "Inactive",
-  "planMeta": "{type} · {category} · ₹{premium}/mo",
-  "parametric": "Parametric",
-  "standard": "Standard",
-  "triggerLabel": "Trigger: {condition} < ₹{threshold} / {days}d → pays ₹{payout}",
-  "deactivate": "Deactivate",
-  "reactivate": "Reactivate",
-  "newPlanTitle": "New insurance plan",
-  "namePlaceholder": "Name",
-  "descriptionPlaceholder": "Description",
-  "coveragePlaceholder": "Coverage ₹",
-  "premiumPlaceholder": "Premium ₹/mo",
-  "availableTo": "Available to",
-  "triggerHeading": "Trigger: earnings below threshold",
-  "thresholdPlaceholder": "Threshold ₹",
-  "periodPlaceholder": "Period days",
-  "payoutPlaceholder": "Payout ₹",
-  "errorCreate": "Could not create plan.",
-  "creating": "Creating…",
-  "createPlan": "Create plan",
-  "categories": {
-   "commercial_auto": "Commercial auto",
-   "work_compensation": "Work compensation",
-   "cargo_transit": "Cargo transit"
-  },
-  "roles": {
-   "driver": "Driver",
-   "hamali_solo": "Hamali solo",
-   "mutha_leader": "Mutha leader",
-   "mutha_member": "Mutha member",
-   "fleet_owner": "Fleet owner",
-   "warehouse_hub": "Warehouse hub"
-  }
- },
- "errorBoundary": {
-  "title": "Something went wrong",
-  "description": "We hit an unexpected error. This has been logged — try again, or go back to your dashboard if it keeps happening.",
-  "tryAgain": "Try again",
-  "goHome": "Go to dashboard",
-  "goToHomepage": "Go to homepage",
-  "notFoundTitle": "Page not found",
-  "notFoundDescription": "The page you're looking for doesn't exist or may have moved."
- },
- "notifications": {
-  "bellAria": "Notifications ({count} unread)",
-  "bellAriaNone": "Notifications",
-  "title": "Notifications",
-  "markAllRead": "Mark all read",
-  "empty": "No notifications yet",
-  "emptyDesc": "Updates about your bookings, payouts, and account will show up here.",
-  "loadError": "Couldn't load your notifications",
-  "tryAgain": "Try again",
-  "errorMarkRead": "Could not mark all as read."
- },
- "offline": {
-  "offline": "You're offline",
-  "offlineDesc": "Some actions may not work until your connection is back."
- }
 }

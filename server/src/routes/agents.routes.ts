@@ -54,3 +54,27 @@ agentsRouter.post(
   validate,
   agentsController.precheckDocument
 );
+
+// Agent E — any authenticated role sanity-checking a quote (customer
+// before booking; fleet_owner/warehouse_hub/admin setting/reviewing rates).
+const FARE_CATEGORIES = ['vehicle_small', 'vehicle_medium', 'vehicle_large', 'hamali'];
+agentsRouter.post(
+  '/pricing-quote',
+  [
+    body('region').isString().trim().isLength({ min: 1, max: 100 }),
+    body('category').isIn(FARE_CATEGORIES),
+    body('distanceKm').isFloat({ min: 0, max: 5000 }),
+    body('hamaliCount').optional().isInt({ min: 0, max: 50 }),
+  ],
+  validate,
+  agentsController.getPricingQuote
+);
+
+// Agent F — admin/manager only, same role gate as analytics.routes.ts.
+agentsRouter.post(
+  '/market-insights',
+  requireRole('admin', 'manager'),
+  [body('region').optional().isString().trim().isLength({ min: 1, max: 100 })],
+  validate,
+  agentsController.getMarketInsights
+);

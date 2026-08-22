@@ -5,6 +5,7 @@ import { app } from '../src/app';
 import { User } from '../src/models/User';
 import { Booking } from '../src/models/Booking';
 import { AuditLog } from '../src/models/AuditLog';
+import { FareRule } from '../src/models/FareRule';
 import { signAccessToken } from '../src/services/token.service';
 
 const PICKUP: [number, number] = [78.4867, 17.385];
@@ -129,6 +130,74 @@ describe('Agent D (document pre-check) — scoped to the caller\'s own documents
     const { agent } = await loginAs('driver', '9880000011');
     const res = await agent.post('/api/agents/document-precheck').send({ documentType: 'pan' });
     expect(res.status).toBe(404);
+  });
+});
+
+describe('Agent E (pricing & quote) — no ownership scoping needed, but never fabricates without a real rule', () => {
+  it('refuses to quote a region+category with no active fare rule, rather than inventing a number', async () => {
+    const { agent } = await loginAs('customer', '9880000013');
+    const res = await agent
+      .post('/api/agents/pricing-quote')
+      .send({ region: 'A Region With No Fare Rule At All', category: 'vehicle_small', distanceKm: 10 });
+    expect(res.status).toBe(200);
+    expect(res.body.result.confidence).toBe('low');
+    expect(res.body.result.mock).toBe(true);
+  });
+
+  it('quotes off the real active fare rule for a region+category that has one', async () => {
+    const { agent, user: admin } = await loginAs('admin', '9880000014');
+    await FareRule.create({
+      region: 'QuoteTestRegion',
+      category: 'vehicle_small',
+      baseFare: 100,
+      perKmRate: 10,
+      minimumFare: 100,
+      surgeMultiplier: 1,
+      setByAdminId: admin._id,
+    });
+    const res = await agent
+      .post('/api/agents/pricing-quote')
+      .send({ region: 'QuoteTestRegion', category: 'vehicle_small', distanceKm: 10 });
+    expect(res.status).toBe(200);
+    // base 100 + 10/km*10km = 200, no surge — a real number derived from
+    // the real rule just created, not a fabricated one.
+    expect(JSON.stringify(res.body)).toMatch(/200/);
+  });
+
+  it('writes an audit log entry for every pricing-quote call', async () => {
+    const { agent } = await loginAs('driver', '9880000015');
+    await agent.post('/api/agents/pricing-quote').send({ region: 'Visakhapatnam', category: 'hamali', distanceKm: 5 });
+    const entries = await AuditLog.find({ action: 'agent_pricing_quote_run' });
+    expect(entries.length).toBeGreaterThan(0);
+  });
+});
+
+describe('Agent F (market insights) — admin/manager only, real week-over-week aggregates', () => {
+  it('blocks a non-admin/manager (customer) with 403', async () => {
+    const { agent } = await loginAs('customer', '9880000016');
+    const res = await agent.post('/api/agents/market-insights').send({ region: 'Visakhapatnam' });
+    expect(res.status).toBe(403);
+  });
+
+  it('refuses to draw a trend on too few completed bookings (mandatory low-data guardrail)', async () => {
+    const { agent } = await loginAs('admin', '9880000017');
+    const res = await agent.post('/api/agents/market-insights').send({ region: 'A Region With No Bookings At All' });
+    expect(res.status).toBe(200);
+    expect(res.body.result.confidence).toBe('low');
+    expect(res.body.result.mock).toBe(true);
+  });
+
+  it('a manager may also run market insights (not admin-exclusive)', async () => {
+    const { agent } = await loginAs('manager', '9880000018');
+    const res = await agent.post('/api/agents/market-insights').send({});
+    expect(res.status).toBe(200);
+  });
+
+  it('writes an audit log entry for every market-insights call', async () => {
+    const { agent } = await loginAs('admin', '9880000019');
+    await agent.post('/api/agents/market-insights').send({ region: 'Visakhapatnam' });
+    const entries = await AuditLog.find({ action: 'agent_market_insights_run' });
+    expect(entries.length).toBeGreaterThan(0);
   });
 });
 
