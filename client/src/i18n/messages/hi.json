@@ -1974,7 +1974,9 @@
   "sources": {
    "ledger": "वित्तीय लेजर",
    "bookings": "बुकिंग"
-  }
+  },
+  "downloadPdf": "PDF डाउनलोड करें",
+  "pdfNote": "PDF अधिकतम 500 पंक्तियों तक सीमित है — पूरे डेटा के लिए CSV का उपयोग करें।"
  },
  "adminOpsHub": {
   "eyebrow": "संचालन",

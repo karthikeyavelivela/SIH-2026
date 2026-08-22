@@ -1974,7 +1974,9 @@
   "sources": {
    "ledger": "Financial ledger",
    "bookings": "Bookings"
-  }
+  },
+  "downloadPdf": "Download PDF",
+  "pdfNote": "PDF is capped at 500 rows — use CSV for the full data set."
  },
  "adminOpsHub": {
   "eyebrow": "Operations",

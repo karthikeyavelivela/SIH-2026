@@ -20,6 +20,7 @@ reportsRouter.get(
     query('from').optional().isISO8601(),
     query('to').optional().isISO8601(),
     query('region').optional().isString().trim(),
+    query('format').optional().isIn(['csv', 'pdf']),
   ],
   validate,
   reportsController.exportReport

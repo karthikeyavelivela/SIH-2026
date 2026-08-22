@@ -12,8 +12,9 @@ const inputClass =
 
 // New page — DESIGN_INVENTORY.md advanced_reporting_exports. CSV is the
 // substitute for "Excel" per the build spec (no xlsx dependency in the
-// project); real PDF generation is deferred for the same reason (no PDF
-// library present either) — noted here in the UI, not silently dropped.
+// project). PDF (Phase 6.6) is real — pdfkit was already a dependency
+// (bolPdf.service.ts) so the earlier "deferred" placeholder was stale,
+// not a genuine missing-library blocker.
 export default function AdminReportsPage() {
   const t = useTranslations('adminReports');
   const SOURCES = SOURCE_VALUES.map((value) => ({ value, label: t(`sources.${value}`) }));
@@ -21,9 +22,10 @@ export default function AdminReportsPage() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [region, setRegion] = useState('');
+  const [format, setFormat] = useState<'csv' | 'pdf'>('csv');
 
   function download() {
-    const params = new URLSearchParams({ source });
+    const params = new URLSearchParams({ source, format });
     if (from) params.set('from', new Date(from).toISOString());
     if (to) params.set('to', new Date(to).toISOString());
     if (region) params.set('region', region);
@@ -88,14 +90,29 @@ export default function AdminReportsPage() {
               {t('format')}
             </label>
             <div className="flex gap-2">
-              <span className="px-3.5 py-2 rounded-ip-pill text-xs font-semibold bg-ip-primary-container/20 text-ip-primary">CSV</span>
-              <span className="px-3.5 py-2 rounded-ip-pill text-xs font-semibold bg-ip-surface-container text-ip-on-surface-variant" title={t('pdfDeferredTitle')}>
-                {t('pdfDeferred')}
-              </span>
+              <button
+                type="button"
+                onClick={() => setFormat('csv')}
+                className={`px-3.5 py-2 rounded-ip-pill text-xs font-semibold transition-colors ${
+                  format === 'csv' ? 'bg-ip-primary-container/20 text-ip-primary' : 'bg-ip-surface-container text-ip-on-surface-variant'
+                }`}
+              >
+                CSV
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormat('pdf')}
+                className={`px-3.5 py-2 rounded-ip-pill text-xs font-semibold transition-colors ${
+                  format === 'pdf' ? 'bg-ip-primary-container/20 text-ip-primary' : 'bg-ip-surface-container text-ip-on-surface-variant'
+                }`}
+              >
+                PDF
+              </button>
             </div>
+            {format === 'pdf' && <p className="text-xs text-ip-on-surface-variant mt-2">{t('pdfNote')}</p>}
           </div>
           <Button className="w-full" size="lg" onClick={download}>
-            {t('downloadCsv')}
+            {format === 'pdf' ? t('downloadPdf') : t('downloadCsv')}
           </Button>
         </div>
       </div>
