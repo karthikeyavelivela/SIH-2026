@@ -298,6 +298,35 @@
    "loginPrompt": "ఇప్పటికే ఖాతా ఉందా?",
    "loginLink": "లాగిన్ అవ్వండి",
    "genericError": "సైన్ అప్ విఫలమైంది"
+  },
+  "signupFleetOwner": {
+   "eyebrow": "మాతో పార్ట్‌నర్ అవ్వండి",
+   "title": "FYROలో మీ ఫ్లీట్ నడపండి",
+   "subtitle": "వాహనాలు, డ్రైవర్లను డిప్లాయ్ చేయడం ప్రారంభించడానికి మీ ఫ్లీట్‌ను నమోదు చేయండి.",
+   "namePlaceholder": "పూర్తి పేరు",
+   "phonePlaceholder": "ఫోన్ నంబర్",
+   "passwordPlaceholder": "పాస్‌వర్డ్ (కనీసం 8 అక్షరాలు)",
+   "fleetNamePlaceholder": "ఫ్లీట్ పేరు",
+   "submit": "ఖాతా సృష్టించండి",
+   "submitLoading": "ఖాతా సృష్టిస్తోంది…",
+   "loginPrompt": "ఇప్పటికే ఖాతా ఉందా?",
+   "loginLink": "లాగిన్ అవ్వండి",
+   "genericError": "సైన్ అప్ విఫలమైంది"
+  },
+  "signupWarehouseHub": {
+   "eyebrow": "మాతో పార్ట్‌నర్ అవ్వండి",
+   "title": "మీ వేర్‌హౌస్ హబ్‌ను లిస్ట్ చేయండి",
+   "subtitle": "డాక్ స్పేస్, గేట్ యాక్టివిటీని ట్రాక్ చేయడం ప్రారంభించడానికి మీ హబ్‌ను నమోదు చేయండి.",
+   "namePlaceholder": "పూర్తి పేరు",
+   "phonePlaceholder": "ఫోన్ నంబర్",
+   "passwordPlaceholder": "పాస్‌వర్డ్ (కనీసం 8 అక్షరాలు)",
+   "hubNamePlaceholder": "హబ్ పేరు",
+   "addressPlaceholder": "చిరునామా (ఐచ్ఛికం)",
+   "submit": "ఖాతా సృష్టించండి",
+   "submitLoading": "ఖాతా సృష్టిస్తోంది…",
+   "loginPrompt": "ఇప్పటికే ఖాతా ఉందా?",
+   "loginLink": "లాగిన్ అవ్వండి",
+   "genericError": "సైన్ అప్ విఫలమైంది"
   }
  },
  "shared": {

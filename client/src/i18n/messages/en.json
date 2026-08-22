@@ -298,6 +298,35 @@
    "loginPrompt": "Already have an account?",
    "loginLink": "Log in",
    "genericError": "Signup failed"
+  },
+  "signupFleetOwner": {
+   "eyebrow": "Partner with us",
+   "title": "Run your fleet on FYRO",
+   "subtitle": "Register your fleet to start deploying vehicles and drivers.",
+   "namePlaceholder": "Full name",
+   "phonePlaceholder": "Phone number",
+   "passwordPlaceholder": "Password (min 8 characters)",
+   "fleetNamePlaceholder": "Fleet name",
+   "submit": "Create account",
+   "submitLoading": "Creating account…",
+   "loginPrompt": "Already have an account?",
+   "loginLink": "Log in",
+   "genericError": "Signup failed"
+  },
+  "signupWarehouseHub": {
+   "eyebrow": "Partner with us",
+   "title": "List your warehouse hub",
+   "subtitle": "Register your hub to start tracking dock space and gate activity.",
+   "namePlaceholder": "Full name",
+   "phonePlaceholder": "Phone number",
+   "passwordPlaceholder": "Password (min 8 characters)",
+   "hubNamePlaceholder": "Hub name",
+   "addressPlaceholder": "Address (optional)",
+   "submit": "Create account",
+   "submitLoading": "Creating account…",
+   "loginPrompt": "Already have an account?",
+   "loginLink": "Log in",
+   "genericError": "Signup failed"
   }
  },
  "shared": {

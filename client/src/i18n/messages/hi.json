@@ -298,6 +298,35 @@
    "loginPrompt": "पहले से खाता है?",
    "loginLink": "लॉग इन करें",
    "genericError": "साइन अप विफल रहा"
+  },
+  "signupFleetOwner": {
+   "eyebrow": "हमारे साथ पार्टनर बनें",
+   "title": "FYRO पर अपना फ़्लीट चलाएं",
+   "subtitle": "वाहन और ड्राइवर तैनात करना शुरू करने के लिए अपना फ़्लीट पंजीकृत करें।",
+   "namePlaceholder": "पूरा नाम",
+   "phonePlaceholder": "फ़ोन नंबर",
+   "passwordPlaceholder": "पासवर्ड (कम से कम 8 अक्षर)",
+   "fleetNamePlaceholder": "फ़्लीट का नाम",
+   "submit": "खाता बनाएं",
+   "submitLoading": "खाता बनाया जा रहा है…",
+   "loginPrompt": "पहले से खाता है?",
+   "loginLink": "लॉगिन करें",
+   "genericError": "साइन अप विफल रहा"
+  },
+  "signupWarehouseHub": {
+   "eyebrow": "हमारे साथ पार्टनर बनें",
+   "title": "अपना वेयरहाउस हब सूचीबद्ध करें",
+   "subtitle": "डॉक स्पेस और गेट गतिविधि ट्रैक करना शुरू करने के लिए अपना हब पंजीकृत करें।",
+   "namePlaceholder": "पूरा नाम",
+   "phonePlaceholder": "फ़ोन नंबर",
+   "passwordPlaceholder": "पासवर्ड (कम से कम 8 अक्षर)",
+   "hubNamePlaceholder": "हब का नाम",
+   "addressPlaceholder": "पता (वैकल्पिक)",
+   "submit": "खाता बनाएं",
+   "submitLoading": "खाता बनाया जा रहा है…",
+   "loginPrompt": "पहले से खाता है?",
+   "loginLink": "लॉगिन करें",
+   "genericError": "साइन अप विफल रहा"
   }
  },
  "shared": {
