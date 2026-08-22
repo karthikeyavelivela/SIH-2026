@@ -146,3 +146,96 @@ describe('GET /api/admin/kyc-queue only lists users with an actual uploaded docu
     expect(ids).toContain(withDocUser._id.toString());
   });
 });
+
+describe('end-to-end: upload -> admin review -> per-document status (found missing during Phase 1 live verification)', () => {
+  async function loginAsAdmin(phone: string) {
+    const passwordHash = await bcrypt.hash('AdminPass1!', 12);
+    const admin = await User.create({ name: 'Admin', phone, passwordHash, role: 'admin' });
+    const agent = request.agent(app);
+    agent.jar.setCookie(`accessToken=${signAccessToken({ id: admin._id.toString(), role: 'admin' })}`);
+    return agent;
+  }
+
+  it('approving the whole submission verifies every under_review document, not just the user-level kycStatus', async () => {
+    const { agent, user } = await loginAsDriver('9820000013');
+    await agent.post('/api/kyc/documents').send({ type: 'aadhaar', fileBase64: TINY_PNG });
+    await agent.post('/api/kyc/documents').send({ type: 'pan', fileBase64: TINY_PNG });
+
+    const adminAgent = await loginAsAdmin('9820099998');
+    const approve = await adminAgent.patch(`/api/admin/kyc-queue/${user._id}`).send({ status: 'verified' });
+    expect(approve.status).toBe(200);
+
+    const refreshed = await User.findById(user._id);
+    expect(refreshed!.kycStatus).toBe('verified');
+    for (const doc of refreshed!.kycDocs) {
+      expect(doc.status).toBe('verified');
+      expect(doc.reviewedAt).toBeDefined();
+      expect(doc.reviewedByAdminId?.toString()).toBeTruthy();
+    }
+  });
+
+  it('rejecting the whole submission rejects every under_review document with the same reason', async () => {
+    const { agent, user } = await loginAsDriver('9820000014');
+    await agent.post('/api/kyc/documents').send({ type: 'aadhaar', fileBase64: TINY_PNG });
+
+    const adminAgent = await loginAsAdmin('9820099997');
+    const reject = await adminAgent
+      .patch(`/api/admin/kyc-queue/${user._id}`)
+      .send({ status: 'rejected', rejectionReason: 'Blurry photo' });
+    expect(reject.status).toBe(200);
+
+    const refreshed = await User.findById(user._id);
+    expect(refreshed!.kycDocs[0].status).toBe('rejected');
+    expect(refreshed!.kycDocs[0].rejectionReason).toBe('Blurry photo');
+  });
+
+  it('a rejected user who re-uploads reappears in the admin queue and can be approved again — the full loop actually closes', async () => {
+    const { agent, user } = await loginAsDriver('9820000015');
+    await agent.post('/api/kyc/documents').send({ type: 'aadhaar', fileBase64: TINY_PNG });
+
+    const adminAgent = await loginAsAdmin('9820099996');
+    await adminAgent.patch(`/api/admin/kyc-queue/${user._id}`).send({ status: 'rejected', rejectionReason: 'Blurry' });
+
+    // Before re-upload: kycStatus is 'rejected', so this user is NOT
+    // pending — trying to review again should 409, and they must be
+    // absent from the queue.
+    const queueBefore = await adminAgent.get('/api/admin/kyc-queue');
+    expect(queueBefore.body.users.map((u: { _id: string }) => u._id)).not.toContain(user._id.toString());
+
+    // Re-upload the fixed document.
+    const reupload = await agent.post('/api/kyc/documents').send({ type: 'aadhaar', fileBase64: TINY_PNG });
+    expect(reupload.status).toBe(200);
+    expect(reupload.body.document.status).toBe('under_review');
+
+    const afterReupload = await User.findById(user._id);
+    expect(afterReupload!.kycStatus).toBe('pending'); // reset — this is the fix
+
+    const queueAfter = await adminAgent.get('/api/admin/kyc-queue');
+    expect(queueAfter.body.users.map((u: { _id: string }) => u._id)).toContain(user._id.toString());
+
+    const approve = await adminAgent.patch(`/api/admin/kyc-queue/${user._id}`).send({ status: 'verified' });
+    expect(approve.status).toBe(200);
+    const final = await User.findById(user._id);
+    expect(final!.kycDocs[0].status).toBe('verified');
+  });
+
+  it('the full loop actually satisfies availability.controller.ts\'s KYC gate — upload, approve, go online', async () => {
+    const { agent, user } = await loginAsDriver('9820000016');
+    const { Vehicle } = await import('../src/models/Vehicle');
+    await Vehicle.create({ ownerId: user._id, type: 'mini_truck', capacityKg: 1000, registrationNumber: 'AP01Z9016' });
+
+    for (const type of ['driving_licence', 'vehicle_rc', 'fastag', 'puc', 'vehicle_fitness', 'aadhaar', 'pan']) {
+      await agent.post('/api/kyc/documents').send({ type, fileBase64: TINY_PNG });
+    }
+
+    const blocked = await agent.patch('/api/availability').send({ status: 'online', location: { lat: 17.4, lng: 78.5 } });
+    expect(blocked.status).toBe(403); // uploaded, but not yet admin-verified
+
+    const adminAgent = await loginAsAdmin('9820099995');
+    const approve = await adminAgent.patch(`/api/admin/kyc-queue/${user._id}`).send({ status: 'verified' });
+    expect(approve.status).toBe(200);
+
+    const online = await agent.patch('/api/availability').send({ status: 'online', location: { lat: 17.4, lng: 78.5 } });
+    expect(online.status).toBe(200);
+  });
+});

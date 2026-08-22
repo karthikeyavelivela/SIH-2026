@@ -91,6 +91,20 @@ export const uploadKycDocument = asyncHandler(async (req: Request, res: Response
     // object so the omission stays visible at the call site.
     user.kycDocs.push(newDoc as unknown as (typeof user.kycDocs)[number]);
   }
+
+  // Found during Phase 1 live verification: without this, a user whose
+  // whole submission was rejected (or a fresh document uploaded after
+  // already being fully verified) would upload a fixed document that sat
+  // 'under_review' on the document itself, but the whole-user kycStatus —
+  // what listKycQueue filters on, and what the KYC gate ultimately reads
+  // via outstandingKycDocs — stayed 'rejected'/'verified' forever, since
+  // nothing else in the codebase ever moves it back to 'pending'. They'd
+  // never reappear in the admin queue and could never get reviewed again.
+  if (user.kycStatus !== 'pending') {
+    user.kycStatus = 'pending';
+    user.kycRejectionReason = undefined;
+  }
+
   await user.save();
 
   res.status(200).json({ document: user.kycDocs.find((d) => d.type === type) });

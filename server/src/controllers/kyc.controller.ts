@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { publicUser } from '../utils/publicUser';
@@ -27,6 +28,20 @@ export const listKycQueue = asyncHandler(async (_req: Request, res: Response) =>
  * PATCH /api/admin/kyc-queue/:id — approve or reject one submission.
  * Approve clears any prior rejection reason; reject requires one (the
  * submission needs to know what to fix before resubmitting).
+ *
+ * Cascades to every individual kycDocs[] entry currently 'under_review' —
+ * found missing during Phase 1 live verification: this endpoint only ever
+ * flipped the whole-user kycStatus, and nothing else in the codebase ever
+ * set an individual document's status to 'verified'. Since
+ * availability.controller.ts's KYC gate (Phase 1.3) checks each required
+ * document's own status, not kycStatus, the gate was unsatisfiable through
+ * any real admin action — a worker could upload every document and an
+ * admin could "approve" them, and the worker would still be blocked from
+ * going online. This is the fix: approving the whole submission verifies
+ * every document that was actually under review; rejecting marks them
+ * rejected with the same reason (per-document review with its own reason
+ * per document is a real, separate feature — flagged as a Phase 2/6
+ * follow-up rather than built here, since it needs its own review UI).
  */
 export const updateKycStatus = asyncHandler(async (req: Request, res: Response) => {
   const { status, rejectionReason } = req.body as { status: 'verified' | 'rejected'; rejectionReason?: string };
@@ -37,6 +52,18 @@ export const updateKycStatus = asyncHandler(async (req: Request, res: Response) 
   const before = user.kycStatus;
   user.kycStatus = status;
   user.kycRejectionReason = status === 'rejected' ? rejectionReason : undefined;
+
+  const now = new Date();
+  let documentsUpdated = 0;
+  for (const doc of user.kycDocs) {
+    if (doc.status !== 'under_review') continue;
+    doc.status = status;
+    doc.rejectionReason = status === 'rejected' ? rejectionReason : undefined;
+    doc.reviewedAt = now;
+    doc.reviewedByAdminId = new Types.ObjectId(req.user!.id);
+    documentsUpdated++;
+  }
+
   await user.save();
 
   await writeAuditLog({
@@ -45,7 +72,7 @@ export const updateKycStatus = asyncHandler(async (req: Request, res: Response) 
     action: status === 'verified' ? 'kyc_approved' : 'kyc_rejected',
     targetType: 'User',
     targetId: user._id.toString(),
-    details: { before, after: status, rejectionReason: rejectionReason ?? null },
+    details: { before, after: status, rejectionReason: rejectionReason ?? null, documentsUpdated },
   });
 
   res.status(200).json({ user: publicUser(user) });
