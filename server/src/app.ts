@@ -41,8 +41,22 @@ import { analyticsRouter } from './routes/analytics.routes';
 import { opsHubRouter } from './routes/opsHub.routes';
 import { reportsRouter } from './routes/reports.routes';
 import { ApiError } from './utils/ApiError';
+import { globalMutationLimiter } from './middleware/rateLimit';
 
 export const app = express();
+
+// Render (and Vercel-style single-hop reverse proxies generally) sits in
+// front of this process — without this, req.ip resolves to the proxy's
+// own address for EVERY request, not the real client. Found live this
+// session while auditing rate-limit coverage: every one of this app's
+// per-IP-fallback rate limiters (rateLimit.ts) and the Phase 6
+// signupIp-based rapid-account-creation fraud detector
+// (fraudDetection.service.ts) depend on req.ip being the real caller —
+// unset, they'd have silently treated every unauthenticated request (and
+// every real, distinct signup) as coming from one shared address. `1`
+// trusts exactly one hop, matching Render's/most PaaS's single reverse
+// proxy — not a wildcard trust of the whole X-Forwarded-For chain.
+app.set('trust proxy', 1);
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
@@ -70,6 +84,13 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+// Global floor under every route-specific rate limiter — see
+// globalMutationLimiter's own doc comment in rateLimit.ts for why this
+// exists (22 route files with mutating endpoints and no limiter at all,
+// found live this session). Applied once, here, rather than in each of
+// those 22 files.
+app.use(globalMutationLimiter);
 
 // Every /api response is live, per-request app state (booking status,
 // availability, requests feed, earnings...), never something safe for a

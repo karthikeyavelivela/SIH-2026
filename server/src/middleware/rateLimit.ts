@@ -92,3 +92,35 @@ export const agentLimiter = rateLimit({
   message: { error: 'Too many AI assistant requests, try again in a minute.' },
   keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
 });
+
+// Phase 0 remediation (V2's carried-forward, unchecked security item) — a
+// real audit of every route file found 22 of them with 60+ mutating
+// (POST/PATCH/PUT/DELETE) endpoints and no rate limiter at all: KYC
+// document upload, payment order creation, dispute self-service creation,
+// complaints, ratings, saved addresses, vehicle/hamali-profile edits,
+// availability toggling, and every admin-only mutation. Rather than
+// hand-wire a bespoke limiter into 22 files (high surface area for missing
+// one), this is a single global floor applied once in app.ts to every
+// mutating request platform-wide, layered UNDER the tighter per-route
+// limiters above (which still apply first and bind harder where they're
+// mounted) — this one exists so no mutating route is ever completely
+// unbounded by default. 100/min/account is far above any legitimate
+// single-user mutation rate anywhere in this app (the tightest legitimate
+// per-route limiter above is 5/min); it exists to stop a scripted abuse
+// loop, not to be felt by a real user.
+export const globalMutationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, try again in a minute.' },
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  // The Jest suite makes far more than 100 unauthenticated mutating
+  // requests per file well inside a minute by design (many small,
+  // sequential setup calls sharing one req.ip since there's no real
+  // network hop in supertest) — this is test-harness volume, not the
+  // real-user abuse pattern this limiter exists to catch. Jest sets
+  // NODE_ENV=test automatically; nothing else in this app runs with that
+  // value.
+  skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || process.env.NODE_ENV === 'test',
+});
