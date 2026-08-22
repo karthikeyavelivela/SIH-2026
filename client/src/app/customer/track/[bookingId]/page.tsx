@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -39,21 +40,6 @@ const statusTone: Record<string, 'success' | 'secondary' | 'muted' | 'danger'> =
   cancelled: 'danger',
 };
 
-const waitingCopy: Record<string, string> = {
-  requested: 'Confirming your request…',
-  searching: 'Waiting for a driver or Hamali to respond…',
-};
-
-const historyStatusLabel: Record<string, string> = {
-  requested: 'Requested',
-  searching: 'Finding a match',
-  matched: 'Matched',
-  accepted: 'Accepted',
-  in_progress: 'Picked up — on the way',
-  completed: 'Delivered',
-  cancelled: 'Cancelled',
-};
-
 function formatHistoryTime(iso: string) {
   const d = new Date(iso);
   return {
@@ -85,6 +71,7 @@ function focusChat() {
 // actually wants to see once matched: who's coming, what they're driving/
 // bringing, their track record, and a way to reach them.
 function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 'group' }) {
+  const t = useTranslations('trackBooking');
   return (
     <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
       {sub === 'group' ? (
@@ -101,7 +88,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
             {entry.vehicle.type.replace('_', ' ')} · {entry.vehicle.registrationNumber}
           </p>
         )}
-        {sub === 'group' && <p className="text-xs text-text-muted">Mutha group</p>}
+        {sub === 'group' && <p className="text-xs text-text-muted">{t('muthaGroup')}</p>}
         <span className="inline-flex items-center gap-0.5 mt-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <StarIcon
@@ -111,14 +98,14 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
             />
           ))}
           <span className="text-[11px] text-text-muted ml-1">
-            {entry.ratingCount > 0 ? `${entry.ratingAvg.toFixed(1)} (${entry.ratingCount})` : 'New'}
+            {entry.ratingCount > 0 ? `${entry.ratingAvg.toFixed(1)} (${entry.ratingCount})` : t('new')}
           </span>
         </span>
       </div>
       <button
         type="button"
         onClick={focusChat}
-        aria-label={`Message ${entry.name}`}
+        aria-label={t('messageAria', { name: entry.name })}
         className="w-9 h-9 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/20 transition-colors duration-fast"
       >
         <MessageIcon className="w-4 h-4" />
@@ -128,6 +115,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
 }
 
 function PaymentSection({ bookingId }: { bookingId: string }) {
+  const t = useTranslations('trackBooking');
   const [payment, setPayment] = useState<Payment | null | undefined>(undefined); // undefined = loading
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -149,7 +137,7 @@ function PaymentSection({ bookingId }: { bookingId: string }) {
       const captured = await api.post<{ payment: Payment }>(`/api/payments/${bookingId}/mock-capture`);
       setPayment(captured.payment ?? orderRes.payment);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Payment failed — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('errorPayment'));
     } finally {
       setPending(false);
     }
@@ -160,7 +148,7 @@ function PaymentSection({ bookingId }: { bookingId: string }) {
   return (
     <Card elevation="raised" className="mb-4">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Payment</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t('payment')}</p>
         {payment && (
           <Badge tone={payment.status === 'success' ? 'success' : payment.status === 'failed' ? 'danger' : 'muted'}>
             {payment.status}
@@ -168,12 +156,12 @@ function PaymentSection({ bookingId }: { bookingId: string }) {
         )}
       </div>
       {payment?.status === 'success' ? (
-        <p className="text-sm text-text-muted">Paid ₹{payment.amount}.</p>
+        <p className="text-sm text-text-muted">{t('paidAmount', { amount: payment.amount })}</p>
       ) : (
         <>
           {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
           <Button className="w-full mt-2" disabled={pending} onClick={payNow}>
-            {pending ? 'Processing…' : 'Pay now'}
+            {pending ? t('processing') : t('payNow')}
           </Button>
         </>
       )}
@@ -182,6 +170,7 @@ function PaymentSection({ bookingId }: { bookingId: string }) {
 }
 
 export default function TrackBookingPage() {
+  const t = useTranslations('trackBooking');
   const { bookingId } = useParams<{ bookingId: string }>();
   const { user } = useAuth();
   const [booking, setBooking] = useState<BookingDetail | null>(null);
@@ -208,7 +197,7 @@ export default function TrackBookingPage() {
         const res = await api.get<{ booking: BookingDetail }>(`/api/bookings/${bookingId}`);
         if (!cancelled) setBooking(res.booking);
       } catch (err) {
-        if (!cancelled) setError(err instanceof ApiClientError ? err.message : 'Could not load this booking.');
+        if (!cancelled) setError(err instanceof ApiClientError ? err.message : t('loadError'));
       }
     }
 
@@ -236,7 +225,7 @@ export default function TrackBookingPage() {
   if (error) {
     return (
       <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title="Track booking" fallbackHref="/customer/dashboard" />
+        <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
         <Card elevation="raised" className="text-center py-10 text-sm text-text-muted mx-5 mt-6">
           {error}
         </Card>
@@ -247,7 +236,7 @@ export default function TrackBookingPage() {
   if (!booking) {
     return (
       <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title="Track booking" fallbackHref="/customer/dashboard" />
+        <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
         <div className="px-5 pt-6 space-y-3">
           <div className="h-8 w-1/2 rounded bg-surface animate-pulse" />
           <div className="h-40 rounded-lg bg-surface animate-pulse" />
@@ -268,7 +257,7 @@ export default function TrackBookingPage() {
       const res = await api.patch<{ booking: BookingDetail }>(`/api/bookings/${bookingId}/cancel`);
       setBooking(res.booking);
     } catch (err) {
-      setCancelError(err instanceof ApiClientError ? err.message : 'Could not cancel this booking.');
+      setCancelError(err instanceof ApiClientError ? err.message : t('errorCancel'));
     } finally {
       setCancelling(false);
     }
@@ -276,37 +265,37 @@ export default function TrackBookingPage() {
 
   return (
     <div className="max-w-lg mx-auto pb-6">
-      <BackHeader title="Track booking" fallbackHref="/customer/dashboard" />
+      <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
       <div className="px-5 pt-6">
       <div className="flex items-center justify-end mb-6">
-        <Badge tone={statusTone[booking.status] ?? 'secondary'}>{booking.status.replace('_', ' ')}</Badge>
+        <Badge tone={statusTone[booking.status] ?? 'secondary'}>{t(`historyStatus.${booking.status}` as never) ?? booking.status}</Badge>
       </div>
 
       <Card elevation="raised" className="mb-4">
         <div className="grid grid-cols-2 gap-y-4 gap-x-3 text-sm">
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">Tracking ID</p>
+            <p className="text-[11px] text-text-muted mb-0.5">{t('trackingId')}</p>
             <p className="font-heading font-bold tracking-wide">{booking._id.slice(-8).toUpperCase()}</p>
           </div>
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">Type</p>
+            <p className="text-[11px] text-text-muted mb-0.5">{t('type')}</p>
             <p className="font-semibold capitalize">{booking.type}</p>
           </div>
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">Status</p>
-            <p className="font-semibold capitalize">{booking.status.replace('_', ' ')}</p>
+            <p className="text-[11px] text-text-muted mb-0.5">{t('status')}</p>
+            <p className="font-semibold capitalize">{t(`historyStatus.${booking.status}` as never) ?? booking.status}</p>
           </div>
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">Total fare</p>
+            <p className="text-[11px] text-text-muted mb-0.5">{t('totalFare')}</p>
             <p className="font-semibold">₹{booking.fareBreakdown.total}</p>
           </div>
         </div>
       </Card>
 
-      {waitingCopy[booking.status] && (
+      {(booking.status === 'requested' || booking.status === 'searching') && (
         <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-primary/10 text-sm text-primary-600">
           <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-600/30 border-t-primary-600 animate-spin flex-shrink-0" />
-          {waitingCopy[booking.status]}
+          {booking.status === 'requested' ? t('waitingRequested') : t('waitingSearching')}
         </div>
       )}
 
@@ -328,12 +317,12 @@ export default function TrackBookingPage() {
           {liveLocation ? (
             <>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live location — updated {Math.max(0, Math.round((Date.now() - liveLocation.at) / 1000))}s ago
+              {t('liveLocationUpdated', { seconds: Math.max(0, Math.round((Date.now() - liveLocation.at) / 1000)) })}
             </>
           ) : (
             <>
               <span className="w-1.5 h-1.5 rounded-full bg-text-muted/40" />
-              Waiting for their live location…
+              {t('waitingForLiveLocation')}
             </>
           )}
         </p>
@@ -358,7 +347,7 @@ export default function TrackBookingPage() {
 
       {booking.statusHistory.length > 0 && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-4">Status timeline</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-4">{t('statusTimeline')}</p>
           <div className="space-y-4">
             {[...booking.statusHistory].reverse().map((entry, i) => {
               const { time, date } = formatHistoryTime(entry.timestamp);
@@ -370,7 +359,7 @@ export default function TrackBookingPage() {
                   </div>
                   <div className="pb-1 min-w-0">
                     <p className={`text-sm font-semibold ${i === 0 ? 'text-primary-600' : ''}`}>
-                      {historyStatusLabel[entry.status] ?? entry.status}
+                      {t(`historyStatus.${entry.status}` as never) ?? entry.status}
                     </p>
                     <p className="text-xs text-text-muted">
                       {time} · {date}
@@ -385,7 +374,7 @@ export default function TrackBookingPage() {
 
       {matched?.assigned && Object.keys(matched.assigned).length > 0 && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Assigned to you</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('assignedToYou')}</p>
           {'driver' in matched.assigned && matched.assigned.driver != null && (
             <AssignedRow entry={matched.assigned.driver as AssignedPerson} sub="vehicle" />
           )}
@@ -409,15 +398,15 @@ export default function TrackBookingPage() {
           <div className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
             {booking.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
           </div>
-          <p className="font-semibold capitalize">{booking.type} booking</p>
+          <p className="font-semibold capitalize">{booking.type} {t('booking')}</p>
         </div>
         <div className="space-y-2 text-sm">
           <p>
-            <span className="text-text-muted">Pickup: </span>
+            <span className="text-text-muted">{t('pickupLabel')}</span>
             {booking.pickupLocation.address}
           </p>
           <p>
-            <span className="text-text-muted">Drop: </span>
+            <span className="text-text-muted">{t('dropLabel')}</span>
             {booking.dropLocation.address}
           </p>
         </div>
@@ -425,18 +414,18 @@ export default function TrackBookingPage() {
 
       {(booking.proofPhotos?.pickup || booking.proofPhotos?.delivery) && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Photo proof</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('photoProof')}</p>
           <div className="flex gap-3">
             {booking.proofPhotos?.pickup && (
               <div>
                 <img src={booking.proofPhotos.pickup} alt="Pickup proof" className="w-24 h-24 rounded-md object-cover" />
-                <p className="text-[11px] text-text-muted mt-1 text-center">Pickup</p>
+                <p className="text-[11px] text-text-muted mt-1 text-center">{t('pickupPhotoCaption')}</p>
               </div>
             )}
             {booking.proofPhotos?.delivery && (
               <div>
                 <img src={booking.proofPhotos.delivery} alt="Delivery proof" className="w-24 h-24 rounded-md object-cover" />
-                <p className="text-[11px] text-text-muted mt-1 text-center">Delivery</p>
+                <p className="text-[11px] text-text-muted mt-1 text-center">{t('deliveryPhotoCaption')}</p>
               </div>
             )}
           </div>
@@ -444,24 +433,24 @@ export default function TrackBookingPage() {
       )}
 
       <Card elevation="raised">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Fare</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('fare')}</p>
         <div className="space-y-1.5 text-sm">
           <div className="flex justify-between">
-            <span className="text-text-muted">Base fare</span>
+            <span className="text-text-muted">{t('baseFare')}</span>
             <span>₹{booking.fareBreakdown.baseFare}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-text-muted">Distance</span>
+            <span className="text-text-muted">{t('distance')}</span>
             <span>₹{booking.fareBreakdown.distanceFare}</span>
           </div>
           {booking.fareBreakdown.hamaliFare > 0 && (
             <div className="flex justify-between">
-              <span className="text-text-muted">Hamali</span>
+              <span className="text-text-muted">{t('hamali')}</span>
               <span>₹{booking.fareBreakdown.hamaliFare}</span>
             </div>
           )}
           <div className="flex justify-between pt-2 mt-2 border-t border-border font-heading font-bold">
-            <span>Total</span>
+            <span>{t('total')}</span>
             <span>₹{booking.fareBreakdown.total}</span>
           </div>
         </div>
@@ -474,7 +463,7 @@ export default function TrackBookingPage() {
         className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary mb-4"
       >
         <AlertIcon className="w-4 h-4" />
-        Report an issue with this booking
+        {t('reportIssue')}
       </Link>
 
       {cancelError && (
@@ -490,7 +479,7 @@ export default function TrackBookingPage() {
           onClick={handleCancel}
           disabled={cancelling}
         >
-          {cancelling ? 'Cancelling…' : 'Cancel booking'}
+          {cancelling ? t('cancelling') : t('cancelBooking')}
         </Button>
       )}
       </div>

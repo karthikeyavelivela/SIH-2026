@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
@@ -43,10 +44,10 @@ type BookingType = 'truck' | 'hamali' | 'combo';
 // to this one region.
 const REGION = 'Visakhapatnam';
 
-const TYPES: { value: BookingType; label: string; icon: typeof TruckIcon }[] = [
-  { value: 'truck', label: 'Truck', icon: TruckIcon },
-  { value: 'hamali', label: 'Hamali', icon: BoxIcon },
-  { value: 'combo', label: 'Combo', icon: LayersIcon },
+const TYPES: { value: BookingType; labelKey: 'typeTruck' | 'typeHamali' | 'typeCombo'; icon: typeof TruckIcon }[] = [
+  { value: 'truck', labelKey: 'typeTruck', icon: TruckIcon },
+  { value: 'hamali', labelKey: 'typeHamali', icon: BoxIcon },
+  { value: 'combo', labelKey: 'typeCombo', icon: LayersIcon },
 ];
 
 interface FareBreakdown {
@@ -61,11 +62,12 @@ const inputClass =
   'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/25 bg-ip-surface-container-lowest text-ip-on-surface placeholder:text-ip-on-surface-variant/60 transition-colors duration-fast focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
 
 function Stepper({ value, onChange, min = 1 }: { value: number; onChange: (n: number) => void; min?: number }) {
+  const t = useTranslations('customerBook');
   return (
     <div className="inline-flex items-center rounded-ip-input border border-ip-outline/25 overflow-hidden">
       <button
         type="button"
-        aria-label="Decrease"
+        aria-label={t('decreaseAria')}
         onClick={() => onChange(Math.max(min, value - 1))}
         className="w-11 h-11 flex items-center justify-center text-lg font-semibold text-ip-on-surface hover:bg-ip-surface-container transition-colors duration-fast disabled:opacity-40"
         disabled={value <= min}
@@ -75,7 +77,7 @@ function Stepper({ value, onChange, min = 1 }: { value: number; onChange: (n: nu
       <span className="w-12 text-center font-heading font-bold tabular-nums">{value}</span>
       <button
         type="button"
-        aria-label="Increase"
+        aria-label={t('increaseAria')}
         onClick={() => onChange(value + 1)}
         className="w-11 h-11 flex items-center justify-center text-lg font-semibold text-ip-on-surface hover:bg-ip-surface-container transition-colors duration-fast"
       >
@@ -94,10 +96,11 @@ function FareCard({
   fare: FareBreakdown | null;
   errorMessage: string | null;
 }) {
+  const t = useTranslations('customerBook');
   if (state === 'idle') {
     return (
       <div className="text-center py-6 text-ip-body-sm text-ip-on-surface-variant">
-        Add pickup, drop, and load details to see your fare.
+        {t('fareIdle')}
       </div>
     );
   }
@@ -111,41 +114,41 @@ function FareCard({
   if (state === 'error') {
     return (
       <div className="rounded-ip-card bg-ip-error-container text-ip-on-error-container text-sm p-ip-md">
-        {errorMessage ?? 'Could not estimate a fare for this trip.'}
+        {errorMessage ?? t('fareErrorGeneric')}
       </div>
     );
   }
   if (!fare) return null;
   return (
     <div className="ip-card">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">Fare estimate</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">{t('fareEstimate')}</p>
       <div className="space-y-1.5 text-sm">
         {fare.baseFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-ip-on-surface-variant">Base fare</span>
+            <span className="text-ip-on-surface-variant">{t('baseFare')}</span>
             <span>₹{fare.baseFare}</span>
           </div>
         )}
         {fare.distanceFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-ip-on-surface-variant">Distance</span>
+            <span className="text-ip-on-surface-variant">{t('distance')}</span>
             <span>₹{fare.distanceFare}</span>
           </div>
         )}
         {fare.hamaliFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-ip-on-surface-variant">Hamali labor</span>
+            <span className="text-ip-on-surface-variant">{t('hamaliLabor')}</span>
             <span>₹{fare.hamaliFare}</span>
           </div>
         )}
         {fare.surgeMultiplier > 1 && (
           <div className="flex justify-between text-ip-primary">
-            <span>Surge</span>
+            <span>{t('surge')}</span>
             <span>×{fare.surgeMultiplier}</span>
           </div>
         )}
         <div className="flex justify-between pt-2.5 mt-1 border-t border-ip-outline/10">
-          <span className="font-heading font-bold text-ip-on-surface">Total</span>
+          <span className="font-heading font-bold text-ip-on-surface">{t('total')}</span>
           <span className="font-heading font-bold text-lg text-ip-on-surface tabular-nums">₹{fare.total}</span>
         </div>
       </div>
@@ -154,6 +157,7 @@ function FareCard({
 }
 
 function BookForm() {
+  const t = useTranslations('customerBook');
   const router = useRouter();
   const params = useSearchParams();
   const initialType = (params.get('type') as BookingType) ?? 'truck';
@@ -276,7 +280,7 @@ function BookForm() {
         setFareError(
           err instanceof ApiClientError
             ? err.message
-            : 'Could not estimate a fare — check your connection and try again.'
+            : t('errorFareEstimate')
         );
         setFareState('error');
       }
@@ -305,7 +309,7 @@ function BookForm() {
       });
       router.push(`/customer/track/${res.booking._id}`);
     } catch (err) {
-      setSubmitError(err instanceof ApiClientError ? err.message : 'Could not create this booking. Try again.');
+      setSubmitError(err instanceof ApiClientError ? err.message : t('errorSubmit'));
     } finally {
       setSubmitting(false);
     }
@@ -314,27 +318,27 @@ function BookForm() {
   return (
     <div className="min-h-screen bg-ip-surface">
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-lg pb-ip-xl">
-        <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-1">Book a delivery</h1>
-        <p className="text-ip-body-md text-ip-on-surface-variant mb-6">Trucks, Hamali labor, or both — in {REGION}.</p>
+        <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-1">{t('title')}</h1>
+        <p className="text-ip-body-md text-ip-on-surface-variant mb-6">{t('subtitle', { region: REGION })}</p>
 
         <div
           className="grid grid-cols-3 gap-2 mb-6 p-1.5 rounded-ip-card bg-ip-surface-container"
           role="radiogroup"
-          aria-label="Booking type"
+          aria-label={t('bookingTypeAria')}
         >
-          {TYPES.map((t) => (
+          {TYPES.map((bt) => (
             <button
-              key={t.value}
+              key={bt.value}
               type="button"
               role="radio"
-              aria-checked={type === t.value}
-              onClick={() => setType(t.value)}
+              aria-checked={type === bt.value}
+              onClick={() => setType(bt.value)}
               className={`flex flex-col items-center gap-1 py-2.5 rounded-ip-input text-xs font-semibold transition-all duration-fast ${
-                type === t.value ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
+                type === bt.value ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
               }`}
             >
-              <t.icon className="w-5 h-5" />
-              {t.label}
+              <bt.icon className="w-5 h-5" />
+              {t(bt.labelKey)}
             </button>
           ))}
         </div>
@@ -343,8 +347,8 @@ function BookForm() {
           <div className="ip-card space-y-4">
             <div>
               <AddressField
-                label="Pickup"
-                placeholder="Where should we collect from?"
+                label={t('pickupLabel')}
+                placeholder={t('pickupPlaceholder')}
                 value={pickup}
                 onChange={setPickup}
                 markerColorClass="text-ip-primary"
@@ -352,7 +356,7 @@ function BookForm() {
               {locatingDevice && (
                 <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mt-2">
                   <CompassIcon className="w-3.5 h-3.5 animate-pulse" />
-                  Finding your current location…
+                  {t('findingLocation')}
                 </p>
               )}
               <AddressChips
@@ -365,7 +369,7 @@ function BookForm() {
                 <div className="mt-2 flex items-start gap-2.5 rounded-ip-input bg-amber-100/70 px-3.5 py-2.5 text-sm text-amber-900">
                   <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="mb-1.5">This pickup doesn&apos;t match your current location — is it for you or someone else?</p>
+                    <p className="mb-1.5">{t('mismatchText')}</p>
                     <div className="flex gap-3">
                       <button
                         type="button"
@@ -382,14 +386,14 @@ function BookForm() {
                           }
                         }}
                       >
-                        It&apos;s me — use my location
+                        {t('mismatchUseMyLocation')}
                       </button>
                       <button
                         type="button"
                         className="font-semibold underline"
                         onClick={() => setMismatchDismissedFor(pickup!.address)}
                       >
-                        It&apos;s for someone else
+                        {t('mismatchSomeoneElse')}
                       </button>
                     </div>
                   </div>
@@ -399,8 +403,8 @@ function BookForm() {
 
             <div>
               <AddressField
-                label="Drop"
-                placeholder="Where is this headed?"
+                label={t('dropLabel')}
+                placeholder={t('dropPlaceholder')}
                 value={drop}
                 onChange={setDrop}
                 markerColorClass="text-ip-secondary"
@@ -411,7 +415,7 @@ function BookForm() {
                 currentValue={drop}
                 onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
                 extraChip={
-                  type === 'hamali' && pickup ? { label: 'Same as pickup', onClick: () => setDrop(pickup) } : undefined
+                  type === 'hamali' && pickup ? { label: t('sameAsPickup'), onClick: () => setDrop(pickup) } : undefined
                 }
               />
             </div>
@@ -430,7 +434,7 @@ function BookForm() {
           {needsWeight && (
             <div className="ip-card">
               <label className="block text-xs font-semibold text-ip-on-surface-variant mb-1.5" htmlFor="weight">
-                Cargo weight (kg)
+                {t('cargoWeightLabel')}
               </label>
               <input
                 id="weight"
@@ -448,8 +452,8 @@ function BookForm() {
           {needsHamali && (
             <div className="ip-card flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-ip-on-surface">Hamali workers</p>
-                <p className="text-xs text-ip-on-surface-variant">How many hands do you need?</p>
+                <p className="text-sm font-semibold text-ip-on-surface">{t('hamaliWorkersTitle')}</p>
+                <p className="text-xs text-ip-on-surface-variant">{t('hamaliWorkersHint')}</p>
               </div>
               <Stepper value={hamaliCount} onChange={setHamaliCount} />
             </div>
@@ -457,7 +461,7 @@ function BookForm() {
 
           <div className="ip-card">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-ip-on-surface">When</p>
+              <p className="text-sm font-semibold text-ip-on-surface">{t('whenLabel')}</p>
               <div className="flex rounded-ip-pill bg-ip-surface-container p-1" role="radiogroup" aria-label="Booking timing">
                 <button
                   type="button"
@@ -466,7 +470,7 @@ function BookForm() {
                   onClick={() => setScheduledFor('')}
                   className={`px-3 py-1.5 rounded-ip-pill text-xs font-semibold transition-colors ${!scheduledFor ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant'}`}
                 >
-                  Now
+                  {t('now')}
                 </button>
                 <button
                   type="button"
@@ -475,7 +479,7 @@ function BookForm() {
                   onClick={() => setScheduledFor((v) => v || scheduleBounds.min)}
                   className={`px-3 py-1.5 rounded-ip-pill text-xs font-semibold transition-colors ${scheduledFor ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant'}`}
                 >
-                  Schedule
+                  {t('schedule')}
                 </button>
               </div>
             </div>
@@ -489,9 +493,7 @@ function BookForm() {
                   onChange={(e) => setScheduledFor(e.target.value)}
                   className="w-full min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
                 />
-                <p className="text-xs text-ip-on-surface-variant mt-1.5">
-                  We&apos;ll start finding a match closer to this time, not immediately.
-                </p>
+                <p className="text-xs text-ip-on-surface-variant mt-1.5">{t('scheduleHint')}</p>
               </>
             )}
           </div>
@@ -505,7 +507,7 @@ function BookForm() {
           )}
 
           <Button type="submit" disabled={submitting || fareState !== 'ready'} className="w-full" size="lg">
-            {submitting ? 'Booking…' : fare ? `Confirm — ₹${fare.total}` : 'Confirm booking'}
+            {submitting ? t('booking') : fare ? t('confirmAmount', { amount: fare.total }) : t('confirmBooking')}
           </Button>
         </form>
       </div>

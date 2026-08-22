@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useIncomingOffer } from '@/lib/useIncomingOffer';
@@ -11,6 +12,7 @@ import { TopBar } from '@/components/ui/TopBar';
 import { LayersIcon, AlertIcon } from '@/components/ui/icons';
 
 export default function HamaliRequestsPage() {
+  const t = useTranslations('workerRequests');
   const { data, state, reload, setData } = usePolling(
     () => api.get<{ requests: Booking[] }>('/api/requests'),
     6000
@@ -39,9 +41,9 @@ export default function HamaliRequestsPage() {
 
   return (
     <div className="min-h-screen bg-ip-surface pb-24">
-      <TopBar title="Job requests" showBack={false} />
+      <TopBar title={t('pageTitle')} showBack={false} />
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
-      <p className="text-sm text-ip-on-surface-variant mb-6">Nearby loading/unloading jobs. Refreshes automatically.</p>
+      <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitleHamali')}</p>
 
       {offer && (
         <div className="mb-6">
@@ -72,7 +74,7 @@ export default function HamaliRequestsPage() {
       {state !== 'loading' && requests.length === 0 && (
         <div className="text-center py-16">
           <LayersIcon className="w-10 h-10 text-text-muted/50 mx-auto mb-3" />
-          <p className="text-sm text-text-muted">No open requests right now. Make sure you're online — new jobs will appear here.</p>
+          <p className="text-sm text-text-muted">{t('noRequests')}</p>
         </div>
       )}
 
@@ -86,7 +88,7 @@ export default function HamaliRequestsPage() {
             onReject={reject}
             hamaliSlotsNote={
               b.requiredHamaliCount > 1
-                ? `${b.assignedHamaliIds.length} of ${b.requiredHamaliCount} workers confirmed`
+                ? t('workersConfirmed', { confirmed: b.assignedHamaliIds.length, required: b.requiredHamaliCount })
                 : undefined
             }
           />

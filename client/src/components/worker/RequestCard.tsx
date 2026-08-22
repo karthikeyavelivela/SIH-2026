@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Booking } from '@/lib/types';
 import { ApiClientError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -22,6 +23,7 @@ interface RequestCardProps {
 // eligible workers can see the same open request simultaneously until one
 // of them accepts (server-side atomic accept decides the real winner).
 export function RequestCard({ booking, accent = 'primary', onAccept, onReject, hamaliSlotsNote }: RequestCardProps) {
+  const t = useTranslations('workerRequests');
   const [pending, setPending] = useState<'accept' | 'reject' | null>(null);
   // Was previously unhandled — an accept/reject failure (lost the race to
   // another worker, went offline mid-request, the mandatory-rating gate)
@@ -39,7 +41,7 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
     try {
       await (action === 'accept' ? onAccept(booking._id) : onReject(booking._id));
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update this request — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setPending(null);
     }
@@ -53,8 +55,8 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
             <Icon className="w-5 h-5" />
           </span>
           <div className="min-w-0">
-            <p className="font-heading font-bold text-base capitalize">{booking.type} job</p>
-            {booking.distanceKm > 0 && <p className="text-xs text-text-muted">{booking.distanceKm.toFixed(1)} km trip</p>}
+            <p className="font-heading font-bold text-base capitalize">{booking.type} {t('job')}</p>
+            {booking.distanceKm > 0 && <p className="text-xs text-text-muted">{t('distanceTrip', { km: booking.distanceKm.toFixed(1) })}</p>}
           </div>
         </div>
         <p className="font-heading font-bold text-lg whitespace-nowrap">₹{booking.fareBreakdown.total}</p>
@@ -87,7 +89,7 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
           disabled={pending !== null}
           onClick={() => handle('reject')}
         >
-          {pending === 'reject' ? 'Rejecting…' : 'Reject'}
+          {pending === 'reject' ? t('rejecting') : t('reject')}
         </Button>
         <Button
           variant={accent === 'primary' ? 'primary' : 'secondary'}
@@ -95,7 +97,7 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
           disabled={pending !== null}
           onClick={() => handle('accept')}
         >
-          {pending === 'accept' ? 'Accepting…' : 'Accept'}
+          {pending === 'accept' ? t('accepting') : t('accept')}
         </Button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
@@ -25,6 +26,7 @@ function startOfToday(): number {
 }
 
 export default function HamaliDashboardPage() {
+  const t = useTranslations('workerDashboard');
   const { user } = useAuth();
   const [status, setStatus] = useState<'online' | 'offline' | 'on_job' | null>(null);
   const [willingLocation, setWillingLocation] = useState<{ lat: number; lng: number } | null | undefined>(undefined);
@@ -67,16 +69,16 @@ export default function HamaliDashboardPage() {
         <div className="flex items-center gap-3.5 mb-6">
           <Avatar name={user?.name ?? '?'} photoUrl={user?.profilePhoto} accent="secondary" size="lg" status={status ?? undefined} />
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-ip-on-surface-variant">Welcome back,</p>
+            <p className="text-xs text-ip-on-surface-variant">{t('welcomeBack')}</p>
             <h1 className="font-heading text-xl font-bold truncate">{firstName}</h1>
           </div>
           <span className="inline-flex items-center gap-1 text-sm font-semibold bg-secondary/10 text-secondary-600 px-2.5 py-1.5 rounded-ip-pill flex-shrink-0">
             <StarIcon className="w-3.5 h-3.5" fill="currentColor" />
-            {user?.ratingCount ? user.ratingAvg?.toFixed(1) : 'New'}
+            {user?.ratingCount ? user.ratingAvg?.toFixed(1) : t('new')}
           </span>
         </div>
 
-        <NotificationPrompt accent="secondary" copy="Get notified the instant a new job request arrives." />
+        <NotificationPrompt accent="secondary" copy={t('notifyPrompt')} />
 
         {status !== null && (
           <div className="mb-5">
@@ -85,18 +87,18 @@ export default function HamaliDashboardPage() {
         )}
 
         <div className="rounded-ip-card bg-secondary-600 text-white p-6 mb-5">
-          <p className="text-xs uppercase tracking-wide text-white/75 mb-1">Today&apos;s earnings</p>
+          <p className="text-xs uppercase tracking-wide text-white/75 mb-1">{t('todaysEarnings')}</p>
           <p className="font-heading text-4xl font-extrabold tabular-nums">₹{todayTotal}</p>
           <Link href="/hamali/earnings" className="inline-flex items-center gap-1 mt-3 pt-3 border-t border-white/20 text-sm font-semibold w-full">
-            View earnings <ChevronRightIcon className="w-4 h-4" />
+            {t('viewEarnings')} <ChevronRightIcon className="w-4 h-4" />
           </Link>
         </div>
 
         <div className="grid grid-cols-2 gap-ip-sm mb-5">
-          <MetricCard label="Jobs" value={earnings?.jobCount ?? 0} icon={<BoxIcon className="w-5 h-5" />} />
+          <MetricCard label={t('jobs')} value={earnings?.jobCount ?? 0} icon={<BoxIcon className="w-5 h-5" />} />
           <MetricCard
-            label="Rating"
-            value={user?.ratingCount ? user.ratingAvg?.toFixed(1) : 'New'}
+            label={t('rating')}
+            value={user?.ratingCount ? user.ratingAvg?.toFixed(1) : t('new')}
             icon={<StarIcon className="w-5 h-5" fill="currentColor" />}
           />
         </div>
@@ -105,7 +107,7 @@ export default function HamaliDashboardPage() {
           <Link href={`/hamali/active-job/${activeJob._id}`} className="block mb-5">
             <div className="ip-card hover:bg-ip-surface-container-high transition-colors duration-base">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">Active job</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">{t('activeJob')}</span>
                 <StatusPill status={activeJob.status} />
               </div>
               <div className="space-y-1.5 mb-3">
@@ -119,14 +121,14 @@ export default function HamaliDashboardPage() {
                 </div>
               </div>
               <span className="inline-flex items-center gap-1 text-sm font-semibold text-secondary-600">
-                View job <ChevronRightIcon className="w-4 h-4" />
+                {t('viewJob')} <ChevronRightIcon className="w-4 h-4" />
               </span>
             </div>
           </Link>
         ) : (
           <div className="ip-card flex items-center gap-3 mb-5">
             <BoxIcon className="w-8 h-8 text-ip-on-surface-variant flex-shrink-0" />
-            <p className="text-sm text-ip-on-surface-variant">No active job. Go online and check Requests for new jobs nearby.</p>
+            <p className="text-sm text-ip-on-surface-variant">{t('noActiveJob')}</p>
           </div>
         )}
 
@@ -139,7 +141,7 @@ export default function HamaliDashboardPage() {
             <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
               <WalletIcon className="w-5 h-5" />
             </span>
-            <p className="text-sm font-semibold">View earnings</p>
+            <p className="text-sm font-semibold">{t('viewEarnings')}</p>
           </div>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
@@ -149,7 +151,7 @@ export default function HamaliDashboardPage() {
             <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
               <ShieldIcon className="w-5 h-5" />
             </span>
-            <p className="text-sm font-semibold">Insurance & protection</p>
+            <p className="text-sm font-semibold">{t('insuranceProtection')}</p>
           </div>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
@@ -164,7 +166,7 @@ export default function HamaliDashboardPage() {
             bookingId={pendingRatingId}
             open
             accent="secondary"
-            title="Rate your last customer"
+            title={t('rateLastCustomer')}
             onDone={() => setPendingRatingId(null)}
           />
         )}

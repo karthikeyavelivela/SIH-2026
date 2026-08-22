@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { IncomingOffer } from '@/lib/useIncomingOffer';
 import { Button } from '@/components/ui/Button';
 import { CountdownRing } from '@/components/ui/CountdownRing';
@@ -22,6 +23,7 @@ interface OfferCardProps {
 // RequestCard (glowing accent border + live countdown ring) since only
 // THIS worker can act on it right now, unlike the browse list below it.
 export function OfferCard({ offer, accent = 'primary', responding, onAccept, onReject, acceptLabel }: OfferCardProps) {
+  const t = useTranslations('offerCard');
   const [msLeft, setMsLeft] = useState(() => Math.max(0, offer.expiresAt - Date.now()));
 
   useEffect(() => {
@@ -49,8 +51,8 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
             <Icon className="w-5 h-5" />
           </span>
           <div className="min-w-0">
-            <p className="font-heading font-bold text-base">New job — just for you</p>
-            {offer.distanceKm > 0 && <p className="text-xs text-text-muted">{offer.distanceKm.toFixed(1)} km trip</p>}
+            <p className="font-heading font-bold text-base">{t('newJobTitle')}</p>
+            {offer.distanceKm > 0 && <p className="text-xs text-text-muted">{offer.distanceKm.toFixed(1)} km</p>}
           </div>
         </div>
         <CountdownRing secondsLeft={secondsLeft} totalSeconds={totalSeconds} size={44} accent={accent}>
@@ -70,13 +72,13 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs text-text-muted">Fare</span>
+        <span className="text-xs text-text-muted">{t('fare')}</span>
         <p className="font-heading font-bold text-lg">₹{offer.total}</p>
       </div>
 
       <div className="flex gap-3">
         <Button variant="ghost" className="flex-1" disabled={responding} onClick={onReject}>
-          Decline
+          {t('decline')}
         </Button>
         <Button
           variant={accent === 'primary' ? 'primary' : 'secondary'}
@@ -84,7 +86,7 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
           disabled={responding}
           onClick={onAccept}
         >
-          {responding ? 'Sending…' : acceptLabel ?? 'Accept'}
+          {responding ? t('sending') : acceptLabel ?? t('accept')}
         </Button>
       </div>
     </div>

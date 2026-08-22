@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
@@ -17,6 +18,7 @@ import { MapPinIcon, TruckIcon, UsersIcon } from '@/components/ui/icons';
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
 export default function MuthaMemberJobPage() {
+  const t = useTranslations('muthaMemberJob');
   const { user } = useAuth();
   const [status, setStatus] = useState<'online' | 'offline' | 'on_job' | null>(null);
   // The mandatory rating gate actually blocks the *leader* from re-assigning
@@ -49,7 +51,7 @@ export default function MuthaMemberJobPage() {
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
-      <p className="text-xs text-text-muted">Hello,</p>
+      <p className="text-xs text-text-muted">{t('hello')}</p>
       <h1 className="font-heading text-2xl font-bold mb-6">{firstName} 👋</h1>
 
       {status !== null && (
@@ -62,7 +64,7 @@ export default function MuthaMemberJobPage() {
         <div className="ip-card flex items-center gap-3 mb-6">
           <Avatar name={groupInfo.leader.name} photoUrl={groupInfo.leader.profilePhoto} accent="secondary" />
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-ip-on-surface-variant">{groupInfo.mutha.name} · Team leader</p>
+            <p className="text-xs text-ip-on-surface-variant">{groupInfo.mutha.name} · {t('teamLeader')}</p>
             <p className="text-sm font-semibold truncate">{groupInfo.leader.name}</p>
           </div>
           <UsersIcon className="w-4 h-4 text-ip-on-surface-variant flex-shrink-0" />
@@ -72,7 +74,7 @@ export default function MuthaMemberJobPage() {
       {!activeJob ? (
         <div className="text-center py-16">
           <TruckIcon className="w-10 h-10 text-text-muted/50 mx-auto mb-3" />
-          <p className="text-sm text-text-muted">No job assigned right now. Your Mutha leader assigns jobs to you.</p>
+          <p className="text-sm text-text-muted">{t('noJobTitle')}</p>
         </div>
       ) : (
         <>
@@ -82,7 +84,7 @@ export default function MuthaMemberJobPage() {
             className="h-48 mb-5"
           />
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading text-lg font-bold">Your job</h2>
+            <h2 className="font-heading text-lg font-bold">{t('yourJob')}</h2>
             <StatusPill status={activeJob.status} />
           </div>
           <div className="space-y-2">
@@ -95,9 +97,7 @@ export default function MuthaMemberJobPage() {
               <p className="text-sm text-text-muted">{activeJob.dropLocation.address}</p>
             </div>
           </div>
-          <p className="text-xs text-text-muted mt-4 mb-4">
-            Your Mutha leader controls start/complete for this job.
-          </p>
+          <p className="text-xs text-text-muted mt-4 mb-4">{t('leaderControlsNote')}</p>
           <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
         </>
       )}
@@ -107,7 +107,7 @@ export default function MuthaMemberJobPage() {
           bookingId={pendingRatingId}
           open
           accent="secondary"
-          title="Rate your last customer"
+          title={t('rateLastCustomer')}
           onDone={() => setPendingRatingId(null)}
         />
       )}

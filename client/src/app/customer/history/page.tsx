@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { StatusChip } from '@/components/ui/StatusChip';
 import { ListDivider } from '@/components/ui/ListDivider';
@@ -30,6 +31,7 @@ const statusTone: Record<string, 'success' | 'secondary' | 'muted' | 'danger' | 
 };
 
 export default function CustomerHistoryPage() {
+  const t = useTranslations('customerHistory');
   const [bookings, setBookings] = useState<BookingSummary[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'unavailable'>('loading');
 
@@ -46,7 +48,7 @@ export default function CustomerHistoryPage() {
   return (
     <div className="min-h-screen bg-ip-surface">
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-lg pb-ip-xl">
-        <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-6">Booking history</h1>
+        <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-6">{t('title')}</h1>
 
         {state === 'loading' && (
           <div className="ip-card">
@@ -58,15 +60,11 @@ export default function CustomerHistoryPage() {
           <div className="ip-card">
             <EmptyState
               icon={<ClockIcon className="w-6 h-6" />}
-              title={state === 'unavailable' ? 'History unavailable' : 'No bookings yet'}
-              description={
-                state === 'unavailable'
-                  ? "Booking history isn't available right now."
-                  : 'Everything you book will show up here.'
-              }
+              title={state === 'unavailable' ? t('unavailableTitle') : t('emptyTitle')}
+              description={state === 'unavailable' ? t('unavailableDescription') : t('emptyDescription')}
               action={
                 <Link href="/customer/book" className="text-sm font-semibold text-ip-primary hover:underline">
-                  Book your first delivery →
+                  {t('bookFirst')}
                 </Link>
               }
             />
@@ -95,7 +93,7 @@ export default function CustomerHistoryPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <StatusChip tone={statusTone[b.status] ?? 'muted'}>{b.status.replace('_', ' ')}</StatusChip>
+                    <StatusChip tone={statusTone[b.status] ?? 'muted'}>{t(`status.${b.status}` as never)}</StatusChip>
                     <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
                   </div>
                 </Link>
