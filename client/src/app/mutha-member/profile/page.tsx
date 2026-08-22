@@ -1,17 +1,165 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
+import { api, ApiClientError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Modal } from '@/components/ui/Modal';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
+import {
+  ProfileIdentitySection,
+  RoleSwitcherSection,
+  HamaliSkillsSection,
+  NotificationPreferencesSection,
+  PrivacySettingsSection,
+  RatingsReceivedSection,
+  ComplaintHistorySection,
+  PayoutDetailsSection,
+  ReferralSection,
+  SupportSection,
+  AccountDangerZoneSection,
+} from '@/components/worker/ProfileSections';
+import { AlertIcon } from '@/components/ui/icons';
 
-// Mutha members had no logout affordance at all — /mutha-member only had
-// Job and Earnings tabs before this page existed.
+interface MyGroup {
+  mutha: { _id: string; name: string; ratingAvg: number; ratingCount: number };
+  leader: { name: string; phone: string };
+}
+
+// Group info, leader contact, self-service leave, and the earnings-
+// discrepancy flag (worker-protection requirement — reaches admin
+// directly, bypasses the leader entirely, see mutha.controller.ts's
+// flagEarningsDiscrepancy doc comment).
+function MuthaGroupSection() {
+  const [group, setGroup] = useState<MyGroup | null>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState(false);
+
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [bookingId, setBookingId] = useState('');
+  const [description, setDescription] = useState('');
+  const [flagError, setFlagError] = useState<string | null>(null);
+  const [flagSubmitting, setFlagSubmitting] = useState(false);
+  const [flagSubmitted, setFlagSubmitted] = useState(false);
+
+  useEffect(() => {
+    api.get<MyGroup>('/api/mutha/my-group').then(setGroup).catch(() => setGroup(null));
+  }, []);
+
+  async function leave() {
+    setLeaving(true);
+    setLeaveError(null);
+    try {
+      await api.post('/api/mutha/leave');
+      window.location.reload();
+    } catch (err) {
+      setLeaveError(err instanceof ApiClientError ? err.message : 'Could not leave the group.');
+      setLeaving(false);
+    }
+  }
+
+  async function submitFlag() {
+    setFlagSubmitting(true);
+    setFlagError(null);
+    try {
+      await api.post('/api/mutha/earnings-discrepancy', { bookingId, description });
+      setFlagSubmitted(true);
+    } catch (err) {
+      setFlagError(err instanceof ApiClientError ? err.message : 'Could not submit this report.');
+    } finally {
+      setFlagSubmitting(false);
+    }
+  }
+
+  if (!group) return null;
+
+  return (
+    <div className="mb-6">
+      <h2 className="font-heading text-lg font-bold mb-3">My Mutha</h2>
+      <div className="ip-card space-y-3">
+        <div>
+          <p className="font-semibold">{group.mutha.name}</p>
+          <p className="text-xs text-ip-on-surface-variant">
+            {group.mutha.ratingCount > 0 ? `${group.mutha.ratingAvg.toFixed(1)}★ (${group.mutha.ratingCount})` : 'New group'}
+          </p>
+        </div>
+        <div className="pt-3 border-t border-ip-outline/10 text-sm">
+          <p className="text-xs text-ip-on-surface-variant">Leader</p>
+          <p className="font-medium">{group.leader.name}</p>
+          <p className="text-ip-on-surface-variant">{group.leader.phone}</p>
+        </div>
+        <div className="flex gap-3 pt-3 border-t border-ip-outline/10">
+          <button type="button" onClick={() => setFlagOpen(true)} className="flex items-center gap-1 text-sm font-semibold text-ip-error">
+            <AlertIcon className="w-3.5 h-3.5" /> Flag earnings issue
+          </button>
+          <button type="button" onClick={() => setLeaveOpen(true)} className="text-sm font-semibold text-ip-on-surface-variant">
+            Leave group
+          </button>
+        </div>
+      </div>
+
+      <Modal open={leaveOpen} onClose={() => setLeaveOpen(false)} title="Leave this Mutha group?">
+        <div className="space-y-3">
+          <p className="text-sm text-ip-on-surface-variant">
+            You&apos;ll stop receiving jobs through this group. Blocked while you&apos;re assigned to an active job.
+          </p>
+          {leaveError && <p className="text-xs text-ip-error">{leaveError}</p>}
+          <Button variant="danger" className="w-full" disabled={leaving} onClick={leave}>
+            {leaving ? 'Leaving…' : 'Leave group'}
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal open={flagOpen} onClose={() => setFlagOpen(false)} title="Flag an earnings discrepancy">
+        {flagSubmitted ? (
+          <p className="text-sm">
+            Sent directly to FYRO support — your group leader is not notified. We&apos;ll follow up with you.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-xs text-ip-on-surface-variant">
+              This goes straight to platform support, not your leader.
+            </p>
+            <label className="block">
+              <span className="text-xs text-ip-on-surface-variant">Booking ID</span>
+              <input
+                value={bookingId}
+                onChange={(e) => setBookingId(e.target.value)}
+                className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs text-ip-on-surface-variant">What happened?</span>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className="mt-1 w-full px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              />
+            </label>
+            {flagError && <p className="text-xs text-ip-error">{flagError}</p>}
+            <Button
+              variant="danger"
+              className="w-full"
+              disabled={flagSubmitting || !bookingId || !description}
+              onClick={submitFlag}
+            >
+              {flagSubmitting ? 'Sending…' : 'Send to platform support'}
+            </Button>
+          </div>
+        )}
+      </Modal>
+    </div>
+  );
+}
+
 export default function MuthaMemberProfilePage() {
-  const { user, logout, refetch } = useAuth();
+  const { user, refetch } = useAuth();
   if (!user) return null;
 
   return (
@@ -29,11 +177,21 @@ export default function MuthaMemberProfilePage() {
         </div>
       </Card>
 
+      <ProfileIdentitySection />
+      <RoleSwitcherSection />
+      <MuthaGroupSection />
+      <HamaliSkillsSection />
+
       <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.mutha_member} />
 
-      <Button variant="ghost" className="w-full" onClick={() => logout()}>
-        Log out
-      </Button>
+      <NotificationPreferencesSection />
+      <PrivacySettingsSection />
+      <PayoutDetailsSection />
+      <RatingsReceivedSection />
+      <ComplaintHistorySection />
+      <ReferralSection />
+      <SupportSection />
+      <AccountDangerZoneSection />
     </div>
   );
 }

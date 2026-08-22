@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { TopBar } from '@/components/ui/TopBar';
 import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
@@ -12,27 +11,56 @@ import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { TruckIcon } from '@/components/ui/icons';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
+import {
+  ProfileIdentitySection,
+  RoleSwitcherSection,
+  NotificationPreferencesSection,
+  PrivacySettingsSection,
+  RatingsReceivedSection,
+  ComplaintHistorySection,
+  PayoutDetailsSection,
+  ReferralSection,
+  SupportSection,
+  AccountDangerZoneSection,
+} from '@/components/worker/ProfileSections';
 
 interface Vehicle {
   type: string;
   capacityKg: number;
   registrationNumber: string;
   verified: boolean;
+  complianceStatus?: 'compliant' | 'non_compliant';
   insuranceExpiryAt?: string;
 }
 
 export default function DriverProfilePage() {
-  const { user, logout, refetch } = useAuth();
-  const { data, state } = usePolling(() => api.get<{ vehicle: Vehicle }>('/api/vehicles/me').catch((err) => {
+  const { user, refetch } = useAuth();
+  const { data, state, reload } = usePolling(() => api.get<{ vehicle: Vehicle }>('/api/vehicles/me').catch((err) => {
     if (err instanceof ApiClientError && err.status === 404) return { vehicle: null as unknown as Vehicle };
     throw err;
   }), 60000);
   const [licenseExpiryAt, setLicenseExpiryAt] = useState<string | null>(user?.licenseExpiryAt ?? null);
   const [insuranceExpiryAt, setInsuranceExpiryAt] = useState<string | null>(null);
 
+  const [editingVehicle, setEditingVehicle] = useState(false);
+  const [capacityKg, setCapacityKg] = useState('');
+  const [vehicleSaving, setVehicleSaving] = useState(false);
+
   useEffect(() => {
     if (data?.vehicle?.insuranceExpiryAt !== undefined) setInsuranceExpiryAt(data.vehicle.insuranceExpiryAt ?? null);
-  }, [data?.vehicle?.insuranceExpiryAt]);
+    if (data?.vehicle?.capacityKg !== undefined) setCapacityKg(String(data.vehicle.capacityKg));
+  }, [data?.vehicle?.insuranceExpiryAt, data?.vehicle?.capacityKg]);
+
+  async function saveVehicle() {
+    setVehicleSaving(true);
+    try {
+      await api.patch('/api/vehicles/me', { capacityKg: Number(capacityKg) });
+      await reload();
+      setEditingVehicle(false);
+    } finally {
+      setVehicleSaving(false);
+    }
+  }
 
   if (!user) return null;
 
@@ -52,6 +80,9 @@ export default function DriverProfilePage() {
         </div>
       </div>
 
+      <ProfileIdentitySection />
+      <RoleSwitcherSection />
+
       <h2 className="font-heading text-lg font-bold mb-3">Vehicle</h2>
       {state === 'loading' && <div className="h-24 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />}
       {state !== 'loading' && !data?.vehicle && (
@@ -64,12 +95,37 @@ export default function DriverProfilePage() {
         <div className="ip-card mb-6">
           <div className="flex items-center justify-between mb-3">
             <p className="font-heading font-bold capitalize">{data.vehicle.type.replace('_', ' ')}</p>
-            <Badge tone={data.vehicle.verified ? 'success' : 'muted'}>
-              {data.vehicle.verified ? 'Verified' : 'Verification pending'}
-            </Badge>
+            <div className="flex gap-1.5">
+              <Badge tone={data.vehicle.verified ? 'success' : 'muted'}>
+                {data.vehicle.verified ? 'Verified' : 'Verification pending'}
+              </Badge>
+              {data.vehicle.complianceStatus === 'non_compliant' && <Badge tone="danger">Compliance failed</Badge>}
+            </div>
           </div>
           <p className="text-sm text-ip-on-surface-variant">Reg. {data.vehicle.registrationNumber}</p>
-          <p className="text-sm text-ip-on-surface-variant">Capacity {data.vehicle.capacityKg} kg</p>
+          {!editingVehicle ? (
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-sm text-ip-on-surface-variant">Capacity {data.vehicle.capacityKg} kg</p>
+              <button type="button" onClick={() => setEditingVehicle(true)} className="text-xs font-semibold text-ip-primary">
+                Edit capacity
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mt-2">
+              <input
+                type="number"
+                value={capacityKg}
+                onChange={(e) => setCapacityKg(e.target.value)}
+                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              />
+              <button type="button" disabled={vehicleSaving} onClick={saveVehicle} className="text-xs font-semibold text-ip-primary">
+                {vehicleSaving ? 'Saving…' : 'Save'}
+              </button>
+              <button type="button" onClick={() => setEditingVehicle(false)} className="text-xs text-ip-on-surface-variant">
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -84,9 +140,14 @@ export default function DriverProfilePage() {
         }}
       />
 
-      <Button variant="ghost" className="w-full" onClick={() => logout()}>
-        Log out
-      </Button>
+      <NotificationPreferencesSection />
+      <PrivacySettingsSection />
+      <PayoutDetailsSection />
+      <RatingsReceivedSection />
+      <ComplaintHistorySection />
+      <ReferralSection />
+      <SupportSection />
+      <AccountDangerZoneSection />
       </div>
     </div>
   );

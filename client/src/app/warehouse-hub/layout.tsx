@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { SidebarNav } from '@/components/admin/SidebarNav';
-import { BoxIcon, HomeIcon } from '@/components/ui/icons';
+import { BoxIcon, HomeIcon, UsersIcon } from '@/components/ui/icons';
 
-const NAV_ITEMS = [{ href: '/warehouse-hub/dashboard', label: 'Dashboard', icon: <HomeIcon className="w-5 h-5" /> }];
+const NAV_ITEMS = [
+  { href: '/warehouse-hub/dashboard', label: 'Dashboard', icon: <HomeIcon className="w-5 h-5" /> },
+  { href: '/warehouse-hub/profile', label: 'Profile', icon: <UsersIcon className="w-5 h-5" /> },
+];
 
 // Dense-data desk surface for the warehouse_hub role — mirrors
 // client/src/app/admin/layout.tsx exactly (desktop SidebarNav + mobile

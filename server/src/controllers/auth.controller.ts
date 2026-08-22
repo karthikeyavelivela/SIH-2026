@@ -495,6 +495,35 @@ export const updateMyPayoutDetails = asyncHandler(async (req: Request, res: Resp
 });
 
 /**
+ * POST /api/auth/me/logout-everywhere — the achievable version of "session
+ * management" for the admin/manager profile page (Phase 2). This
+ * codebase's auth is stateless JWT + tokenVersion (no Session model
+ * anywhere tracks individual devices/refresh tokens), so a real per-device
+ * session LIST with individual revoke isn't something the current
+ * architecture supports without a genuine new model — bumping
+ * tokenVersion invalidates every refresh token issued before this moment
+ * at once, which is the real, honest capability that exists today. This
+ * session's own cookies are re-issued fresh right after, same pattern as
+ * updateMyPassword.
+ */
+export const logoutEverywhere = asyncHandler(async (req: Request, res: Response) => {
+  const user = await User.findByIdAndUpdate(req.user!.id, { $inc: { tokenVersion: 1 } }, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  res.status(200).json({ ok: true });
+});
+
+/** PATCH /api/auth/me/business-profile — customer-only in practice (see REQUIRED_KYC_DOCS_BY_ROLE's comment on the fleet_owner/warehouse_hub equivalent). */
+export const updateMyBusinessProfile = asyncHandler(async (req: Request, res: Response) => {
+  const { isBusiness, gstin, companyName } = req.body as { isBusiness: boolean; gstin?: string; companyName?: string };
+  const businessProfile = isBusiness ? { isBusiness, gstin, companyName } : { isBusiness: false };
+
+  const user = await User.findByIdAndUpdate(req.user!.id, { businessProfile }, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ user: publicUser(user) });
+});
+
+/**
  * DELETE /api/auth/me — soft delete (accountStatus:'deleted', login already
  * rejects any non-'active' account — see the login handler above). Blocked
  * while the account has a real financial or operational stake still in

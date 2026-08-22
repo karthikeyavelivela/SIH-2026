@@ -77,6 +77,7 @@ function navItems(role: string, permissions: string[]): SidebarNavItem[] {
     { href: '/admin/incentives', label: 'Incentives', icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
     { href: '/admin/regions', label: 'Regions', icon: <CompassIcon className="w-5 h-5" />, show: isAdmin },
     { href: '/admin/audit-log', label: 'Audit log', icon: <ClockIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/profile', label: 'Profile', icon: <UsersIcon className="w-5 h-5" />, show: true },
   ];
 
   return items.filter((i) => i.show).map(({ show: _show, ...rest }) => rest);

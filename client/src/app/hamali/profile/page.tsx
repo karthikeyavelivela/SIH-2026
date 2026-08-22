@@ -2,16 +2,28 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { TopBar } from '@/components/ui/TopBar';
 import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
+import {
+  ProfileIdentitySection,
+  RoleSwitcherSection,
+  HamaliSkillsSection,
+  NotificationPreferencesSection,
+  PrivacySettingsSection,
+  RatingsReceivedSection,
+  ComplaintHistorySection,
+  PayoutDetailsSection,
+  ReferralSection,
+  SupportSection,
+  AccountDangerZoneSection,
+} from '@/components/worker/ProfileSections';
 
 export default function HamaliProfilePage() {
-  const { user, logout, refetch } = useAuth();
+  const { user, refetch } = useAuth();
   const [licenseExpiryAt, setLicenseExpiryAt] = useState<string | null>(user?.licenseExpiryAt ?? null);
   if (!user) return null;
 
@@ -31,6 +43,10 @@ export default function HamaliProfilePage() {
         </div>
       </div>
 
+      <ProfileIdentitySection />
+      <RoleSwitcherSection />
+      <HamaliSkillsSection />
+
       <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.hamali_solo} />
 
       <DocumentExpiryCard
@@ -40,9 +56,14 @@ export default function HamaliProfilePage() {
         }}
       />
 
-      <Button variant="ghost" className="w-full" onClick={() => logout()}>
-        Log out
-      </Button>
+      <NotificationPreferencesSection />
+      <PrivacySettingsSection />
+      <PayoutDetailsSection />
+      <RatingsReceivedSection />
+      <ComplaintHistorySection />
+      <ReferralSection />
+      <SupportSection />
+      <AccountDangerZoneSection />
       </div>
     </div>
   );

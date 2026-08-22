@@ -6,14 +6,34 @@ import { api, ApiClientError } from './api';
 export interface AuthUser {
   _id: string;
   name: string;
+  email?: string;
   phone: string;
   role: string;
+  // Every role this phone number holds — drives the role switcher
+  // (Phase 6.1). Always contains `role`.
+  roles: string[];
+  region?: string;
   accountStatus: string;
   permissions: string[];
   licenseExpiryAt?: string;
   profilePhoto?: string;
   ratingAvg?: number;
   ratingCount?: number;
+  createdAt?: string;
+  notificationPreferences?: {
+    push: { jobUpdates: boolean; payments: boolean; promotions: boolean };
+    sms: { jobUpdates: boolean; payments: boolean; promotions: boolean };
+  };
+  privacySettings?: { shareLocationWhileOffline: boolean; profileVisibility: 'public' | 'private' };
+  payoutDetails?: {
+    method: 'bank' | 'upi';
+    accountHolderName?: string;
+    bankAccountNumber?: string;
+    ifsc?: string;
+    upiId?: string;
+  };
+  businessProfile?: { isBusiness: boolean; gstin?: string; companyName?: string };
+  pendingPhoneChange?: { newPhone: string; expiresAt: string; attempts: number };
 }
 
 interface AuthContextValue {

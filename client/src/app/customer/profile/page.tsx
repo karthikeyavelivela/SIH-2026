@@ -4,13 +4,24 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { AlertIcon, ChevronRightIcon, MapPinIcon, XIcon } from '@/components/ui/icons';
+import {
+  ProfileIdentitySection,
+  RoleSwitcherSection,
+  BusinessProfileSection,
+  FrequentRoutesSection,
+  NotificationPreferencesSection,
+  PrivacySettingsSection,
+  RatingsReceivedSection,
+  ComplaintHistorySection,
+  ReferralSection,
+  AccountDangerZoneSection,
+} from '@/components/worker/ProfileSections';
 
 export default function CustomerProfilePage() {
-  const { user, logout, refetch } = useAuth();
+  const { user, refetch } = useAuth();
   const { addresses, remove } = useSavedAddresses();
   if (!user) return null;
 
@@ -28,6 +39,9 @@ export default function CustomerProfilePage() {
           </Badge>
         </div>
       </Card>
+
+      <ProfileIdentitySection />
+      <RoleSwitcherSection />
 
       {addresses.length > 0 && (
         <Card elevation="raised" className="mb-6">
@@ -54,6 +68,14 @@ export default function CustomerProfilePage() {
         </Card>
       )}
 
+      <FrequentRoutesSection />
+      <BusinessProfileSection />
+      <NotificationPreferencesSection />
+      <PrivacySettingsSection />
+      <RatingsReceivedSection />
+      <ComplaintHistorySection />
+      <ReferralSection />
+
       <Link
         href="/customer/support"
         className="flex items-center justify-between p-4 mb-6 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base"
@@ -67,9 +89,7 @@ export default function CustomerProfilePage() {
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>
 
-      <Button variant="ghost" className="w-full" onClick={() => logout()}>
-        Log out
-      </Button>
+      <AccountDangerZoneSection />
     </div>
   );
 }

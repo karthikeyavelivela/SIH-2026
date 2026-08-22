@@ -3,17 +3,30 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
+import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import { ChevronRightIcon, UsersIcon } from '@/components/ui/icons';
+import {
+  ProfileIdentitySection,
+  RoleSwitcherSection,
+  NotificationPreferencesSection,
+  PrivacySettingsSection,
+  RatingsReceivedSection,
+  ComplaintHistorySection,
+  PayoutDetailsSection,
+  ReferralSection,
+  SupportSection,
+  AccountDangerZoneSection,
+} from '@/components/worker/ProfileSections';
 
 // Mutha leaders had no way to log out at all before this page existed —
 // found live: /mutha's bottom tabs were Group/Requests/Jobs/Members/
 // Earnings, none of which carry a logout affordance, unlike every other
 // role.
 export default function MuthaLeaderProfilePage() {
-  const { user, logout, refetch } = useAuth();
+  const { user, refetch } = useAuth();
   if (!user) return null;
 
   return (
@@ -31,20 +44,30 @@ export default function MuthaLeaderProfilePage() {
         </div>
       </Card>
 
+      <ProfileIdentitySection />
+      <RoleSwitcherSection />
+
       <Link
         href="/mutha/create-group"
-        className="flex items-center justify-between p-4 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base mb-3"
+        className="flex items-center justify-between p-4 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base mb-6"
       >
         <span className="flex items-center gap-2.5 text-sm font-semibold">
           <UsersIcon className="w-4 h-4 text-text-muted" />
-          Group settings
+          Group settings — name, region, photo, invite QR
         </span>
         <ChevronRightIcon className="w-4 h-4 text-text-muted" />
       </Link>
 
-      <Button variant="ghost" className="w-full" onClick={() => logout()}>
-        Log out
-      </Button>
+      <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.mutha_leader} />
+
+      <NotificationPreferencesSection />
+      <PrivacySettingsSection />
+      <PayoutDetailsSection />
+      <RatingsReceivedSection />
+      <ComplaintHistorySection />
+      <ReferralSection />
+      <SupportSection />
+      <AccountDangerZoneSection />
     </div>
   );
 }

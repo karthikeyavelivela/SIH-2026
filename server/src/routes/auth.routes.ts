@@ -186,4 +186,18 @@ authRouter.patch(
   authController.updateMyPayoutDetails
 );
 
+authRouter.post('/me/logout-everywhere', verifyJwt, authController.logoutEverywhere);
+
+authRouter.patch(
+  '/me/business-profile',
+  verifyJwt,
+  [
+    body('isBusiness').isBoolean(),
+    body('gstin').if(body('isBusiness').equals('true')).optional().isString().trim(),
+    body('companyName').if(body('isBusiness').equals('true')).optional().isString().trim(),
+  ],
+  validate,
+  authController.updateMyBusinessProfile
+);
+
 authRouter.delete('/me', verifyJwt, authController.deleteMyAccount);

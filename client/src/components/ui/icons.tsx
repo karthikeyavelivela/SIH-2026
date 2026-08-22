@@ -238,3 +238,52 @@ export function ShieldIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function LockIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  );
+}
+
+export function EyeIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 7h16" />
+      <path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-1 0v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  );
+}
+
+export function BankIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 10 12 4l9 6" />
+      <path d="M5 10v9M9 10v9M15 10v9M19 10v9" />
+      <path d="M3 21h18" />
+    </svg>
+  );
+}
+
+export function SwitchIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m8 3-4 4 4 4" />
+      <path d="M4 7h13a3 3 0 0 1 3 3" />
+      <path d="m16 21 4-4-4-4" />
+      <path d="M20 17H7a3 3 0 0 1-3-3" />
+    </svg>
+  );
+}

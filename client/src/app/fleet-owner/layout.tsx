@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { SidebarNav } from '@/components/admin/SidebarNav';
-import { TruckIcon, HomeIcon } from '@/components/ui/icons';
+import { TruckIcon, HomeIcon, UsersIcon } from '@/components/ui/icons';
 
-const NAV_ITEMS = [{ href: '/fleet-owner/dashboard', label: 'Dashboard', icon: <HomeIcon className="w-5 h-5" /> }];
+const NAV_ITEMS = [
+  { href: '/fleet-owner/dashboard', label: 'Dashboard', icon: <HomeIcon className="w-5 h-5" /> },
+  { href: '/fleet-owner/profile', label: 'Profile', icon: <UsersIcon className="w-5 h-5" /> },
+];
 
 // Dense-data desk surface for the fleet_owner role — mirrors
 // client/src/app/admin/layout.tsx exactly (desktop SidebarNav + mobile
