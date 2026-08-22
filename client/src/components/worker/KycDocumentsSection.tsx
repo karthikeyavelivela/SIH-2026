@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { DocumentUploadCard } from '@/components/ui/DocumentUploadCard';
 import { AgentResultCard, type AgentResult } from '@/components/ui/AgentResultCard';
@@ -47,6 +48,7 @@ interface KycDocumentsSectionProps {
 // into the full shared profile architecture for every role, this component
 // is written to be reused there rather than thrown away.
 export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps) {
+  const t = useTranslations('agents.documentPrecheck');
   const [docs, setDocs] = useState<KycDocument[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadingType, setUploadingType] = useState<KycDocumentType | null>(null);
@@ -84,7 +86,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
       const res = await api.post<{ result: AgentResult }>('/api/agents/document-precheck', { documentType: type });
       setPrecheckResults((prev) => ({ ...prev, [type]: res.result }));
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not run precheck — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('error'));
     } finally {
       setPrecheckType(null);
     }
@@ -121,7 +123,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
                       onClick={() => handlePrecheck(type)}
                       className="text-xs font-semibold text-ip-secondary hover:underline disabled:opacity-50"
                     >
-                      {precheckType === type ? 'Checking…' : 'AI precheck — catch issues before review'}
+                      {precheckType === type ? t('checking') : t('action')}
                     </button>
                   )}
                 </div>

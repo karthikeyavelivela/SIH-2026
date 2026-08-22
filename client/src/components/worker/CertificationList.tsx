@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Card } from '@/components/ui/Card';
@@ -28,6 +29,7 @@ function formatDate(iso: string): string {
 // certification_badge_status. Each role's certifications/page.tsx renders
 // this directly (no accent variant needed — CertificateCard is neutral).
 export function CertificationList() {
+  const t = useTranslations('certifications');
   const { data, state, error, reload } = usePolling(
     () => api.get<{ certifications: CertificationDoc[] }>('/api/training/certifications'),
     30000
@@ -45,7 +47,7 @@ export function CertificationList() {
   if (state === 'error') {
     return (
       <Card>
-        <EmptyState title="Couldn't load your certifications" description={error ?? undefined} action={<Button onClick={() => reload()}>Try again</Button>} />
+        <EmptyState title={t('loadError')} description={error ?? undefined} action={<Button onClick={() => reload()}>{t('tryAgain')}</Button>} />
       </Card>
     );
   }
@@ -55,8 +57,8 @@ export function CertificationList() {
       <Card>
         <EmptyState
           icon={<ShieldIcon className="w-7 h-7" />}
-          title="No certifications yet"
-          description="Complete every module in your training curriculum to earn your first certificate."
+          title={t('emptyTitle')}
+          description={t('emptyDescription')}
         />
       </Card>
     );

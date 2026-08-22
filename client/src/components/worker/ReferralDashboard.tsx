@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Card } from '@/components/ui/Card';
@@ -27,13 +28,6 @@ interface ReferralsResponse {
   stats: { totalEarned: number; pending: number; referrals: ReferralDoc[] };
 }
 
-const STATUS_LABEL: Record<ReferralStatus, string> = {
-  invited: 'Invited',
-  signed_up: 'Signed up — awaiting 1st job',
-  first_job_completed: 'First job done',
-  bonus_paid: 'Bonus earned',
-};
-
 const STATUS_TONE: Record<ReferralStatus, 'muted' | 'secondary' | 'success'> = {
   invited: 'muted',
   signed_up: 'secondary',
@@ -44,6 +38,7 @@ const STATUS_TONE: Record<ReferralStatus, 'muted' | 'secondary' | 'success'> = {
 // Shared presentational referral view for driver/hamali_solo — code + share
 // link + QR + tracked list, per worker_referral_dashboard.
 export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
+  const t = useTranslations('referrals');
   const { data, state, error, reload } = usePolling(() => api.get<ReferralsResponse>('/api/referrals/me'), 20000);
   const [phone, setPhone] = useState('');
   const [inviting, setInviting] = useState(false);
@@ -59,7 +54,7 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
       setPhone('');
       await reload();
     } catch (err) {
-      setInviteError(err instanceof ApiClientError ? err.message : 'Could not save this invite.');
+      setInviteError(err instanceof ApiClientError ? err.message : t('errorInvite'));
     } finally {
       setInviting(false);
     }
@@ -88,7 +83,7 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
   if (state === 'error' || !data) {
     return (
       <Card>
-        <EmptyState title="Couldn't load your referrals" description={error ?? undefined} action={<Button onClick={() => reload()}>Try again</Button>} />
+        <EmptyState title={t('loadError')} description={error ?? undefined} action={<Button onClick={() => reload()}>{t('tryAgain')}</Button>} />
       </Card>
     );
   }
@@ -98,53 +93,51 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
   return (
     <div className="space-y-5">
       <Card className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">Your referral code</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">{t('yourCode')}</p>
         <p className={`font-heading text-2xl font-extrabold tracking-wider mb-4 ${accentText}`}>{data.code}</p>
         <div className="flex justify-center mb-4">
           <QRCodeDisplay value={data.link} size={140} />
         </div>
         <Button variant={accent === 'secondary' ? 'secondary' : 'primary'} className="w-full" onClick={() => handleCopy(data.link)}>
-          {copied ? 'Link copied!' : 'Copy invite link'}
+          {copied ? t('linkCopied') : t('copyLink')}
         </Button>
       </Card>
 
       <div className="grid grid-cols-2 gap-3">
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">Total earned</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">{t('totalEarned')}</p>
           <p className={`font-heading text-xl font-extrabold ${accentText}`}>₹{data.stats.totalEarned}</p>
         </Card>
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">Pending</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">{t('pending')}</p>
           <p className="font-heading text-xl font-extrabold text-text-primary">₹{data.stats.pending}</p>
         </Card>
       </div>
 
       <Card>
-        <p className="font-heading font-bold mb-3">Log an invite</p>
+        <p className="font-heading font-bold mb-3">{t('logInvite')}</p>
         <form onSubmit={handleInvite} className="flex gap-2">
           <input
             required
             type="tel"
-            placeholder="Phone number"
+            placeholder={t('phonePlaceholder')}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="flex-1 min-h-[44px] px-3.5 py-2 rounded-md border border-border bg-background text-sm"
           />
           <Button type="submit" disabled={inviting} size="md">
-            {inviting ? 'Saving…' : 'Add'}
+            {inviting ? t('saving') : t('add')}
           </Button>
         </form>
         {inviteError && <p className="text-xs text-red-600 mt-2">{inviteError}</p>}
-        <p className="text-xs text-text-muted mt-2">
-          Track someone you&apos;ve invited by phone. We&apos;ll link them up automatically once they join FYRO.
-        </p>
+        <p className="text-xs text-text-muted mt-2">{t('trackHint')}</p>
       </Card>
 
       <div>
-        <h3 className="font-heading font-bold text-base mb-3">Referral status</h3>
+        <h3 className="font-heading font-bold text-base mb-3">{t('statusHeading')}</h3>
         {data.stats.referrals.length === 0 ? (
           <Card>
-            <EmptyState icon={<UsersIcon className="w-7 h-7" />} title="No referrals yet" description="Share your code to start earning bonuses." />
+            <EmptyState icon={<UsersIcon className="w-7 h-7" />} title={t('emptyTitle')} description={t('emptyDescription')} />
           </Card>
         ) : (
           <div className="space-y-2.5">
@@ -157,7 +150,7 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
                 <div className="text-right flex-shrink-0">
                   <Badge tone={STATUS_TONE[r.status]}>
                     {r.status === 'bonus_paid' && <CheckIcon className="w-3 h-3 mr-1 inline" />}
-                    {STATUS_LABEL[r.status]}
+                    {t(`status.${r.status}`)}
                   </Badge>
                   <p className="text-xs text-text-muted mt-1">₹{r.bonusAmount}</p>
                 </div>

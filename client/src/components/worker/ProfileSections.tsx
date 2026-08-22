@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth, AuthUser } from '@/lib/auth-context';
 import { Modal } from '@/components/ui/Modal';
@@ -16,6 +17,10 @@ import { StarIcon, LockIcon, EyeIcon, TrashIcon, BankIcon, SwitchIcon, ChevronRi
 // Uses the `ip-*` design tokens (the current design system — see
 // DocumentUploadCard.tsx/KycDocumentsSection.tsx, the last things wired
 // into these same profile pages).
+// Phase 5 — every string below reads from the `profile` i18n namespace
+// (client/src/i18n/messages/{en,hi,te}.json) rather than a literal, since
+// this file is shared across 8 of 9 roles and was the single highest-
+// leverage untranslated surface in the app.
 // ═══════════════════════════════════════════════════════════════════
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -51,6 +56,7 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
 // ---- Identity: name/email edit, phone change (OTP), password change ----
 
 export function ProfileIdentitySection() {
+  const t = useTranslations('profile.identity');
   const { user, refetch } = useAuth();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
@@ -71,58 +77,58 @@ export function ProfileIdentitySection() {
       await refetch();
       setEditing(false);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not save.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <SectionCard title="Identity">
+    <SectionCard title={t('title')}>
       {!editing ? (
         <>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">Name</span>
+            <span className="text-ip-on-surface-variant">{t('name')}</span>
             <span className="font-medium">{user.name}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">Email</span>
-            <span className="font-medium">{user.email || 'Not set'}</span>
+            <span className="text-ip-on-surface-variant">{t('email')}</span>
+            <span className="font-medium">{user.email || t('notSet')}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">Phone</span>
+            <span className="text-ip-on-surface-variant">{t('phone')}</span>
             <div className="flex items-center gap-2">
               <span className="font-medium">{user.phone}</span>
               <button type="button" onClick={() => setPhoneModalOpen(true)} className="text-xs font-semibold text-ip-primary">
-                Change
+                {t('change')}
               </button>
             </div>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">Account created</span>
+            <span className="text-ip-on-surface-variant">{t('accountCreated')}</span>
             <span className="font-medium">{user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : '—'}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">User ID</span>
+            <span className="text-ip-on-surface-variant">{t('userId')}</span>
             <span className="font-mono text-xs text-ip-on-surface-variant">{user._id.slice(-10)}</span>
           </div>
           <div className="flex gap-3 pt-2 border-t border-ip-outline/10">
             <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
-              Edit name / email
+              {t('editNameEmail')}
             </button>
             <button
               type="button"
               onClick={() => setPasswordModalOpen(true)}
               className="flex items-center gap-1 text-sm font-semibold text-ip-primary"
             >
-              <LockIcon className="w-3.5 h-3.5" /> Change password
+              <LockIcon className="w-3.5 h-3.5" /> {t('changePassword')}
             </button>
           </div>
         </>
       ) : (
         <>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">Name</span>
+            <span className="text-xs text-ip-on-surface-variant">{t('name')}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -130,7 +136,7 @@ export function ProfileIdentitySection() {
             />
           </label>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">Email</span>
+            <span className="text-xs text-ip-on-surface-variant">{t('email')}</span>
             <input
               type="email"
               value={email}
@@ -141,10 +147,10 @@ export function ProfileIdentitySection() {
           {error && <p className="text-xs text-ip-error">{error}</p>}
           <div className="flex gap-2">
             <Button size="md" disabled={saving} onClick={saveProfile} className="flex-1">
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? t('saving') : t('save')}
             </Button>
             <Button size="md" variant="ghost" onClick={() => setEditing(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
           </div>
         </>
@@ -157,6 +163,7 @@ export function ProfileIdentitySection() {
 }
 
 function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations('profile.phoneModal');
   const { refetch } = useAuth();
   const [step, setStep] = useState<'enter' | 'verify'>('enter');
   const [newPhone, setNewPhone] = useState('');
@@ -181,7 +188,7 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
       setDevOtp(res.devOtp ?? null);
       setStep('verify');
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not send a code.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSend'));
     } finally {
       setBusy(false);
     }
@@ -196,7 +203,7 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
       reset();
       onClose();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Incorrect code.');
+      setError(err instanceof ApiClientError ? err.message : t('errorConfirm'));
     } finally {
       setBusy(false);
     }
@@ -209,12 +216,12 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
         reset();
         onClose();
       }}
-      title="Change phone number"
+      title={t('title')}
     >
       {step === 'enter' ? (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">New phone number</span>
+            <span className="text-xs text-ip-on-surface-variant">{t('newPhoneLabel')}</span>
             <input
               value={newPhone}
               onChange={(e) => setNewPhone(e.target.value)}
@@ -224,17 +231,15 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
           </label>
           {error && <p className="text-xs text-ip-error">{error}</p>}
           <Button className="w-full" disabled={busy || newPhone.length < 10} onClick={requestOtp}>
-            {busy ? 'Sending…' : 'Send verification code'}
+            {busy ? t('sending') : t('sendCode')}
           </Button>
         </div>
       ) : (
         <div className="space-y-3">
-          <p className="text-sm text-ip-on-surface-variant">
-            Enter the 6-digit code sent to <span className="font-medium">{newPhone}</span>.
-          </p>
+          <p className="text-sm text-ip-on-surface-variant">{t('enterCode', { phone: newPhone })}</p>
           {devOtp && (
             <p className="text-xs rounded-ip-input bg-ip-primary/10 text-ip-primary px-3 py-2">
-              Dev mode — no SMS provider is configured, your code is <strong>{devOtp}</strong>.
+              {t('devModeNotice', { otp: devOtp })}
             </p>
           )}
           <input
@@ -246,7 +251,7 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
           />
           {error && <p className="text-xs text-ip-error">{error}</p>}
           <Button className="w-full" disabled={busy || otp.length !== 6} onClick={confirm}>
-            {busy ? 'Verifying…' : 'Confirm'}
+            {busy ? t('verifying') : t('confirm')}
           </Button>
         </div>
       )}
@@ -255,6 +260,7 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
 }
 
 function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations('profile.passwordModal');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -268,7 +274,7 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
       await api.patch('/api/auth/me/password', { currentPassword, newPassword });
       setDone(true);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not change password.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setBusy(false);
     }
@@ -284,14 +290,14 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
         setDone(false);
         onClose();
       }}
-      title="Change password"
+      title={t('title')}
     >
       {done ? (
-        <p className="text-sm">Password changed. Every other device you were logged in on has been signed out.</p>
+        <p className="text-sm">{t('done')}</p>
       ) : (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">Current password</span>
+            <span className="text-xs text-ip-on-surface-variant">{t('currentPassword')}</span>
             <input
               type="password"
               value={currentPassword}
@@ -300,7 +306,7 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
             />
           </label>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">New password (min. 8 characters)</span>
+            <span className="text-xs text-ip-on-surface-variant">{t('newPassword')}</span>
             <input
               type="password"
               value={newPassword}
@@ -310,7 +316,7 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
           </label>
           {error && <p className="text-xs text-ip-error">{error}</p>}
           <Button className="w-full" disabled={busy || newPassword.length < 8 || !currentPassword} onClick={save}>
-            {busy ? 'Saving…' : 'Change password'}
+            {busy ? t('saving') : t('changePassword')}
           </Button>
         </div>
       )}
@@ -320,18 +326,11 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
 
 // ---- Hamali skills + physical capacity (hamali_solo / mutha_member) ----
 
-const SKILL_LABEL: Record<string, string> = {
-  cement: 'Cement',
-  steel: 'Steel',
-  fragile: 'Fragile goods',
-  furniture: 'Furniture',
-  appliances: 'Appliances',
-  agricultural: 'Agricultural',
-  construction_material: 'Construction material',
-};
-const ALL_SKILLS = Object.keys(SKILL_LABEL);
+const ALL_SKILLS = ['cement', 'steel', 'fragile', 'furniture', 'appliances', 'agricultural', 'construction_material'];
+const SKILL_KEY: Record<string, string> = { construction_material: 'constructionMaterial' };
 
 export function HamaliSkillsSection() {
+  const t = useTranslations('profile.hamaliSkills');
   const [skills, setSkills] = useState<string[] | null>(null);
   const [capacity, setCapacity] = useState('');
   const [saving, setSaving] = useState(false);
@@ -365,7 +364,7 @@ export function HamaliSkillsSection() {
   if (skills === null) return null;
 
   return (
-    <SectionCard title="Skills & specialisation">
+    <SectionCard title={t('title')}>
       <div className="flex flex-wrap gap-2">
         {ALL_SKILLS.map((s) => (
           <button
@@ -376,13 +375,13 @@ export function HamaliSkillsSection() {
               skills.includes(s) ? 'border-ip-secondary bg-ip-secondary/10 text-ip-secondary' : 'border-ip-outline/20 text-ip-on-surface-variant'
             }`}
           >
-            {SKILL_LABEL[s]}
+            {t(`skills.${SKILL_KEY[s] ?? s}`)}
           </button>
         ))}
       </div>
       <div className="flex items-center gap-2 pt-3 border-t border-ip-outline/10">
         <label className="flex-1">
-          <span className="text-xs text-ip-on-surface-variant">Physical capacity (kg you can carry)</span>
+          <span className="text-xs text-ip-on-surface-variant">{t('capacityLabel')}</span>
           <input
             type="number"
             value={capacity}
@@ -391,7 +390,7 @@ export function HamaliSkillsSection() {
           />
         </label>
         <button type="button" disabled={saving} onClick={saveCapacity} className="text-xs font-semibold text-ip-secondary mt-4">
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? t('saving') : t('save')}
         </button>
       </div>
     </SectionCard>
@@ -400,13 +399,10 @@ export function HamaliSkillsSection() {
 
 // ---- Preferences: notifications + privacy ----
 
-const NOTIF_CATEGORIES = [
-  { key: 'jobUpdates', label: 'Job updates' },
-  { key: 'payments', label: 'Payments' },
-  { key: 'promotions', label: 'Promotions' },
-] as const;
+const NOTIF_CATEGORY_KEYS = ['jobUpdates', 'payments', 'promotions'] as const;
 
 export function NotificationPreferencesSection() {
+  const t = useTranslations('profile.notifications');
   const { user, refetch } = useAuth();
   const prefs = user?.notificationPreferences;
   const [busyKey, setBusyKey] = useState<string | null>(null);
@@ -424,18 +420,18 @@ export function NotificationPreferencesSection() {
   if (!prefs) return null;
 
   return (
-    <SectionCard title="Notifications">
+    <SectionCard title={t('title')}>
       {(['push', 'sms'] as const).map((channel) => (
         <div key={channel}>
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{channel}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t(channel)}</p>
           <div className="space-y-2.5">
-            {NOTIF_CATEGORIES.map((cat) => (
-              <div key={cat.key} className="flex items-center justify-between">
-                <span className="text-sm">{cat.label}</span>
+            {NOTIF_CATEGORY_KEYS.map((cat) => (
+              <div key={cat} className="flex items-center justify-between">
+                <span className="text-sm">{t(`categories.${cat}`)}</span>
                 <Toggle
-                  checked={prefs[channel][cat.key]}
-                  disabled={busyKey === `${channel}.${cat.key}`}
-                  onChange={(v) => toggle(channel, cat.key, v)}
+                  checked={prefs[channel][cat]}
+                  disabled={busyKey === `${channel}.${cat}`}
+                  onChange={(v) => toggle(channel, cat, v)}
                 />
               </div>
             ))}
@@ -447,6 +443,7 @@ export function NotificationPreferencesSection() {
 }
 
 export function PrivacySettingsSection() {
+  const t = useTranslations('profile.privacy');
   const { user, refetch } = useAuth();
   const privacy = user?.privacySettings;
   const [busy, setBusy] = useState(false);
@@ -464,11 +461,11 @@ export function PrivacySettingsSection() {
   if (!privacy) return null;
 
   return (
-    <SectionCard title="Privacy">
+    <SectionCard title={t('title')}>
       <div className="flex items-center justify-between">
         <div className="pr-4">
-          <p className="text-sm font-medium">Share location while offline</p>
-          <p className="text-xs text-ip-on-surface-variant">Off by default — your live location is always shared while online (that's how jobs find you).</p>
+          <p className="text-sm font-medium">{t('shareLocation')}</p>
+          <p className="text-xs text-ip-on-surface-variant">{t('shareLocationHint')}</p>
         </div>
         <Toggle
           checked={privacy.shareLocationWhileOffline}
@@ -479,7 +476,7 @@ export function PrivacySettingsSection() {
       <div className="flex items-center justify-between pt-3 border-t border-ip-outline/10">
         <div className="flex items-center gap-2">
           <EyeIcon className="w-4 h-4 text-ip-on-surface-variant" />
-          <span className="text-sm">Profile visibility</span>
+          <span className="text-sm">{t('profileVisibility')}</span>
         </div>
         <select
           value={privacy.profileVisibility}
@@ -487,8 +484,8 @@ export function PrivacySettingsSection() {
           onChange={(e) => update({ profileVisibility: e.target.value as 'public' | 'private' })}
           className="text-sm rounded-ip-input border border-ip-outline/20 bg-ip-surface px-3 py-1.5"
         >
-          <option value="public">Public</option>
-          <option value="private">Private</option>
+          <option value="public">{t('public')}</option>
+          <option value="private">{t('private')}</option>
         </select>
       </div>
     </SectionCard>
@@ -503,6 +500,7 @@ interface RatingsResponse {
 }
 
 export function RatingsReceivedSection() {
+  const t = useTranslations('profile.ratings');
   const [data, setData] = useState<RatingsResponse | null>(null);
 
   useEffect(() => {
@@ -513,9 +511,9 @@ export function RatingsReceivedSection() {
   const total = Object.values(data.distribution).reduce((a, b) => a + b, 0);
 
   return (
-    <SectionCard title="Ratings received">
+    <SectionCard title={t('title')}>
       {total === 0 ? (
-        <p className="text-sm text-ip-on-surface-variant">No ratings yet.</p>
+        <p className="text-sm text-ip-on-surface-variant">{t('none')}</p>
       ) : (
         <>
           <div className="space-y-1.5">
@@ -536,7 +534,7 @@ export function RatingsReceivedSection() {
           </div>
           {data.recentComments.length > 0 && (
             <div className="pt-3 border-t border-ip-outline/10 space-y-2.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">Recent comments</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">{t('recentComments')}</p>
               {data.recentComments.slice(0, 5).map((c) => (
                 <div key={c._id} className="text-sm">
                   <span className="inline-flex items-center gap-0.5 mr-1.5 text-ip-primary">
@@ -563,6 +561,7 @@ interface ComplaintRow {
 }
 
 export function ComplaintHistorySection() {
+  const t = useTranslations('profile.complaints');
   const [complaints, setComplaints] = useState<ComplaintRow[] | null>(null);
 
   useEffect(() => {
@@ -575,9 +574,9 @@ export function ComplaintHistorySection() {
   if (complaints === null) return null;
 
   return (
-    <SectionCard title="Complaint history">
+    <SectionCard title={t('title')}>
       {complaints.length === 0 ? (
-        <p className="text-sm text-ip-on-surface-variant">No complaints raised.</p>
+        <p className="text-sm text-ip-on-surface-variant">{t('none')}</p>
       ) : (
         <div className="space-y-2.5">
           {complaints.slice(0, 10).map((c) => (
@@ -598,6 +597,7 @@ export function ComplaintHistorySection() {
 // ---- Money: payout details ----
 
 export function PayoutDetailsSection() {
+  const t = useTranslations('profile.payout');
   const { user, refetch } = useAuth();
   const [editing, setEditing] = useState(false);
   const [method, setMethod] = useState<'bank' | 'upi'>(user?.payoutDetails?.method ?? 'upi');
@@ -619,14 +619,14 @@ export function PayoutDetailsSection() {
       await refetch();
       setEditing(false);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not save.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <SectionCard title="Payout details">
+    <SectionCard title={t('title')}>
       {!editing ? (
         <>
           {user?.payoutDetails ? (
@@ -640,10 +640,10 @@ export function PayoutDetailsSection() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-ip-on-surface-variant">No payout method on file.</p>
+            <p className="text-sm text-ip-on-surface-variant">{t('none')}</p>
           )}
           <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
-            {user?.payoutDetails ? 'Update' : 'Add payout method'}
+            {user?.payoutDetails ? t('update') : t('add')}
           </button>
         </>
       ) : (
@@ -654,19 +654,19 @@ export function PayoutDetailsSection() {
               onClick={() => setMethod('upi')}
               className={`flex-1 py-2 rounded-ip-input border text-sm font-semibold ${method === 'upi' ? 'border-ip-primary text-ip-primary bg-ip-primary/10' : 'border-ip-outline/20'}`}
             >
-              UPI
+              {t('upi')}
             </button>
             <button
               type="button"
               onClick={() => setMethod('bank')}
               className={`flex-1 py-2 rounded-ip-input border text-sm font-semibold ${method === 'bank' ? 'border-ip-primary text-ip-primary bg-ip-primary/10' : 'border-ip-outline/20'}`}
             >
-              Bank transfer
+              {t('bank')}
             </button>
           </div>
           {method === 'upi' ? (
             <input
-              placeholder="yourname@upi"
+              placeholder={t('upiPlaceholder')}
               value={upiId}
               onChange={(e) => setUpiId(e.target.value)}
               className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
@@ -674,19 +674,19 @@ export function PayoutDetailsSection() {
           ) : (
             <>
               <input
-                placeholder="Account holder name"
+                placeholder={t('accountHolderPlaceholder')}
                 value={accountHolderName}
                 onChange={(e) => setAccountHolderName(e.target.value)}
                 className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
               />
               <input
-                placeholder="Account number"
+                placeholder={t('accountNumberPlaceholder')}
                 value={bankAccountNumber}
                 onChange={(e) => setBankAccountNumber(e.target.value)}
                 className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
               />
               <input
-                placeholder="IFSC"
+                placeholder={t('ifscPlaceholder')}
                 value={ifsc}
                 onChange={(e) => setIfsc(e.target.value.toUpperCase())}
                 className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
@@ -696,10 +696,10 @@ export function PayoutDetailsSection() {
           {error && <p className="text-xs text-ip-error">{error}</p>}
           <div className="flex gap-2">
             <Button size="md" disabled={saving} onClick={save} className="flex-1">
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? t('saving') : t('save')}
             </Button>
             <Button size="md" variant="ghost" onClick={() => setEditing(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
           </div>
         </div>
@@ -711,6 +711,7 @@ export function PayoutDetailsSection() {
 // ---- Customer-only: business/GST profile + frequent routes ----
 
 export function BusinessProfileSection() {
+  const t = useTranslations('profile.business');
   const { user, refetch } = useAuth();
   const biz = user?.businessProfile;
   const [editing, setEditing] = useState(false);
@@ -738,21 +739,21 @@ export function BusinessProfileSection() {
   if (!user) return null;
 
   return (
-    <SectionCard title="Business / GST profile">
+    <SectionCard title={t('title')}>
       <div className="flex items-center justify-between">
-        <span className="text-sm">Booking on behalf of a business</span>
+        <span className="text-sm">{t('toggleLabel')}</span>
         <Toggle checked={!!biz?.isBusiness} onChange={toggleBusiness} disabled={saving} />
       </div>
       {(editing || biz?.isBusiness) && (
         <div className="space-y-3 pt-3 border-t border-ip-outline/10">
           <input
-            placeholder="Company name"
+            placeholder={t('companyNamePlaceholder')}
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
           />
           <input
-            placeholder="GSTIN"
+            placeholder={t('gstinPlaceholder')}
             value={gstin}
             onChange={(e) => setGstin(e.target.value.toUpperCase())}
             className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
@@ -763,7 +764,7 @@ export function BusinessProfileSection() {
             onClick={() => saveBusiness(true)}
             className="text-xs font-semibold text-ip-primary"
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? t('saving') : t('save')}
           </button>
         </div>
       )}
@@ -778,6 +779,7 @@ interface FrequentRoute {
 }
 
 export function FrequentRoutesSection() {
+  const t = useTranslations('profile.frequentRoutes');
   const [routes, setRoutes] = useState<FrequentRoute[] | null>(null);
 
   useEffect(() => {
@@ -790,7 +792,7 @@ export function FrequentRoutesSection() {
   if (!routes || routes.length === 0) return null;
 
   return (
-    <SectionCard title="Frequent routes">
+    <SectionCard title={t('title')}>
       {routes.map((r, i) => (
         <div key={i} className="flex items-center justify-between text-sm">
           <span className="truncate pr-3">
@@ -812,6 +814,7 @@ interface ReferralResponse {
 }
 
 export function ReferralSection() {
+  const t = useTranslations('profile.referral');
   const [data, setData] = useState<ReferralResponse | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -822,10 +825,10 @@ export function ReferralSection() {
   if (!data) return null;
 
   return (
-    <SectionCard title="Refer & earn">
+    <SectionCard title={t('title')}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-ip-on-surface-variant">Your code</p>
+          <p className="text-xs text-ip-on-surface-variant">{t('yourCode')}</p>
           <p className="font-mono font-bold">{data.code}</p>
         </div>
         <button
@@ -837,11 +840,11 @@ export function ReferralSection() {
           }}
           className="text-sm font-semibold text-ip-primary"
         >
-          {copied ? 'Copied!' : 'Copy link'}
+          {copied ? t('copied') : t('copyLink')}
         </button>
       </div>
       <div className="flex items-center justify-between text-sm pt-3 border-t border-ip-outline/10">
-        <span className="text-ip-on-surface-variant">Earned so far</span>
+        <span className="text-ip-on-surface-variant">{t('earnedSoFar')}</span>
         <span className="font-semibold">₹{data.stats.totalEarned}</span>
       </div>
     </SectionCard>
@@ -849,10 +852,11 @@ export function ReferralSection() {
 }
 
 export function SupportSection() {
+  const t = useTranslations('profile.support');
   return (
-    <SectionCard title="Support">
+    <SectionCard title={t('title')}>
       <Link href="/customer/support" className="flex items-center justify-between text-sm py-1">
-        <span>Help centre / FAQ</span>
+        <span>{t('helpCentre')}</span>
         <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
       </Link>
     </SectionCard>
@@ -860,18 +864,6 @@ export function SupportSection() {
 }
 
 // ---- Role switcher (Phase 6.1 — backend already existed via /api/auth/switch-role) ----
-
-const ROLE_LABEL: Record<string, string> = {
-  customer: 'Customer',
-  driver: 'Driver',
-  hamali_solo: 'Hamali',
-  mutha_leader: 'Mutha Leader',
-  mutha_member: 'Mutha Member',
-  fleet_owner: 'Fleet Owner',
-  warehouse_hub: 'Warehouse Hub',
-  manager: 'Manager',
-  admin: 'Admin',
-};
 
 const ROLE_HOME: Record<string, string> = {
   customer: '/customer/dashboard',
@@ -886,6 +878,7 @@ const ROLE_HOME: Record<string, string> = {
 };
 
 export function RoleSwitcherSection() {
+  const t = useTranslations('profile.roleSwitcher');
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -899,14 +892,14 @@ export function RoleSwitcherSection() {
       await api.patch('/api/auth/switch-role', { role });
       window.location.href = ROLE_HOME[role] ?? '/';
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not switch roles.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSwitch'));
       setBusy(false);
     }
   }
 
   return (
-    <SectionCard title="Switch role">
-      <p className="text-xs text-ip-on-surface-variant -mt-1">This phone number also holds these roles:</p>
+    <SectionCard title={t('title')}>
+      <p className="text-xs text-ip-on-surface-variant -mt-1">{t('subtitle')}</p>
       <div className="space-y-2">
         {user.roles
           .filter((r) => r !== user.role)
@@ -920,7 +913,7 @@ export function RoleSwitcherSection() {
             >
               <span className="flex items-center gap-2">
                 <SwitchIcon className="w-4 h-4 text-ip-on-surface-variant" />
-                {ROLE_LABEL[r] ?? r}
+                {t(`roles.${r}` as never)}
               </span>
               <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
             </button>
@@ -934,6 +927,7 @@ export function RoleSwitcherSection() {
 // ---- Account: logout + delete ----
 
 export function AccountDangerZoneSection() {
+  const t = useTranslations('profile.account');
   const { logout } = useAuth();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmText, setConfirmText] = useState('');
@@ -947,32 +941,29 @@ export function AccountDangerZoneSection() {
       await api.delete('/api/auth/me');
       window.location.href = '/';
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not delete your account.');
+      setError(err instanceof ApiClientError ? err.message : t('errorDelete'));
       setDeleting(false);
     }
   }
 
   return (
-    <SectionCard title="Account">
+    <SectionCard title={t('title')}>
       <Button variant="ghost" className="w-full" onClick={() => logout()}>
-        Log out
+        {t('logout')}
       </Button>
       <button
         type="button"
         onClick={() => setConfirmOpen(true)}
         className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-ip-error py-2"
       >
-        <TrashIcon className="w-4 h-4" /> Delete account
+        <TrashIcon className="w-4 h-4" /> {t('deleteAccount')}
       </button>
 
-      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Delete your account?">
+      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={t('deleteModalTitle')}>
         <div className="space-y-3">
-          <p className="text-sm text-ip-on-surface-variant">
-            This deactivates your account permanently. You won&apos;t be able to log in again. This is blocked while you
-            have a booking in progress or a payout awaiting approval or payment — settle those first.
-          </p>
+          <p className="text-sm text-ip-on-surface-variant">{t('deleteModalBody')}</p>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">Type DELETE to confirm</span>
+            <span className="text-xs text-ip-on-surface-variant">{t('confirmLabel')}</span>
             <input
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
@@ -986,7 +977,7 @@ export function AccountDangerZoneSection() {
             disabled={confirmText !== 'DELETE' || deleting}
             onClick={deleteAccount}
           >
-            {deleting ? 'Deleting…' : 'Permanently delete my account'}
+            {deleting ? t('deleting') : t('confirmDelete')}
           </Button>
         </div>
       </Modal>

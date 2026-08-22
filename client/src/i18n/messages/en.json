@@ -398,5 +398,294 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     }
+  },
+  "profile": {
+    "identity": {
+      "title": "Identity",
+      "name": "Name",
+      "email": "Email",
+      "notSet": "Not set",
+      "phone": "Phone",
+      "change": "Change",
+      "accountCreated": "Account created",
+      "userId": "User ID",
+      "editNameEmail": "Edit name / email",
+      "changePassword": "Change password",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "errorSave": "Could not save."
+    },
+    "phoneModal": {
+      "title": "Change phone number",
+      "newPhoneLabel": "New phone number",
+      "sendCode": "Send verification code",
+      "sending": "Sending…",
+      "enterCode": "Enter the 6-digit code sent to {phone}.",
+      "devModeNotice": "Dev mode — no SMS provider is configured, your code is {otp}.",
+      "confirm": "Confirm",
+      "verifying": "Verifying…",
+      "errorSend": "Could not send a code.",
+      "errorConfirm": "Incorrect code."
+    },
+    "passwordModal": {
+      "title": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password (min. 8 characters)",
+      "changePassword": "Change password",
+      "saving": "Saving…",
+      "done": "Password changed. Every other device you were logged in on has been signed out.",
+      "errorSave": "Could not change password."
+    },
+    "hamaliSkills": {
+      "title": "Skills & specialisation",
+      "capacityLabel": "Physical capacity (kg you can carry)",
+      "save": "Save",
+      "saving": "Saving…",
+      "skills": {
+        "cement": "Cement",
+        "steel": "Steel",
+        "fragile": "Fragile goods",
+        "furniture": "Furniture",
+        "appliances": "Appliances",
+        "agricultural": "Agricultural",
+        "constructionMaterial": "Construction material"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "push": "Push",
+      "sms": "SMS",
+      "categories": {
+        "jobUpdates": "Job updates",
+        "payments": "Payments",
+        "promotions": "Promotions"
+      }
+    },
+    "privacy": {
+      "title": "Privacy",
+      "shareLocation": "Share location while offline",
+      "shareLocationHint": "Off by default — your live location is always shared while online (that's how jobs find you).",
+      "profileVisibility": "Profile visibility",
+      "public": "Public",
+      "private": "Private"
+    },
+    "ratings": {
+      "title": "Ratings received",
+      "none": "No ratings yet.",
+      "recentComments": "Recent comments"
+    },
+    "complaints": {
+      "title": "Complaint history",
+      "none": "No complaints raised."
+    },
+    "payout": {
+      "title": "Payout details",
+      "none": "No payout method on file.",
+      "update": "Update",
+      "add": "Add payout method",
+      "upi": "UPI",
+      "bank": "Bank transfer",
+      "upiPlaceholder": "yourname@upi",
+      "accountHolderPlaceholder": "Account holder name",
+      "accountNumberPlaceholder": "Account number",
+      "ifscPlaceholder": "IFSC",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "errorSave": "Could not save."
+    },
+    "business": {
+      "title": "Business / GST profile",
+      "toggleLabel": "Booking on behalf of a business",
+      "companyNamePlaceholder": "Company name",
+      "gstinPlaceholder": "GSTIN",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "frequentRoutes": {
+      "title": "Frequent routes"
+    },
+    "referral": {
+      "title": "Refer & earn",
+      "yourCode": "Your code",
+      "copyLink": "Copy link",
+      "copied": "Copied!",
+      "earnedSoFar": "Earned so far"
+    },
+    "support": {
+      "title": "Support",
+      "helpCentre": "Help centre / FAQ"
+    },
+    "roleSwitcher": {
+      "title": "Switch role",
+      "subtitle": "This phone number also holds these roles:",
+      "errorSwitch": "Could not switch roles.",
+      "roles": {
+        "customer": "Customer",
+        "driver": "Driver",
+        "hamali_solo": "Hamali",
+        "mutha_leader": "Mutha Leader",
+        "mutha_member": "Mutha Member",
+        "fleet_owner": "Fleet Owner",
+        "warehouse_hub": "Warehouse Hub",
+        "manager": "Manager",
+        "admin": "Admin"
+      }
+    },
+    "account": {
+      "title": "Account",
+      "logout": "Log out",
+      "deleteAccount": "Delete account",
+      "deleteModalTitle": "Delete your account?",
+      "deleteModalBody": "This deactivates your account permanently. You won't be able to log in again. This is blocked while you have a booking in progress or a payout awaiting approval or payment — settle those first.",
+      "confirmLabel": "Type DELETE to confirm",
+      "deleting": "Deleting…",
+      "confirmDelete": "Permanently delete my account",
+      "errorDelete": "Could not delete your account."
+    }
+  },
+  "certifications": {
+    "loadError": "Couldn't load your certifications",
+    "tryAgain": "Try again",
+    "emptyTitle": "No certifications yet",
+    "emptyDescription": "Complete every module in your training curriculum to earn your first certificate."
+  },
+  "agents": {
+    "aiChip": "AI",
+    "demoMode": "Demo mode — no live model call",
+    "confidence": {
+      "low": "Low confidence",
+      "moderate": "Moderate confidence",
+      "high": "High confidence"
+    },
+    "evidence": "Evidence",
+    "recommendedNotApplied": "Recommended, not applied — a human decides.",
+    "support": {
+      "collapsedTitle": "Ask about your bookings, payouts, or KYC",
+      "collapsedHint": "AI assistant, answers from your own account data",
+      "askTitle": "Ask a question",
+      "close": "Close",
+      "placeholder": "e.g. Why is my last payout still pending?",
+      "ask": "Ask",
+      "error": "Could not get an answer — try again."
+    },
+    "demandForecast": {
+      "titleFor": "Demand forecast for {region}",
+      "loading": "Forecasting…",
+      "subtitle": "Based on real recent booking history",
+      "error": "Could not forecast demand — try again."
+    },
+    "documentPrecheck": {
+      "action": "AI precheck — catch issues before review",
+      "checking": "Checking…",
+      "error": "Could not run precheck — try again."
+    },
+    "disputeTriage": {
+      "title": "AI dispute triage",
+      "subtitle": "Compares the claim against the system record and comms log, and suggests where to look first.",
+      "run": "Run triage",
+      "analysing": "Analysing…",
+      "error": "Could not run triage — try again."
+    }
+  },
+  "insurance": {
+    "headerTitle": "Insurance",
+    "subtitle": "Your coverage, claims, and automatic payouts.",
+    "explorePlans": "Explore plans",
+    "reportIncident": "Report New Incident",
+    "loadError": "Could not load your insurance details. Try again in a moment.",
+    "category": {
+      "commercial_auto": "Commercial Auto",
+      "work_compensation": "Work Compensation",
+      "cargo_transit": "Cargo Transit"
+    },
+    "parametric": "Parametric",
+    "standard": "Standard",
+    "policyStatus": { "active": "Active", "expired": "Expired", "cancelled": "Cancelled" },
+    "genericPolicyName": "Insurance Policy",
+    "coverageAmount": "Coverage amount",
+    "validUntil": "Valid until",
+    "activeCoverage": "Active Coverage",
+    "noCoverageTitle": "No active coverage yet",
+    "noCoverageDescription": "Your active insurance policies will appear here once assigned by FYRO.",
+    "parametricProtection": "Parametric Protection",
+    "parametricExplainer": "If you earn below ₹{threshold} over {days} days, ₹{amount} is paid automatically — no claim needed.",
+    "parametricPaidOn": " Paid on {date}.",
+    "comingSoonNotice": "Coverage for time unable to work is coming soon — not tracked yet, so it isn't shown as active here.",
+    "claimStatus": "Claim Status",
+    "noClaimsTitle": "No claims filed",
+    "noClaimsDescription": "Use Report New Incident above if something happens on the job.",
+    "claim": {
+      "submitted": "Submitted",
+      "under_review": "Under Review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "paid": "Paid"
+    },
+    "payoutHistory": "Payout History",
+    "noPayoutsTitle": "No payouts yet",
+    "noPayoutsDescription": "Automatic parametric payouts and paid claims will show up here.",
+    "claimPayoutLabel": "Claim payout",
+    "parametricPayoutLabel": "Parametric payout",
+    "parametricAutoHint": "Automatic — earnings below ₹{threshold}",
+    "report": {
+      "title": "Report New Incident",
+      "noPolicies": "You have no active policy to file a claim against.",
+      "policy": "Policy",
+      "genericPolicy": "Policy",
+      "incidentDate": "Incident date",
+      "whatHappened": "What happened?",
+      "describePlaceholder": "Describe the incident — where, when, what was damaged or affected…",
+      "photosOptional": "Photos (optional)",
+      "removePhoto": "Remove photo",
+      "addPhoto": "Add photo",
+      "cancel": "Cancel",
+      "submitting": "Submitting…",
+      "submit": "Submit Claim",
+      "errorSelectPolicy": "Select which policy this incident is against.",
+      "errorDescribe": "Describe what happened.",
+      "errorSubmit": "Could not file the claim — try again."
+    },
+    "enroll": {
+      "title": "Explore insurance plans",
+      "done": "You're enrolled. It now shows under Active Coverage.",
+      "backToPlans": "← Back to plans",
+      "parametricExplainer": "If you earn below ₹{threshold} over {days} days, ₹{amount} is paid to you automatically. No claim. No paperwork.",
+      "coverage": "Coverage",
+      "premium": "Premium",
+      "consentLabel": "I understand the premium and coverage terms above and want to enrol.",
+      "confirming": "Enrolling…",
+      "confirm": "Confirm enrolment",
+      "loading": "Loading…",
+      "noNewPlans": "No new plans available — you're already enrolled in everything offered to your role.",
+      "parametricTag": "Parametric — automatic payout",
+      "standardTag": "Standard — file a claim",
+      "errorEnroll": "Could not enrol — try again."
+    }
+  },
+  "referrals": {
+    "loadError": "Couldn't load your referrals",
+    "tryAgain": "Try again",
+    "yourCode": "Your referral code",
+    "linkCopied": "Link copied!",
+    "copyLink": "Copy invite link",
+    "totalEarned": "Total earned",
+    "pending": "Pending",
+    "logInvite": "Log an invite",
+    "phonePlaceholder": "Phone number",
+    "saving": "Saving…",
+    "add": "Add",
+    "errorInvite": "Could not save this invite.",
+    "trackHint": "Track someone you've invited by phone. We'll link them up automatically once they join FYRO.",
+    "statusHeading": "Referral status",
+    "emptyTitle": "No referrals yet",
+    "emptyDescription": "Share your code to start earning bonuses.",
+    "status": {
+      "invited": "Invited",
+      "signed_up": "Signed up — awaiting 1st job",
+      "first_job_completed": "First job done",
+      "bonus_paid": "Bonus earned"
+    }
   }
 }

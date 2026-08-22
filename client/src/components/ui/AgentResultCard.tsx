@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChevronRightIcon } from '@/components/ui/icons';
 
 export interface AgentEvidenceItem {
@@ -17,11 +18,6 @@ export interface AgentResult {
   generatedAt: string;
 }
 
-const CONFIDENCE_LABEL: Record<AgentResult['confidence'], string> = {
-  low: 'Low',
-  moderate: 'Moderate',
-  high: 'High',
-};
 const CONFIDENCE_FILLED: Record<AgentResult['confidence'], number> = { low: 1, moderate: 2, high: 3 };
 
 /**
@@ -39,6 +35,7 @@ const CONFIDENCE_FILLED: Record<AgentResult['confidence'], number> = { low: 1, m
  * etc.), never through this component.
  */
 export function AgentResultCard({ result, accent = 'primary' }: { result: AgentResult; accent?: 'primary' | 'secondary' }) {
+  const t = useTranslations('agents');
   const [evidenceOpen, setEvidenceOpen] = useState(true);
   const borderColor = accent === 'primary' ? 'border-l-ip-primary' : 'border-l-ip-secondary';
   const chipColor = accent === 'primary' ? 'bg-ip-primary text-white' : 'bg-ip-secondary text-white';
@@ -47,15 +44,15 @@ export function AgentResultCard({ result, accent = 'primary' }: { result: AgentR
     <div className={`ip-card border-l-[3px] ${borderColor}`}>
       <div className="flex items-center gap-2 mb-3">
         <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${chipColor}`}>
-          AI
+          {t('aiChip')}
         </span>
         {result.mock && (
           <span className="text-[10px] font-semibold uppercase tracking-wider text-ip-on-surface-variant px-1.5 py-0.5 rounded border border-ip-outline/30">
-            Demo mode — no live model call
+            {t('demoMode')}
           </span>
         )}
         <div className="flex items-center gap-1 ml-auto">
-          <span className="text-[10px] text-ip-on-surface-variant mr-1">{CONFIDENCE_LABEL[result.confidence]} confidence</span>
+          <span className="text-[10px] text-ip-on-surface-variant mr-1">{t(`confidence.${result.confidence}`)}</span>
           {[1, 2, 3].map((seg) => (
             <span
               key={seg}
@@ -75,7 +72,7 @@ export function AgentResultCard({ result, accent = 'primary' }: { result: AgentR
             className="flex items-center gap-1.5 text-xs font-semibold text-ip-on-surface-variant mb-2"
           >
             <ChevronRightIcon className={`w-3.5 h-3.5 transition-transform ${evidenceOpen ? 'rotate-90' : ''}`} />
-            Evidence ({result.evidence.length})
+            {t('evidence')} ({result.evidence.length})
           </button>
           {evidenceOpen && (
             <div className="space-y-1.5">
@@ -91,7 +88,7 @@ export function AgentResultCard({ result, accent = 'primary' }: { result: AgentR
       )}
 
       <p className="text-[11px] text-ip-on-surface-variant italic mt-3 pt-2.5 border-t border-ip-outline/10">
-        Recommended, not applied — a human decides.
+        {t('recommendedNotApplied')}
       </p>
     </div>
   );

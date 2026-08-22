@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
@@ -51,6 +52,7 @@ const ACTIONS = [
 // refund (later phase) — it only records the decision + audit log, per
 // the build spec.
 export default function AdminDisputeDetailPage() {
+  const t = useTranslations('agents.disputeTriage');
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data, state, reload } = usePolling(() => api.get<{ dispute: DisputeDetail }>(`/api/admin/disputes/${id}`), 15000);
@@ -74,7 +76,7 @@ export default function AdminDisputeDetailPage() {
       const res = await api.post<{ result: AgentResult }>(`/api/agents/dispute-triage/${id}`);
       setTriage(res.result);
     } catch (err) {
-      setTriageError(err instanceof ApiClientError ? err.message : 'Could not run triage — try again.');
+      setTriageError(err instanceof ApiClientError ? err.message : t('error'));
     } finally {
       setTriageLoading(false);
     }
@@ -170,13 +172,11 @@ export default function AdminDisputeDetailPage() {
           <div className="ip-card">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-ip-on-surface">AI dispute triage</p>
-                <p className="text-xs text-ip-on-surface-variant mt-0.5">
-                  Compares the claim against the system record and comms log, and suggests where to look first.
-                </p>
+                <p className="text-sm font-semibold text-ip-on-surface">{t('title')}</p>
+                <p className="text-xs text-ip-on-surface-variant mt-0.5">{t('subtitle')}</p>
               </div>
               <Button variant="ghost" disabled={triageLoading} onClick={runTriage}>
-                {triageLoading ? 'Analysing…' : 'Run triage'}
+                {triageLoading ? t('analysing') : t('run')}
               </Button>
             </div>
             {triageError && <p className="text-sm text-ip-error mt-2">{triageError}</p>}

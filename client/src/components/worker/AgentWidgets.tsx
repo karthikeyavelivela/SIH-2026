@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { AgentResultCard, type AgentResult } from '@/components/ui/AgentResultCard';
 import { SparkleIcon } from '@/components/ui/icons';
@@ -14,6 +15,7 @@ import { SparkleIcon } from '@/components/ui/icons';
  * question box + AgentResultCard on submit.
  */
 export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
+  const t = useTranslations('agents.support');
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
   const [result, setResult] = useState<AgentResult | null>(null);
@@ -28,7 +30,7 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
       const res = await api.post<{ result: AgentResult }>('/api/agents/support', { question: question.trim() });
       setResult(res.result);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not get an answer — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('error'));
     } finally {
       setLoading(false);
     }
@@ -45,8 +47,8 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
           <SparkleIcon className="w-5 h-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">Ask about your bookings, payouts, or KYC</p>
-          <p className="text-xs text-ip-on-surface-variant">AI assistant, answers from your own account data</p>
+          <p className="text-sm font-semibold">{t('collapsedTitle')}</p>
+          <p className="text-xs text-ip-on-surface-variant">{t('collapsedHint')}</p>
         </div>
       </button>
     );
@@ -55,9 +57,9 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
   return (
     <div className="ip-card mb-3">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold">Ask a question</p>
+        <p className="text-sm font-semibold">{t('askTitle')}</p>
         <button type="button" onClick={() => setOpen(false)} className="text-xs text-ip-on-surface-variant">
-          Close
+          {t('close')}
         </button>
       </div>
       <div className="flex gap-2">
@@ -65,7 +67,7 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && ask()}
-          placeholder="e.g. Why is my last payout still pending?"
+          placeholder={t('placeholder')}
           className="flex-1 min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
         />
         <button
@@ -74,7 +76,7 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
           onClick={ask}
           className="px-4 rounded-ip-input bg-primary-600 text-white text-sm font-semibold disabled:opacity-50"
         >
-          {loading ? '…' : 'Ask'}
+          {loading ? '…' : t('ask')}
         </button>
       </div>
       {error && <p className="text-sm text-ip-error mt-2">{error}</p>}
@@ -95,6 +97,7 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
  * from here.
  */
 export function DemandForecastWidget({ region, accent = 'primary' }: { region: string | undefined; accent?: 'primary' | 'secondary' }) {
+  const t = useTranslations('agents.demandForecast');
   const [result, setResult] = useState<AgentResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +110,7 @@ export function DemandForecastWidget({ region, accent = 'primary' }: { region: s
       const res = await api.post<{ result: AgentResult }>('/api/agents/demand-forecast', { region });
       setResult(res.result);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not forecast demand — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('error'));
     } finally {
       setLoading(false);
     }
@@ -130,8 +133,8 @@ export function DemandForecastWidget({ region, accent = 'primary' }: { region: s
             <SparkleIcon className="w-5 h-5" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">{loading ? 'Forecasting…' : `Demand forecast for ${region}`}</p>
-            <p className="text-xs text-ip-on-surface-variant">Based on real recent booking history</p>
+            <p className="text-sm font-semibold">{loading ? t('loading') : t('titleFor', { region })}</p>
+            <p className="text-xs text-ip-on-surface-variant">{t('subtitle')}</p>
           </div>
         </button>
       )}

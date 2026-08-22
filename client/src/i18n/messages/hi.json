@@ -398,5 +398,294 @@
       "completed": "पूरा हुआ",
       "cancelled": "रद्द किया गया"
     }
+  },
+  "profile": {
+    "identity": {
+      "title": "पहचान",
+      "name": "नाम",
+      "email": "ईमेल",
+      "notSet": "सेट नहीं है",
+      "phone": "फोन",
+      "change": "बदलें",
+      "accountCreated": "खाता बनाया गया",
+      "userId": "यूज़र आईडी",
+      "editNameEmail": "नाम / ईमेल बदलें",
+      "changePassword": "पासवर्ड बदलें",
+      "save": "सेव करें",
+      "saving": "सेव हो रहा है…",
+      "cancel": "रद्द करें",
+      "errorSave": "सेव नहीं हो सका।"
+    },
+    "phoneModal": {
+      "title": "फोन नंबर बदलें",
+      "newPhoneLabel": "नया फोन नंबर",
+      "sendCode": "वेरिफिकेशन कोड भेजें",
+      "sending": "भेजा जा रहा है…",
+      "enterCode": "{phone} पर भेजा गया 6-अंकों का कोड डालें।",
+      "devModeNotice": "डेव मोड — कोई SMS प्रोवाइडर सेट नहीं है, आपका कोड है {otp}।",
+      "confirm": "पुष्टि करें",
+      "verifying": "वेरिफाई हो रहा है…",
+      "errorSend": "कोड नहीं भेजा जा सका।",
+      "errorConfirm": "कोड गलत है।"
+    },
+    "passwordModal": {
+      "title": "पासवर्ड बदलें",
+      "currentPassword": "मौजूदा पासवर्ड",
+      "newPassword": "नया पासवर्ड (कम से कम 8 अक्षर)",
+      "changePassword": "पासवर्ड बदलें",
+      "saving": "सेव हो रहा है…",
+      "done": "पासवर्ड बदल दिया गया। जिन अन्य डिवाइस पर आप लॉग इन थे, वहाँ से आपको साइन आउट कर दिया गया है।",
+      "errorSave": "पासवर्ड नहीं बदला जा सका।"
+    },
+    "hamaliSkills": {
+      "title": "कौशल और विशेषज्ञता",
+      "capacityLabel": "शारीरिक क्षमता (कितने किलो उठा सकते हैं)",
+      "save": "सेव करें",
+      "saving": "सेव हो रहा है…",
+      "skills": {
+        "cement": "सीमेंट",
+        "steel": "स्टील",
+        "fragile": "नाज़ुक सामान",
+        "furniture": "फर्नीचर",
+        "appliances": "उपकरण",
+        "agricultural": "कृषि सामान",
+        "constructionMaterial": "निर्माण सामग्री"
+      }
+    },
+    "notifications": {
+      "title": "सूचनाएं",
+      "push": "पुश",
+      "sms": "एसएमएस",
+      "categories": {
+        "jobUpdates": "काम की जानकारी",
+        "payments": "भुगतान",
+        "promotions": "ऑफर"
+      }
+    },
+    "privacy": {
+      "title": "गोपनीयता",
+      "shareLocation": "ऑफलाइन रहते हुए भी लोकेशन शेयर करें",
+      "shareLocationHint": "डिफ़ॉल्ट रूप से बंद — ऑनलाइन रहते हुए आपकी लाइव लोकेशन हमेशा शेयर होती है (इसी से काम आपको मिलते हैं)।",
+      "profileVisibility": "प्रोफाइल दिखना",
+      "public": "सबके लिए",
+      "private": "निजी"
+    },
+    "ratings": {
+      "title": "मिली हुई रेटिंग",
+      "none": "अभी तक कोई रेटिंग नहीं।",
+      "recentComments": "हाल की टिप्पणियां"
+    },
+    "complaints": {
+      "title": "शिकायत इतिहास",
+      "none": "कोई शिकायत दर्ज नहीं की गई।"
+    },
+    "payout": {
+      "title": "भुगतान विवरण",
+      "none": "कोई भुगतान तरीका दर्ज नहीं है।",
+      "update": "अपडेट करें",
+      "add": "भुगतान तरीका जोड़ें",
+      "upi": "यूपीआई",
+      "bank": "बैंक ट्रांसफर",
+      "upiPlaceholder": "yourname@upi",
+      "accountHolderPlaceholder": "खाताधारक का नाम",
+      "accountNumberPlaceholder": "खाता नंबर",
+      "ifscPlaceholder": "आईएफएससी",
+      "save": "सेव करें",
+      "saving": "सेव हो रहा है…",
+      "cancel": "रद्द करें",
+      "errorSave": "सेव नहीं हो सका।"
+    },
+    "business": {
+      "title": "व्यवसाय / जीएसटी प्रोफाइल",
+      "toggleLabel": "किसी व्यवसाय की ओर से बुकिंग",
+      "companyNamePlaceholder": "कंपनी का नाम",
+      "gstinPlaceholder": "जीएसटीआईएन",
+      "save": "सेव करें",
+      "saving": "सेव हो रहा है…"
+    },
+    "frequentRoutes": {
+      "title": "अक्सर आने-जाने वाले रूट"
+    },
+    "referral": {
+      "title": "रेफर करें और कमाएं",
+      "yourCode": "आपका कोड",
+      "copyLink": "लिंक कॉपी करें",
+      "copied": "कॉपी हो गया!",
+      "earnedSoFar": "अब तक कमाया गया"
+    },
+    "support": {
+      "title": "सहायता",
+      "helpCentre": "हेल्प सेंटर / सामान्य सवाल"
+    },
+    "roleSwitcher": {
+      "title": "भूमिका बदलें",
+      "subtitle": "यह फोन नंबर इन भूमिकाओं में भी है:",
+      "errorSwitch": "भूमिका नहीं बदली जा सकी।",
+      "roles": {
+        "customer": "ग्राहक",
+        "driver": "ड्राइवर",
+        "hamali_solo": "हमाली",
+        "mutha_leader": "मुठा लीडर",
+        "mutha_member": "मुठा सदस्य",
+        "fleet_owner": "फ्लीट मालिक",
+        "warehouse_hub": "गोदाम हब",
+        "manager": "मैनेजर",
+        "admin": "एडमिन"
+      }
+    },
+    "account": {
+      "title": "खाता",
+      "logout": "लॉग आउट",
+      "deleteAccount": "खाता हटाएं",
+      "deleteModalTitle": "अपना खाता हटाएं?",
+      "deleteModalBody": "इससे आपका खाता हमेशा के लिए बंद हो जाएगा। आप फिर से लॉग इन नहीं कर सकेंगे। अगर आपकी कोई बुकिंग चल रही है या भुगतान मंज़ूरी/भुगतान का इंतज़ार कर रहा है, तो पहले उसे पूरा करें।",
+      "confirmLabel": "पुष्टि के लिए DELETE लिखें",
+      "deleting": "हटाया जा रहा है…",
+      "confirmDelete": "मेरा खाता हमेशा के लिए हटाएं",
+      "errorDelete": "खाता नहीं हटाया जा सका।"
+    }
+  },
+  "certifications": {
+    "loadError": "आपके सर्टिफिकेट लोड नहीं हो सके",
+    "tryAgain": "फिर से कोशिश करें",
+    "emptyTitle": "अभी तक कोई सर्टिफिकेट नहीं",
+    "emptyDescription": "अपना पहला सर्टिफिकेट पाने के लिए अपने प्रशिक्षण के हर मॉड्यूल को पूरा करें।"
+  },
+  "agents": {
+    "aiChip": "AI",
+    "demoMode": "डेमो मोड — कोई लाइव मॉडल कॉल नहीं",
+    "confidence": {
+      "low": "कम भरोसा",
+      "moderate": "मध्यम भरोसा",
+      "high": "ज़्यादा भरोसा"
+    },
+    "evidence": "सबूत",
+    "recommendedNotApplied": "सुझाव दिया गया, लागू नहीं किया गया — फैसला इंसान लेता है।",
+    "support": {
+      "collapsedTitle": "अपनी बुकिंग, भुगतान या KYC के बारे में पूछें",
+      "collapsedHint": "AI सहायक, आपके अपने खाते के डेटा से जवाब देता है",
+      "askTitle": "सवाल पूछें",
+      "close": "बंद करें",
+      "placeholder": "जैसे — मेरा पिछला भुगतान अभी तक क्यों अटका है?",
+      "ask": "पूछें",
+      "error": "जवाब नहीं मिल सका — फिर से कोशिश करें।"
+    },
+    "demandForecast": {
+      "titleFor": "{region} के लिए डिमांड पूर्वानुमान",
+      "loading": "पूर्वानुमान लगाया जा रहा है…",
+      "subtitle": "हाल की असली बुकिंग हिस्ट्री के आधार पर",
+      "error": "डिमांड का पूर्वानुमान नहीं लगाया जा सका — फिर से कोशिश करें।"
+    },
+    "documentPrecheck": {
+      "action": "AI प्रीचेक — रिव्यू से पहले गड़बड़ियां पकड़ें",
+      "checking": "जांचा जा रहा है…",
+      "error": "प्रीचेक नहीं हो सका — फिर से कोशिश करें।"
+    },
+    "disputeTriage": {
+      "title": "AI डिस्प्यूट ट्राइएज",
+      "subtitle": "दावे की तुलना सिस्टम रिकॉर्ड और बातचीत लॉग से करता है, और बताता है कि सबसे पहले कहाँ देखें।",
+      "run": "ट्राइएज चलाएं",
+      "analysing": "विश्लेषण हो रहा है…",
+      "error": "ट्राइएज नहीं चल सका — फिर से कोशिश करें।"
+    }
+  },
+  "insurance": {
+    "headerTitle": "बीमा",
+    "subtitle": "आपकी सुरक्षा, दावे और अपने आप होने वाले भुगतान।",
+    "explorePlans": "प्लान देखें",
+    "reportIncident": "नई घटना दर्ज करें",
+    "loadError": "आपकी बीमा जानकारी लोड नहीं हो सकी। थोड़ी देर में फिर कोशिश करें।",
+    "category": {
+      "commercial_auto": "कमर्शियल ऑटो",
+      "work_compensation": "कार्य मुआवज़ा",
+      "cargo_transit": "कार्गो ट्रांज़िट"
+    },
+    "parametric": "पैरामेट्रिक",
+    "standard": "स्टैंडर्ड",
+    "policyStatus": { "active": "सक्रिय", "expired": "समाप्त", "cancelled": "रद्द" },
+    "genericPolicyName": "बीमा पॉलिसी",
+    "coverageAmount": "कवरेज राशि",
+    "validUntil": "वैध तक",
+    "activeCoverage": "सक्रिय कवरेज",
+    "noCoverageTitle": "अभी कोई सक्रिय कवरेज नहीं",
+    "noCoverageDescription": "FYRO द्वारा असाइन होते ही आपकी सक्रिय बीमा पॉलिसियां यहां दिखेंगी।",
+    "parametricProtection": "पैरामेट्रिक सुरक्षा",
+    "parametricExplainer": "अगर आप {days} दिनों में ₹{threshold} से कम कमाते हैं, तो बिना दावा किए ₹{amount} अपने आप भुगतान हो जाता है।",
+    "parametricPaidOn": " {date} को भुगतान हुआ।",
+    "comingSoonNotice": "काम न कर पाने के समय की सुरक्षा जल्द आ रही है — अभी ट्रैक नहीं की जाती, इसलिए यहां सक्रिय नहीं दिखाई जाती।",
+    "claimStatus": "दावे की स्थिति",
+    "noClaimsTitle": "कोई दावा दर्ज नहीं",
+    "noClaimsDescription": "अगर काम के दौरान कुछ हो जाए, तो ऊपर नई घटना दर्ज करें इस्तेमाल करें।",
+    "claim": {
+      "submitted": "जमा किया गया",
+      "under_review": "समीक्षा में",
+      "approved": "मंज़ूर",
+      "rejected": "अस्वीकृत",
+      "paid": "भुगतान हुआ"
+    },
+    "payoutHistory": "भुगतान इतिहास",
+    "noPayoutsTitle": "अभी तक कोई भुगतान नहीं",
+    "noPayoutsDescription": "अपने आप होने वाले पैरामेट्रिक भुगतान और मंज़ूर किए गए दावे यहां दिखेंगे।",
+    "claimPayoutLabel": "दावा भुगतान",
+    "parametricPayoutLabel": "पैरामेट्रिक भुगतान",
+    "parametricAutoHint": "स्वचालित — कमाई ₹{threshold} से कम",
+    "report": {
+      "title": "नई घटना दर्ज करें",
+      "noPolicies": "दावा करने के लिए आपके पास कोई सक्रिय पॉलिसी नहीं है।",
+      "policy": "पॉलिसी",
+      "genericPolicy": "पॉलिसी",
+      "incidentDate": "घटना की तारीख",
+      "whatHappened": "क्या हुआ?",
+      "describePlaceholder": "घटना बताएं — कहां, कब, क्या नुकसान हुआ या प्रभावित हुआ…",
+      "photosOptional": "फोटो (वैकल्पिक)",
+      "removePhoto": "फोटो हटाएं",
+      "addPhoto": "फोटो जोड़ें",
+      "cancel": "रद्द करें",
+      "submitting": "जमा हो रहा है…",
+      "submit": "दावा जमा करें",
+      "errorSelectPolicy": "यह घटना किस पॉलिसी के खिलाफ है, चुनें।",
+      "errorDescribe": "क्या हुआ, यह बताएं।",
+      "errorSubmit": "दावा जमा नहीं हो सका — फिर से कोशिश करें।"
+    },
+    "enroll": {
+      "title": "बीमा प्लान देखें",
+      "done": "आप नामांकित हो गए हैं। यह अब सक्रिय कवरेज में दिखेगा।",
+      "backToPlans": "← प्लान पर वापस जाएं",
+      "parametricExplainer": "अगर आप {days} दिनों में ₹{threshold} से कम कमाते हैं, तो आपको ₹{amount} अपने आप भुगतान हो जाता है। कोई दावा नहीं। कोई कागज़ी कार्रवाई नहीं।",
+      "coverage": "कवरेज",
+      "premium": "प्रीमियम",
+      "consentLabel": "मैं ऊपर दी गई प्रीमियम और कवरेज शर्तों को समझता/समझती हूं और नामांकन करना चाहता/चाहती हूं।",
+      "confirming": "नामांकन हो रहा है…",
+      "confirm": "नामांकन की पुष्टि करें",
+      "loading": "लोड हो रहा है…",
+      "noNewPlans": "कोई नया प्लान उपलब्ध नहीं है — आप अपनी भूमिका के लिए दी गई हर चीज़ में पहले से नामांकित हैं।",
+      "parametricTag": "पैरामेट्रिक — स्वचालित भुगतान",
+      "standardTag": "स्टैंडर्ड — दावा दर्ज करें",
+      "errorEnroll": "नामांकन नहीं हो सका — फिर से कोशिश करें।"
+    }
+  },
+  "referrals": {
+    "loadError": "आपके रेफरल लोड नहीं हो सके",
+    "tryAgain": "फिर से कोशिश करें",
+    "yourCode": "आपका रेफरल कोड",
+    "linkCopied": "लिंक कॉपी हो गया!",
+    "copyLink": "इनवाइट लिंक कॉपी करें",
+    "totalEarned": "कुल कमाई",
+    "pending": "बकाया",
+    "logInvite": "एक इनवाइट दर्ज करें",
+    "phonePlaceholder": "फोन नंबर",
+    "saving": "सेव हो रहा है…",
+    "add": "जोड़ें",
+    "errorInvite": "यह इनवाइट सेव नहीं हो सका।",
+    "trackHint": "फोन नंबर से किसी को इनवाइट करने पर उसे ट्रैक करें। FYRO जॉइन करते ही हम उन्हें अपने आप लिंक कर देंगे।",
+    "statusHeading": "रेफरल स्टेटस",
+    "emptyTitle": "अभी तक कोई रेफरल नहीं",
+    "emptyDescription": "बोनस कमाना शुरू करने के लिए अपना कोड शेयर करें।",
+    "status": {
+      "invited": "इनवाइट किया गया",
+      "signed_up": "साइन अप हुआ — पहले काम का इंतज़ार",
+      "first_job_completed": "पहला काम पूरा हुआ",
+      "bonus_paid": "बोनस मिला"
+    }
   }
 }
