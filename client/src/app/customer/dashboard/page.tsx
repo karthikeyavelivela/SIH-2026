@@ -37,6 +37,7 @@ const quickActions = [
 ];
 
 const statusLabel: Record<string, string> = {
+  scheduled: 'Scheduled',
   requested: 'Requested',
   searching: 'Finding a match…',
   matched: 'Matched',
@@ -47,6 +48,7 @@ const statusLabel: Record<string, string> = {
 };
 
 const statusTone: Record<string, 'muted' | 'secondary' | 'primary' | 'success' | 'danger'> = {
+  scheduled: 'muted',
   requested: 'muted',
   searching: 'muted',
   matched: 'secondary',

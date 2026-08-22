@@ -50,7 +50,14 @@ bookingRouter.post(
 bookingRouter.post(
   '/',
   bookingCreateLimiter,
-  [...pricingRules, body('cargoDetails.weightKg').isFloat({ min: 0 })],
+  [
+    ...pricingRules,
+    body('cargoDetails.weightKg').isFloat({ min: 0 }),
+    // Phase 6 — scheduled booking. Absent = instant (unchanged). Bounds
+    // (30 min .. 14 days out) are enforced again in the controller with a
+    // friendlier per-case message; this is just the shape check.
+    body('scheduledFor').optional().isISO8601(),
+  ],
   validate,
   bookingController.createBooking
 );

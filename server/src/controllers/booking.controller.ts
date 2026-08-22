@@ -9,6 +9,7 @@ import { bucketVehicleCategoryFromCapacity, computeFareBreakdown } from '../serv
 import { getSurgeMultiplier } from '../services/surge.service';
 import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 import { findUnratedCompletedBooking } from '../services/ratingGate.service';
+import { detectAbnormalCancellationRate } from '../services/fraudDetection.service';
 
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
@@ -131,8 +132,25 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 
   // Only these fields are ever read from the body — fareBreakdown, status,
   // customerId, or anything else the client sends is silently ignored.
-  const { type, region, cargoDetails, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount } =
+  const { type, region, cargoDetails, pickupLocation, dropLocation, requiredVehicles, requiredHamaliCount, scheduledFor } =
     req.body;
+
+  // Phase 6 — scheduled booking. scheduledFor is optional; when present it
+  // must be far enough out that "scheduled" actually means something
+  // (not indistinguishable from instant) and not unreasonably far ahead
+  // (surge/fare rules this far out are not something priceBooking commits
+  // to honouring literally at release time — see the note on the release
+  // loop re-using the exact same matching path, not the exact same price).
+  const MIN_LEAD_MS = 30 * 60 * 1000;
+  const MAX_LEAD_MS = 14 * 24 * 60 * 60 * 1000;
+  let scheduledForDate: Date | undefined;
+  if (scheduledFor) {
+    scheduledForDate = new Date(scheduledFor);
+    const leadMs = scheduledForDate.getTime() - Date.now();
+    if (Number.isNaN(scheduledForDate.getTime())) throw new ApiError(400, 'scheduledFor is not a valid date');
+    if (leadMs < MIN_LEAD_MS) throw new ApiError(400, 'scheduledFor must be at least 30 minutes from now');
+    if (leadMs > MAX_LEAD_MS) throw new ApiError(400, 'scheduledFor cannot be more than 14 days from now');
+  }
 
   const { fareBreakdown, distanceKm } = await priceBooking({
     type,
@@ -143,6 +161,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     requiredHamaliCount,
   });
 
+  const initialStatus = scheduledForDate ? 'scheduled' : 'searching';
   const booking = await Booking.create({
     customerId: req.user!.id, // never trust a client-supplied customerId
     type,
@@ -152,30 +171,36 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     dropLocation: { type: 'Point', coordinates: dropLocation.coordinates, address: dropLocation.address },
     requiredVehicles: requiredVehicles ?? [],
     requiredHamaliCount: requiredHamaliCount ?? 0,
-    status: 'searching',
+    status: initialStatus,
     fareBreakdown,
     distanceKm,
-    statusHistory: [{ status: 'searching', timestamp: new Date() }],
+    statusHistory: [{ status: initialStatus, timestamp: new Date() }],
+    scheduledFor: scheduledForDate,
   });
 
-  // Kick off Phase 3's sequential-timed-offer flow immediately — fire and
-  // forget from the HTTP handler's perspective (the booking is already
-  // created and returned to the customer regardless of matching progress;
-  // matching itself is inherently async and observed via socket pushes /
-  // the existing poll endpoints, never blocks the create response). Errors
-  // here are the same "best-effort push" class as every realtime emitter —
-  // logged, not surfaced to the customer as a booking-creation failure.
-  if (booking.type === 'truck' || booking.type === 'combo') {
-    startVehicleOffers(booking).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error('startVehicleOffers failed:', err);
-    });
-  }
-  if (booking.type === 'hamali' || booking.type === 'combo') {
-    startHamaliOffers(booking).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error('startHamaliOffers failed:', err);
-    });
+  // A scheduled booking's matching is deliberately deferred —
+  // scheduledBooking.service.ts's release loop starts offers once
+  // scheduledFor arrives, not now.
+  if (!scheduledForDate) {
+    // Kick off Phase 3's sequential-timed-offer flow immediately — fire and
+    // forget from the HTTP handler's perspective (the booking is already
+    // created and returned to the customer regardless of matching progress;
+    // matching itself is inherently async and observed via socket pushes /
+    // the existing poll endpoints, never blocks the create response). Errors
+    // here are the same "best-effort push" class as every realtime emitter —
+    // logged, not surfaced to the customer as a booking-creation failure.
+    if (booking.type === 'truck' || booking.type === 'combo') {
+      startVehicleOffers(booking).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error('startVehicleOffers failed:', err);
+      });
+    }
+    if (booking.type === 'hamali' || booking.type === 'combo') {
+      startHamaliOffers(booking).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error('startHamaliOffers failed:', err);
+      });
+    }
   }
 
   res.status(201).json({ booking });
@@ -231,6 +256,9 @@ export const cancelMyBooking = asyncHandler(async (req: Request, res: Response) 
   booking.status = 'cancelled';
   booking.statusHistory.push({ status: 'cancelled', timestamp: new Date() });
   await booking.save();
+
+  // Fire-and-forget — never blocks a legitimate cancel on a detector issue.
+  detectAbnormalCancellationRate(req.user!.id).catch(() => {});
 
   res.status(200).json({ booking });
 });

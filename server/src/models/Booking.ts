@@ -1,6 +1,7 @@
 import { Schema, model, Types } from 'mongoose';
 
 export type BookingStatus =
+  | 'scheduled'
   | 'requested'
   | 'searching'
   | 'matched'
@@ -44,6 +45,12 @@ export interface IBooking {
   // feature per PRODUCT.md's real-world feature spec, cheap to build on
   // top of the existing cloudinary.service upload path.
   proofPhotos: { pickup?: string; delivery?: string };
+  // Phase 6 — scheduled (vs. instant) booking. Absent = instant, matching
+  // starts immediately at creation (unchanged existing behaviour). Present
+  // = the booking is created with status 'scheduled' and matching is
+  // deliberately NOT started until scheduledBooking.service.ts's release
+  // loop finds it due — see that file for the mechanism.
+  scheduledFor?: Date;
   createdAt: Date;
 }
 
@@ -75,7 +82,7 @@ const bookingSchema = new Schema<IBooking>(
     rejectedByUserIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     status: {
       type: String,
-      enum: ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed', 'cancelled'],
+      enum: ['scheduled', 'requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed', 'cancelled'],
       default: 'requested',
     },
     fareBreakdown: {
@@ -96,6 +103,7 @@ const bookingSchema = new Schema<IBooking>(
       pickup: { type: String },
       delivery: { type: String },
     },
+    scheduledFor: { type: Date },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
@@ -104,5 +112,6 @@ bookingSchema.index({ pickupLocation: '2dsphere' });
 bookingSchema.index({ dropLocation: '2dsphere' });
 bookingSchema.index({ customerId: 1, status: 1 });
 bookingSchema.index({ region: 1, status: 1 }); // surge.service's searching-count query
+bookingSchema.index({ status: 1, scheduledFor: 1 }); // scheduledBooking.service's due-for-release poll
 
 export const Booking = model<IBooking>('Booking', bookingSchema);

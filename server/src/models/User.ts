@@ -109,6 +109,11 @@ export interface IUser {
   };
   createdAt: Date;
   updatedAt: Date;
+  // Phase 6 fraud detection — captured once at signup (req.ip, real, never
+  // client-supplied) so fraudDetection.service.ts's rapid-account-creation
+  // detector can cluster genuinely suspicious signups. Not shown to the
+  // user themself or any non-admin role.
+  signupIp?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -225,6 +230,7 @@ const userSchema = new Schema<IUser>(
       expiresAt: { type: Date },
       attempts: { type: Number },
     },
+    signupIp: { type: String },
   },
   { timestamps: true }
 );

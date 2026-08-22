@@ -26,3 +26,10 @@ loadManifestRouter.post(
   validate,
   loadManifestController.signManifest
 );
+
+loadManifestRouter.get(
+  '/:bookingId/pdf',
+  [param('bookingId').isMongoId()],
+  validate,
+  loadManifestController.downloadManifestPdf
+);

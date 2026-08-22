@@ -4,6 +4,7 @@ import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
 import { ApiError } from '../utils/ApiError';
 import { findUnratedCompletedBooking } from './ratingGate.service';
+import { detectLocationJump } from './fraudDetection.service';
 
 /**
  * Mandatory-rating gate (spec: "mandatory before either can start a new
@@ -82,6 +83,12 @@ export async function acceptAsDriver(userId: string, bookingId: string): Promise
 
   await Vehicle.updateOne({ _id: vehicle._id }, { availabilityStatus: 'on_job' });
   await maybeAdvanceToAccepted(booking._id.toString());
+  // Fraud detection never blocks a legitimate accept — a detector failure
+  // (or a genuine signal) is logged/recorded, never surfaced as a 500 here.
+  detectLocationJump(userId, 'driver', {
+    lat: booking.pickupLocation.coordinates[1],
+    lng: booking.pickupLocation.coordinates[0],
+  }).catch(() => {});
   return (await Booking.findById(booking._id))!;
 }
 
@@ -105,6 +112,10 @@ export async function acceptAsHamaliSolo(userId: string, bookingId: string): Pro
 
   await HamaliProfile.updateOne({ _id: profile._id }, { availabilityStatus: 'on_job' });
   await maybeAdvanceToAccepted(booking._id.toString());
+  detectLocationJump(userId, 'hamali_solo', {
+    lat: booking.pickupLocation.coordinates[1],
+    lng: booking.pickupLocation.coordinates[0],
+  }).catch(() => {});
   return (await Booking.findById(booking._id))!;
 }
 

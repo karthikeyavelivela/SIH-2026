@@ -3,11 +3,13 @@ import { app } from './app';
 import { connectDb } from './config/db';
 import { env } from './config/env';
 import { initRealtime } from './realtime';
+import { startScheduledBookingReleaser } from './services/scheduledBooking.service';
 
 async function main() {
   await connectDb();
   const httpServer = http.createServer(app);
   initRealtime(httpServer);
+  startScheduledBookingReleaser();
   httpServer.listen(env.PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`FYRO server (HTTP + Socket.io) listening on port ${env.PORT}`);

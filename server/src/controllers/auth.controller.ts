@@ -15,6 +15,7 @@ import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
 import { Fleet } from '../models/Fleet';
 import { WarehouseHub } from '../models/WarehouseHub';
+import { detectRapidAccountCreation } from '../services/fraudDetection.service';
 import type { Role } from '@fyro/shared';
 import {
   signAccessToken,
@@ -54,12 +55,13 @@ export const signupCustomer = asyncHandler(async (req: Request, res: Response) =
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, email, passwordHash, role: 'customer' });
+    user = await User.create({ name, phone, email, passwordHash, role: 'customer', signupIp: req.ip });
   } catch (err) {
     // The findOne check above narrows the race window but doesn't close it —
     // two concurrent signups for the same phone can both pass it.
     rethrowAsConflict(err, 'Phone number');
   }
+  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
   res.status(201).json({ user: publicUser(user) });
 });
@@ -72,7 +74,7 @@ export const signupDriver = asyncHandler(async (req: Request, res: Response) => 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, passwordHash, role: 'driver' });
+    user = await User.create({ name, phone, passwordHash, role: 'driver', signupIp: req.ip });
   } catch (err) {
     rethrowAsConflict(err, 'Phone number');
   }
@@ -92,6 +94,7 @@ export const signupDriver = asyncHandler(async (req: Request, res: Response) => 
     await User.findByIdAndDelete(user._id);
     rethrowAsConflict(err, 'Vehicle registration number');
   }
+  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
   res.status(201).json({ user: publicUser(user) });
 });
@@ -106,11 +109,12 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   if (joinType === 'solo') {
     let user;
     try {
-      user = await User.create({ name, phone, passwordHash, role: 'hamali_solo' });
+      user = await User.create({ name, phone, passwordHash, role: 'hamali_solo', signupIp: req.ip });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
     await HamaliProfile.create({ userId: user._id, type: 'solo' });
+    detectRapidAccountCreation(user._id, req.ip).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
     res.status(201).json({ user: publicUser(user) });
     return;
@@ -119,7 +123,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   if (joinType === 'leader') {
     let user;
     try {
-      user = await User.create({ name, phone, passwordHash, role: 'mutha_leader' });
+      user = await User.create({ name, phone, passwordHash, role: 'mutha_leader', signupIp: req.ip });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
@@ -130,6 +134,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
       memberIds: [],
       inviteCode: code,
     });
+    detectRapidAccountCreation(user._id, req.ip).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
     res
       .status(201)
@@ -144,7 +149,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
 
     let user;
     try {
-      user = await User.create({ name, phone, passwordHash, role: 'mutha_member' });
+      user = await User.create({ name, phone, passwordHash, role: 'mutha_member', signupIp: req.ip });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
@@ -152,6 +157,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
     mutha.memberIds.push(user._id);
     await mutha.save();
 
+    detectRapidAccountCreation(user._id, req.ip).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
     res.status(201).json({ user: publicUser(user) });
     return;
@@ -168,11 +174,12 @@ export const signupFleetOwner = asyncHandler(async (req: Request, res: Response)
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, passwordHash, role: 'fleet_owner' });
+    user = await User.create({ name, phone, passwordHash, role: 'fleet_owner', signupIp: req.ip });
   } catch (err) {
     rethrowAsConflict(err, 'Phone number');
   }
   const fleet = await Fleet.create({ ownerId: user._id, name: fleetName, vehicleIds: [], driverIds: [] });
+  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
   res.status(201).json({ user: publicUser(user), fleet: { id: fleet._id, name: fleet.name } });
 });
@@ -185,11 +192,12 @@ export const signupWarehouseHub = asyncHandler(async (req: Request, res: Respons
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, passwordHash, role: 'warehouse_hub' });
+    user = await User.create({ name, phone, passwordHash, role: 'warehouse_hub', signupIp: req.ip });
   } catch (err) {
     rethrowAsConflict(err, 'Phone number');
   }
   const hub = await WarehouseHub.create({ ownerId: user._id, name: hubName, address: address ?? '' });
+  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
   res.status(201).json({ user: publicUser(user), hub: { id: hub._id, name: hub.name } });
 });

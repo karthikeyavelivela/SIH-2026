@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
+import { api, ApiClientError, API_BASE } from '@/lib/api';
 import { LoadManifest } from '@/lib/types';
 import { TopBar } from '@/components/ui/TopBar';
 import { DataRow } from '@/components/ui/DataRow';
@@ -85,6 +85,14 @@ export default function LoadManifestPage() {
                   {new Date(manifest.signedAt).toLocaleString('en-IN')}
                 </span>
               )}
+              <a
+                href={`${API_BASE}/api/load-manifests/${bookingId}/pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-auto text-xs font-semibold text-ip-secondary hover:underline"
+              >
+                Download BOL (PDF)
+              </a>
             </div>
 
             <section className="mb-ip-lg">

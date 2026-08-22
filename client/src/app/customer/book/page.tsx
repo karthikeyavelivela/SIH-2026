@@ -18,6 +18,20 @@ import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/compon
 // my office's address by habit but I'm actually at home right now".
 const MISMATCH_KM = 2;
 
+// Matches the server's MIN_LEAD_MS/MAX_LEAD_MS in booking.controller.ts's
+// createBooking exactly — this only sets the picker's bounds; the server
+// re-validates regardless of what the client sends.
+function toDatetimeLocalValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function defaultScheduledForValue(): string {
+  return toDatetimeLocalValue(new Date(Date.now() + 35 * 60 * 1000));
+}
+function maxScheduledForValue(): string {
+  return toDatetimeLocalValue(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000));
+}
+
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
@@ -216,6 +230,9 @@ function BookForm() {
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Phase 6 — scheduled booking. '' = instant (matches API's "absent =
+  // instant" contract exactly — never send an empty string as scheduledFor).
+  const [scheduledFor, setScheduledFor] = useState('');
   const quoteDebounce = useRef<ReturnType<typeof setTimeout>>();
 
   const needsWeight = type !== 'hamali';
@@ -274,6 +291,7 @@ function BookForm() {
         dropLocation: { coordinates: [drop.lng, drop.lat], address: drop.address },
         requiredVehicles: needsWeight ? [{ capacityKg: Number(weightKg), count: 1 }] : [],
         requiredHamaliCount: needsHamali ? hamaliCount : 0,
+        scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
       });
       router.push(`/customer/track/${res.booking._id}`);
     } catch (err) {
@@ -426,6 +444,47 @@ function BookForm() {
               <Stepper value={hamaliCount} onChange={setHamaliCount} />
             </div>
           )}
+
+          <div className="ip-card">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-ip-on-surface">When</p>
+              <div className="flex rounded-ip-pill bg-ip-surface-container p-1" role="radiogroup" aria-label="Booking timing">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={!scheduledFor}
+                  onClick={() => setScheduledFor('')}
+                  className={`px-3 py-1.5 rounded-ip-pill text-xs font-semibold transition-colors ${!scheduledFor ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant'}`}
+                >
+                  Now
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={!!scheduledFor}
+                  onClick={() => setScheduledFor((v) => v || defaultScheduledForValue())}
+                  className={`px-3 py-1.5 rounded-ip-pill text-xs font-semibold transition-colors ${scheduledFor ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant'}`}
+                >
+                  Schedule
+                </button>
+              </div>
+            </div>
+            {scheduledFor && (
+              <>
+                <input
+                  type="datetime-local"
+                  value={scheduledFor}
+                  min={defaultScheduledForValue()}
+                  max={maxScheduledForValue()}
+                  onChange={(e) => setScheduledFor(e.target.value)}
+                  className="w-full min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                />
+                <p className="text-xs text-ip-on-surface-variant mt-1.5">
+                  We&apos;ll start finding a match closer to this time, not immediately.
+                </p>
+              </>
+            )}
+          </div>
 
           <FareCard state={fareState} fare={fare} errorMessage={fareError} />
 

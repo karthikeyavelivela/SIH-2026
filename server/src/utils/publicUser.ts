@@ -6,6 +6,9 @@
 export function publicUser(user: { toObject: () => Record<string, unknown> }) {
   const obj = user.toObject();
   delete obj.passwordHash;
+  // Fraud-detection-only (fraudDetection.service.ts's rapid-account-creation
+  // detector) — never returned to the user themself or any non-admin caller.
+  delete obj.signupIp;
 
   // pendingPhoneChange.otpHash is exactly as sensitive as passwordHash —
   // never leaves the server. newPhone/expiresAt/attempts are fine (a

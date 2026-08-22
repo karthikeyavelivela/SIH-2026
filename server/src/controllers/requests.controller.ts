@@ -20,6 +20,7 @@ import {
 import { emitBookingMatched, emitBookingStatus } from '../realtime/emitters';
 import { notifyMuthaOfferSettled } from '../realtime/offerEngine';
 import { uploadImage } from '../services/cloudinary.service';
+import { detectZeroDistanceFullFare } from '../services/fraudDetection.service';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
@@ -286,6 +287,9 @@ export const completeJob = asyncHandler(async (req: Request, res: Response) => {
       { availabilityStatus: 'online' }
     );
   }
+
+  // Fire-and-forget — a fraud-detection hiccup never blocks a legitimate completion.
+  detectZeroDistanceFullFare(booking._id.toString()).catch(() => {});
 
   emitBookingStatus(booking);
   res.status(200).json({ booking });

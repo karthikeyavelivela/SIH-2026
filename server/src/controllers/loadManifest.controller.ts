@@ -5,6 +5,7 @@ import { Booking } from '../models/Booking';
 import { LoadManifest } from '../models/LoadManifest';
 import { uploadImage } from '../services/cloudinary.service';
 import { writeAuditLog } from '../services/audit.service';
+import { generateBolPdf } from '../services/bolPdf.service';
 import type { Role } from '@fyro/shared';
 
 // Only the driver assigned to the booking may read or sign its manifest —
@@ -99,4 +100,33 @@ export const signManifest = asyncHandler(async (req: Request, res: Response) => 
   });
 
   res.status(200).json({ manifest });
+});
+
+// ---- GET /api/load-manifests/:bookingId/pdf ----
+// Real Bill of Lading PDF, built from this exact manifest/booking record
+// (bolPdf.service.ts) — same access rule as every other manifest route
+// (assigned driver only). Renders whether the manifest is 'pending' or
+// 'signed'; a pending one is watermarked "NOT YET SIGNED" rather than
+// pretending to be a finished legal document.
+export const downloadManifestPdf = asyncHandler(async (req: Request, res: Response) => {
+  const { bookingId } = req.params;
+  const booking = await assertAssignedDriver(bookingId, req.user!.id);
+
+  const manifest = await LoadManifest.findOne({ bookingId });
+  if (!manifest) throw new ApiError(404, 'Load manifest not found — GET it first to create it');
+
+  const pdfBuffer = await generateBolPdf(manifest, booking);
+
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role as Role,
+    action: 'load_manifest.download_pdf',
+    targetType: 'LoadManifest',
+    targetId: manifest._id.toString(),
+    details: { bookingId, manifestStatus: manifest.status },
+  });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="BOL-${bookingId.slice(-8)}.pdf"`);
+  res.status(200).send(pdfBuffer);
 });
