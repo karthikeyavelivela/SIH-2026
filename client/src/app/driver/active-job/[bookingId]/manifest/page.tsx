@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError, API_BASE } from '@/lib/api';
 import { LoadManifest } from '@/lib/types';
 import { TopBar } from '@/components/ui/TopBar';
@@ -19,6 +20,7 @@ import { AlertIcon, CheckIcon } from '@/components/ui/icons';
 // as immutable — this page mirrors that by hiding the signature pad
 // entirely once status is 'signed', it never lets you "re-sign".
 export default function LoadManifestPage() {
+  const t = useTranslations('loadManifest');
   const { bookingId } = useParams<{ bookingId: string }>();
   const router = useRouter();
   const sigRef = useRef<SignatureCanvasHandle>(null);
@@ -36,7 +38,7 @@ export default function LoadManifestPage() {
         if (!cancelled) setManifest(res.manifest);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiClientError ? err.message : 'Could not load the manifest.');
+        if (!cancelled) setError(err instanceof ApiClientError ? err.message : t('errorLoad'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -49,7 +51,7 @@ export default function LoadManifestPage() {
   async function confirmAndAccept() {
     const dataUrl = sigRef.current?.toDataUrl();
     if (!dataUrl) {
-      setError('Sign in the box above before confirming the load.');
+      setError(t('errorSignFirst'));
       return;
     }
     setSigning(true);
@@ -61,7 +63,7 @@ export default function LoadManifestPage() {
       setManifest(res.manifest);
       router.push(`/driver/active-job/${bookingId}`);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not submit the signature — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSubmit'));
     } finally {
       setSigning(false);
     }
@@ -69,16 +71,16 @@ export default function LoadManifestPage() {
 
   return (
     <div className="min-h-screen bg-ip-surface pb-10">
-      <TopBar title="Load Manifest" onBack={() => router.push(`/driver/active-job/${bookingId}`)} />
+      <TopBar title={t('title')} onBack={() => router.push(`/driver/active-job/${bookingId}`)} />
 
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-md">
-        {loading && <p className="text-sm text-ip-on-surface-variant">Loading manifest…</p>}
+        {loading && <p className="text-sm text-ip-on-surface-variant">{t('loading')}</p>}
 
         {!loading && manifest && (
           <>
             <div className="flex items-center gap-2 mb-ip-md">
               <StatusChip tone={manifest.status === 'signed' ? 'success' : 'muted'} dot>
-                {manifest.status === 'signed' ? 'Signed' : 'Pending Pickup'}
+                {manifest.status === 'signed' ? t('signed') : t('pendingPickup')}
               </StatusChip>
               {manifest.signedAt && (
                 <span className="text-xs text-ip-on-surface-variant">
@@ -91,14 +93,14 @@ export default function LoadManifestPage() {
                 rel="noopener noreferrer"
                 className="ml-auto text-xs font-semibold text-ip-secondary hover:underline"
               >
-                Download BOL (PDF)
+                {t('downloadPdf')}
               </a>
             </div>
 
             <section className="mb-ip-lg">
-              <h2 className="font-heading font-bold text-ip-headline-sm mb-1">Cargo manifest</h2>
+              <h2 className="font-heading font-bold text-ip-headline-sm mb-1">{t('cargoManifest')}</h2>
               <p className="text-sm text-ip-on-surface-variant mb-ip-sm">
-                {manifest.consignorDetails.address || 'Pickup location'}
+                {manifest.consignorDetails.address || t('pickupLocation')}
               </p>
               <div className="ip-card">
                 {manifest.lineItems.map((item, i) => (
@@ -110,14 +112,14 @@ export default function LoadManifestPage() {
                       value={
                         <div className="text-right">
                           <p>{item.weightKg} kg</p>
-                          <p className="text-xs font-normal text-ip-on-surface-variant">Qty: {item.quantity}</p>
+                          <p className="text-xs font-normal text-ip-on-surface-variant">{t('qty', { count: item.quantity })}</p>
                         </div>
                       }
                     />
                   </div>
                 ))}
                 {manifest.lineItems.length === 0 && (
-                  <p className="text-sm text-ip-on-surface-variant py-3">No line items on file.</p>
+                  <p className="text-sm text-ip-on-surface-variant py-3">{t('noLineItems')}</p>
                 )}
               </div>
             </section>
@@ -135,19 +137,17 @@ export default function LoadManifestPage() {
                   <CheckIcon className="w-5 h-5" />
                 </span>
                 <div>
-                  <p className="font-heading font-semibold text-ip-on-surface">Load confirmed</p>
-                  <p className="text-xs text-ip-on-surface-variant">This manifest is signed and can no longer be changed.</p>
+                  <p className="font-heading font-semibold text-ip-on-surface">{t('loadConfirmed')}</p>
+                  <p className="text-xs text-ip-on-surface-variant">{t('signedImmutableNote')}</p>
                 </div>
               </div>
             ) : (
               <section>
-                <h3 className="font-heading font-bold text-lg mb-1">Driver sign-off</h3>
-                <p className="text-sm text-ip-on-surface-variant mb-ip-sm">
-                  I confirm that the cargo listed above has been loaded and inspected.
-                </p>
+                <h3 className="font-heading font-bold text-lg mb-1">{t('driverSignOff')}</h3>
+                <p className="text-sm text-ip-on-surface-variant mb-ip-sm">{t('signOffConfirmation')}</p>
                 <SignatureCanvas ref={sigRef} className="mb-ip-md" />
                 <Button variant="secondary" size="lg" className="w-full" disabled={signing} onClick={confirmAndAccept}>
-                  {signing ? 'Submitting…' : 'Confirm & Accept Load'}
+                  {signing ? t('submitting') : t('confirmAndAccept')}
                 </Button>
               </section>
             )}

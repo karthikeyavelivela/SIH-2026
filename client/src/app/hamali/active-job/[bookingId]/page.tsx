@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
@@ -32,13 +33,16 @@ function focusChat() {
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
-const STEPS: { status: Booking['status']; label: string }[] = [
-  { status: 'accepted', label: 'Accepted' },
-  { status: 'in_progress', label: 'Working' },
-  { status: 'completed', label: 'Done' },
-];
+const STEP_STATUSES: Booking['status'][] = ['accepted', 'in_progress', 'completed'];
 
 export default function HamaliActiveJobPage() {
+  const t = useTranslations('activeJob.common');
+  const tHamali = useTranslations('activeJob.hamali');
+  const STEPS = [
+    { status: STEP_STATUSES[0], label: t('stepAccepted') },
+    { status: STEP_STATUSES[1], label: tHamali('stepWorking') },
+    { status: STEP_STATUSES[2], label: tHamali('stepDone') },
+  ];
   const { bookingId } = useParams<{ bookingId: string }>();
   const router = useRouter();
   const { user } = useAuth();
@@ -68,7 +72,7 @@ export default function HamaliActiveJobPage() {
         await reload();
       }
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update this job.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setPending(false);
     }
@@ -77,8 +81,8 @@ export default function HamaliActiveJobPage() {
   if (!booking) {
     return (
       <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title="Active job" fallbackHref="/hamali/dashboard" />
-        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">Loading job…</p>
+        <BackHeader title={t('title')} fallbackHref="/hamali/dashboard" />
+        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">{t('loadingJob')}</p>
       </div>
     );
   }
@@ -87,7 +91,7 @@ export default function HamaliActiveJobPage() {
 
   return (
     <div className="max-w-lg mx-auto pb-6 bg-ip-surface min-h-screen">
-      <BackHeader title="Active job" fallbackHref="/hamali/dashboard" />
+      <BackHeader title={t('title')} fallbackHref="/hamali/dashboard" />
       <RouteMap
         pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
         drop={{ lat: booking.dropLocation.coordinates[1], lng: booking.dropLocation.coordinates[0] }}
@@ -96,13 +100,13 @@ export default function HamaliActiveJobPage() {
 
       <div className="px-ip-edge pt-ip-md">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ip-on-surface-variant">Job status</p>
+          <p className="text-xs text-ip-on-surface-variant">{t('jobStatus')}</p>
           <StatusPill status={booking.status} />
         </div>
         {booking.status === 'in_progress' && (
           <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Sharing your live location with the customer
+            {t('sharingLocation')}
           </p>
         )}
         {booking.status !== 'in_progress' && <div className="mb-5" />}
@@ -135,14 +139,14 @@ export default function HamaliActiveJobPage() {
               <span className="inline-flex items-center gap-0.5">
                 <StarIcon className="w-3.5 h-3.5 text-secondary-600" fill="currentColor" />
                 <span className="text-[11px] text-ip-on-surface-variant ml-0.5">
-                  {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : 'New'}
+                  {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : t('newRating')}
                 </span>
               </span>
             </div>
             <button
               type="button"
               onClick={focusChat}
-              aria-label="Message customer"
+              aria-label={t('messageCustomer')}
               className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/15 transition-colors duration-fast"
             >
               <MessageIcon className="w-4 h-4" />
@@ -167,21 +171,21 @@ export default function HamaliActiveJobPage() {
         {booking.status === 'accepted' && (
           <div className="ip-card mb-6">
             <p className="font-heading font-bold text-sm uppercase tracking-wide text-ip-on-surface-variant mb-1">
-              Site arrival
+              {tHamali('siteArrival')}
             </p>
-            <ChecklistItem label="Weight to load" state="pass" note={`${booking.cargoDetails.weightKg} kg`} />
+            <ChecklistItem label={tHamali('weightToLoad')} state="pass" note={`${booking.cargoDetails.weightKg} kg`} />
             <ChecklistItem
-              label="Cargo description"
+              label={t('cargoDescription')}
               state={booking.cargoDetails.description ? 'pass' : 'pending'}
-              note={booking.cargoDetails.description || 'Not provided'}
+              note={booking.cargoDetails.description || t('notProvided')}
             />
-            <ChecklistItem label="Loading photo captured" state={booking.proofPhotos?.pickup ? 'pass' : 'pending'} />
+            <ChecklistItem label={tHamali('loadingPhotoCaptured')} state={booking.proofPhotos?.pickup ? 'pass' : 'pending'} />
           </div>
         )}
 
         {booking.status === 'in_progress' && !booking.proofPhotos?.delivery && (
           <AlertBanner tone="info" icon={<AlertIcon className="w-4 h-4" />} className="mb-6">
-            Take an unloading photo once the job is done, then mark it complete.
+            {tHamali('unloadingPhotoBanner')}
           </AlertBanner>
         )}
 
@@ -210,7 +214,7 @@ export default function HamaliActiveJobPage() {
             {!pending &&
               (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
                 <p className="text-xs text-ip-on-surface-variant text-center mb-2">
-                  Take a {booking.status === 'accepted' ? 'pickup' : 'delivery'} photo above to continue.
+                  {t('takePhotoToContinue', { stage: booking.status === 'accepted' ? t('stagePickup') : t('stageDelivery') })}
                 </p>
               )}
             <Button
@@ -220,7 +224,7 @@ export default function HamaliActiveJobPage() {
               disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
               onClick={advance}
             >
-              {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start job' : 'Mark done'}
+              {pending ? t('updating') : booking.status === 'accepted' ? tHamali('startJob') : tHamali('markDone')}
             </Button>
           </>
         )}
@@ -230,7 +234,7 @@ export default function HamaliActiveJobPage() {
         bookingId={booking._id}
         open={showRating}
         accent="secondary"
-        title="Rate the customer"
+        title={t('rateCustomer')}
         onDone={() => router.push('/hamali/dashboard')}
       />
     </div>

@@ -999,5 +999,67 @@
   "logoutEverywhere": "हर डिवाइस से लॉग आउट करें",
   "logoutDone": "हो गया — हर दूसरे सत्र (और इस वाले को भी, अगली रिक्वेस्ट पर) फिर से लॉगिन करना होगा।",
   "logoutNote": "प्रति-डिवाइस सत्र सूची उपलब्ध नहीं है — इस खाते का ऑथ स्टेटलेस है (JWT + रिफ्रेश टोकन वर्शन), इसलिए यहाँ असली, ईमानदार नियंत्रण एक साथ हर जगह से साइन आउट करना है, एक डिवाइस चुनना नहीं।"
+ },
+ "activeJob": {
+  "common": {
+   "title": "सक्रिय काम",
+   "loadingJob": "काम लोड हो रहा है…",
+   "jobStatus": "काम की स्थिति",
+   "sharingLocation": "ग्राहक के साथ आपकी लाइव लोकेशन शेयर हो रही है",
+   "stepAccepted": "स्वीकृत",
+   "newRating": "नया",
+   "messageCustomer": "ग्राहक को मैसेज करें",
+   "cargoDescription": "सामान का विवरण",
+   "notProvided": "नहीं दिया गया",
+   "updating": "अपडेट हो रहा है…",
+   "takePhotoToContinue": "जारी रखने के लिए ऊपर {stage} फ़ोटो लें।",
+   "stagePickup": "पिकअप",
+   "stageDelivery": "डिलीवरी",
+   "errorUpdate": "यह काम अपडेट नहीं हो पाया।",
+   "rateCustomer": "ग्राहक को रेट करें"
+  },
+  "driver": {
+   "stepInTransit": "रास्ते में",
+   "stepDelivered": "डिलीवर हो गया",
+   "cargoVerification": "सामान सत्यापन",
+   "weightDeclared": "बताया गया वज़न",
+   "pickupPhotoCaptured": "पिकअप फ़ोटो ली गई",
+   "manifestTitle": "लोड मैनिफ़ेस्ट और BOL",
+   "manifestSubtitle": "रवाना होने से पहले सामान की समीक्षा करके साइन ऑफ करें",
+   "manifestOpen": "खोलें",
+   "deliveryPhotoBanner": "ड्रॉप-ऑफ पॉइंट पर पहुँचने के बाद डिलीवरी फ़ोटो लें, फिर इस काम को डिलीवर के रूप में चिह्नित करें।",
+   "startTrip": "यात्रा शुरू करें",
+   "markDelivered": "डिलीवर के रूप में चिह्नित करें"
+  },
+  "hamali": {
+   "stepWorking": "काम जारी है",
+   "stepDone": "पूरा हुआ",
+   "siteArrival": "साइट पर पहुंचना",
+   "weightToLoad": "लोड करने का वज़न",
+   "loadingPhotoCaptured": "लोडिंग फ़ोटो ली गई",
+   "unloadingPhotoBanner": "काम पूरा होने पर अनलोडिंग फ़ोटो लें, फिर इसे पूरा हुआ चिह्नित करें।",
+   "startJob": "काम शुरू करें",
+   "markDone": "पूरा हुआ चिह्नित करें"
+  }
+ },
+ "loadManifest": {
+  "title": "लोड मैनिफ़ेस्ट",
+  "errorLoad": "मैनिफ़ेस्ट लोड नहीं हो पाया।",
+  "errorSignFirst": "लोड कन्फर्म करने से पहले ऊपर दिए बॉक्स में हस्ताक्षर करें।",
+  "errorSubmit": "हस्ताक्षर सबमिट नहीं हो पाया — फिर कोशिश करें।",
+  "loading": "मैनिफ़ेस्ट लोड हो रहा है…",
+  "signed": "हस्ताक्षरित",
+  "pendingPickup": "पिकअप लंबित",
+  "downloadPdf": "BOL डाउनलोड करें (PDF)",
+  "cargoManifest": "सामान मैनिफ़ेस्ट",
+  "pickupLocation": "पिकअप स्थान",
+  "qty": "मात्रा: {count}",
+  "noLineItems": "कोई लाइन आइटम दर्ज नहीं है।",
+  "loadConfirmed": "लोड कन्फर्म हुआ",
+  "signedImmutableNote": "यह मैनिफ़ेस्ट हस्ताक्षरित है और अब बदला नहीं जा सकता।",
+  "driverSignOff": "ड्राइवर साइन-ऑफ",
+  "signOffConfirmation": "मैं पुष्टि करता/करती हूं कि ऊपर सूचीबद्ध सामान लोड और निरीक्षित किया गया है।",
+  "submitting": "सबमिट हो रहा है…",
+  "confirmAndAccept": "कन्फर्म करें और लोड स्वीकार करें"
  }
 }

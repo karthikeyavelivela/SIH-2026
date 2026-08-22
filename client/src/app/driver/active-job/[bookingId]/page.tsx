@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
@@ -33,13 +34,16 @@ function focusChat() {
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
-const STEPS: { status: Booking['status']; label: string }[] = [
-  { status: 'accepted', label: 'Accepted' },
-  { status: 'in_progress', label: 'In transit' },
-  { status: 'completed', label: 'Delivered' },
-];
+const STEP_STATUSES: Booking['status'][] = ['accepted', 'in_progress', 'completed'];
 
 export default function DriverActiveJobPage() {
+  const t = useTranslations('activeJob.common');
+  const tDriver = useTranslations('activeJob.driver');
+  const STEPS = [
+    { status: STEP_STATUSES[0], label: t('stepAccepted') },
+    { status: STEP_STATUSES[1], label: tDriver('stepInTransit') },
+    { status: STEP_STATUSES[2], label: tDriver('stepDelivered') },
+  ];
   const { bookingId } = useParams<{ bookingId: string }>();
   const router = useRouter();
   const { user } = useAuth();
@@ -69,7 +73,7 @@ export default function DriverActiveJobPage() {
         await reload();
       }
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update this job.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setPending(false);
     }
@@ -78,8 +82,8 @@ export default function DriverActiveJobPage() {
   if (!booking) {
     return (
       <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title="Active job" fallbackHref="/driver/dashboard" />
-        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">Loading job…</p>
+        <BackHeader title={t('title')} fallbackHref="/driver/dashboard" />
+        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">{t('loadingJob')}</p>
       </div>
     );
   }
@@ -89,7 +93,7 @@ export default function DriverActiveJobPage() {
 
   return (
     <div className="max-w-lg mx-auto pb-6 bg-ip-surface min-h-screen">
-      <BackHeader title="Active job" fallbackHref="/driver/dashboard" />
+      <BackHeader title={t('title')} fallbackHref="/driver/dashboard" />
       <RouteMap
         pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
         drop={{ lat: booking.dropLocation.coordinates[1], lng: booking.dropLocation.coordinates[0] }}
@@ -98,13 +102,13 @@ export default function DriverActiveJobPage() {
 
       <div className="px-ip-edge pt-ip-md">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ip-on-surface-variant">Job status</p>
+          <p className="text-xs text-ip-on-surface-variant">{t('jobStatus')}</p>
           <StatusPill status={booking.status} />
         </div>
         {booking.status === 'in_progress' && (
           <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Sharing your live location with the customer
+            {t('sharingLocation')}
           </p>
         )}
         {booking.status !== 'in_progress' && <div className="mb-5" />}
@@ -138,14 +142,14 @@ export default function DriverActiveJobPage() {
               <span className="inline-flex items-center gap-0.5">
                 <StarIcon className="w-3.5 h-3.5 text-primary-600" fill="currentColor" />
                 <span className="text-[11px] text-ip-on-surface-variant ml-0.5">
-                  {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : 'New'}
+                  {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : t('newRating')}
                 </span>
               </span>
             </div>
             <button
               type="button"
               onClick={focusChat}
-              aria-label="Message customer"
+              aria-label={t('messageCustomer')}
               className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center flex-shrink-0 hover:bg-primary/15 transition-colors duration-fast"
             >
               <MessageIcon className="w-4 h-4" />
@@ -172,19 +176,19 @@ export default function DriverActiveJobPage() {
         {booking.status === 'accepted' && (
           <div className="ip-card mb-6">
             <p className="font-heading font-bold text-sm uppercase tracking-wide text-ip-on-surface-variant mb-1">
-              Cargo verification
+              {tDriver('cargoVerification')}
             </p>
             <ChecklistItem
-              label="Weight declared"
+              label={tDriver('weightDeclared')}
               state="pass"
               note={`${booking.cargoDetails.weightKg} kg`}
             />
             <ChecklistItem
-              label="Cargo description"
+              label={t('cargoDescription')}
               state={booking.cargoDetails.description ? 'pass' : 'pending'}
-              note={booking.cargoDetails.description || 'Not provided'}
+              note={booking.cargoDetails.description || t('notProvided')}
             />
-            <ChecklistItem label="Pickup photo captured" state={pickupConfirmed ? 'pass' : 'pending'} />
+            <ChecklistItem label={tDriver('pickupPhotoCaptured')} state={pickupConfirmed ? 'pass' : 'pending'} />
           </div>
         )}
 
@@ -198,16 +202,16 @@ export default function DriverActiveJobPage() {
             className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container mb-6 hover:bg-ip-surface-container-high transition-colors"
           >
             <div>
-              <p className="text-sm font-semibold text-ip-on-surface">Load Manifest &amp; BOL</p>
-              <p className="text-xs text-ip-on-surface-variant">Review cargo and sign off before you set off</p>
+              <p className="text-sm font-semibold text-ip-on-surface">{tDriver('manifestTitle')}</p>
+              <p className="text-xs text-ip-on-surface-variant">{tDriver('manifestSubtitle')}</p>
             </div>
-            <span className="text-primary-600 font-semibold text-sm">Open</span>
+            <span className="text-primary-600 font-semibold text-sm">{tDriver('manifestOpen')}</span>
           </Link>
         )}
 
         {booking.status === 'in_progress' && !booking.proofPhotos?.delivery && (
           <AlertBanner tone="warning" icon={<AlertIcon className="w-4 h-4" />} className="mb-6">
-            Take a delivery photo once you&apos;ve reached the drop-off point, then mark this job delivered.
+            {tDriver('deliveryPhotoBanner')}
           </AlertBanner>
         )}
 
@@ -236,7 +240,7 @@ export default function DriverActiveJobPage() {
             {!pending &&
               (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
                 <p className="text-xs text-ip-on-surface-variant text-center mb-2">
-                  Take a {booking.status === 'accepted' ? 'pickup' : 'delivery'} photo above to continue.
+                  {t('takePhotoToContinue', { stage: booking.status === 'accepted' ? t('stagePickup') : t('stageDelivery') })}
                 </p>
               )}
             <Button
@@ -245,7 +249,7 @@ export default function DriverActiveJobPage() {
               disabled={pending || (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery)}
               onClick={advance}
             >
-              {pending ? 'Updating…' : booking.status === 'accepted' ? 'Start trip' : 'Mark delivered'}
+              {pending ? t('updating') : booking.status === 'accepted' ? tDriver('startTrip') : tDriver('markDelivered')}
             </Button>
           </>
         )}
@@ -255,7 +259,7 @@ export default function DriverActiveJobPage() {
         bookingId={booking._id}
         open={showRating}
         accent="primary"
-        title="Rate the customer"
+        title={t('rateCustomer')}
         onDone={() => router.push('/driver/dashboard')}
       />
     </div>

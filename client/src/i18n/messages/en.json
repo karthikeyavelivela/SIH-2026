@@ -999,5 +999,67 @@
   "logoutEverywhere": "Log out of every device",
   "logoutDone": "Done — every other session (and this one, next request) needs to log in again.",
   "logoutNote": "A per-device session list isn't available — this account's auth is stateless (JWT + refresh token version), so the real, honest control here is signing out everywhere at once, not picking one device."
+ },
+ "activeJob": {
+  "common": {
+   "title": "Active job",
+   "loadingJob": "Loading job…",
+   "jobStatus": "Job status",
+   "sharingLocation": "Sharing your live location with the customer",
+   "stepAccepted": "Accepted",
+   "newRating": "New",
+   "messageCustomer": "Message customer",
+   "cargoDescription": "Cargo description",
+   "notProvided": "Not provided",
+   "updating": "Updating…",
+   "takePhotoToContinue": "Take a {stage} photo above to continue.",
+   "stagePickup": "pickup",
+   "stageDelivery": "delivery",
+   "errorUpdate": "Could not update this job.",
+   "rateCustomer": "Rate the customer"
+  },
+  "driver": {
+   "stepInTransit": "In transit",
+   "stepDelivered": "Delivered",
+   "cargoVerification": "Cargo verification",
+   "weightDeclared": "Weight declared",
+   "pickupPhotoCaptured": "Pickup photo captured",
+   "manifestTitle": "Load Manifest & BOL",
+   "manifestSubtitle": "Review cargo and sign off before you set off",
+   "manifestOpen": "Open",
+   "deliveryPhotoBanner": "Take a delivery photo once you've reached the drop-off point, then mark this job delivered.",
+   "startTrip": "Start trip",
+   "markDelivered": "Mark delivered"
+  },
+  "hamali": {
+   "stepWorking": "Working",
+   "stepDone": "Done",
+   "siteArrival": "Site arrival",
+   "weightToLoad": "Weight to load",
+   "loadingPhotoCaptured": "Loading photo captured",
+   "unloadingPhotoBanner": "Take an unloading photo once the job is done, then mark it complete.",
+   "startJob": "Start job",
+   "markDone": "Mark done"
+  }
+ },
+ "loadManifest": {
+  "title": "Load Manifest",
+  "errorLoad": "Could not load the manifest.",
+  "errorSignFirst": "Sign in the box above before confirming the load.",
+  "errorSubmit": "Could not submit the signature — try again.",
+  "loading": "Loading manifest…",
+  "signed": "Signed",
+  "pendingPickup": "Pending Pickup",
+  "downloadPdf": "Download BOL (PDF)",
+  "cargoManifest": "Cargo manifest",
+  "pickupLocation": "Pickup location",
+  "qty": "Qty: {count}",
+  "noLineItems": "No line items on file.",
+  "loadConfirmed": "Load confirmed",
+  "signedImmutableNote": "This manifest is signed and can no longer be changed.",
+  "driverSignOff": "Driver sign-off",
+  "signOffConfirmation": "I confirm that the cargo listed above has been loaded and inspected.",
+  "submitting": "Submitting…",
+  "confirmAndAccept": "Confirm & Accept Load"
  }
 }
