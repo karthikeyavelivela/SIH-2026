@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { AlertBanner } from '@/components/ui/AlertBanner';
@@ -43,6 +44,7 @@ const bannerTone: Record<FraudCaseRow['severity'], 'info' | 'warning' | 'danger'
 // real, irreversible-feeling action — gated behind the same confirm-modal
 // pattern as UserTable.tsx's suspend/delete actions.
 export default function AdminFraudAlertsPage() {
+  const t = useTranslations('adminFraudAlerts');
   const [status, setStatus] = useState<string>('');
   const { data, state, reload } = usePolling(
     () => api.get<{ cases: FraudCaseRow[] }>(`/api/admin/fraud/cases${status ? `?status=${status}` : ''}`),
@@ -80,7 +82,7 @@ export default function AdminFraudAlertsPage() {
       setSelected(null);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not clear this case.');
+      setError(err instanceof ApiClientError ? err.message : t('errorClear'));
     } finally {
       setSaving(false);
     }
@@ -95,7 +97,7 @@ export default function AdminFraudAlertsPage() {
       setSelected(null);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not suspend this account.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSuspend'));
     } finally {
       setSaving(false);
     }
@@ -105,14 +107,14 @@ export default function AdminFraudAlertsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Security & fraud alerts</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">Severity-ranked suspicious-activity case queue.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       <div className="flex gap-2 mb-6">
         {STATUS_FILTERS.map((s) => (
           <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
-            {s === '' ? 'All' : s}
+            {s === '' ? t('all') : t(`status.${s}`)}
           </FilterChip>
         ))}
       </div>
@@ -121,7 +123,7 @@ export default function AdminFraudAlertsPage() {
 
       {state !== 'loading' && cases.length === 0 && (
         <div className="ip-card max-w-2xl">
-          <EmptyState icon={<ShieldIcon className="w-7 h-7" />} title="No fraud cases" description="Nothing flagged right now." />
+          <EmptyState icon={<ShieldIcon className="w-7 h-7" />} title={t('noFraudCases')} description={t('noFraudCasesDesc')} />
         </div>
       )}
 
@@ -133,19 +135,23 @@ export default function AdminFraudAlertsPage() {
             icon={<ShieldIcon className="w-5 h-5" />}
             action={
               <button onClick={() => openCase(c)} className="text-sm font-semibold underline">
-                Investigate
+                {t('investigate')}
               </button>
             }
           >
-            <p className="font-semibold capitalize">{c.severity} severity · {c.status}</p>
+            <p className="font-semibold capitalize">{t('severityStatus', { severity: c.severity, status: t(`status.${c.status}`) })}</p>
             <p>
-              {c.userId?.name ?? 'Unknown user'} ({c.userId?.role}) · flagged {new Date(c.createdAt).toLocaleString('en-IN')}
+              {t('flaggedAt', {
+                name: c.userId?.name ?? t('unknownUser'),
+                role: c.userId?.role ?? '',
+                date: new Date(c.createdAt).toLocaleString('en-IN'),
+              })}
             </p>
           </AlertBanner>
         ))}
       </div>
 
-      <Modal open={!!selected} onClose={() => setSelected(null)} title={selected ? `Case — ${selected.userId?.name ?? 'Unknown user'}` : 'Case'}>
+      <Modal open={!!selected} onClose={() => setSelected(null)} title={selected ? t('caseTitle', { name: selected.userId?.name ?? t('unknownUser') }) : t('caseFallback')}>
         {selected && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -157,7 +163,7 @@ export default function AdminFraudAlertsPage() {
             <p className="text-sm text-ip-on-surface-variant">{selected.userId?.phone}</p>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">Evidence</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t('evidence')}</p>
               <div className="space-y-2">
                 {signals.map((s) => (
                   <div key={s._id} className="rounded-ip-input border border-ip-outline/15 p-3">
@@ -166,14 +172,14 @@ export default function AdminFraudAlertsPage() {
                     <pre className="text-xs text-ip-on-surface-variant whitespace-pre-wrap break-all">{JSON.stringify(s.evidence, null, 2)}</pre>
                   </div>
                 ))}
-                {signals.length === 0 && <p className="text-sm text-ip-on-surface-variant">No signal evidence recorded.</p>}
+                {signals.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noEvidence')}</p>}
               </div>
             </div>
 
             {!resolved && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-                  Notes
+                  {t('notes')}
                 </label>
                 <textarea
                   value={notes}
@@ -189,10 +195,10 @@ export default function AdminFraudAlertsPage() {
             {!resolved && !confirmSuspend && (
               <div className="flex gap-3">
                 <Button variant="ghost" className="flex-1" disabled={saving} onClick={clearCase}>
-                  Clear (false positive)
+                  {t('clearFalsePositive')}
                 </Button>
                 <Button variant="danger" className="flex-1" disabled={saving} onClick={() => setConfirmSuspend(true)}>
-                  Suspend account
+                  {t('suspendAccount')}
                 </Button>
               </div>
             )}
@@ -200,21 +206,20 @@ export default function AdminFraudAlertsPage() {
             {confirmSuspend && (
               <div className="rounded-ip-input border border-ip-error/40 bg-ip-error-container/40 p-4">
                 <p className="text-sm text-ip-on-error-container mb-3 font-medium">
-                  This immediately suspends {selected.userId?.name ?? 'this account'}. They will not be able to use
-                  FYRO until an admin reinstates them. Confirm?
+                  {t('suspendWarning', { name: selected.userId?.name ?? t('unknownUser') })}
                 </p>
                 <div className="flex gap-3">
                   <Button variant="ghost" className="flex-1" disabled={saving} onClick={() => setConfirmSuspend(false)}>
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button variant="danger" className="flex-1" disabled={saving} onClick={suspendUser}>
-                    {saving ? 'Suspending…' : 'Confirm suspend'}
+                    {saving ? t('suspending') : t('confirmSuspend')}
                   </Button>
                 </div>
               </div>
             )}
 
-            {resolved && <p className="text-sm text-ip-on-surface-variant">This case is already resolved ({selected.status}).</p>}
+            {resolved && <p className="text-sm text-ip-on-surface-variant">{t('alreadyResolved', { status: t(`status.${selected.status}`) })}</p>}
           </div>
         )}
       </Modal>

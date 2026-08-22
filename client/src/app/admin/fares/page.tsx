@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { StatusChip } from '@/components/ui/StatusChip';
@@ -19,12 +20,7 @@ interface FareRule {
   active: boolean;
 }
 
-const CATEGORIES: { value: FareRule['category']; label: string }[] = [
-  { value: 'vehicle_small', label: 'Vehicle — small (≤1,000 kg)' },
-  { value: 'vehicle_medium', label: 'Vehicle — medium (≤5,000 kg)' },
-  { value: 'vehicle_large', label: 'Vehicle — large (>5,000 kg)' },
-  { value: 'hamali', label: 'Hamali (per worker)' },
-];
+const CATEGORY_VALUES: FareRule['category'][] = ['vehicle_small', 'vehicle_medium', 'vehicle_large', 'hamali'];
 
 const inputClass =
   'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
@@ -41,6 +37,8 @@ function ErrorAlert({ message }: { message: string }) {
 // pricing_rules_configuration row — all fetch/mutation logic identical to
 // before this pass.
 export default function AdminFaresPage() {
+  const t = useTranslations('adminFares');
+  const CATEGORIES = CATEGORY_VALUES.map((value) => ({ value, label: t(`categories.${value}`) }));
   const [rules, setRules] = useState<FareRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
@@ -79,7 +77,7 @@ export default function AdminFaresPage() {
       setForm({ ...form, baseFare: '', perKmRate: '', minimumFare: '' });
       await load();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Failed to create fare rule');
+      setError(err instanceof ApiClientError ? err.message : t('errorCreate'));
     } finally {
       setSubmitting(false);
     }
@@ -93,12 +91,9 @@ export default function AdminFaresPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Pricing</p>
-        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Fare rules</h1>
-        <p className="text-sm text-ip-on-surface-variant mb-6">
-          Region × category rate cards. Creating a new active rule for the same region+category retires the
-          previous one automatically.
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
 
         {loading && <Skeleton className="h-40" />}
 
@@ -106,8 +101,8 @@ export default function AdminFaresPage() {
           <div className="ip-card">
             <EmptyState
               icon={<LayersIcon className="w-7 h-7" />}
-              title="No fare rules yet"
-              description="Bookings can't be created until at least one exists per region/category."
+              title={t('noRulesYet')}
+              description={t('noRulesYetDesc')}
             />
           </div>
         )}
@@ -117,20 +112,20 @@ export default function AdminFaresPage() {
             <div key={r._id} className="ip-card">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-heading font-bold">{r.region}</p>
-                <StatusChip tone={r.active ? 'success' : 'muted'}>{r.active ? 'Active' : 'Inactive'}</StatusChip>
+                <StatusChip tone={r.active ? 'success' : 'muted'}>{r.active ? t('active') : t('inactive')}</StatusChip>
               </div>
-              <p className="text-sm text-ip-on-surface-variant mb-3 capitalize">{r.category.replace('_', ' ')}</p>
+              <p className="text-sm text-ip-on-surface-variant mb-3 capitalize">{t(`categories.${r.category}`)}</p>
               <div className="grid grid-cols-3 gap-2 text-sm mb-3">
                 <div>
-                  <p className="text-xs text-ip-on-surface-variant">Base</p>
+                  <p className="text-xs text-ip-on-surface-variant">{t('base')}</p>
                   <p className="font-semibold">₹{r.baseFare}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-ip-on-surface-variant">Per km</p>
+                  <p className="text-xs text-ip-on-surface-variant">{t('perKm')}</p>
                   <p className="font-semibold">₹{r.perKmRate}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-ip-on-surface-variant">Minimum</p>
+                  <p className="text-xs text-ip-on-surface-variant">{t('minimum')}</p>
                   <p className="font-semibold">₹{r.minimumFare}</p>
                 </div>
               </div>
@@ -139,7 +134,7 @@ export default function AdminFaresPage() {
                 onClick={() => toggleActive(r)}
                 className="text-xs font-semibold text-ip-primary hover:underline"
               >
-                {r.active ? 'Deactivate' : 'Reactivate'}
+                {r.active ? t('deactivate') : t('reactivate')}
               </button>
             </div>
           ))}
@@ -147,21 +142,21 @@ export default function AdminFaresPage() {
       </div>
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">Add</p>
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">New fare rule</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-6">Launch region is Visakhapatnam until Phase 5's region picker.</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('addEyebrow')}</p>
+        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('newRule')}</h2>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('newRuleSubtitle')}</p>
         <div className="ip-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
-              placeholder="Region"
-              aria-label="Region"
+              placeholder={t('regionPlaceholder')}
+              aria-label={t('regionPlaceholder')}
               value={form.region}
               onChange={(e) => setForm({ ...form, region: e.target.value })}
               className={inputClass}
               required
             />
             <select
-              aria-label="Category"
+              aria-label={t('categoryAria')}
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value as FareRule['category'] })}
               className={inputClass}
@@ -174,8 +169,8 @@ export default function AdminFaresPage() {
             </select>
             <input
               type="number"
-              placeholder="Base fare (₹)"
-              aria-label="Base fare"
+              placeholder={t('baseFarePlaceholder')}
+              aria-label={t('baseFarePlaceholder')}
               value={form.baseFare}
               onChange={(e) => setForm({ ...form, baseFare: e.target.value })}
               className={inputClass}
@@ -184,8 +179,8 @@ export default function AdminFaresPage() {
             />
             <input
               type="number"
-              placeholder="Per-km rate (₹)"
-              aria-label="Per-km rate"
+              placeholder={t('perKmPlaceholder')}
+              aria-label={t('perKmPlaceholder')}
               value={form.perKmRate}
               onChange={(e) => setForm({ ...form, perKmRate: e.target.value })}
               className={inputClass}
@@ -194,8 +189,8 @@ export default function AdminFaresPage() {
             />
             <input
               type="number"
-              placeholder="Minimum fare (₹)"
-              aria-label="Minimum fare"
+              placeholder={t('minFarePlaceholder')}
+              aria-label={t('minFarePlaceholder')}
               value={form.minimumFare}
               onChange={(e) => setForm({ ...form, minimumFare: e.target.value })}
               className={inputClass}
@@ -204,7 +199,7 @@ export default function AdminFaresPage() {
             />
             {error && <ErrorAlert message={error} />}
             <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-              {submitting ? 'Saving…' : 'Create fare rule'}
+              {submitting ? t('saving') : t('createRule')}
             </Button>
           </form>
         </div>
