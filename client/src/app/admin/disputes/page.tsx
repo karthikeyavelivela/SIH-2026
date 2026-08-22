@@ -50,7 +50,7 @@ export default function AdminDisputesPage() {
       <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
       <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {STATUS_FILTERS.map((s) => (
           <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
             {s === '' ? t('all') : t(`status.${s}`)}

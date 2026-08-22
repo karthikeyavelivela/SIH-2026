@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 max-w-5xl">
         {links.map((l) => (
-          <Link key={l.href} href={l.href}>
+          <Link key={l.href} href={l.href} className="min-w-0">
             <div className="ip-card flex items-center justify-between gap-3 h-full hover:bg-ip-surface-container-high transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <span className="w-10 h-10 rounded-full bg-ip-primary-container/20 text-ip-primary flex items-center justify-center flex-shrink-0">

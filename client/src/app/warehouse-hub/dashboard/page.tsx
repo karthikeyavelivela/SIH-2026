@@ -117,7 +117,7 @@ export default function WarehouseHubDashboardPage() {
     return (
       <div className="max-w-6xl mx-auto">
         <Skeleton className="h-9 w-64 mb-2" />
-        <Skeleton className="h-5 w-96 mb-8" />
+        <Skeleton className="h-5 w-full max-w-sm mb-8" />
         <div className="grid sm:grid-cols-3 gap-4 mb-10">
           <Skeleton className="h-28" />
           <Skeleton className="h-28" />

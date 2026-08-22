@@ -105,14 +105,14 @@ export default function AdminManagersPage() {
 
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
-      <div>
+      <div className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('structureEyebrow')}</p>
         <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('orgTree')}</h1>
         <p className="text-sm text-ip-on-surface-variant mb-6">{t('orgTreeSubtitle')}</p>
         <TreeView adminName={user?.name ?? 'Admin'} managers={managers} onEditManager={openEdit} />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('onboardEyebrow')}</p>
         <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('createManager')}</h2>
         <p className="text-sm text-ip-on-surface-variant mb-6">{t('createManagerSubtitle')}</p>

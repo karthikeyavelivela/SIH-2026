@@ -55,7 +55,7 @@ export default function AdminComplaintsPage() {
       <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
       <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {(['', 'open', 'in_review', 'resolved'] as const).map((s) => (
           <FilterChip key={s} active={statusFilter === s} onClick={() => setStatusFilter(s)}>
             {s === '' ? t('all') : t(`status.${s}`)}

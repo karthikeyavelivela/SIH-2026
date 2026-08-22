@@ -85,7 +85,7 @@ export default function AdminLedgerPage() {
         <MetricCard label={t('refunds')} value={`₹${summary.refund}`} icon={<WalletIcon className="w-5 h-5" />} />
       </div>
 
-      <div className="flex gap-2 mb-5">
+      <div className="flex flex-wrap gap-2 mb-5">
         {TYPES.map((ty) => (
           <FilterChip
             key={ty}

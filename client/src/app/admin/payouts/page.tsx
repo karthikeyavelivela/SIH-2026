@@ -99,7 +99,7 @@ export default function AdminPayoutsPage() {
       <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {STATUS_FILTERS.map((s) => (
             <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
               {s === '' ? t('all') : t(`status.${s}`)}

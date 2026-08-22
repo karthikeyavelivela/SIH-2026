@@ -22,7 +22,7 @@ interface TreeViewProps {
 export function TreeView({ adminName, managers, onEditManager }: TreeViewProps) {
   const t = useTranslations('treeView');
   return (
-    <div className="flex flex-col items-start gap-4" role="tree" aria-label="Admin organization tree">
+    <div className="flex flex-col items-start gap-4 w-full min-w-0" role="tree" aria-label="Admin organization tree">
       <Card
         elevation="raised"
         className="border-2 border-primary-600/30 bg-gradient-to-br from-primary/5 to-transparent"
