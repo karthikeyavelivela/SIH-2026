@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { QueueCounter } from '@/components/ui/QueueCounter';
@@ -30,27 +31,10 @@ interface KycUser {
   createdAt: string;
 }
 
-const DOC_TYPE_LABEL: Record<string, string> = {
-  driving_licence: 'Driving Licence',
-  vehicle_rc: 'Vehicle RC',
-  fastag: 'FASTag',
-  goods_carriage_permit: 'Goods Carriage Permit',
-  puc: 'PUC Certificate',
-  vehicle_fitness: 'Vehicle Fitness Certificate',
-  aadhaar: 'Aadhaar',
-  pan: 'PAN',
-  gstin: 'GSTIN',
-};
-
 const docStatusTone: Record<KycDocument['status'], 'muted' | 'secondary' | 'success' | 'danger'> = {
   under_review: 'secondary',
   verified: 'success',
   rejected: 'danger',
-};
-const docStatusLabel: Record<KycDocument['status'], string> = {
-  under_review: 'Under review',
-  verified: 'Verified',
-  rejected: 'Rejected',
 };
 
 // New page — DESIGN_INVENTORY.md kyc_verification_queue_1/_2, consolidated
@@ -58,6 +42,7 @@ const docStatusLabel: Record<KycDocument['status'], string> = {
 // server/src/controllers/kyc.controller.ts (new), gated on the existing
 // 'verify_kyc' MANAGER_PERMISSIONS slot, audit-logged server-side.
 export default function AdminKycQueuePage() {
+  const t = useTranslations('adminKyc');
   const { data, state, reload } = usePolling(() => api.get<{ users: KycUser[] }>('/api/admin/kyc-queue'), 15000);
   const [selected, setSelected] = useState<KycUser | null>(null);
   const [rejecting, setRejecting] = useState(false);
@@ -83,7 +68,7 @@ export default function AdminKycQueuePage() {
       setSelected(null);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not approve this submission.');
+      setError(err instanceof ApiClientError ? err.message : t('errorApprove'));
     } finally {
       setSaving(false);
     }
@@ -98,7 +83,7 @@ export default function AdminKycQueuePage() {
       setSelected(null);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not reject this submission.');
+      setError(err instanceof ApiClientError ? err.message : t('errorReject'));
     } finally {
       setSaving(false);
     }
@@ -106,21 +91,19 @@ export default function AdminKycQueuePage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Trust & safety</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">KYC verification queue</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">
-        Review and approve or reject pending identity/document submissions.
-      </p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       <div className="max-w-xs mb-8">
-        <QueueCounter count={users.length} label="Pending review" tone={users.length > 0 ? 'primary' : 'muted'} />
+        <QueueCounter count={users.length} label={t('pendingReview')} tone={users.length > 0 ? 'primary' : 'muted'} />
       </div>
 
       {state === 'loading' && !data && <Skeleton lines={4} className="h-16" />}
 
       {state !== 'loading' && users.length === 0 && (
         <div className="ip-card max-w-2xl">
-          <EmptyState icon={<ShieldIcon className="w-7 h-7" />} title="Queue is empty" description="No pending KYC submissions right now." />
+          <EmptyState icon={<ShieldIcon className="w-7 h-7" />} title={t('queueEmpty')} description={t('queueEmptyDesc')} />
         </div>
       )}
 
@@ -137,9 +120,7 @@ export default function AdminKycQueuePage() {
               <StatusChip tone="secondary">{u.role.replace('_', ' ')}</StatusChip>
             </div>
             <p className="text-sm text-ip-on-surface-variant mb-2">{u.phone}{u.region ? ` · ${u.region}` : ''}</p>
-            <p className="text-xs text-ip-outline">
-              {u.kycDocs.length} document{u.kycDocs.length === 1 ? '' : 's'} submitted
-            </p>
+            <p className="text-xs text-ip-outline">{t('docsSubmitted', { count: u.kycDocs.length, plural: u.kycDocs.length === 1 ? '' : 's' })}</p>
           </button>
         ))}
       </div>
@@ -147,7 +128,7 @@ export default function AdminKycQueuePage() {
       <Modal
         open={!!selected}
         onClose={() => setSelected(null)}
-        title={selected ? `Review — ${selected.name}` : 'Review submission'}
+        title={selected ? t('reviewTitle', { name: selected.name }) : t('reviewFallback')}
       >
         {selected && (
           <div className="space-y-4">
@@ -158,9 +139,9 @@ export default function AdminKycQueuePage() {
 
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">
-                Submitted documents
+                {t('submittedDocs')}
               </p>
-              {selected.kycDocs.length === 0 && <p className="text-sm text-ip-on-surface-variant">No documents on file.</p>}
+              {selected.kycDocs.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noDocsOnFile')}</p>}
               <div className="space-y-2">
                 {selected.kycDocs.map((doc) => (
                   <a
@@ -170,8 +151,8 @@ export default function AdminKycQueuePage() {
                     rel="noreferrer"
                     className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 text-sm hover:bg-ip-surface-container"
                   >
-                    <span className="text-ip-primary truncate">{DOC_TYPE_LABEL[doc.type] ?? doc.type}</span>
-                    <StatusChip tone={docStatusTone[doc.status]}>{docStatusLabel[doc.status]}</StatusChip>
+                    <span className="text-ip-primary truncate">{t(`docType.${doc.type}`) ?? doc.type}</span>
+                    <StatusChip tone={docStatusTone[doc.status]}>{t(`docStatus.${doc.status}`)}</StatusChip>
                   </a>
                 ))}
               </div>
@@ -180,13 +161,13 @@ export default function AdminKycQueuePage() {
             {rejecting && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-                  Rejection reason
+                  {t('rejectionReason')}
                 </label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={3}
-                  placeholder="e.g. Photo is blurry, document expired…"
+                  placeholder={t('rejectionPlaceholder')}
                   className="w-full px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
                 />
               </div>
@@ -198,19 +179,19 @@ export default function AdminKycQueuePage() {
               {!rejecting ? (
                 <>
                   <Button variant="danger" className="flex-1" disabled={saving} onClick={() => setRejecting(true)}>
-                    Reject
+                    {t('reject')}
                   </Button>
                   <Button className="flex-1" disabled={saving} onClick={approve}>
-                    {saving ? 'Approving…' : 'Approve'}
+                    {saving ? t('approving') : t('approve')}
                   </Button>
                 </>
               ) : (
                 <>
                   <Button variant="ghost" className="flex-1" disabled={saving} onClick={() => setRejecting(false)}>
-                    Back
+                    {t('back')}
                   </Button>
                   <Button variant="danger" className="flex-1" disabled={saving || !reason.trim()} onClick={reject}>
-                    {saving ? 'Rejecting…' : 'Confirm reject'}
+                    {saving ? t('rejecting') : t('confirmReject')}
                   </Button>
                 </>
               )}

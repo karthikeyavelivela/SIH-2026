@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { StatusChip } from '@/components/ui/StatusChip';
@@ -30,6 +31,7 @@ function minutesLeft(expiresAt: string): number {
 // server/src/controllers/surgeZone.controller.ts (new). Region-name-based
 // (not real polygon geo), mirroring FareRule's region-as-string approach.
 export default function AdminSurgeZonesPage() {
+  const t = useTranslations('adminSurgeZones');
   const { data, state, reload } = usePolling(
     () => api.get<{ active: SurgeZone[]; recentExpired: SurgeZone[]; maxMultiplier: number }>('/api/admin/surge-zones'),
     15000
@@ -56,7 +58,7 @@ export default function AdminSurgeZonesPage() {
       setForm({ name: '', multiplier: '1.5', durationMinutes: '60' });
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not create this override.');
+      setError(err instanceof ApiClientError ? err.message : t('errorCreate'));
     } finally {
       setSubmitting(false);
     }
@@ -75,15 +77,13 @@ export default function AdminSurgeZonesPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Demand</p>
-        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Surge zones</h1>
-        <p className="text-sm text-ip-on-surface-variant mb-6">
-          Active manual demand-surge overrides by region. Multiplier is capped at {maxMultiplier}x.
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle', { max: maxMultiplier })}</p>
 
         {state !== 'loading' && active.length === 0 && (
           <div className="ip-card mb-6">
-            <EmptyState icon={<CompassIcon className="w-7 h-7" />} title="No active surge" description="No manual overrides are currently in effect." />
+            <EmptyState icon={<CompassIcon className="w-7 h-7" />} title={t('noActiveSurge')} description={t('noActiveSurgeDesc')} />
           </div>
         )}
 
@@ -95,7 +95,7 @@ export default function AdminSurgeZonesPage() {
                 <StatusChip tone="primary" dot>{z.multiplier}x</StatusChip>
               </div>
               <p className="text-sm text-ip-on-surface-variant mb-3">
-                Expires in {minutesLeft(z.expiresAt)} min · {z.isManual ? 'Manual override' : 'Automatic'}
+                {t('expiresIn', { mins: minutesLeft(z.expiresAt), kind: z.isManual ? t('manual') : t('automatic') })}
               </p>
               <button
                 type="button"
@@ -103,7 +103,7 @@ export default function AdminSurgeZonesPage() {
                 disabled={endingId === z._id}
                 className="text-xs font-semibold text-ip-error hover:underline disabled:opacity-50"
               >
-                {endingId === z._id ? 'Ending…' : 'End now'}
+                {endingId === z._id ? t('ending') : t('endNow')}
               </button>
             </div>
           ))}
@@ -111,7 +111,7 @@ export default function AdminSurgeZonesPage() {
 
         {recentExpired.length > 0 && (
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">Recently ended</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t('recentlyEnded')}</p>
             <div className="space-y-2">
               {recentExpired.slice(0, 5).map((z) => (
                 <div key={z._id} className="flex items-center justify-between text-sm text-ip-on-surface-variant px-1">
@@ -125,14 +125,14 @@ export default function AdminSurgeZonesPage() {
       </div>
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">Override</p>
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">Manual surge override</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-6">Applies to a region name (must match FareRule region strings).</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('overrideEyebrow')}</p>
+        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('newOverride')}</h2>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('newOverrideHint')}</p>
         <div className="ip-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
-              placeholder="Region name"
-              aria-label="Region name"
+              placeholder={t('regionNamePlaceholder')}
+              aria-label={t('regionNamePlaceholder')}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className={inputClass}
@@ -140,7 +140,7 @@ export default function AdminSurgeZonesPage() {
             />
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-                Multiplier (max {maxMultiplier}x)
+                {t('multiplierLabel', { max: maxMultiplier })}
               </label>
               <input
                 type="number"
@@ -155,7 +155,7 @@ export default function AdminSurgeZonesPage() {
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
-                Duration (minutes)
+                {t('durationLabel')}
               </label>
               <input
                 type="number"
@@ -169,7 +169,7 @@ export default function AdminSurgeZonesPage() {
             </div>
             {error && <p className="text-sm text-ip-error">{error}</p>}
             <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-              {submitting ? 'Applying…' : 'Apply override'}
+              {submitting ? t('applying') : t('applyOverride')}
             </Button>
           </form>
         </div>

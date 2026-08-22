@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Card } from '@/components/ui/Card';
@@ -43,18 +44,18 @@ const ACCENTS: Record<'primary' | 'secondary', Accent> = {
   secondary: { bg: 'bg-secondary-600', text: 'text-secondary-600', ring: 'border-secondary-600' },
 };
 
-function statusLabel(status: ModuleStatus): string {
-  if (status === 'completed') return 'Completed';
-  if (status === 'in_progress') return 'Available';
-  return 'Locked';
-}
-
 // Shared presentational curriculum view for driver/hamali_solo/fleet_owner
 // training-academy pages — sequential module list with server-enforced
 // unlocking, and the auto-issued certification surfaced the moment the
 // curriculum completes. Each role's page (client/src/app/*/training/page.tsx)
 // is a thin wrapper that renders this with its own accent color.
 export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
+  const t = useTranslations('worker.trainingAcademy');
+  function statusLabel(status: ModuleStatus): string {
+    if (status === 'completed') return t('completed');
+    if (status === 'in_progress') return t('available');
+    return t('locked');
+  }
   const tone = ACCENTS[accent];
   const { data, state, error, reload } = usePolling(
     () => api.get<{ modules: ProgressEntry[] }>('/api/training/progress'),
@@ -79,7 +80,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
       if (res.certification) setJustCertified(res.certification);
       await reload();
     } catch (err) {
-      setActionError(err instanceof ApiClientError ? err.message : 'Could not mark this module complete.');
+      setActionError(err instanceof ApiClientError ? err.message : t('errorComplete'));
     } finally {
       setCompletingId(null);
     }
@@ -98,7 +99,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
   if (state === 'error') {
     return (
       <Card>
-        <EmptyState title="Couldn't load your training curriculum" description={error ?? undefined} action={<Button onClick={() => reload()}>Try again</Button>} />
+        <EmptyState title={t('couldNotLoad')} description={error ?? undefined} action={<Button onClick={() => reload()}>{t('tryAgain')}</Button>} />
       </Card>
     );
   }
@@ -108,8 +109,8 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
       <Card>
         <EmptyState
           icon={<ShieldIcon className="w-7 h-7" />}
-          title="No training modules yet"
-          description="Check back soon — your curriculum will appear here."
+          title={t('noModulesYet')}
+          description={t('noModulesYetDesc')}
         />
       </Card>
     );
@@ -118,18 +119,18 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
   return (
     <div className="space-y-5">
       {justCertified && (
-        <AlertBanner tone="success" icon={<CheckIcon className="w-4 h-4" />} action={<Button size="md" variant="ghost" onClick={() => setJustCertified(null)}>Dismiss</Button>}>
-          <span className="font-semibold">Certified!</span> You&apos;ve earned &ldquo;{justCertified.title}&rdquo;. Find it under Certifications.
+        <AlertBanner tone="success" icon={<CheckIcon className="w-4 h-4" />} action={<Button size="md" variant="ghost" onClick={() => setJustCertified(null)}>{t('dismiss')}</Button>}>
+          <span className="font-semibold">{t('certified')}</span> {t('certifiedBody', { title: justCertified.title })}
         </AlertBanner>
       )}
 
       <Card>
         <div className="flex items-center justify-between mb-2">
-          <p className="font-heading font-bold">Curriculum progress</p>
+          <p className="font-heading font-bold">{t('curriculumProgress')}</p>
           <span className={`font-heading font-extrabold text-xl ${tone.text}`}>{pct}%</span>
         </div>
         <p className="text-sm text-text-muted mb-3">
-          {completedCount} of {modules.length} modules completed
+          {t('completedOfTotal', { completed: completedCount, total: modules.length })}
         </p>
         <div className="w-full h-2 rounded-full bg-surface overflow-hidden">
           <div className={`h-full rounded-full ${tone.bg} transition-all duration-base`} style={{ width: `${pct}%` }} />
@@ -163,10 +164,10 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-                      Module {entry.module.order}
+                      {t('moduleN', { n: entry.module.order })}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs text-text-muted">
-                      <ClockIcon className="w-3 h-3" /> {entry.module.durationMinutes} min
+                      <ClockIcon className="w-3 h-3" /> {t('minutesShort', { mins: entry.module.durationMinutes })}
                     </span>
                   </div>
                   <h3 className="font-heading font-bold text-base mb-1">{entry.module.title}</h3>
@@ -187,7 +188,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
                           onClick={() => setExpanded(isExpanded ? null : entry.module._id)}
                           className="text-xs font-semibold text-text-muted hover:underline"
                         >
-                          {isExpanded ? 'Hide lesson' : 'Read lesson'}
+                          {isExpanded ? t('hideLesson') : t('readLesson')}
                         </button>
                         <Button
                           size="md"
@@ -196,11 +197,11 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
                           disabled={completingId === entry.module._id}
                           onClick={() => handleComplete(entry.module._id)}
                         >
-                          {completingId === entry.module._id ? 'Saving…' : 'Mark complete'}
+                          {completingId === entry.module._id ? t('saving') : t('markComplete')}
                         </Button>
                       </>
                     )}
-                    {locked && <span className="text-xs text-text-muted ml-auto">Complete previous modules to unlock</span>}
+                    {locked && <span className="text-xs text-text-muted ml-auto">{t('unlockHint')}</span>}
                   </div>
                 </div>
               </div>

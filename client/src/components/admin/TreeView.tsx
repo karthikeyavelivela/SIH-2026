@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ interface TreeViewProps {
 }
 
 export function TreeView({ adminName, managers, onEditManager }: TreeViewProps) {
+  const t = useTranslations('treeView');
   return (
     <div className="flex flex-col items-start gap-4" role="tree" aria-label="Admin organization tree">
       <Card
@@ -27,7 +29,7 @@ export function TreeView({ adminName, managers, onEditManager }: TreeViewProps) 
         role="treeitem"
         aria-level={1}
       >
-        <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary-600 mb-1.5">Admin (root)</p>
+        <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary-600 mb-1.5">{t('adminRoot')}</p>
         <p className="font-heading font-semibold text-lg">{adminName}</p>
       </Card>
       <div
@@ -36,7 +38,7 @@ export function TreeView({ adminName, managers, onEditManager }: TreeViewProps) 
         aria-label="Managers"
       >
         {managers.length === 0 && (
-          <p className="text-sm text-text-muted py-4">No managers yet. Create one to build out the tree.</p>
+          <p className="text-sm text-text-muted py-4">{t('noManagersYet')}</p>
         )}
         {managers.map((m) => (
           <Card
@@ -51,7 +53,7 @@ export function TreeView({ adminName, managers, onEditManager }: TreeViewProps) 
               <span className="text-xs text-text-muted whitespace-nowrap">{m.phone}</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {m.permissions.length === 0 && <Badge tone="muted">No permissions granted</Badge>}
+              {m.permissions.length === 0 && <Badge tone="muted">{t('noPermissions')}</Badge>}
               {m.permissions.map((p) => (
                 <Badge key={p} tone="secondary">
                   {p}
@@ -60,8 +62,8 @@ export function TreeView({ adminName, managers, onEditManager }: TreeViewProps) 
             </div>
             {onEditManager && (
               <div className="pt-2 border-t border-border">
-                <Button variant="ghost" onClick={() => onEditManager(m)} aria-label={`Edit permissions for ${m.name}`}>
-                  Edit permissions
+                <Button variant="ghost" onClick={() => onEditManager(m)} aria-label={t('editPermissionsAria', { name: m.name })}>
+                  {t('editPermissions')}
                 </Button>
               </div>
             )}

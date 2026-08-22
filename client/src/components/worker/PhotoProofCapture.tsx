@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 
@@ -27,6 +28,7 @@ function readAsDataUrl(file: File): Promise<string> {
 // next status transition until a photo exists for this stage, same
 // dispute-reduction value as Ola/Porter's pickup/delivery proof.
 export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, accent = 'primary' }: PhotoProofCaptureProps) {
+  const t = useTranslations('worker.photoProof');
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,13 +47,13 @@ export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, a
       );
       onUploaded(res.booking.proofPhotos[stage] ?? '');
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not upload photo — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpload'));
     } finally {
       setUploading(false);
     }
   }
 
-  const label = stage === 'pickup' ? 'Take pickup photo' : 'Take delivery photo';
+  const label = stage === 'pickup' ? t('takePickupPhoto') : t('takeDeliveryPhoto');
   const tone = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
 
   return (
@@ -68,9 +70,9 @@ export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, a
         <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-raised p-3">
           <img src={existingUrl} alt={`${stage} proof`} className="w-14 h-14 rounded-md object-cover flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold">{stage === 'pickup' ? 'Pickup' : 'Delivery'} photo captured</p>
+            <p className="text-sm font-semibold">{stage === 'pickup' ? t('pickupPhotoCaptured') : t('deliveryPhotoCaptured')}</p>
             <button type="button" onClick={() => inputRef.current?.click()} className={`text-xs font-semibold ${tone}`}>
-              Retake
+              {t('retake')}
             </button>
           </div>
         </div>
@@ -82,7 +84,7 @@ export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, a
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
         >
-          {uploading ? 'Uploading…' : label}
+          {uploading ? t('uploading') : label}
         </Button>
       )}
       {error && <p className="text-xs text-red-600 mt-1.5">{error}</p>}

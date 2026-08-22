@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { TreeView } from '@/components/admin/TreeView';
 import { PermissionPicker } from '@/components/admin/PermissionPicker';
@@ -40,6 +41,7 @@ function ErrorAlert({ message }: { message: string }) {
 // PermissionPicker (components/admin/*) are untouched; all fetch/mutation
 // logic below (including the edit-existing-manager flow) is unchanged.
 export default function AdminManagersPage() {
+  const t = useTranslations('adminManagers');
   const { user } = useAuth();
   const [managers, setManagers] = useState<ManagerRow[]>([]);
   const [form, setForm] = useState({ name: '', phone: '', password: '' });
@@ -69,7 +71,7 @@ export default function AdminManagersPage() {
       setPermissions([]);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create manager');
+      setError(err instanceof Error ? err.message : t('errorCreate'));
     }
   }
 
@@ -95,7 +97,7 @@ export default function AdminManagersPage() {
       await load();
       closeEdit();
     } catch (err) {
-      setEditError(err instanceof Error ? err.message : 'Failed to update permissions');
+      setEditError(err instanceof Error ? err.message : t('errorUpdate'));
     } finally {
       setEditSaving(false);
     }
@@ -104,23 +106,21 @@ export default function AdminManagersPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Structure</p>
-        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Org tree</h1>
-        <p className="text-sm text-ip-on-surface-variant mb-6">
-          Admin at the root, managers and their granted permissions below.
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('structureEyebrow')}</p>
+        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('orgTree')}</h1>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('orgTreeSubtitle')}</p>
         <TreeView adminName={user?.name ?? 'Admin'} managers={managers} onEditManager={openEdit} />
       </div>
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">Onboard</p>
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">Create manager</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-6">Grant a new manager access with scoped permissions.</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('onboardEyebrow')}</p>
+        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('createManager')}</h2>
+        <p className="text-sm text-ip-on-surface-variant mb-6">{t('createManagerSubtitle')}</p>
         <div className="ip-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
-              placeholder="Name"
-              aria-label="Name"
+              placeholder={t('namePlaceholder')}
+              aria-label={t('namePlaceholder')}
               autoComplete="name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -128,8 +128,8 @@ export default function AdminManagersPage() {
               required
             />
             <input
-              placeholder="Phone"
-              aria-label="Phone"
+              placeholder={t('phonePlaceholder')}
+              aria-label={t('phonePlaceholder')}
               autoComplete="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -138,8 +138,8 @@ export default function AdminManagersPage() {
             />
             <input
               type="password"
-              placeholder="Password"
-              aria-label="Password"
+              placeholder={t('passwordPlaceholder')}
+              aria-label={t('passwordPlaceholder')}
               autoComplete="new-password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -152,7 +152,7 @@ export default function AdminManagersPage() {
             </div>
             {error && <ErrorAlert message={error} />}
             <Button type="submit" className="w-full" size="lg">
-              Create manager
+              {t('createManager')}
             </Button>
           </form>
         </div>
@@ -161,14 +161,14 @@ export default function AdminManagersPage() {
       <Modal
         open={!!editingManager}
         onClose={closeEdit}
-        title={editingManager ? `Edit permissions — ${editingManager.name}` : 'Edit permissions'}
+        title={editingManager ? t('editPermissions', { name: editingManager.name }) : t('editPermissionsFallback')}
         footer={
           <>
             <Button variant="ghost" onClick={closeEdit} disabled={editSaving}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button onClick={handleSaveEdit} disabled={editSaving}>
-              {editSaving ? 'Saving…' : 'Save'}
+              {editSaving ? t('saving') : t('save')}
             </Button>
           </>
         }

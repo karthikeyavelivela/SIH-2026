@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { StatusChip } from '@/components/ui/StatusChip';
@@ -33,6 +34,7 @@ const tone: Record<PayoutRow['status'], 'secondary' | 'success' | 'danger' | 'mu
 // server/src/controllers/payout.controller.ts (new). Marking a payout
 //'paid' also writes a LedgerEntry (ledger.service.writeLedgerEntry).
 export default function AdminPayoutsPage() {
+  const t = useTranslations('adminPayouts');
   const [status, setStatus] = useState<string>('pending');
   const { data, state, reload } = usePolling(
     () => api.get<{ payouts: PayoutRow[] }>(`/api/admin/payouts${status ? `?status=${status}` : ''}`),
@@ -61,11 +63,17 @@ export default function AdminPayoutsPage() {
         result: { created: number; skippedAlreadyExists: number; skippedZeroEarnings: number; totalAmount: number };
       }>('/api/admin/payouts/generate');
       setGenerateResult(
-        `${res.result.created} new payout${res.result.created === 1 ? '' : 's'} queued (₹${res.result.totalAmount}), ${res.result.skippedAlreadyExists} already existed this period, ${res.result.skippedZeroEarnings} had no earnings.`
+        t('generateResult', {
+          created: res.result.created,
+          createdPlural: res.result.created === 1 ? '' : 's',
+          total: res.result.totalAmount,
+          existed: res.result.skippedAlreadyExists,
+          zero: res.result.skippedZeroEarnings,
+        })
       );
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not generate payouts.');
+      setError(err instanceof ApiClientError ? err.message : t('errorGenerate'));
     } finally {
       setGenerating(false);
     }
@@ -78,7 +86,7 @@ export default function AdminPayoutsPage() {
       await api.patch(`/api/admin/payouts/${id}/${action}`);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not update this payout.');
+      setError(err instanceof ApiClientError ? err.message : t('errorUpdate'));
     } finally {
       setBusyId(null);
     }
@@ -86,20 +94,20 @@ export default function AdminPayoutsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Finance</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Payout approvals</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">Queue of driver/Mutha payout requests.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
         <div className="flex gap-2">
           {STATUS_FILTERS.map((s) => (
             <FilterChip key={s} active={status === s} onClick={() => setStatus(s)}>
-              {s === '' ? 'All' : s}
+              {s === '' ? t('all') : t(`status.${s}`)}
             </FilterChip>
           ))}
         </div>
         <Button size="md" variant="ghost" disabled={generating} onClick={generate}>
-          {generating ? 'Generating…' : 'Generate this period’s payouts'}
+          {generating ? t('generating') : t('generateButton')}
         </Button>
       </div>
 
@@ -110,7 +118,7 @@ export default function AdminPayoutsPage() {
 
       {state !== 'loading' && payouts.length === 0 && (
         <div className="ip-card max-w-2xl">
-          <EmptyState icon={<WalletIcon className="w-7 h-7" />} title="No payouts here" description="Nothing in this filter right now." />
+          <EmptyState icon={<WalletIcon className="w-7 h-7" />} title={t('noPayouts')} description={t('noPayoutsDesc')} />
         </div>
       )}
 
@@ -119,10 +127,10 @@ export default function AdminPayoutsPage() {
           <div key={p._id} className="ip-card">
             <div className="flex items-center justify-between mb-2">
               <p className="font-heading font-bold">₹{p.amount}</p>
-              <StatusChip tone={tone[p.status]}>{p.status}</StatusChip>
+              <StatusChip tone={tone[p.status]}>{t(`status.${p.status}`)}</StatusChip>
             </div>
             <p className="text-sm text-ip-on-surface-variant mb-1">
-              {p.userId?.name ?? 'Unknown'} ({p.userId?.role}) · {p.period}
+              {p.userId?.name ?? t('unknown')} ({p.userId?.role}) · {p.period}
             </p>
             {Object.keys(p.breakdown).length > 0 && (
               <ul className="text-xs text-ip-on-surface-variant mb-3 space-y-0.5">
@@ -137,17 +145,17 @@ export default function AdminPayoutsPage() {
             {p.status === 'pending' && (
               <div className="flex gap-2 pt-2 border-t border-ip-outline/10 mt-2">
                 <Button variant="danger" size="md" disabled={busyId === p._id} onClick={() => decide(p._id, 'reject')}>
-                  Reject
+                  {t('reject')}
                 </Button>
                 <Button size="md" disabled={busyId === p._id} onClick={() => decide(p._id, 'approve')}>
-                  Approve
+                  {t('approve')}
                 </Button>
               </div>
             )}
             {p.status === 'approved' && (
               <div className="pt-2 border-t border-ip-outline/10 mt-2">
                 <Button size="md" disabled={busyId === p._id} onClick={() => decide(p._id, 'paid')}>
-                  {busyId === p._id ? 'Marking…' : 'Mark paid'}
+                  {busyId === p._id ? t('marking') : t('markPaid')}
                 </Button>
               </div>
             )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -18,7 +19,8 @@ interface RatingModalProps {
 // server enforces that (see ratingGate.service.ts), this modal is the
 // proactive prompt so the rater hits it here first instead of discovering
 // the gate via a rejected next action.
-export function RatingModal({ bookingId, open, onDone, accent = 'primary', title = 'Rate your trip' }: RatingModalProps) {
+export function RatingModal({ bookingId, open, onDone, accent = 'primary', title }: RatingModalProps) {
+  const t = useTranslations('worker.ratingModal');
   const [score, setScore] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState('');
@@ -27,7 +29,7 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
 
   async function submit() {
     if (score === 0) {
-      setError('Pick a star rating first.');
+      setError(t('errorPickStar'));
       return;
     }
     setSubmitting(true);
@@ -36,7 +38,7 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
       await api.post('/api/ratings', { bookingId, score, comment: comment.trim() || undefined });
       onDone();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not submit your rating.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSubmit'));
     } finally {
       setSubmitting(false);
     }
@@ -45,16 +47,16 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
   const starColor = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
 
   return (
-    <Modal open={open} onClose={() => {}} title={title}>
-      <p className="text-sm text-text-muted mb-5">Your feedback keeps the platform trustworthy for everyone.</p>
-      <div className="flex items-center justify-center gap-2 mb-5" role="radiogroup" aria-label="Star rating">
+    <Modal open={open} onClose={() => {}} title={title ?? t('defaultTitle')}>
+      <p className="text-sm text-text-muted mb-5">{t('feedbackHint')}</p>
+      <div className="flex items-center justify-center gap-2 mb-5" role="radiogroup" aria-label={t('starRatingAria')}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             role="radio"
             aria-checked={score === n}
-            aria-label={`${n} star${n === 1 ? '' : 's'}`}
+            aria-label={t('starAria', { n, plural: n === 1 ? '' : 's' })}
             onClick={() => setScore(n)}
             onMouseEnter={() => setHovered(n)}
             onMouseLeave={() => setHovered(0)}
@@ -70,8 +72,8 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Add a comment (optional)"
-        aria-label="Comment"
+        placeholder={t('commentPlaceholder')}
+        aria-label={t('commentAria')}
         rows={3}
         className="w-full px-4 py-2.5 rounded-md border border-border bg-background text-sm placeholder:text-text-muted/70 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-colors duration-fast mb-4"
       />
@@ -87,7 +89,7 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
         disabled={submitting}
         onClick={submit}
       >
-        {submitting ? 'Submitting…' : 'Submit rating'}
+        {submitting ? t('submitting') : t('submitRating')}
       </Button>
     </Modal>
   );

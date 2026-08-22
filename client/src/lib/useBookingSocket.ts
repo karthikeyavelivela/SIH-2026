@@ -1,9 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { getSocket } from './socket';
-import { BookingStatus, STATUS_LABEL } from './types';
+import { BookingStatus } from './types';
 import { notifyUser } from './notify';
+
+const STATUS_KEY: Record<BookingStatus, string> = {
+  requested: 'requested',
+  searching: 'searching',
+  matched: 'matched',
+  accepted: 'accepted',
+  in_progress: 'inProgress',
+  completed: 'completed',
+  cancelled: 'cancelled',
+};
 
 export interface ChatMsg {
   id: string;
@@ -33,6 +44,8 @@ export interface MatchedInfo {
  * its poll, it just doesn't feel instant.
  */
 export function useBookingSocket(bookingId: string | undefined) {
+  const tStatus = useTranslations('worker.statusPill');
+  const tNotify = useTranslations('worker.bookingNotify');
   const [joined, setJoined] = useState(false);
   const [status, setStatus] = useState<BookingStatus | null>(null);
   const [matched, setMatched] = useState<MatchedInfo | null>(null);
@@ -48,7 +61,7 @@ export function useBookingSocket(bookingId: string | undefined) {
       if (payload.bookingId === bookingId) {
         setStatus(payload.status);
         if (payload.status === 'in_progress' || payload.status === 'completed') {
-          notifyUser('FYRO', `Your booking is now ${STATUS_LABEL[payload.status].toLowerCase()}.`);
+          notifyUser('FYRO', tNotify('statusUpdate', { status: tStatus(STATUS_KEY[payload.status]) }));
         }
       }
     }
@@ -56,7 +69,7 @@ export function useBookingSocket(bookingId: string | undefined) {
       if (payload.bookingId === bookingId) {
         setStatus(payload.status);
         setMatched({ assigned: payload.assigned });
-        notifyUser('FYRO', "You're matched — someone's on the way.");
+        notifyUser('FYRO', tNotify('matched'));
       }
     }
     function onLocation(payload: { bookingId: string; lat: number; lng: number; at: number }) {

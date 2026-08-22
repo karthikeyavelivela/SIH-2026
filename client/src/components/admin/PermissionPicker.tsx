@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
@@ -18,6 +19,7 @@ interface PermissionPickerProps {
 // which previously vanished from view the instant they were added with no
 // way to review or undo them before submit.
 export function PermissionPicker({ permissions, onChange }: PermissionPickerProps) {
+  const t = useTranslations('permissionPicker');
   const [regionInput, setRegionInput] = useState('');
 
   function togglePermission(p: string) {
@@ -38,7 +40,7 @@ export function PermissionPicker({ permissions, onChange }: PermissionPickerProp
 
   return (
     <div>
-      <p className="text-sm font-semibold mb-3">Permissions</p>
+      <p className="text-sm font-semibold mb-3">{t('permissions')}</p>
       <div className="flex flex-wrap gap-2 mb-4">
         {PERMISSION_OPTIONS.map((p) => (
           <button
@@ -52,25 +54,25 @@ export function PermissionPicker({ permissions, onChange }: PermissionPickerProp
                 : 'border-border-strong text-text-muted hover:border-secondary-600/50 hover:text-text-primary'
             }`}
           >
-            {p}
+            {t(`options.${p}`)}
           </button>
         ))}
       </div>
       <div className="flex gap-2 mb-4">
         <input
-          placeholder="Region name (e.g. Visakhapatnam)"
-          aria-label="Region name"
+          placeholder={t('regionNamePlaceholder')}
+          aria-label={t('regionNameAria')}
           value={regionInput}
           onChange={(e) => setRegionInput(e.target.value)}
           className="flex-1 min-h-[44px] px-3.5 py-2 rounded-md border border-border bg-background text-sm transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
         />
         <Button type="button" variant="ghost" onClick={addRegion}>
-          Add region scope
+          {t('addRegionScope')}
         </Button>
       </div>
       {permissions.length > 0 && (
         <div className="rounded-md border border-border bg-surface/60 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">Selected</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">{t('selected')}</p>
           <div className="flex flex-wrap gap-2">
             {permissions.map((p) => (
               <Badge key={p} tone="secondary" className="inline-flex items-center gap-1.5">
@@ -78,7 +80,7 @@ export function PermissionPicker({ permissions, onChange }: PermissionPickerProp
                 <button
                   type="button"
                   onClick={() => removePermission(p)}
-                  aria-label={`Remove ${p}`}
+                  aria-label={t('removeAria', { permission: p })}
                   className="hover:opacity-70"
                 >
                   ✕

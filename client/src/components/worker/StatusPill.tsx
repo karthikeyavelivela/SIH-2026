@@ -1,4 +1,7 @@
-import { BookingStatus, STATUS_LABEL } from '@/lib/types';
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { BookingStatus } from '@/lib/types';
 
 const toneClasses: Record<BookingStatus, string> = {
   requested: 'bg-text-muted/10 text-text-muted',
@@ -10,13 +13,24 @@ const toneClasses: Record<BookingStatus, string> = {
   cancelled: 'bg-red-500/10 text-red-700',
 };
 
+const STATUS_KEY: Record<BookingStatus, string> = {
+  requested: 'requested',
+  searching: 'searching',
+  matched: 'matched',
+  accepted: 'accepted',
+  in_progress: 'inProgress',
+  completed: 'completed',
+  cancelled: 'cancelled',
+};
+
 export function StatusPill({ status }: { status: BookingStatus }) {
+  const t = useTranslations('worker.statusPill');
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${toneClasses[status]}`}>
       {(status === 'searching' || status === 'in_progress') && (
         <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" aria-hidden="true" />
       )}
-      {STATUS_LABEL[status]}
+      {t(STATUS_KEY[status])}
     </span>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -35,6 +36,7 @@ const statusTone: Record<LedgerEntry['status'], 'success' | 'secondary' | 'dange
 // via server/src/controllers/ledger.controller.ts (new). Renders an
 // EmptyState gracefully on a fresh/empty ledger; no fabricated numbers.
 export default function AdminLedgerPage() {
+  const t = useTranslations('adminLedger');
   const [type, setType] = useState<string>('');
   const [page, setPage] = useState(1);
   const { data, state } = usePolling(
@@ -67,33 +69,33 @@ export default function AdminLedgerPage() {
     <div className="animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Finance</p>
-          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Transaction ledger</h1>
-          <p className="text-sm text-ip-on-surface-variant">Append-only platform financial record.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+          <p className="text-sm text-ip-on-surface-variant">{t('subtitle')}</p>
         </div>
         <Button variant="ghost" onClick={exportCsv}>
-          Export CSV
+          {t('exportCsv')}
         </Button>
       </div>
 
       <div className="grid sm:grid-cols-4 gap-4 mb-8">
-        <MetricCard label="Revenue" value={`₹${summary.revenue}`} icon={<WalletIcon className="w-5 h-5" />} />
-        <MetricCard label="Payouts" value={`₹${summary.payout}`} icon={<WalletIcon className="w-5 h-5" />} />
-        <MetricCard label="Fees" value={`₹${summary.fee}`} icon={<WalletIcon className="w-5 h-5" />} />
-        <MetricCard label="Refunds" value={`₹${summary.refund}`} icon={<WalletIcon className="w-5 h-5" />} />
+        <MetricCard label={t('revenue')} value={`₹${summary.revenue}`} icon={<WalletIcon className="w-5 h-5" />} />
+        <MetricCard label={t('payouts')} value={`₹${summary.payout}`} icon={<WalletIcon className="w-5 h-5" />} />
+        <MetricCard label={t('fees')} value={`₹${summary.fee}`} icon={<WalletIcon className="w-5 h-5" />} />
+        <MetricCard label={t('refunds')} value={`₹${summary.refund}`} icon={<WalletIcon className="w-5 h-5" />} />
       </div>
 
       <div className="flex gap-2 mb-5">
-        {TYPES.map((t) => (
+        {TYPES.map((ty) => (
           <FilterChip
-            key={t}
-            active={type === t}
+            key={ty}
+            active={type === ty}
             onClick={() => {
               setPage(1);
-              setType(t);
+              setType(ty);
             }}
           >
-            {t === '' ? 'All' : t}
+            {ty === '' ? t('all') : t(`types.${ty}`)}
           </FilterChip>
         ))}
       </div>
@@ -102,23 +104,23 @@ export default function AdminLedgerPage() {
         rows={entries}
         rowKey={(e) => e._id}
         loading={state === 'loading' && entries.length === 0}
-        emptyTitle="No ledger entries yet"
-        emptyDescription="Entries appear here as real bookings, payouts, fees, and refunds are recorded."
+        emptyTitle={t('noEntriesYet')}
+        emptyDescription={t('noEntriesYetDesc')}
         columns={[
-          { key: 'time', header: 'Time', render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
-          { key: 'type', header: 'Type', render: (e) => <span className="capitalize font-medium">{e.type}</span> },
-          { key: 'desc', header: 'Description', render: (e) => e.description },
-          { key: 'entity', header: 'Entity', render: (e) => <span className="text-ip-on-surface-variant">{e.entityType} · {e.entityId.slice(-6)}</span> },
+          { key: 'time', header: t('time'), render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
+          { key: 'type', header: t('type'), render: (e) => <span className="capitalize font-medium">{t(`types.${e.type}`)}</span> },
+          { key: 'desc', header: t('description'), render: (e) => e.description },
+          { key: 'entity', header: t('entity'), render: (e) => <span className="text-ip-on-surface-variant">{e.entityType} · {e.entityId.slice(-6)}</span> },
           {
             key: 'amount',
-            header: 'Amount',
+            header: t('amount'),
             render: (e) => (
               <span className={`font-semibold tabular-nums ${e.amount < 0 ? 'text-ip-error' : 'text-ip-on-surface'}`}>
                 {e.amount < 0 ? '-' : ''}₹{Math.abs(e.amount)}
               </span>
             ),
           },
-          { key: 'status', header: 'Status', render: (e) => <StatusChip tone={statusTone[e.status]}>{e.status}</StatusChip> },
+          { key: 'status', header: t('status'), render: (e) => <StatusChip tone={statusTone[e.status]}>{t(`entryStatus.${e.status}`)}</StatusChip> },
         ]}
       />
 
@@ -129,17 +131,15 @@ export default function AdminLedgerPage() {
             disabled={page <= 1}
             className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
           >
-            Previous
+            {t('previous')}
           </button>
-          <span className="text-sm text-ip-on-surface-variant">
-            Page {page} of {totalPages}
-          </span>
+          <span className="text-sm text-ip-on-surface-variant">{t('pageOf', { page, totalPages })}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
             className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
           >
-            Next
+            {t('next')}
           </button>
         </div>
       )}

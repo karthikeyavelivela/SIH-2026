@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { AddressField, GeoPoint } from '@/components/booking/AddressField';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ interface ServiceAreaCardProps {
 // GPS ping happens to be at go-online time. Useful for "I'm based out of
 // this depot/town and will travel for the right job" workers.
 export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: ServiceAreaCardProps) {
+  const t = useTranslations('worker.serviceArea');
   const [editing, setEditing] = useState(false);
   const [point, setPoint] = useState<GeoPoint | null>(null);
   const [label, setLabel] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
       setEditing(false);
       setPoint(null);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not save your service area — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setSaving(false);
     }
@@ -56,7 +58,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
 
   function useCurrentLocation() {
     if (!('geolocation' in navigator)) {
-      setError('This device/browser has no location support.');
+      setError(t('errorNoGeo'));
       return;
     }
     setLocating(true);
@@ -68,7 +70,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
       },
       () => {
         setLocating(false);
-        setError('Location access was denied — search for an address instead.');
+        setError(t('errorDenied'));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -79,12 +81,10 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
   return (
     <div className="rounded-lg bg-surface-raised border border-border shadow-sm p-4 mb-6">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-sm font-semibold">Service area</p>
-        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${tint}`}>{radiusKm} km radius</span>
+        <p className="text-sm font-semibold">{t('serviceArea')}</p>
+        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${tint}`}>{t('radiusKm', { radius: radiusKm })}</span>
       </div>
-      <p className="text-xs text-text-muted mb-3">
-        Set a home base and get matched to jobs anchored near it — even before your live location does.
-      </p>
+      <p className="text-xs text-text-muted mb-3">{t('setHint')}</p>
 
       {!editing ? (
         <div className="flex items-center gap-3">
@@ -92,17 +92,17 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
             <MapPinIcon className="w-4 h-4" />
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{label ?? 'Not set'}</p>
+            <p className="text-sm font-medium truncate">{label ?? t('notSet')}</p>
           </div>
           <button type="button" onClick={() => setEditing(true)} className={`text-xs font-semibold flex-shrink-0 ${accent === 'primary' ? 'text-primary-600' : 'text-secondary-600'}`}>
-            {label ? 'Change' : 'Set'}
+            {label ? t('change') : t('set')}
           </button>
         </div>
       ) : (
         <div className="space-y-3">
           <AddressField
-            label="Search an address"
-            placeholder="e.g. your depot, home town…"
+            label={t('searchAddressLabel')}
+            placeholder={t('searchAddressPlaceholder')}
             value={point}
             onChange={setPoint}
             markerColorClass={accent === 'primary' ? 'text-primary-600' : 'text-secondary-600'}
@@ -116,7 +116,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
             onClick={useCurrentLocation}
           >
             <CompassIcon className="w-4 h-4 mr-1.5" />
-            {locating ? 'Finding you…' : 'Use my current location'}
+            {locating ? t('findingYou') : t('useMyLocation')}
           </Button>
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
@@ -128,15 +128,15 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
               onClick={() => save(point ? { lat: point.lat, lng: point.lng } : null)}
               variant={accent === 'primary' ? 'primary' : 'secondary'}
             >
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? t('saving') : t('save')}
             </Button>
             {initial && (
               <Button type="button" variant="danger" size="md" disabled={saving} onClick={() => save(null)}>
-                Clear
+                {t('clear')}
               </Button>
             )}
             <Button type="button" variant="ghost" size="md" onClick={() => setEditing(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
           </div>
         </div>

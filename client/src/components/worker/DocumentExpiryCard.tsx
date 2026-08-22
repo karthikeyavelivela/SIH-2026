@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -30,6 +31,7 @@ function daysUntil(dateStr: string): number {
 // being informative." Self-reported dates for now — see
 // User.licenseExpiryAt / Vehicle.insuranceExpiryAt doc comments.
 export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpiryCardProps) {
+  const t = useTranslations('worker.documentExpiry');
   const [editing, setEditing] = useState(false);
   const [licenseDraft, setLicenseDraft] = useState(license?.slice(0, 10) ?? '');
   const [insuranceDraft, setInsuranceDraft] = useState(insurance?.slice(0, 10) ?? '');
@@ -37,8 +39,8 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
   const [error, setError] = useState<string | null>(null);
 
   const rows: DocRow[] = [
-    { key: 'licenseExpiryAt', label: 'License / ID', value: license },
-    ...(insurance !== undefined ? [{ key: 'insuranceExpiryAt' as const, label: 'Vehicle insurance', value: insurance }] : []),
+    { key: 'licenseExpiryAt', label: t('licenseId'), value: license },
+    ...(insurance !== undefined ? [{ key: 'insuranceExpiryAt' as const, label: t('vehicleInsurance'), value: insurance }] : []),
   ];
 
   async function save() {
@@ -55,7 +57,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
       onSaved({ licenseExpiryAt: res.user.licenseExpiryAt ?? null, insuranceExpiryAt: res.insuranceExpiryAt });
       setEditing(false);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : 'Could not save — try again.');
+      setError(err instanceof ApiClientError ? err.message : t('errorSave'));
     } finally {
       setSaving(false);
     }
@@ -64,10 +66,10 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
   return (
     <Card elevation="raised" className="mb-6">
       <div className="flex items-center justify-between mb-3">
-        <p className="font-heading font-bold">Documents</p>
+        <p className="font-heading font-bold">{t('documents')}</p>
         {!editing && (
           <button type="button" onClick={() => setEditing(true)} className="text-xs font-semibold text-primary-600">
-            Edit
+            {t('edit')}
           </button>
         )}
       </div>
@@ -79,7 +81,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
               return (
                 <div key={row.key} className="flex items-center justify-between text-sm">
                   <span>{row.label}</span>
-                  <Badge tone="muted">Not set</Badge>
+                  <Badge tone="muted">{t('notSet')}</Badge>
                 </div>
               );
             }
@@ -90,11 +92,11 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
               <div key={row.key} className="flex items-center justify-between text-sm">
                 <span>{row.label}</span>
                 {expired ? (
-                  <Badge tone="danger">Expired</Badge>
+                  <Badge tone="danger">{t('expired')}</Badge>
                 ) : soon ? (
-                  <Badge tone="warning">Expires in {days}d</Badge>
+                  <Badge tone="warning">{t('expiresIn', { days })}</Badge>
                 ) : (
-                  <Badge tone="success">Valid</Badge>
+                  <Badge tone="success">{t('valid')}</Badge>
                 )}
               </div>
             );
@@ -102,14 +104,14 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
           {rows.some((r) => r.value && daysUntil(r.value) <= WARN_WINDOW_DAYS) && (
             <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
               <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-              <span>Renew soon to avoid a sudden account pause.</span>
+              <span>{t('renewSoon')}</span>
             </div>
           )}
         </div>
       ) : (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs text-text-muted">License / ID expiry</span>
+            <span className="text-xs text-text-muted">{t('licenseExpiryLabel')}</span>
             <input
               type="date"
               value={licenseDraft}
@@ -119,7 +121,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
           </label>
           {insurance !== undefined && (
             <label className="block">
-              <span className="text-xs text-text-muted">Vehicle insurance expiry</span>
+              <span className="text-xs text-text-muted">{t('insuranceExpiryLabel')}</span>
               <input
                 type="date"
                 value={insuranceDraft}
@@ -131,10 +133,10 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
             <Button size="md" disabled={saving} onClick={save} className="flex-1">
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? t('saving') : t('save')}
             </Button>
             <Button size="md" variant="ghost" onClick={() => setEditing(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
           </div>
         </div>

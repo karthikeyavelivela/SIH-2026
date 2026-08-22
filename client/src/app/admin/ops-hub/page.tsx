@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { AlertBanner } from '@/components/ui/AlertBanner';
@@ -42,6 +43,7 @@ const ACTION_LINK: Record<ActionItem['kind'], (id: string) => string> = {
 // late-pickup detection + the Dispute/FraudCase/Payout queues built
 // alongside this page, via server/src/controllers/opsHub.controller.ts (new).
 export default function AdminOpsHubPage() {
+  const t = useTranslations('adminOpsHub');
   const { data, state } = usePolling(() => api.get<OpsHubData>('/api/admin/ops-hub'), 15000);
   const counts = data?.counts;
   const latePickups = data?.latePickups ?? [];
@@ -49,42 +51,42 @@ export default function AdminOpsHubPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Operations</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">Ops hub</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">Live incident dashboard and action-required queue.</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
 
       {state === 'loading' && !data ? (
         <Skeleton className="h-24 mb-8" />
       ) : (
         <div className="grid sm:grid-cols-4 gap-4 mb-10">
-          <QueueCounter count={counts?.latePickups ?? 0} label="Late pickups" tone={counts?.latePickups ? 'danger' : 'muted'} />
-          <QueueCounter count={counts?.openDisputes ?? 0} label="Open disputes" tone={counts?.openDisputes ? 'primary' : 'muted'} />
-          <QueueCounter count={counts?.openFraudCases ?? 0} label="Fraud cases" tone={counts?.openFraudCases ? 'danger' : 'muted'} />
-          <QueueCounter count={counts?.pendingPayouts ?? 0} label="Pending payouts" tone={counts?.pendingPayouts ? 'primary' : 'muted'} />
+          <QueueCounter count={counts?.latePickups ?? 0} label={t('latePickups')} tone={counts?.latePickups ? 'danger' : 'muted'} />
+          <QueueCounter count={counts?.openDisputes ?? 0} label={t('openDisputes')} tone={counts?.openDisputes ? 'primary' : 'muted'} />
+          <QueueCounter count={counts?.openFraudCases ?? 0} label={t('fraudCases')} tone={counts?.openFraudCases ? 'danger' : 'muted'} />
+          <QueueCounter count={counts?.pendingPayouts ?? 0} label={t('pendingPayouts')} tone={counts?.pendingPayouts ? 'primary' : 'muted'} />
         </div>
       )}
 
-      <h2 className="font-heading text-ip-headline-sm font-bold mb-3">Critical alerts</h2>
+      <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('criticalAlerts')}</h2>
       {latePickups.length === 0 ? (
         <div className="ip-card mb-10">
-          <EmptyState icon={<ClockIcon className="w-7 h-7" />} title="No late pickups" description="Every accepted booking is on schedule." />
+          <EmptyState icon={<ClockIcon className="w-7 h-7" />} title={t('noLatePickups')} description={t('noLatePickupsDesc')} />
         </div>
       ) : (
         <div className="space-y-3 mb-10 max-w-3xl">
           {latePickups.map((b) => (
             <AlertBanner key={b.bookingId} tone="warning" icon={<ClockIcon className="w-5 h-5" />}>
-              <p className="font-semibold">Pickup overdue — {b.customer?.name ?? 'Unknown customer'}</p>
+              <p className="font-semibold">{t('pickupOverdue', { name: b.customer?.name ?? t('unknownCustomer') })}</p>
               <p>{b.pickupAddress} → {b.dropAddress}</p>
-              <p className="text-xs mt-0.5">Accepted {new Date(b.acceptedAt).toLocaleString('en-IN')}</p>
+              <p className="text-xs mt-0.5">{t('accepted', { date: new Date(b.acceptedAt).toLocaleString('en-IN') })}</p>
             </AlertBanner>
           ))}
         </div>
       )}
 
-      <h2 className="font-heading text-ip-headline-sm font-bold mb-3">Action required</h2>
+      <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('actionRequired')}</h2>
       {actionQueue.length === 0 ? (
         <div className="ip-card">
-          <EmptyState icon={<AlertIcon className="w-7 h-7" />} title="All clear" description="No open disputes, fraud cases, or pending payouts." />
+          <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('allClear')} description={t('allClearDesc')} />
         </div>
       ) : (
         <div className="ip-card max-w-3xl divide-y divide-ip-outline/10">
@@ -96,7 +98,7 @@ export default function AdminOpsHubPage() {
             >
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{item.title}</p>
-                <p className="text-xs text-ip-on-surface-variant capitalize">{item.kind.replace('_', ' ')} · {item.priority} · {new Date(item.createdAt).toLocaleDateString('en-IN')}</p>
+                <p className="text-xs text-ip-on-surface-variant capitalize">{t(`kind.${item.kind}`)} · {item.priority} · {new Date(item.createdAt).toLocaleDateString('en-IN')}</p>
               </div>
             </Link>
           ))}

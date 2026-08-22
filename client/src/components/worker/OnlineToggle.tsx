@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { PowerIcon, AlertIcon } from '@/components/ui/icons';
 
@@ -23,6 +24,7 @@ const accentClasses: Record<Accent, string> = {
 // permission with a clear explanation rather than failing silently — a
 // design principle from DESIGN.md/PRODUCT.md, not an incidental choice.
 export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: OnlineToggleProps) {
+  const t = useTranslations('worker.onlineToggle');
   const [pending, setPending] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const isOnline = status === 'online' || status === 'on_job';
@@ -35,7 +37,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
       await api.patch('/api/availability', { status: 'offline' });
       onStatusChange('offline');
     } catch (err) {
-      setLocationError(err instanceof ApiClientError ? err.message : 'Could not go offline right now.');
+      setLocationError(err instanceof ApiClientError ? err.message : t('goOfflineError'));
     } finally {
       setPending(false);
     }
@@ -43,7 +45,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
 
   async function goOnline() {
     if (!('geolocation' in navigator)) {
-      setLocationError('This device/browser has no location support — FYRO needs it to send you nearby jobs.');
+      setLocationError(t('noGeoSupport'));
       return;
     }
     setPending(true);
@@ -57,7 +59,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
           });
           onStatusChange('online');
         } catch (err) {
-          setLocationError(err instanceof ApiClientError ? err.message : 'Could not go online right now.');
+          setLocationError(err instanceof ApiClientError ? err.message : t('goOnlineError'));
         } finally {
           setPending(false);
         }
@@ -65,9 +67,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
       (geoErr) => {
         setPending(false);
         setLocationError(
-          geoErr.code === geoErr.PERMISSION_DENIED
-            ? 'Location access was denied. Enable it in your browser/device settings so nearby jobs can find you.'
-            : 'Could not get your location. Check your device\'s location settings and try again.'
+          geoErr.code === geoErr.PERMISSION_DENIED ? t('permissionDenied') : t('locationUnavailable')
         );
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -94,10 +94,10 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
           </span>
           <div className="text-left">
             <p className="font-heading font-bold text-base leading-tight">
-              {onJob ? 'On a job' : isOnline ? "You're online" : "You're offline"}
+              {onJob ? t('onJob') : isOnline ? t('online') : t('offline')}
             </p>
             <p className="text-xs text-text-muted">
-              {onJob ? 'Finish your current job to go offline' : isOnline ? 'Receiving nearby requests' : 'Go online to start receiving requests'}
+              {onJob ? t('onJobHint') : isOnline ? t('onlineHint') : t('offlineHint')}
             </p>
           </div>
         </div>
