@@ -80,6 +80,17 @@ bookingRouter.get('/', bookingController.listMyBookings);
 // confusing 400 instead of ever reaching this handler.
 bookingRouter.get('/frequent-routes', bookingController.getMyFrequentRoutes);
 bookingRouter.get('/:id', [param('id').isMongoId()], validate, bookingController.getMyBooking);
+// Phase 6.4 — a distinct two-segment path ('/:id/tax-invoice'), so there's
+// no route-ordering ambiguity with the single-segment '/:id' above the way
+// '/frequent-routes' has with it (that one has to be registered first —
+// see its own comment further up); order relative to '/:id' doesn't matter
+// here.
+bookingRouter.get(
+  '/:id/tax-invoice',
+  [param('id').isMongoId()],
+  validate,
+  bookingController.downloadTaxInvoice
+);
 bookingRouter.patch(
   '/:id/cancel',
   [param('id').isMongoId()],

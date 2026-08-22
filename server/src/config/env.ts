@@ -39,6 +39,13 @@ const envSchema = z.object({
   // than either failing outright or silently pretending to call a model
   // that was never configured.
   ANTHROPIC_API_KEY: z.string().optional(),
+  // Phase 6.4 — Indian tax documents. Optional on purpose: never fabricate
+  // a real-looking GSTIN for a legal document. When absent,
+  // taxInvoice.service.ts prints "Not yet registered" instead of inventing
+  // one — same "never fabricate" discipline as every mock/real split
+  // elsewhere in this file.
+  PLATFORM_GSTIN: z.string().optional(),
+  PLATFORM_LEGAL_NAME: z.string().default('FYRO Logistics Platform'),
 });
 
 const parsed = envSchema.safeParse(process.env);

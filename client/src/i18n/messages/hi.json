@@ -592,7 +592,8 @@
     "acceptBid": "स्वीकार करें",
     "accepting": "स्वीकार हो रहा है…",
     "errorAcceptBid": "यह बोली स्वीकार नहीं हो सकी — फिर से प्रयास करें।",
-    "stops": "पड़ाव"
+    "stops": "पड़ाव",
+    "downloadTaxInvoice": "टैक्स इनवॉइस डाउनलोड करें (PDF)"
   },
   "customerHistory": {
     "title": "बुकिंग इतिहास",

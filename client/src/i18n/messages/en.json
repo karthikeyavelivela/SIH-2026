@@ -592,7 +592,8 @@
     "acceptBid": "Accept",
     "accepting": "Accepting…",
     "errorAcceptBid": "Could not accept this bid — try again.",
-    "stops": "Stops"
+    "stops": "Stops",
+    "downloadTaxInvoice": "Download tax invoice (PDF)"
   },
   "customerHistory": {
     "title": "Booking history",

@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { api, ApiClientError } from '@/lib/api';
+import { api, ApiClientError, API_BASE } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
 import { useBookingSocket } from '@/lib/useBookingSocket';
@@ -231,7 +231,17 @@ function PaymentSection({ bookingId }: { bookingId: string }) {
         )}
       </div>
       {payment?.status === 'success' ? (
-        <p className="text-sm text-text-muted">{t('paidAmount', { amount: payment.amount })}</p>
+        <>
+          <p className="text-sm text-text-muted mb-2">{t('paidAmount', { amount: payment.amount })}</p>
+          <a
+            href={`${API_BASE}/api/bookings/${bookingId}/tax-invoice`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold text-primary-600 underline"
+          >
+            {t('downloadTaxInvoice')}
+          </a>
+        </>
       ) : (
         <>
           {error && <p className="text-sm text-red-700 mb-2">{error}</p>}

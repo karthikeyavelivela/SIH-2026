@@ -4,6 +4,9 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
 import { FareRule, IFareRule } from '../models/FareRule';
+import { Payment } from '../models/Payment';
+import { User } from '../models/User';
+import { generateTaxInvoicePdf } from '../services/taxInvoice.service';
 import { haversineKm } from '../services/distance.service';
 import { bucketVehicleCategoryFromCapacity, computeFareBreakdown } from '../services/fare.service';
 import { getSurgeMultiplier } from '../services/surge.service';
@@ -289,6 +292,30 @@ export const getMyBooking = asyncHandler(async (req: Request, res: Response) => 
   const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
   if (!booking) throw new ApiError(404, 'Booking not found');
   res.status(200).json({ booking });
+});
+
+/**
+ * GET /api/bookings/:id/tax-invoice — Phase 6.4. Own booking only
+ * (scoped by customerId, same pattern as getMyBooking above), and only
+ * once a real successful Payment exists for it — an invoice is generated
+ * from what was actually charged/collected (Payment.amount), never a
+ * hypothetical pre-payment estimate. See taxInvoice.service.ts's doc
+ * comment for the full GST-treatment rationale and its disclaimer.
+ */
+export const downloadTaxInvoice = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
+  if (!booking) throw new ApiError(404, 'Booking not found');
+
+  const payment = await Payment.findOne({ bookingId: booking._id, status: 'success' }).sort({ createdAt: -1 });
+  if (!payment) throw new ApiError(400, 'No successful payment found for this booking yet — a tax invoice can only be issued for a paid booking');
+
+  const customer = await User.findById(req.user!.id).select('name businessProfile');
+  if (!customer) throw new ApiError(404, 'Customer account not found');
+
+  const pdf = await generateTaxInvoicePdf(booking, customer, payment);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="tax-invoice-${booking._id.toString().slice(-8)}.pdf"`);
+  res.status(200).send(pdf);
 });
 
 export const cancelMyBooking = asyncHandler(async (req: Request, res: Response) => {
