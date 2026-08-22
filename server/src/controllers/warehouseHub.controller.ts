@@ -32,6 +32,26 @@ function gateEventTypeForTransition(from: DockSlotStatus, to: DockSlotStatus): '
   return null;
 }
 
+// ---- PATCH /api/warehouse-hub/me ---- (Phase 2 — facility profile, previously nothing was editable after signup)
+export const updateMyHub = asyncHandler(async (req: Request, res: Response) => {
+  const { name, address, operatingHours, gateContacts } = req.body as {
+    name?: string;
+    address?: string;
+    operatingHours?: string;
+    gateContacts?: { name: string; phone: string }[];
+  };
+
+  const update: Record<string, unknown> = {};
+  if (name !== undefined) update.name = name;
+  if (address !== undefined) update.address = address;
+  if (operatingHours !== undefined) update.operatingHours = operatingHours;
+  if (gateContacts !== undefined) update.gateContacts = gateContacts;
+
+  const hub = await WarehouseHub.findOneAndUpdate({ ownerId: req.user!.id }, update, { new: true });
+  if (!hub) throw new ApiError(404, 'No warehouse hub found for this account');
+  res.status(200).json({ hub });
+});
+
 // ---- PATCH /api/warehouse-hub/dock-slots/:id ----
 export const updateDockSlotStatus = asyncHandler(async (req: Request, res: Response) => {
   const { status } = req.body as { status: DockSlotStatus };

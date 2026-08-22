@@ -56,6 +56,11 @@ bookingRouter.post(
 );
 
 bookingRouter.get('/', bookingController.listMyBookings);
+// Must be registered BEFORE '/:id' — Express matches routes in
+// registration order, and '/:id' would otherwise swallow this path,
+// treating "frequent-routes" as an :id and failing isMongoId() with a
+// confusing 400 instead of ever reaching this handler.
+bookingRouter.get('/frequent-routes', bookingController.getMyFrequentRoutes);
 bookingRouter.get('/:id', [param('id').isMongoId()], validate, bookingController.getMyBooking);
 bookingRouter.patch(
   '/:id/cancel',

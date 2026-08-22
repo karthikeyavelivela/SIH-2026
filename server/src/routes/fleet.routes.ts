@@ -10,6 +10,12 @@ export const fleetRouter = Router();
 fleetRouter.use(verifyJwt, requireRole('fleet_owner'));
 
 fleetRouter.get('/me', fleetController.getMyFleet);
+fleetRouter.patch(
+  '/me',
+  [body('name').isString().trim().isLength({ min: 1, max: 100 })],
+  validate,
+  fleetController.updateMyFleet
+);
 
 fleetRouter.post(
   '/vehicles',

@@ -6,6 +6,7 @@ import { Mutha } from '../models/Mutha';
 import { User } from '../models/User';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Booking } from '../models/Booking';
+import { Complaint } from '../models/Complaint';
 import { uploadImage } from '../services/cloudinary.service';
 import { writeAuditLog } from '../services/audit.service';
 import { emitBookingStatus } from '../realtime/emitters';
@@ -99,6 +100,72 @@ export const getMyGroupAsMember = asyncHandler(async (req: Request, res: Respons
     },
     leader: { name: leader.name, phone: leader.phone, profilePhoto: leader.profilePhoto },
   });
+});
+
+/**
+ * POST /api/mutha/leave — Phase 2, worker-protection: a member can remove
+ * THEMSELVES from a group without the leader's cooperation (the existing
+ * DELETE /api/mutha/members/:userId is leader-only — a member had no
+ * self-service exit at all before this). Blocked while assigned to an
+ * active job (same reasoning as deleteMyAccount's booking-in-flight
+ * guard) so leaving mid-job doesn't strand a customer's crew.
+ */
+export const leaveMutha = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const mutha = await Mutha.findOne({ memberIds: userId });
+  if (!mutha) throw new ApiError(404, 'You are not a member of any Mutha group');
+
+  const activeJob = await Booking.exists({
+    status: { $in: ['accepted', 'in_progress'] },
+    assignedHamaliIds: userId,
+  });
+  if (activeJob) throw new ApiError(409, 'You are currently assigned to an active job — finish it before leaving the group');
+
+  mutha.memberIds = mutha.memberIds.filter((id) => id.toString() !== userId);
+  await mutha.save();
+  await HamaliProfile.deleteOne({ userId, muthaId: mutha._id, type: 'mutha_member' });
+
+  await writeAuditLog({
+    actorId: userId,
+    actorRole: req.user!.role,
+    action: 'mutha_member_left',
+    targetType: 'Mutha',
+    targetId: mutha._id.toString(),
+    details: { memberId: userId },
+  });
+
+  res.status(200).json({ ok: true });
+});
+
+/**
+ * POST /api/mutha/earnings-discrepancy — Phase 2 worker-protection
+ * requirement: a member disputing their share of a job's earnings reaches
+ * PLATFORM support directly, bypassing the leader entirely (a leader has
+ * no complaint-inbox endpoint anywhere in this codebase — reusing the
+ * existing Complaint model, reviewed only via admin/manager-gated
+ * adminComplaint.routes.ts, achieves the bypass by construction rather
+ * than needing a new access-control surface).
+ */
+export const flagEarningsDiscrepancy = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const { bookingId, description } = req.body as { bookingId: string; description: string };
+
+  const mutha = await Mutha.findOne({ memberIds: userId });
+  if (!mutha) throw new ApiError(404, 'You are not a member of any Mutha group');
+
+  const booking = await Booking.findOne({ _id: bookingId, assignedHamaliIds: userId });
+  if (!booking) throw new ApiError(404, 'That booking was not found among your assigned jobs');
+
+  const complaint = await Complaint.create({
+    bookingId: booking._id,
+    raisedByUserId: userId,
+    againstMuthaId: mutha._id,
+    category: 'payment',
+    description,
+    status: 'open',
+  });
+
+  res.status(201).json({ complaint });
 });
 
 const MAX_GROUP_PHOTO_BYTES = 5 * 1024 * 1024;

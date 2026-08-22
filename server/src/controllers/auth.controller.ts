@@ -7,7 +7,10 @@ import { publicUser } from '../utils/publicUser';
 import { rethrowAsConflict } from '../utils/mongoErrors';
 import { User } from '../models/User';
 import { Vehicle } from '../models/Vehicle';
+import { Booking } from '../models/Booking';
+import { Payout } from '../models/Payout';
 import { uploadImage } from '../services/cloudinary.service';
+import { generateOtp, sendOtpSms, verifyOtp, OTP_MAX_ATTEMPTS } from '../services/otp.service';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Mutha } from '../models/Mutha';
 import { Fleet } from '../models/Fleet';
@@ -310,4 +313,219 @@ export const updateMyDocuments = asyncHandler(async (req: Request, res: Response
     user: publicUser(user!),
     insuranceExpiryAt: vehicle?.insuranceExpiryAt ?? null,
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Phase 2 profile remediation (AUDIT_REPORT.md Section 3) — every field
+// below is genuinely editable and persists to the backend, not read-only
+// text. Shared across every role's profile page.
+// ═══════════════════════════════════════════════════════════════════
+
+/** PATCH /api/auth/me/profile — name and email. Phone has its own OTP-gated flow below. */
+export const updateMyProfile = asyncHandler(async (req: Request, res: Response) => {
+  const { name, email } = req.body as { name?: string; email?: string };
+  const update: Record<string, unknown> = {};
+  if (name !== undefined) update.name = name;
+  if (email !== undefined) update.email = email;
+
+  const user = await User.findByIdAndUpdate(req.user!.id, update, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ user: publicUser(user) });
+});
+
+/**
+ * POST /api/auth/me/phone/request-otp — starts a phone-change request. The
+ * new number must not already belong to another account (same uniqueness
+ * rule as signup). See otp.service.ts's doc comment for the mock/real
+ * split — devOtp is only ever present in mock mode.
+ */
+export const requestPhoneChangeOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { newPhone } = req.body as { newPhone: string };
+
+  const existing = await User.findOne({ phone: newPhone });
+  if (existing) throw new ApiError(409, 'That phone number is already registered to an account');
+
+  const { code, hash, expiresAt, devCode } = await generateOtp();
+  await sendOtpSms(newPhone, code);
+
+  await User.updateOne(
+    { _id: req.user!.id },
+    { pendingPhoneChange: { newPhone, otpHash: hash, expiresAt, attempts: 0 } }
+  );
+
+  res.status(200).json({ ok: true, expiresAt, devOtp: devCode });
+});
+
+/**
+ * POST /api/auth/me/phone/confirm — verifies the OTP and completes the
+ * phone change. Every "clear pendingPhoneChange" path below uses an
+ * explicit $unset via updateOne rather than `user.pendingPhoneChange =
+ * undefined; await user.save()` — the latter does NOT actually remove a
+ * nested-object schema path in Mongoose, it re-materializes as
+ * `{ attempts: 0 }` (attempts has `default: 0`) instead of disappearing.
+ * This is the exact same failure mode as the GeoPoint willingLocation bug
+ * documented elsewhere in this codebase (Vehicle.ts/HamaliProfile.ts) —
+ * caught here by profileSecurity.test.ts actually asserting
+ * pendingPhoneChange is gone after a successful confirm, not just that
+ * phone changed.
+ */
+export const confirmPhoneChange = asyncHandler(async (req: Request, res: Response) => {
+  const { otp } = req.body as { otp: string };
+  const user = await User.findById(req.user!.id);
+  if (!user) throw new ApiError(401, 'User not found');
+
+  const pending = user.pendingPhoneChange;
+  if (!pending || !pending.otpHash) throw new ApiError(400, 'No phone change is pending — request an OTP first');
+  if (pending.expiresAt < new Date()) {
+    await User.updateOne({ _id: user._id }, { $unset: { pendingPhoneChange: 1 } });
+    throw new ApiError(400, 'This OTP has expired — request a new one');
+  }
+  if (pending.attempts >= OTP_MAX_ATTEMPTS) {
+    await User.updateOne({ _id: user._id }, { $unset: { pendingPhoneChange: 1 } });
+    throw new ApiError(429, 'Too many incorrect attempts — request a new OTP');
+  }
+
+  const valid = await verifyOtp(otp, pending.otpHash);
+  if (!valid) {
+    await User.updateOne({ _id: user._id }, { $inc: { 'pendingPhoneChange.attempts': 1 } });
+    throw new ApiError(400, 'Incorrect code');
+  }
+
+  user.phone = pending.newPhone;
+  await user.save();
+  await User.updateOne({ _id: user._id }, { $unset: { pendingPhoneChange: 1 } });
+  // The in-memory `user` doc still holds the pre-$unset pendingPhoneChange
+  // (that update ran separately, not through this document) — clear it
+  // here too purely so the response returned to the caller doesn't lie
+  // about what's actually in the database.
+  user.pendingPhoneChange = undefined;
+
+  res.status(200).json({ user: publicUser(user) });
+});
+
+/**
+ * PATCH /api/auth/me/password — requires the current password (same
+ * verification as login) before accepting a new one. Bumps tokenVersion so
+ * every other session's refresh token is invalidated at once — a password
+ * change is exactly the moment you want every OTHER logged-in device
+ * signed out, this session's own cookies are re-issued fresh right after
+ * so the user making the change stays logged in.
+ */
+export const updateMyPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { currentPassword, newPassword } = req.body as { currentPassword: string; newPassword: string };
+  const user = await User.findById(req.user!.id).select('+passwordHash');
+  if (!user) throw new ApiError(401, 'User not found');
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) throw new ApiError(400, 'Current password is incorrect');
+
+  user.passwordHash = await bcrypt.hash(newPassword, BCRYPT_COST);
+  user.tokenVersion += 1;
+  await user.save();
+
+  setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion);
+  res.status(200).json({ ok: true });
+});
+
+const NOTIFICATION_CATEGORIES = ['jobUpdates', 'payments', 'promotions'] as const;
+type NotificationCategory = (typeof NOTIFICATION_CATEGORIES)[number];
+
+/** PATCH /api/auth/me/notification-preferences — one {channel, category, enabled} triple per call. */
+export const updateNotificationPreferences = asyncHandler(async (req: Request, res: Response) => {
+  const { channel, category, enabled } = req.body as {
+    channel: 'push' | 'sms';
+    category: NotificationCategory;
+    enabled: boolean;
+  };
+  if (!NOTIFICATION_CATEGORIES.includes(category)) throw new ApiError(400, 'Unknown notification category');
+
+  const user = await User.findByIdAndUpdate(
+    req.user!.id,
+    { [`notificationPreferences.${channel}.${category}`]: enabled },
+    { new: true }
+  );
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ notificationPreferences: user.notificationPreferences });
+});
+
+/** PATCH /api/auth/me/privacy */
+export const updateMyPrivacy = asyncHandler(async (req: Request, res: Response) => {
+  const { shareLocationWhileOffline, profileVisibility } = req.body as {
+    shareLocationWhileOffline?: boolean;
+    profileVisibility?: 'public' | 'private';
+  };
+  const update: Record<string, unknown> = {};
+  if (shareLocationWhileOffline !== undefined) update['privacySettings.shareLocationWhileOffline'] = shareLocationWhileOffline;
+  if (profileVisibility !== undefined) update['privacySettings.profileVisibility'] = profileVisibility;
+
+  const user = await User.findByIdAndUpdate(req.user!.id, update, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ privacySettings: user.privacySettings });
+});
+
+/**
+ * PATCH /api/auth/me/payout-details — bank OR UPI. Returned value is
+ * masked by publicUser (see its doc comment) — this is the only endpoint
+ * that ever sees/sets the real, unmasked values.
+ */
+export const updateMyPayoutDetails = asyncHandler(async (req: Request, res: Response) => {
+  const { method, accountHolderName, bankAccountNumber, ifsc, upiId } = req.body as {
+    method: 'bank' | 'upi';
+    accountHolderName?: string;
+    bankAccountNumber?: string;
+    ifsc?: string;
+    upiId?: string;
+  };
+
+  if (method === 'bank' && (!accountHolderName || !bankAccountNumber || !ifsc)) {
+    throw new ApiError(400, 'Bank transfer requires accountHolderName, bankAccountNumber, and ifsc');
+  }
+  if (method === 'upi' && !upiId) {
+    throw new ApiError(400, 'UPI requires upiId');
+  }
+
+  const payoutDetails =
+    method === 'bank'
+      ? { method, accountHolderName, bankAccountNumber, ifsc, updatedAt: new Date() }
+      : { method, upiId, updatedAt: new Date() };
+
+  const user = await User.findByIdAndUpdate(req.user!.id, { payoutDetails }, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+  res.status(200).json({ user: publicUser(user) });
+});
+
+/**
+ * DELETE /api/auth/me — soft delete (accountStatus:'deleted', login already
+ * rejects any non-'active' account — see the login handler above). Blocked
+ * while the account has a real financial or operational stake still in
+ * flight: an open booking (as customer or as an assigned worker) or a
+ * pending/approved payout — deleting an account mid-booking or mid-payout
+ * would strand the other side of that transaction with no counterparty.
+ */
+export const deleteMyAccount = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const openStatus = { $in: ['requested', 'searching', 'matched', 'accepted', 'in_progress'] };
+
+  const [openAsCustomer, openAsWorker, pendingPayout] = await Promise.all([
+    Booking.exists({ customerId: userId, status: openStatus }),
+    Booking.exists({
+      status: openStatus,
+      $or: [{ assignedDriverIds: userId }, { assignedHamaliIds: userId }],
+    }),
+    Payout.exists({ userId, status: { $in: ['pending', 'approved'] } }),
+  ]);
+
+  if (openAsCustomer || openAsWorker) {
+    throw new ApiError(409, 'You have a booking in progress — finish or cancel it before deleting your account');
+  }
+  if (pendingPayout) {
+    throw new ApiError(409, 'You have a payout awaiting approval or payment — this must be settled before deleting your account');
+  }
+
+  const user = await User.findByIdAndUpdate(userId, { accountStatus: 'deleted' }, { new: true });
+  if (!user) throw new ApiError(401, 'User not found');
+
+  res.clearCookie('accessToken', cookieOpts);
+  res.clearCookie('refreshToken', cookieOpts);
+  res.status(200).json({ ok: true });
 });

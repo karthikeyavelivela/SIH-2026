@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
@@ -183,6 +184,33 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 export const listMyBookings = asyncHandler(async (req: Request, res: Response) => {
   const bookings = await Booking.find({ customerId: req.user!.id }).sort({ createdAt: -1 });
   res.status(200).json({ bookings });
+});
+
+/**
+ * GET /api/bookings/frequent-routes — Phase 2 customer profile addition.
+ * Real aggregation over the customer's own booking history (pickup/drop
+ * address pairs, by frequency), not a separate saved-preference the
+ * customer has to maintain — it reflects what they've actually booked
+ * before, updating itself as their real usage does.
+ */
+export const getMyFrequentRoutes = asyncHandler(async (req: Request, res: Response) => {
+  // Aggregation pipelines don't auto-cast a string to ObjectId the way
+  // .find()/.findOne() do — this needs an explicit cast or $match silently
+  // matches nothing.
+  const routes = await Booking.aggregate([
+    { $match: { customerId: new Types.ObjectId(req.user!.id) } },
+    {
+      $group: {
+        _id: { pickup: '$pickupLocation.address', drop: '$dropLocation.address' },
+        count: { $sum: 1 },
+        lastUsedAt: { $max: '$createdAt' },
+      },
+    },
+    { $sort: { count: -1, lastUsedAt: -1 } },
+    { $limit: 5 },
+    { $project: { _id: 0, pickup: '$_id.pickup', drop: '$_id.drop', count: 1, lastUsedAt: 1 } },
+  ]);
+  res.status(200).json({ routes });
 });
 
 export const getMyBooking = asyncHandler(async (req: Request, res: Response) => {

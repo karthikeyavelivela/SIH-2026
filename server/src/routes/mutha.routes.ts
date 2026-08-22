@@ -39,6 +39,19 @@ muthaRouter.delete(
 
 muthaRouter.get('/my-group', requireRole('mutha_member'), muthaController.getMyGroupAsMember);
 
+muthaRouter.post('/leave', requireRole('mutha_member'), muthaController.leaveMutha);
+
+muthaRouter.post(
+  '/earnings-discrepancy',
+  requireRole('mutha_member'),
+  [
+    body('bookingId').isMongoId(),
+    body('description').isString().trim().isLength({ min: 1, max: 1000 }),
+  ],
+  validate,
+  muthaController.flagEarningsDiscrepancy
+);
+
 muthaRouter.post(
   '/jobs/:bookingId/assign',
   requireRole('mutha_leader'),

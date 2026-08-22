@@ -108,3 +108,82 @@ authRouter.patch(
   validate,
   authController.updateMyDocuments
 );
+
+// ---- Phase 2 profile remediation ----
+
+authRouter.patch(
+  '/me/profile',
+  verifyJwt,
+  [
+    body('name').optional().isString().trim().isLength({ min: 1, max: 100 }),
+    body('email').optional({ checkFalsy: true }).isEmail(),
+  ],
+  validate,
+  authController.updateMyProfile
+);
+
+authRouter.post(
+  '/me/phone/request-otp',
+  authLimiter,
+  verifyJwt,
+  [body('newPhone').isString().isLength({ min: 10, max: 15 })],
+  validate,
+  authController.requestPhoneChangeOtp
+);
+
+authRouter.post(
+  '/me/phone/confirm',
+  authLimiter,
+  verifyJwt,
+  [body('otp').isString().isLength({ min: 6, max: 6 })],
+  validate,
+  authController.confirmPhoneChange
+);
+
+authRouter.patch(
+  '/me/password',
+  authLimiter,
+  verifyJwt,
+  [body('currentPassword').isString().notEmpty(), body('newPassword').isString().isLength({ min: 8 })],
+  validate,
+  authController.updateMyPassword
+);
+
+authRouter.patch(
+  '/me/notification-preferences',
+  verifyJwt,
+  [
+    body('channel').isIn(['push', 'sms']),
+    body('category').isIn(['jobUpdates', 'payments', 'promotions']),
+    body('enabled').isBoolean(),
+  ],
+  validate,
+  authController.updateNotificationPreferences
+);
+
+authRouter.patch(
+  '/me/privacy',
+  verifyJwt,
+  [
+    body('shareLocationWhileOffline').optional().isBoolean(),
+    body('profileVisibility').optional().isIn(['public', 'private']),
+  ],
+  validate,
+  authController.updateMyPrivacy
+);
+
+authRouter.patch(
+  '/me/payout-details',
+  verifyJwt,
+  [
+    body('method').isIn(['bank', 'upi']),
+    body('accountHolderName').if(body('method').equals('bank')).isString().trim().notEmpty(),
+    body('bankAccountNumber').if(body('method').equals('bank')).isString().trim().isLength({ min: 6, max: 30 }),
+    body('ifsc').if(body('method').equals('bank')).isString().trim().isLength({ min: 11, max: 11 }),
+    body('upiId').if(body('method').equals('upi')).isString().trim().notEmpty(),
+  ],
+  validate,
+  authController.updateMyPayoutDetails
+);
+
+authRouter.delete('/me', verifyJwt, authController.deleteMyAccount);

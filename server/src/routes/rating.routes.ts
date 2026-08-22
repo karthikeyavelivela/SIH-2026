@@ -10,6 +10,7 @@ export const ratingRouter = Router();
 ratingRouter.use(verifyJwt);
 
 ratingRouter.get('/pending', ratingController.getPendingRating);
+ratingRouter.get('/mine', ratingController.getMyRatings);
 
 ratingRouter.post(
   '/',

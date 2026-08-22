@@ -6,7 +6,12 @@ export interface IHamaliProfile {
   userId: Types.ObjectId;
   type: 'solo' | 'mutha_member';
   muthaId?: Types.ObjectId;
+  // Existed on the schema with zero endpoint ever exposing it — the exact
+  // same "real field, no way to actually set it" pattern AUDIT_REPORT.md
+  // found repeatedly elsewhere. hamaliProfile.controller.ts (Phase 2) is
+  // the first thing that ever reads/writes this.
   skills: string[];
+  physicalCapacityKg?: number;
   availabilityStatus: AvailabilityStatus;
   currentLocation: { type: 'Point'; coordinates: [number, number] };
   // Optional, self-set "I'll take jobs anchored here" point — distinct
@@ -27,6 +32,7 @@ const hamaliProfileSchema = new Schema<IHamaliProfile>(
     type: { type: String, enum: ['solo', 'mutha_member'], required: true },
     muthaId: { type: Schema.Types.ObjectId, ref: 'Mutha' },
     skills: { type: [String], default: [] },
+    physicalCapacityKg: { type: Number, min: 0 },
     availabilityStatus: { type: String, enum: ['online', 'offline', 'on_job'], default: 'offline' },
     currentLocation: {
       type: { type: String, enum: ['Point'], default: 'Point' },

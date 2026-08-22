@@ -51,6 +51,23 @@ export const getMyFleet = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ fleet });
 });
 
+/**
+ * PATCH /api/fleet/me — Phase 2, company profile name edit. GSTIN is
+ * deliberately NOT a field here: it's already a required KYC document type
+ * for fleet_owner (REQUIRED_KYC_DOCS_BY_ROLE), uploaded and admin-verified
+ * through kycDocument.controller.ts, not free text a fleet owner can edit
+ * themselves after the fact. "Billing" from the Phase 2 spec is
+ * deliberately not built: no platform-charges-fleet-owner model exists
+ * anywhere in this codebase (no subscription/invoice model, nothing to
+ * bill) — a billing screen would have nothing real behind it.
+ */
+export const updateMyFleet = asyncHandler(async (req: Request, res: Response) => {
+  const { name } = req.body as { name?: string };
+  const fleet = await Fleet.findOneAndUpdate({ ownerId: req.user!.id }, { name }, { new: true });
+  if (!fleet) throw new ApiError(404, 'No fleet found for this account');
+  res.status(200).json({ fleet });
+});
+
 // ---- POST /api/fleet/vehicles ----
 // Registers a new vehicle owned by the fleet owner and adds it to their
 // Fleet.vehicleIds roster.

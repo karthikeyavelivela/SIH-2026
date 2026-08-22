@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking, IBooking } from '../models/Booking';
@@ -82,4 +83,31 @@ export const getPendingRating = asyncHandler(async (req: Request, res: Response)
   const { findUnratedCompletedBooking } = await import('../services/ratingGate.service');
   const bookingId = await findUnratedCompletedBooking(req.user!.id);
   res.status(200).json({ bookingId });
+});
+
+/**
+ * GET /api/ratings/mine — ratings RECEIVED by the caller, for the Phase 2
+ * profile page's "Trust" section: the 1-5 star distribution plus the most
+ * recent comments. Real aggregate against Rating, not the User.ratingAvg/
+ * ratingCount summary alone (which has no distribution or comment text).
+ */
+export const getMyRatings = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  const [distributionAgg, recent] = await Promise.all([
+    Rating.aggregate([
+      { $match: { toUserId: new Types.ObjectId(userId) } },
+      { $group: { _id: '$score', count: { $sum: 1 } } },
+    ]),
+    Rating.find({ toUserId: userId, comment: { $exists: true, $ne: '' } })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .select('score comment createdAt bookingId')
+      .lean(),
+  ]);
+
+  const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  for (const row of distributionAgg) distribution[row._id] = row.count;
+
+  res.status(200).json({ distribution, recentComments: recent });
 });

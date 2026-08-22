@@ -64,6 +64,49 @@ export interface IUser {
   permissions: string[];
   // Bumped on refresh-token rotation and logout to invalidate prior refresh tokens.
   tokenVersion: number;
+  // Everything below added for the Phase 2 profile remediation
+  // (AUDIT_REPORT.md Section 3 — "a profile page of read-only text is the
+  // failure mode we are fixing").
+  notificationPreferences: {
+    push: { jobUpdates: boolean; payments: boolean; promotions: boolean };
+    sms: { jobUpdates: boolean; payments: boolean; promotions: boolean };
+  };
+  privacySettings: {
+    // Whether currentLocation keeps updating while availabilityStatus is
+    // 'offline' — self-explanatory to a worker in a way "location sharing"
+    // alone wouldn't be, since it's ALWAYS shared while online (that's how
+    // matching finds them) and this setting has no effect then.
+    shareLocationWhileOffline: boolean;
+    profileVisibility: 'public' | 'private';
+  };
+  // Masked everywhere except the one PATCH that sets it — see
+  // utils/publicUser.ts. bankAccountNumber/ifsc XOR upiId, never both
+  // populated meaningfully at once (client sends one or the other).
+  payoutDetails?: {
+    method: 'bank' | 'upi';
+    accountHolderName?: string;
+    bankAccountNumber?: string;
+    ifsc?: string;
+    upiId?: string;
+    updatedAt: Date;
+  };
+  // Customer-only in practice (see REQUIRED_KYC_DOCS_BY_ROLE — GSTIN is
+  // already a required KYC document for fleet_owner/warehouse_hub, this is
+  // the equivalent opt-in for a customer booking on a company's behalf).
+  businessProfile?: {
+    isBusiness: boolean;
+    gstin?: string;
+    companyName?: string;
+  };
+  // Phone-change-with-OTP-reverification (Phase 2). Cleared on confirm or
+  // expiry; only ever one pending change at a time. otpHash is bcrypt, same
+  // as passwordHash — never store a raw OTP at rest.
+  pendingPhoneChange?: {
+    newPhone: string;
+    otpHash: string;
+    expiresAt: Date;
+    attempts: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -131,6 +174,57 @@ const userSchema = new Schema<IUser>(
     ratingCount: { type: Number, default: 0 },
     permissions: { type: [String], default: [] },
     tokenVersion: { type: Number, default: 0 },
+    notificationPreferences: {
+      type: {
+        push: {
+          jobUpdates: { type: Boolean, default: true },
+          payments: { type: Boolean, default: true },
+          promotions: { type: Boolean, default: true },
+        },
+        sms: {
+          jobUpdates: { type: Boolean, default: true },
+          payments: { type: Boolean, default: true },
+          promotions: { type: Boolean, default: false },
+        },
+      },
+      default: () => ({
+        push: { jobUpdates: true, payments: true, promotions: true },
+        sms: { jobUpdates: true, payments: true, promotions: false },
+      }),
+    },
+    privacySettings: {
+      type: {
+        shareLocationWhileOffline: { type: Boolean, default: false },
+        profileVisibility: { type: String, enum: ['public', 'private'], default: 'public' },
+      },
+      default: () => ({ shareLocationWhileOffline: false, profileVisibility: 'public' }),
+    },
+    payoutDetails: {
+      method: { type: String, enum: ['bank', 'upi'] },
+      accountHolderName: { type: String, trim: true },
+      bankAccountNumber: { type: String },
+      ifsc: { type: String, trim: true, uppercase: true },
+      upiId: { type: String, trim: true },
+      updatedAt: { type: Date },
+    },
+    businessProfile: {
+      isBusiness: { type: Boolean, default: false },
+      gstin: { type: String, trim: true, uppercase: true },
+      companyName: { type: String, trim: true },
+    },
+    // No default on `attempts` — same reasoning as Vehicle/HamaliProfile's
+    // willingLocation inner `type` field: a default on ANY child of a
+    // nested-object schema path makes Mongoose re-materialize the whole
+    // path (e.g. `{ attempts: 0 }`) on every document hydration, even one
+    // where $unset genuinely removed it from storage. Confirmed hitting
+    // exactly this — profileSecurity.test.ts's "pendingPhoneChange is
+    // gone after confirm" assertion failed until this default was removed.
+    pendingPhoneChange: {
+      newPhone: { type: String, trim: true },
+      otpHash: { type: String },
+      expiresAt: { type: Date },
+      attempts: { type: Number },
+    },
   },
   { timestamps: true }
 );

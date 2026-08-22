@@ -7,6 +7,10 @@ export interface IWarehouseHub {
   location: { type: 'Point'; coordinates: [number, number] };
   address: string;
   totalDockSlots: number;
+  // Phase 2 profile fields — previously nothing on this model was editable
+  // after signup at all.
+  operatingHours?: string; // free text, e.g. "06:00–22:00 IST" — no timezone-aware structured hours model exists yet
+  gateContacts: { name: string; phone: string }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +25,11 @@ const warehouseHubSchema = new Schema<IWarehouseHub>(
     },
     address: { type: String, default: '' },
     totalDockSlots: { type: Number, default: 0, min: 0 },
+    operatingHours: { type: String, trim: true },
+    gateContacts: {
+      type: [{ name: { type: String, trim: true, required: true }, phone: { type: String, trim: true, required: true } }],
+      default: [],
+    },
   },
   { timestamps: true }
 );
