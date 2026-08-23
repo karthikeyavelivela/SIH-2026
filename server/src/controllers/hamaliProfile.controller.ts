@@ -3,7 +3,29 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { HamaliProfile } from '../models/HamaliProfile';
 
-const KNOWN_SKILLS = ['cement', 'steel', 'fragile', 'furniture', 'appliances', 'agricultural', 'construction_material'];
+// SIH26089 Phase C — the original 7 are cargo-handling skills (what
+// "Hamali" meant before this phase). The 8 added below match
+// ServiceCategory's seeded requiredSkills exactly (seedServiceCategories.ts)
+// so a worker's own skill picker and a category's stated requirement are
+// the same vocabulary, not two independently-maintained lists.
+const KNOWN_SKILLS = [
+  'cement',
+  'steel',
+  'fragile',
+  'furniture',
+  'appliances',
+  'agricultural',
+  'construction_material',
+  'electrical',
+  'plumbing',
+  'carpentry',
+  'painting',
+  'domestic_help',
+  'caregiving',
+  'gardening',
+  'cleaning',
+  'technician',
+];
 
 /** GET /api/hamali-profile/me — the caller's own skills/capacity, for the profile page. */
 export const getMyHamaliProfile = asyncHandler(async (req: Request, res: Response) => {

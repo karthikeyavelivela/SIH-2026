@@ -8,7 +8,24 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui/Card';
 import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
 import { setLocaleAction } from '@/i18n/setLocale';
-import { SearchIcon, ChevronRightIcon, CompassIcon, CameraIcon, StarIcon, MapPinIcon, TruckIcon, BoxIcon } from '@/components/ui/icons';
+import {
+  SearchIcon,
+  ChevronRightIcon,
+  CompassIcon,
+  CameraIcon,
+  StarIcon,
+  MapPinIcon,
+  TruckIcon,
+  BoxIcon,
+  PowerIcon,
+  WrenchIcon,
+  PaintBrushIcon,
+  HomeIcon,
+  UsersIcon,
+  LeafIcon,
+  BroomIcon,
+  ShieldIcon,
+} from '@/components/ui/icons';
 
 const HERO_VIDEO_URL = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v1787149585/fezidk7rqlmkmcepfuqn.mp4';
 // Cloudinary auto-generates a still from the video itself for the poster
@@ -22,6 +39,29 @@ const HERO_VIDEO_POSTER = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/so_
 const TRUST_ICONS = [CompassIcon, CameraIcon, StarIcon, MapPinIcon];
 const TRUST_KEYS = ['realMatches', 'photoProof', 'ratings', 'liveMap'] as const;
 const STEP_KEYS = ['tellUs', 'find', 'track', 'pay'] as const;
+// SIH26089 Phase C — mirrors seedServiceCategories.ts's real 12 categories
+// (slug + icon), hardcoded here rather than fetched from GET
+// /api/service-categories: this is the anonymous, unauthenticated
+// marketing homepage — that endpoint requires a session (every other
+// authenticated surface reads the live DB copy instead, see
+// components/booking/CategoryPicker.tsx). Same "real district list, not
+// fetched" precedent the DISTRICT_KEYS list below already sets on this
+// same page.
+const SERVICE_CATEGORY_DISPLAY: { key: string; icon: typeof TruckIcon }[] = [
+  { key: 'electrician', icon: PowerIcon },
+  { key: 'plumber', icon: WrenchIcon },
+  { key: 'carpenter', icon: WrenchIcon },
+  { key: 'painter', icon: PaintBrushIcon },
+  { key: 'domestic_helper', icon: HomeIcon },
+  { key: 'caregiver', icon: UsersIcon },
+  { key: 'gardener', icon: LeafIcon },
+  { key: 'cleaner', icon: BroomIcon },
+  { key: 'technician', icon: ShieldIcon },
+  { key: 'driver', icon: TruckIcon },
+  { key: 'general_logistics', icon: TruckIcon },
+  { key: 'general_labour', icon: BoxIcon },
+];
+
 const DISTRICT_KEYS = [
   'visakhapatnam', 'vijayawada', 'guntur', 'nellore', 'kurnool', 'kakinada',
   'rajahmundry', 'tirupati', 'anantapur', 'kadapa', 'eluru', 'ongole', 'srikakulam',
@@ -242,6 +282,33 @@ export default function HomePage() {
                 <t2.icon className="w-6 h-6 text-primary-600 mb-3" />
                 <h3 className="font-heading text-sm font-bold mb-1.5 text-text-primary">{t2.title}</h3>
                 <p className="text-xs text-text-muted leading-relaxed">{t2.body}</p>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Services grid — SIH26089 Phase C's own answer to "does this read as
+          a cooperative household-services platform, not a trucking app?":
+          a judge sees Electrician/Plumber/Caregiver/Cleaner icons before
+          they see anything about cargo. */}
+      <section className="max-w-6xl mx-auto px-6 pt-20">
+        <div className="text-center mb-10">
+          <h2 className="font-heading text-2xl font-bold text-text-primary">{t('servicesHeading')}</h2>
+          <p className="text-sm text-text-muted mt-2 max-w-xl mx-auto">{t('servicesSubtitle')}</p>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+          {SERVICE_CATEGORY_DISPLAY.map((c, i) => (
+            <motion.div
+              key={c.key}
+              initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.4, delay: i * 0.04, ease: easeOutExpo }}
+            >
+              <Card className="flex flex-col items-center gap-2 py-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-base ease-out-expo">
+                <c.icon className="w-6 h-6 text-primary-600" />
+                <span className="text-xs font-semibold text-text-primary leading-tight">{t(`categories.${c.key}`)}</span>
               </Card>
             </motion.div>
           ))}

@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
 import { FareRule, IFareRule } from '../models/FareRule';
+import { ServiceCategory } from '../models/ServiceCategory';
 import { Payment } from '../models/Payment';
 import { User } from '../models/User';
 import { generateTaxInvoicePdf } from '../services/taxInvoice.service';
@@ -126,7 +127,13 @@ async function priceBooking(input: QuoteInput) {
 // exact same route-level validators) so a quote can never diverge from
 // what create would actually charge.
 export const quoteBooking = asyncHandler(async (req: Request, res: Response) => {
-  const { type, region, pickupLocation, dropLocation, stops, requiredVehicles, requiredHamaliCount } = req.body;
+  const { region, pickupLocation, dropLocation, stops, requiredVehicles, requiredHamaliCount, serviceCategorySlug } = req.body;
+  let { type } = req.body;
+  if (serviceCategorySlug) {
+    const category = await ServiceCategory.findOne({ slug: serviceCategorySlug, active: true }).lean();
+    if (!category) throw new ApiError(400, `Unknown or inactive service category: ${serviceCategorySlug}`);
+    type = category.dispatchType;
+  }
   const { fareBreakdown, distanceKm } = await priceBooking({
     type,
     region,
@@ -154,7 +161,6 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   // Only these fields are ever read from the body — fareBreakdown, status,
   // customerId, or anything else the client sends is silently ignored.
   const {
-    type,
     region,
     cargoDetails,
     pickupLocation,
@@ -164,7 +170,22 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     requiredHamaliCount,
     scheduledFor,
     openForBidding,
+    serviceCategorySlug,
   } = req.body;
+  let { type } = req.body;
+
+  // SIH26089 Phase C — when a specific ServiceCategory is chosen (e.g.
+  // "electrician"), the server derives the real dispatch mechanism
+  // (`type`) from that category's own dispatchType — never trusts a
+  // client-supplied `type` alongside a category, so a customer can't
+  // claim "electrician" while asking for the fixed-weight cargo dispatch
+  // path or vice versa. No category chosen = 100% unchanged pre-Phase-C
+  // behaviour (client's own `type` is used as-is).
+  if (serviceCategorySlug) {
+    const category = await ServiceCategory.findOne({ slug: serviceCategorySlug, active: true }).lean();
+    if (!category) throw new ApiError(400, `Unknown or inactive service category: ${serviceCategorySlug}`);
+    type = category.dispatchType;
+  }
 
   // Phase 6.2 — load board with bidding. See Booking.openForBidding's doc
   // comment for the full scoping rationale (truck/hamali only, never
@@ -207,6 +228,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     customerId: req.user!.id, // never trust a client-supplied customerId
     type,
     region,
+    serviceCategorySlug: serviceCategorySlug || undefined,
     cargoDetails,
     pickupLocation: { type: 'Point', coordinates: pickupLocation.coordinates, address: pickupLocation.address },
     dropLocation: { type: 'Point', coordinates: dropLocation.coordinates, address: dropLocation.address },

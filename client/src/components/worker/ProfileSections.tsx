@@ -365,8 +365,14 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
 
 // ---- Hamali skills + physical capacity (hamali_solo / mutha_member) ----
 
-const ALL_SKILLS = ['cement', 'steel', 'fragile', 'furniture', 'appliances', 'agricultural', 'construction_material'];
-const SKILL_KEY: Record<string, string> = { construction_material: 'constructionMaterial' };
+// SIH26089 Phase C — the 8 trade skills below match ServiceCategory's
+// seeded requiredSkills exactly (server/src/scripts/seedServiceCategories.ts)
+// — see hamaliProfile.controller.ts's own KNOWN_SKILLS comment.
+const ALL_SKILLS = [
+  'cement', 'steel', 'fragile', 'furniture', 'appliances', 'agricultural', 'construction_material',
+  'electrical', 'plumbing', 'carpentry', 'painting', 'domestic_help', 'caregiving', 'gardening', 'cleaning', 'technician',
+];
+const SKILL_KEY: Record<string, string> = { construction_material: 'constructionMaterial', domestic_help: 'domesticHelp' };
 
 export function HamaliSkillsSection() {
   const t = useTranslations('profile.hamaliSkills');

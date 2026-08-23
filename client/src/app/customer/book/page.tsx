@@ -13,6 +13,7 @@ import { AddressChips } from '@/components/booking/AddressChips';
 import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/components/ui/icons';
 import { PricingQuoteWidget } from '@/components/worker/AgentWidgets';
 import { FareCard, bucketVehicleCategory, type FareBreakdown } from '@/components/booking/FareCard';
+import { CategoryPicker, type ServiceCategory } from '@/components/booking/CategoryPicker';
 
 // How far a selected pickup can be from the device's GPS reading before we
 // ask "is this pickup for you or someone else?" — big enough that normal
@@ -90,6 +91,14 @@ function BookForm() {
   const initialType = (params.get('type') as BookingType) ?? 'truck';
 
   const [type, setType] = useState<BookingType>(initialType);
+  // SIH26089 Phase C — the specific ServiceCategory chosen (electrician,
+  // plumber, ...), layered on top of the existing truck/hamali/combo
+  // `type` tabs below. Selecting a category auto-selects the matching
+  // dispatch tab; selecting Combo directly (which has no single category)
+  // clears it. serviceCategorySlug rides along on the quote/create payload
+  // purely as metadata — the server re-derives `type` from it itself,
+  // never trusts the client's own `type` when a category is present.
+  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
   // Next's App Router soft-navigates within the same route on a
   // search-param-only URL change, so it does NOT remount this component —
   // useState's initial value only applies on first mount. Without this,
@@ -210,6 +219,7 @@ function BookForm() {
           stops: stops.map((s) => ({ coordinates: [s.lng, s.lat], address: s.address })),
           requiredVehicles: needsWeight ? [{ capacityKg: Number(weightKg), count: 1 }] : [],
           requiredHamaliCount: needsHamali ? hamaliCount : 0,
+          serviceCategorySlug: selectedCategory?.slug,
         });
         setFare(res.fareBreakdown);
         setFareState('ready');
@@ -226,7 +236,7 @@ function BookForm() {
 
     return () => clearTimeout(quoteDebounce.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, pickup, drop, stops, weightKg, hamaliCount, needsWeight, needsHamali, readyToQuote]);
+  }, [type, pickup, drop, stops, weightKg, hamaliCount, needsWeight, needsHamali, readyToQuote, selectedCategory]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -245,6 +255,7 @@ function BookForm() {
         requiredHamaliCount: needsHamali ? hamaliCount : 0,
         scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
         openForBidding: type !== 'combo' && !scheduledFor ? openForBidding : undefined,
+        serviceCategorySlug: selectedCategory?.slug,
       });
       router.push(`/customer/track/${res.booking._id}`);
     } catch (err) {
@@ -260,6 +271,14 @@ function BookForm() {
         <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-1">{t('title')}</h1>
         <p className="text-ip-body-md text-ip-on-surface-variant mb-6">{t('subtitle', { region: REGION })}</p>
 
+        <CategoryPicker
+          selectedSlug={selectedCategory?.slug ?? null}
+          onSelect={(category) => {
+            setSelectedCategory(category);
+            if (category) setType(category.dispatchType === 'truck' ? 'truck' : 'hamali');
+          }}
+        />
+
         <div
           className="grid grid-cols-3 gap-2 mb-6 p-1.5 rounded-ip-card bg-ip-surface-container"
           role="radiogroup"
@@ -271,7 +290,10 @@ function BookForm() {
               type="button"
               role="radio"
               aria-checked={type === bt.value}
-              onClick={() => setType(bt.value)}
+              onClick={() => {
+                setType(bt.value);
+                setSelectedCategory(null);
+              }}
               className={`flex flex-col items-center gap-1 py-2.5 rounded-ip-input text-xs font-semibold transition-all duration-fast ${
                 type === bt.value ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
               }`}
@@ -281,6 +303,12 @@ function BookForm() {
             </button>
           ))}
         </div>
+
+        {selectedCategory && (
+          <p className="text-xs text-ip-on-surface-variant -mt-4 mb-6">
+            {t('categorySelected', { name: selectedCategory.name })}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="ip-card space-y-4">

@@ -25,6 +25,12 @@ const pointRule = (field: string) => [
 const pricingRules = [
   body('type').isIn(['truck', 'hamali', 'combo']),
   body('region').isString().trim().isLength({ min: 1 }),
+  // SIH26089 Phase C — optional. When present, the server derives the
+  // real dispatch `type` from the category's own dispatchType and ignores
+  // whatever `type` the client sent alongside it (booking.controller.ts) —
+  // `type` itself stays required above so the shape/validation contract
+  // doesn't change for a category-less booking, this is purely additive.
+  body('serviceCategorySlug').optional().isString().trim().isLength({ min: 1, max: 50 }),
   ...pointRule('pickupLocation'),
   ...pointRule('dropLocation'),
   // Phase 6.3 — multi-stop routing. Optional ordered waypoints between

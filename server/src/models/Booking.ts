@@ -21,6 +21,16 @@ export interface IBooking {
   // is the only reader, and simply treats a bookingless region as not
   // counted, never a hard error.
   region?: string;
+  // SIH26089 Phase C — which specific ServiceCategory (electrician,
+  // plumber, domestic help, ...) this booking is actually for, layered on
+  // top of `type` (the underlying truck/hamali DISPATCH mechanism, which
+  // matching/fare/offer logic still reads unchanged — see
+  // ServiceCategory.ts's own doc comment for the full mapping rationale).
+  // Optional — a booking created before this phase, or a plain 'truck'/
+  // 'hamali'/'combo' booking with no specific category chosen, has none,
+  // and every existing read path treats that as "generic logistics/labour"
+  // exactly as before this field existed.
+  serviceCategorySlug?: string;
   cargoDetails: { weightKg: number; description?: string };
   pickupLocation: { type: 'Point'; coordinates: [number, number]; address: string };
   dropLocation: { type: 'Point'; coordinates: [number, number]; address: string };
@@ -91,6 +101,7 @@ const bookingSchema = new Schema<IBooking>(
     customerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     type: { type: String, enum: ['truck', 'hamali', 'combo'], required: true },
     region: { type: String, trim: true },
+    serviceCategorySlug: { type: String, trim: true },
     cargoDetails: {
       weightKg: { type: Number, required: true, min: 0 },
       description: { type: String },

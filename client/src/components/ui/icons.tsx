@@ -296,3 +296,43 @@ export function SparkleIcon(props: IconProps) {
     </svg>
   );
 }
+
+// SIH26089 Phase C — service-category glyphs (plumbing/carpentry/technician,
+// painting, gardening, domestic cleaning). Same 24x24 outline/stroke-2 set
+// as every icon above, no new dependency.
+export function WrenchIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2 2.6-2.6Z" />
+    </svg>
+  );
+}
+
+export function PaintBrushIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M18 3 9 12l-1 1 1 1 1-1 9-9-1-1Z" />
+      <path d="M9.5 11.5 5 16a2.5 2.5 0 1 0 3 3l4.5-4.5" />
+      <path d="M4 21c1-.5 1.5-1.5 1.5-2.5" />
+    </svg>
+  );
+}
+
+export function LeafIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M20 4c-8 0-14 6-14 14 8 0 14-6 14-14Z" />
+      <path d="M6 18 20 4" />
+    </svg>
+  );
+}
+
+export function BroomIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m19 3-9 9" />
+      <path d="M9.5 12.5 4 18l1 1 1 1 5.5-5.5" />
+      <path d="M4 19v2M6 18v3M8 17v2" />
+    </svg>
+  );
+}
