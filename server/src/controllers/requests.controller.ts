@@ -21,6 +21,7 @@ import { emitBookingMatched, emitBookingStatus } from '../realtime/emitters';
 import { notifyMuthaOfferSettled } from '../realtime/offerEngine';
 import { uploadImage } from '../services/cloudinary.service';
 import { detectZeroDistanceFullFare } from '../services/fraudDetection.service';
+import { recordSocietyDeductionsForBooking } from '../services/governance.service';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
@@ -300,6 +301,15 @@ export const completeJob = asyncHandler(async (req: Request, res: Response) => {
 
   // Fire-and-forget — a fraud-detection hiccup never blocks a legitimate completion.
   detectZeroDistanceFullFare(booking._id.toString()).catch(() => {});
+  // Same fire-and-forget posture — a Society-assigned booking's cooperative
+  // commission/welfare deduction is recorded here, exactly once, the
+  // instant the job completes (see governance.service.ts's doc comment on
+  // why this is the one correct call site rather than computing it at
+  // read time).
+  recordSocietyDeductionsForBooking(booking).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('recordSocietyDeductionsForBooking failed:', err);
+  });
 
   emitBookingStatus(booking);
   res.status(200).json({ booking });

@@ -37,7 +37,16 @@ export const listLedger = asyncHandler(async (req: Request, res: Response) => {
     ]),
   ]);
 
-  const summary: Record<string, number> = { revenue: 0, payout: 0, fee: 0, refund: 0 };
+  const summary: Record<string, number> = {
+    revenue: 0,
+    payout: 0,
+    fee: 0,
+    refund: 0,
+    commission: 0,
+    welfare_fund: 0,
+    equity: 0,
+    surplus: 0,
+  };
   for (const row of summaryAgg as { _id: LedgerEntryType; total: number }[]) {
     summary[row._id] = Math.round(row.total * 100) / 100;
   }

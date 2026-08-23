@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Mutha } from '../models/Mutha';
+import { Federation } from '../models/Federation';
 import { User } from '../models/User';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { Booking } from '../models/Booking';
@@ -38,12 +39,33 @@ export const getMyMutha = asyncHandler(async (req: Request, res: Response) => {
       ratingAvg: mutha.ratingAvg,
       ratingCount: mutha.ratingCount,
       activeJobsCount: mutha.activeJobsCount,
+      // SIH26089 Phase B — cooperative registration/governance fields, all
+      // real on the same document (Mutha.ts), just not previously exposed
+      // here.
+      societyRegistrationNumber: mutha.societyRegistrationNumber,
+      registeredUnderAct: mutha.registeredUnderAct,
+      districtFederationId: mutha.districtFederationId,
+      affiliationStatus: mutha.affiliationStatus,
+      commissionRatePct: mutha.commissionRatePct,
+      welfareDeductionRatePct: mutha.welfareDeductionRatePct,
     },
     members: members.map((m) => ({
       ...m,
       availabilityStatus: statusByUserId.get(m._id.toString()) ?? 'offline',
     })),
   });
+});
+
+/**
+ * GET /api/mutha/district-federations — SIH26089 Phase B.1. Every district
+ * federation, for the leader's own affiliation-request dropdown. Read-only,
+ * no scoping needed — a leader must be able to see every district to pick
+ * the right one to affiliate with (this is the pre-affiliation state,
+ * there's no "own federation" yet to scope to).
+ */
+export const listDistrictFederations = asyncHandler(async (_req: Request, res: Response) => {
+  const federations = await Federation.find({ type: 'district' }).select('name region').sort({ name: 1 }).lean();
+  res.status(200).json({ federations });
 });
 
 /**

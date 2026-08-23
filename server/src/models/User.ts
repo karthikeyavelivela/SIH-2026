@@ -62,6 +62,12 @@ export interface IUser {
   ratingCount: number;
   // Manager-only; empty for every other role.
   permissions: string[];
+  // federation_state_admin/federation_district_admin only — which
+  // Federation document this account administers. Platform-assigned at
+  // account-creation time (federation.controller.ts's createFederationAdmin),
+  // same "not self-service" posture as `permissions` above. Absent for
+  // every other role.
+  federationId?: Types.ObjectId;
   // Bumped on refresh-token rotation and logout to invalidate prior refresh tokens.
   tokenVersion: number;
   // Everything below added for the Phase 2 profile remediation
@@ -125,6 +131,27 @@ export interface IUser {
   preferredLocale: 'en' | 'te' | 'hi';
 }
 
+// Single source of truth for both `role` and `roles[]`'s Mongoose enum
+// validators — previously duplicated as two separate hardcoded arrays,
+// which is exactly how SIH26089 Phase B's two new federation roles
+// initially slipped through TypeScript (shared/src/types.ts's `Role`
+// union) while still 500ing at the database layer (Mongoose validates
+// against ITS OWN enum list, independent of the TS type). One array now,
+// referenced by both fields, so a future role addition can't repeat that.
+const ROLE_ENUM = [
+  'customer',
+  'driver',
+  'hamali_solo',
+  'mutha_leader',
+  'mutha_member',
+  'manager',
+  'admin',
+  'fleet_owner',
+  'warehouse_hub',
+  'federation_state_admin',
+  'federation_district_admin',
+];
+
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
@@ -134,31 +161,11 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       required: true,
-      enum: [
-        'customer',
-        'driver',
-        'hamali_solo',
-        'mutha_leader',
-        'mutha_member',
-        'manager',
-        'admin',
-        'fleet_owner',
-        'warehouse_hub',
-      ],
+      enum: ROLE_ENUM,
     },
     roles: {
       type: [String],
-      enum: [
-        'customer',
-        'driver',
-        'hamali_solo',
-        'mutha_leader',
-        'mutha_member',
-        'manager',
-        'admin',
-        'fleet_owner',
-        'warehouse_hub',
-      ],
+      enum: ROLE_ENUM,
       default: function (this: { role: Role }) {
         return [this.role];
       },
@@ -187,6 +194,7 @@ const userSchema = new Schema<IUser>(
     ratingAvg: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },
     permissions: { type: [String], default: [] },
+    federationId: { type: Schema.Types.ObjectId, ref: 'Federation' },
     tokenVersion: { type: Number, default: 0 },
     notificationPreferences: {
       type: {

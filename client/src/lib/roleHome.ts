@@ -20,6 +20,10 @@ export function roleHome(role: string): string {
       return '/fleet-owner/dashboard';
     case 'warehouse_hub':
       return '/warehouse-hub/dashboard';
+    case 'federation_state_admin':
+      return '/federation-state/dashboard';
+    case 'federation_district_admin':
+      return '/federation-district/dashboard';
     default:
       return '/';
   }

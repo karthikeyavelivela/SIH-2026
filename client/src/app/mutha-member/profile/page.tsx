@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
@@ -96,6 +97,9 @@ function MuthaGroupSection() {
           <p className="font-medium">{group.leader.name}</p>
           <p className="text-ip-on-surface-variant">{group.leader.phone}</p>
         </div>
+        <Link href="/mutha-member/governance" className="block pt-3 border-t border-ip-outline/10 text-sm font-semibold text-ip-secondary">
+          {t('viewGovernance')}
+        </Link>
         <div className="flex gap-3 pt-3 border-t border-ip-outline/10">
           <button type="button" onClick={() => setFlagOpen(true)} className="flex items-center gap-1 text-sm font-semibold text-ip-error">
             <AlertIcon className="w-3.5 h-3.5" /> {t('flagIssue')}

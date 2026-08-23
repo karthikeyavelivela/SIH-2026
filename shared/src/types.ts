@@ -7,7 +7,17 @@ export type Role =
   | 'manager'
   | 'admin'
   | 'fleet_owner'
-  | 'warehouse_hub';
+  | 'warehouse_hub'
+  // SIH26089 Phase B — the cooperative federation hierarchy. A district
+  // federation admin oversees every Society (Mutha) affiliated to it; a
+  // state federation admin oversees every district federation in its
+  // state. Both are platform-created accounts (same pattern as `manager`
+  // — no self-signup), scoped read/aggregate access to their own subtree
+  // only, never write access into a society's own day-to-day operations
+  // (that stays leader-controlled, same separation `manager` already
+  // respects toward `admin`-only actions).
+  | 'federation_state_admin'
+  | 'federation_district_admin';
 
 // Roles a single phone number can hold concurrently (role switcher —
 // User.roles[] carries every role granted; User.role stays the *active*
@@ -51,6 +61,8 @@ export const REQUIRED_KYC_DOCS_BY_ROLE: Record<Role, KycDocumentType[]> = {
   warehouse_hub: ['gstin', 'pan', 'aadhaar'],
   manager: [],
   admin: [],
+  federation_state_admin: [],
+  federation_district_admin: [],
 };
 
 export const MANAGER_PERMISSIONS = [

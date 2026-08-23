@@ -17,7 +17,7 @@ import { CrewAttendanceCard } from '@/components/ui/CrewAttendanceCard';
 import { StatusChip } from '@/components/ui/StatusChip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListDivider } from '@/components/ui/ListDivider';
-import { StarIcon, UsersIcon, ChevronRightIcon, TruckIcon, WalletIcon, LayersIcon, CompassIcon } from '@/components/ui/icons';
+import { StarIcon, UsersIcon, ChevronRightIcon, TruckIcon, WalletIcon, LayersIcon, CompassIcon, ShieldIcon } from '@/components/ui/icons';
 
 const crewStatus: Record<string, 'on_job' | 'available' | 'offline'> = {
   online: 'available',
@@ -155,10 +155,17 @@ export default function MuthaDashboardPage() {
           </span>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
-        <Link href="/mutha/earnings" className="flex items-center justify-between py-3 last:pb-0">
+        <Link href="/mutha/earnings" className="flex items-center justify-between py-3">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
             <WalletIcon className="w-4 h-4 text-ip-outline" />
             {t('groupEarningsToDate', { amount: earningsData?.total ?? 0 })}
+          </span>
+          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        </Link>
+        <Link href="/mutha/governance" className="flex items-center justify-between py-3 last:pb-0">
+          <span className="flex items-center gap-2.5 text-sm font-semibold">
+            <ShieldIcon className="w-4 h-4 text-ip-outline" />
+            {t('cooperativeGovernance')}
           </span>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>

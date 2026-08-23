@@ -690,7 +690,8 @@
     "viewOpenRequests": "View open job requests",
     "crewOperations": "Crew operations",
     "groupEarningsToDate": "Group earnings — ₹{amount} to date",
-    "rateLastCustomer": "Rate your last customer"
+    "rateLastCustomer": "Rate your last customer",
+    "cooperativeGovernance": "Cooperative governance"
   },
   "workerEarnings": {
     "pageTitle": "Earnings",
@@ -1097,7 +1098,8 @@
     "whatHappenedLabel": "What happened?",
     "sending": "Sending…",
     "sendToSupport": "Send to platform support",
-    "errorFlag": "Could not submit this report."
+    "errorFlag": "Could not submit this report.",
+    "viewGovernance": "View cooperative governance →"
   },
   "companyProfile": {
     "title": "Company profile",
@@ -2155,5 +2157,100 @@
     "withdraw": "Withdraw",
     "errorBid": "Could not place bid — try again.",
     "errorWithdraw": "Could not withdraw bid — try again."
+  },
+  "federation": {
+    "title": "Federation Dashboard",
+    "tierState": "State Cooperative Labour Federation",
+    "tierDistrict": "District Cooperative Labour Federation",
+    "registrationLine": "Reg. No. {number} · registered under {act}",
+    "societies": "Societies",
+    "workers": "Workers",
+    "jobsCompleted": "Jobs completed",
+    "earningsDistributed": "Earnings distributed",
+    "trainingCompletion": "Training completion",
+    "welfareEnrolment": "Welfare enrolment",
+    "grievancesOpen": "Grievances open",
+    "districtsHeading": "Districts",
+    "noDistricts": "No district federations yet.",
+    "societyCount": "{count} societies",
+    "affiliationRequestsHeading": "Affiliation requests",
+    "bylawBounds": "Bye-law cap: commission ≤{commission}%, welfare ≤{welfare}%",
+    "noAffiliationRequests": "No pending affiliation requests.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "societiesHeading": "Affiliated societies",
+    "noSocieties": "No affiliated societies yet.",
+    "colName": "Name",
+    "colMembers": "Members",
+    "colRating": "Rating",
+    "colCommission": "Commission",
+    "colWelfare": "Welfare",
+    "trainingNeedsHeading": "Training needs assessment",
+    "trainingNeedsSubtitle": "Which societies have skill gaps, and how many members are due for a refresher certification.",
+    "noTrainingData": "No training data yet.",
+    "colSkillGap": "Skill gap",
+    "colDueForRefresh": "Due for refresher",
+    "errorGeneric": "Could not load this — try again."
+  },
+  "governance": {
+    "title": "Cooperative Governance",
+    "errorLoad": "Could not load your society's governance data.",
+    "errorGeneric": "Something went wrong — try again.",
+    "affiliationTitle": "Federation affiliation",
+    "affiliationSubtitle": "Affiliate your society to a district cooperative federation.",
+    "statusLabel": "Status",
+    "affiliationStatus": {
+      "unaffiliated": "Not affiliated",
+      "pending": "Request pending",
+      "affiliated": "Affiliated",
+      "suspended": "Suspended"
+    },
+    "districtFederation": "District federation",
+    "selectDistrict": "Select a district federation",
+    "regNumber": "Society registration number",
+    "registeredAct": "Registered under",
+    "submitting": "Submitting…",
+    "requestAffiliation": "Request affiliation",
+    "byLawsTitle": "Bye-laws",
+    "byLawsSubtitle": "Your society's own commission and welfare-fund deduction rates, bounded by your district federation's cap once affiliated.",
+    "commissionRate": "Commission rate (%)",
+    "welfareRate": "Welfare fund deduction rate (%)",
+    "saving": "Saving…",
+    "saveByLaws": "Save bye-laws",
+    "sharesTitle": "Member shares (equity)",
+    "sharesSubtitle": "Each member's real stake in the society.",
+    "noShares": "No shares issued yet.",
+    "surplusTitle": "Surplus distribution",
+    "surplusSubtitle": "Retained commission + welfare income returned to members, proportional to their shares.",
+    "noSurplus": "No surplus distributions yet.",
+    "surplusStatus": {
+      "computed": "computed",
+      "distributed": "distributed"
+    },
+    "pollsTitle": "Democratic voting",
+    "pollsSubtitle": "Rate-card proposals and leader elections — members vote, the result actually applies once closed.",
+    "proposeRateCard": "Propose the rate above for a vote",
+    "electionQuestionLabel": "Election question (optional)",
+    "leaderElectionDefaultQuestion": "Who should lead this society next?",
+    "startLeaderElection": "Start a leader election",
+    "noPolls": "No polls yet.",
+    "pollType": {
+      "rate_card": "Rate-card vote",
+      "leader_election": "Leader election"
+    },
+    "pollStatus": {
+      "open": "open",
+      "closed": "closed"
+    },
+    "winner": "Winner",
+    "youVoted": "You voted.",
+    "closePoll": "Close poll now",
+    "rateCardPollQuestion": "Adopt commission {commission}% / welfare {welfare}%?",
+    "adoptOption": "Adopt {commission}% / {welfare}%",
+    "keepOption": "Keep current {commission}% / {welfare}%",
+    "myDeductionsTitle": "My deductions",
+    "myDeductionsSubtitle": "Exactly what was deducted and why, on every job.",
+    "noDeductions": "No deductions recorded yet.",
+    "myShares": "My shares"
   }
 }

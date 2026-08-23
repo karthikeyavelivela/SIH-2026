@@ -9,7 +9,8 @@
     "test": "jest --runInBand",
     "seed:admin": "ts-node src/scripts/seedAdmin.ts",
     "seed:demo": "ts-node src/scripts/seedDemoAccounts.ts",
-    "seed:training": "ts-node src/scripts/seedTrainingModules.ts"
+    "seed:training": "ts-node src/scripts/seedTrainingModules.ts",
+    "seed:federations": "ts-node src/scripts/seedFederations.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

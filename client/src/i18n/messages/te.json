@@ -690,7 +690,8 @@
     "viewOpenRequests": "తెరిచిన పని అభ్యర్థనలు చూడండి",
     "crewOperations": "బృంద కార్యకలాపాలు",
     "groupEarningsToDate": "గ్రూప్ సంపాదన — ఇప్పటివరకు ₹{amount}",
-    "rateLastCustomer": "మీ చివరి కస్టమర్‌ను రేట్ చేయండి"
+    "rateLastCustomer": "మీ చివరి కస్టమర్‌ను రేట్ చేయండి",
+    "cooperativeGovernance": "సహకార పాలన"
   },
   "workerEarnings": {
     "pageTitle": "సంపాదన",
@@ -1097,7 +1098,8 @@
     "whatHappenedLabel": "ఏం జరిగింది?",
     "sending": "పంపుతోంది…",
     "sendToSupport": "ప్లాట్‌ఫారమ్ సపోర్ట్‌కి పంపండి",
-    "errorFlag": "ఈ రిపోర్ట్ సమర్పించలేకపోయాం."
+    "errorFlag": "ఈ రిపోర్ట్ సమర్పించలేకపోయాం.",
+    "viewGovernance": "సహకార పాలన చూడండి →"
   },
   "companyProfile": {
     "title": "కంపెనీ ప్రొఫైల్",
@@ -2155,5 +2157,100 @@
     "withdraw": "ఉపసంహరించుకోండి",
     "errorBid": "బిడ్ వేయలేకపోయాము — మళ్లీ ప్రయత్నించండి.",
     "errorWithdraw": "బిడ్ ఉపసంహరించుకోలేకపోయాము — మళ్లీ ప్రయత్నించండి."
+  },
+  "federation": {
+    "title": "ఫెడరేషన్ డాష్‌బోర్డ్",
+    "tierState": "రాష్ట్ర సహకార కార్మిక సమాఖ్య",
+    "tierDistrict": "జిల్లా సహకార కార్మిక సమాఖ్య",
+    "registrationLine": "రిజి. నం. {number} · {act} కింద నమోదు",
+    "societies": "సొసైటీలు",
+    "workers": "కార్మికులు",
+    "jobsCompleted": "పూర్తయిన పనులు",
+    "earningsDistributed": "పంపిణీ చేసిన ఆదాయం",
+    "trainingCompletion": "శిక్షణ పూర్తి",
+    "welfareEnrolment": "సంక్షేమ నమోదు",
+    "grievancesOpen": "తెరిచి ఉన్న ఫిర్యాదులు",
+    "districtsHeading": "జిల్లాలు",
+    "noDistricts": "ఇంకా జిల్లా సమాఖ్యలు లేవు.",
+    "societyCount": "{count} సొసైటీలు",
+    "affiliationRequestsHeading": "అనుబంధ అభ్యర్థనలు",
+    "bylawBounds": "బై-లా పరిమితి: కమీషన్ ≤{commission}%, సంక్షేమం ≤{welfare}%",
+    "noAffiliationRequests": "పెండింగ్‌లో అనుబంధ అభ్యర్థనలు లేవు.",
+    "approve": "ఆమోదించండి",
+    "reject": "తిరస్కరించండి",
+    "societiesHeading": "అనుబంధ సొసైటీలు",
+    "noSocieties": "ఇంకా అనుబంధ సొసైటీలు లేవు.",
+    "colName": "పేరు",
+    "colMembers": "సభ్యులు",
+    "colRating": "రేటింగ్",
+    "colCommission": "కమీషన్",
+    "colWelfare": "సంక్షేమం",
+    "trainingNeedsHeading": "శిక్షణ అవసరాల మదింపు",
+    "trainingNeedsSubtitle": "ఏ సొసైటీలకు నైపుణ్య లోపాలు ఉన్నాయి, ఎంతమంది సభ్యులకు రిఫ్రెషర్ సర్టిఫికేషన్ గడువు ఉంది.",
+    "noTrainingData": "ఇంకా శిక్షణ డేటా లేదు.",
+    "colSkillGap": "నైపుణ్య లోపం",
+    "colDueForRefresh": "రిఫ్రెషర్ గడువు",
+    "errorGeneric": "దీన్ని లోడ్ చేయలేకపోయాము — మళ్లీ ప్రయత్నించండి."
+  },
+  "governance": {
+    "title": "సహకార పాలన",
+    "errorLoad": "మీ సొసైటీ పాలన డేటాను లోడ్ చేయలేకపోయాము.",
+    "errorGeneric": "ఏదో తప్పు జరిగింది — మళ్లీ ప్రయత్నించండి.",
+    "affiliationTitle": "ఫెడరేషన్ అనుబంధం",
+    "affiliationSubtitle": "మీ సొసైటీని జిల్లా సహకార సమాఖ్యతో అనుసంధానించండి.",
+    "statusLabel": "స్థితి",
+    "affiliationStatus": {
+      "unaffiliated": "అనుబంధించబడలేదు",
+      "pending": "అభ్యర్థన పెండింగ్‌లో ఉంది",
+      "affiliated": "అనుబంధించబడింది",
+      "suspended": "సస్పెండ్ చేయబడింది"
+    },
+    "districtFederation": "జిల్లా సమాఖ్య",
+    "selectDistrict": "జిల్లా సమాఖ్యను ఎంచుకోండి",
+    "regNumber": "సొసైటీ నమోదు సంఖ్య",
+    "registeredAct": "కింద నమోదు చేయబడింది",
+    "submitting": "సమర్పిస్తోంది…",
+    "requestAffiliation": "అనుబంధం అభ్యర్థించండి",
+    "byLawsTitle": "బై-లాస్",
+    "byLawsSubtitle": "మీ సొసైటీ స్వంత కమీషన్ మరియు సంక్షేమ నిధి తగ్గింపు రేట్లు, అనుబంధం తర్వాత జిల్లా సమాఖ్య పరిమితికి లోబడి ఉంటాయి.",
+    "commissionRate": "కమీషన్ రేటు (%)",
+    "welfareRate": "సంక్షేమ నిధి తగ్గింపు రేటు (%)",
+    "saving": "సేవ్ చేస్తోంది…",
+    "saveByLaws": "బై-లాస్ సేవ్ చేయండి",
+    "sharesTitle": "సభ్యుల వాటాలు (ఈక్విటీ)",
+    "sharesSubtitle": "సొసైటీలో ప్రతి సభ్యుని నిజమైన వాటా.",
+    "noShares": "ఇంకా వాటాలు జారీ చేయలేదు.",
+    "surplusTitle": "మిగులు పంపిణీ",
+    "surplusSubtitle": "నిలుపుకున్న కమీషన్ + సంక్షేమ ఆదాయం సభ్యులకు, వారి వాటాలకు అనుగుణంగా తిరిగి ఇవ్వబడుతుంది.",
+    "noSurplus": "ఇంకా మిగులు పంపిణీలు లేవు.",
+    "surplusStatus": {
+      "computed": "లెక్కించబడింది",
+      "distributed": "పంపిణీ చేయబడింది"
+    },
+    "pollsTitle": "ప్రజాస్వామ్య ఓటింగ్",
+    "pollsSubtitle": "రేటు-కార్డ్ ప్రతిపాదనలు మరియు నాయకుడి ఎన్నికలు — సభ్యులు ఓటు వేస్తారు, మూసివేసిన తర్వాత ఫలితం నిజంగా వర్తిస్తుంది.",
+    "proposeRateCard": "పైన ఉన్న రేటును ఓటింగ్ కోసం ప్రతిపాదించండి",
+    "electionQuestionLabel": "ఎన్నికల ప్రశ్న (ఐచ్ఛికం)",
+    "leaderElectionDefaultQuestion": "ఈ సొసైటీకి తర్వాత ఎవరు నాయకత్వం వహించాలి?",
+    "startLeaderElection": "నాయకుడి ఎన్నికను ప్రారంభించండి",
+    "noPolls": "ఇంకా పోల్‌లు లేవు.",
+    "pollType": {
+      "rate_card": "రేటు-కార్డ్ ఓటు",
+      "leader_election": "నాయకుడి ఎన్నిక"
+    },
+    "pollStatus": {
+      "open": "తెరిచి ఉంది",
+      "closed": "మూసివేయబడింది"
+    },
+    "winner": "విజేత",
+    "youVoted": "మీరు ఓటు వేశారు.",
+    "closePoll": "పోల్‌ను ఇప్పుడే మూసివేయండి",
+    "rateCardPollQuestion": "కమీషన్ {commission}% / సంక్షేమం {welfare}% స్వీకరించాలా?",
+    "adoptOption": "{commission}% / {welfare}% స్వీకరించండి",
+    "keepOption": "ప్రస్తుత {commission}% / {welfare}% ఉంచండి",
+    "myDeductionsTitle": "నా తగ్గింపులు",
+    "myDeductionsSubtitle": "ప్రతి పనిలో సరిగ్గా ఏమి తగ్గించారు మరియు ఎందుకు.",
+    "noDeductions": "ఇంకా తగ్గింపులు నమోదు కాలేదు.",
+    "myShares": "నా వాటాలు"
   }
 }

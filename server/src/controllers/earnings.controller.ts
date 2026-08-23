@@ -5,6 +5,8 @@ import { Booking, IBooking } from '../models/Booking';
 import { Mutha } from '../models/Mutha';
 import { User } from '../models/User';
 import { Incentive } from '../models/Incentive';
+import { CommissionRecord } from '../models/CommissionRecord';
+import { netShareForBookings } from '../services/governance.service';
 
 /**
  * A completed booking's fareBreakdown stores every component PRE-surge
@@ -15,10 +17,14 @@ import { Incentive } from '../models/Incentive';
  * any caller needing a post-surge component, so this isn't a new
  * convention, just its first real consumer.
  *
- * No commission/platform-cut model exists yet (not specified anywhere in
- * the build spec) — Phase 2 assumes 100% pass-through to the
- * driver/hamali/Mutha side. A commission rate is a natural Phase 4/5
- * addition once payments actually move real money.
+ * No commission/platform-cut model exists at the platform level — driver
+ * and hamali_solo (independent, non-cooperative workers) still keep 100%
+ * pass-through, unchanged since Phase 2. A Society-affiliated worker
+ * (mutha_member/mutha_leader) is different as of SIH26089 Phase B.2: their
+ * own Society's real bye-law commission/welfare rates apply — see the
+ * mutha_member/mutha_leader branches below, which read the actual
+ * governance.service.ts-recorded net amount rather than this raw gross
+ * share directly.
  */
 function vehicleShare(booking: IBooking): number {
   const { baseFare, distanceFare, hamaliFare, total } = booking.fareBreakdown;
@@ -89,7 +95,10 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     return;
   }
 
-  if (role === 'hamali_solo' || role === 'mutha_member') {
+  if (role === 'hamali_solo') {
+    // Independent worker, not a Society member — no cooperative
+    // commission/welfare deduction applies, same 100% pass-through as
+    // always.
     const bookings = await Booking.find({ status: 'completed', assignedHamaliIds: userId });
     const lines: EarningLine[] = bookings.map((b) => ({
       bookingId: b._id.toString(),
@@ -97,6 +106,29 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       pickupAddress: b.pickupLocation.address,
       dropAddress: b.dropLocation.address,
       amount: round2(perHamaliShare(b)),
+    }));
+    res.status(200).json({
+      total: round2(lines.reduce((s, l) => s + l.amount, 0)),
+      jobCount: lines.length,
+      lines,
+      incentiveTotal: await incentiveTotalForUser(userId),
+    });
+    return;
+  }
+
+  if (role === 'mutha_member') {
+    // Society member — amount is the REAL net-of-commission figure
+    // (governance.service.ts's recorded CommissionRecord for each booking,
+    // or the plain gross share for any booking with no deduction ever
+    // applied — see netShareForBookings's own doc comment).
+    const bookings = await Booking.find({ status: 'completed', assignedHamaliIds: userId });
+    const netByBooking = await netShareForBookings(bookings, userId);
+    const lines: EarningLine[] = bookings.map((b) => ({
+      bookingId: b._id.toString(),
+      completedAt: statusHistoryCompletedAt(b),
+      pickupAddress: b.pickupLocation.address,
+      dropAddress: b.dropLocation.address,
+      amount: round2(netByBooking.get(b._id.toString()) ?? perHamaliShare(b)),
     }));
     res.status(200).json({
       total: round2(lines.reduce((s, l) => s + l.amount, 0)),
@@ -123,12 +155,25 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     // Per-member breakdown (spec: "/mutha/earnings - group total + per-
     // member breakdown"). Only counts a member's share on bookings where
     // that specific member was actually assigned, not every group booking.
+    // `total` per member is the REAL net-of-commission figure — same
+    // CommissionRecord lookup earnings.controller.ts's mutha_member branch
+    // uses, batched here across every member+booking in one query rather
+    // than one call per member.
+    const bookingIds = bookings.map((b) => b._id);
+    const records = await CommissionRecord.find({ bookingId: { $in: bookingIds } })
+      .select('bookingId workerId netAmount')
+      .lean();
+    const recordByKey = new Map(records.map((r) => [`${r.bookingId.toString()}:${r.workerId.toString()}`, r.netAmount]));
+
     const memberTotals = new Map<string, number>();
+    let retainedTotal = 0;
     for (const b of bookings) {
-      const share = perHamaliShare(b);
+      const gross = perHamaliShare(b);
       for (const id of b.assignedHamaliIds) {
         const key = id.toString();
-        memberTotals.set(key, (memberTotals.get(key) ?? 0) + share);
+        const net = recordByKey.get(`${b._id.toString()}:${key}`) ?? round2(gross);
+        memberTotals.set(key, (memberTotals.get(key) ?? 0) + net);
+        retainedTotal += gross - net;
       }
     }
     const memberUsers = await User.find({ _id: { $in: [...memberTotals.keys()] } }).select('name phone').lean();
@@ -140,10 +185,18 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     }));
 
     res.status(200).json({
+      // Group total stays the gross pool the Society's hamali arm actually
+      // generated (unchanged meaning from before this phase); `retained`
+      // is the new, separately-surfaced figure — real commission+welfare
+      // kept by the Society across every member on every booking, the
+      // society-side mirror of each member's own CommissionRecord.
       total: round2(groupLines.reduce((s, l) => s + l.amount, 0)),
+      retained: round2(retainedTotal),
       jobCount: groupLines.length,
       lines: groupLines,
       perMember,
+      commissionRatePct: mutha.commissionRatePct,
+      welfareDeductionRatePct: mutha.welfareDeductionRatePct,
       incentiveTotal: await incentiveTotalForMutha(mutha._id.toString()),
     });
     return;

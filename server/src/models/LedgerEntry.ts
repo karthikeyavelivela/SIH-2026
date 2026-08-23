@@ -1,6 +1,25 @@
 import { Schema, model, Types } from 'mongoose';
 
-export type LedgerEntryType = 'revenue' | 'payout' | 'fee' | 'refund';
+export type LedgerEntryType =
+  | 'revenue'
+  | 'payout'
+  | 'fee'
+  | 'refund'
+  // SIH26089 Phase B.2 — cooperative governance money movements. 'commission'
+  // is what a Society (Mutha) retains from a member's job to fund its own
+  // operations (governance.service.ts's applySocietyDeduction — always
+  // positive, "retained by the society"). 'welfare_fund' is the same
+  // deduction's separate welfare-fund slice, kept as its own line so a
+  // society's welfare-fund balance is independently auditable rather than
+  // folded into general commission. 'equity' is a member buying/holding
+  // cooperative shares (MemberShare.ts). 'surplus' is a period-end payout
+  // of a society's retained surplus back to its members proportional to
+  // their shareholding (SurplusDistribution.ts) — negative from the
+  // society's own ledger perspective, same sign convention 'payout' uses.
+  | 'commission'
+  | 'welfare_fund'
+  | 'equity'
+  | 'surplus';
 export type LedgerEntryStatus = 'posted' | 'pending' | 'failed';
 
 // Append-only platform financial ledger (Part 2.2 of the admin/ops build).
@@ -24,7 +43,11 @@ export interface ILedgerEntry {
 }
 
 const ledgerEntrySchema = new Schema<ILedgerEntry>({
-  type: { type: String, enum: ['revenue', 'payout', 'fee', 'refund'], required: true },
+  type: {
+    type: String,
+    enum: ['revenue', 'payout', 'fee', 'refund', 'commission', 'welfare_fund', 'equity', 'surplus'],
+    required: true,
+  },
   entityType: { type: String, required: true },
   entityId: { type: Schema.Types.ObjectId, required: true },
   amount: { type: Number, required: true },

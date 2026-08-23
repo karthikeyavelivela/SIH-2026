@@ -5,6 +5,7 @@ import { requireRole } from '../middleware/rbac';
 import { requestsLimiter } from '../middleware/rateLimit';
 import { validate } from '../middleware/validate';
 import * as muthaController from '../controllers/mutha.controller';
+import { requestAffiliation } from '../controllers/governance.controller';
 
 export const muthaRouter = Router();
 
@@ -16,6 +17,7 @@ export const muthaRouter = Router();
 muthaRouter.use(verifyJwt, requestsLimiter);
 
 muthaRouter.get('/me', requireRole('mutha_leader'), muthaController.getMyMutha);
+muthaRouter.get('/district-federations', requireRole('mutha_leader'), muthaController.listDistrictFederations);
 
 muthaRouter.patch(
   '/me',
@@ -50,6 +52,21 @@ muthaRouter.post(
   ],
   validate,
   muthaController.flagEarningsDiscrepancy
+);
+
+// SIH26089 Phase B.1 — leader requests affiliation to a district
+// federation. Lives in governance.controller.ts (governance-flavoured),
+// mounted here since /api/mutha is the leader's own existing surface.
+muthaRouter.post(
+  '/affiliation-request',
+  requireRole('mutha_leader'),
+  [
+    body('districtFederationId').isMongoId(),
+    body('societyRegistrationNumber').isString().trim().isLength({ min: 1, max: 100 }),
+    body('registeredUnderAct').isIn(['AP Cooperative Societies Act 1964', 'AP Mutually Aided Cooperative Societies Act 1995']),
+  ],
+  validate,
+  requestAffiliation
 );
 
 muthaRouter.post(

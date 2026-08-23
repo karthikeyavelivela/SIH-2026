@@ -690,7 +690,8 @@
     "viewOpenRequests": "खुले काम के अनुरोध देखें",
     "crewOperations": "टीम संचालन",
     "groupEarningsToDate": "समूह की कमाई — अब तक ₹{amount}",
-    "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें"
+    "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें",
+    "cooperativeGovernance": "सहकारी शासन"
   },
   "workerEarnings": {
     "pageTitle": "कमाई",
@@ -1097,7 +1098,8 @@
     "whatHappenedLabel": "क्या हुआ?",
     "sending": "भेजा जा रहा है…",
     "sendToSupport": "प्लेटफ़ॉर्म सपोर्ट को भेजें",
-    "errorFlag": "यह रिपोर्ट सबमिट नहीं हो पाई।"
+    "errorFlag": "यह रिपोर्ट सबमिट नहीं हो पाई।",
+    "viewGovernance": "सहकारी शासन देखें →"
   },
   "companyProfile": {
     "title": "कंपनी प्रोफ़ाइल",
@@ -2155,5 +2157,100 @@
     "withdraw": "वापस लें",
     "errorBid": "बोली नहीं लगाई जा सकी — फिर से प्रयास करें।",
     "errorWithdraw": "बोली वापस नहीं ली जा सकी — फिर से प्रयास करें।"
+  },
+  "federation": {
+    "title": "फेडरेशन डैशबोर्ड",
+    "tierState": "राज्य सहकारी श्रम महासंघ",
+    "tierDistrict": "जिला सहकारी श्रम महासंघ",
+    "registrationLine": "रजि. नं. {number} · {act} के तहत पंजीकृत",
+    "societies": "सोसाइटियां",
+    "workers": "कामगार",
+    "jobsCompleted": "पूर्ण किए गए काम",
+    "earningsDistributed": "वितरित आय",
+    "trainingCompletion": "प्रशिक्षण पूर्णता",
+    "welfareEnrolment": "कल्याण नामांकन",
+    "grievancesOpen": "खुली शिकायतें",
+    "districtsHeading": "जिले",
+    "noDistricts": "अभी तक कोई जिला महासंघ नहीं है।",
+    "societyCount": "{count} सोसाइटियां",
+    "affiliationRequestsHeading": "संबद्धता अनुरोध",
+    "bylawBounds": "बाय-लॉ सीमा: कमीशन ≤{commission}%, कल्याण ≤{welfare}%",
+    "noAffiliationRequests": "कोई लंबित संबद्धता अनुरोध नहीं है।",
+    "approve": "स्वीकृत करें",
+    "reject": "अस्वीकार करें",
+    "societiesHeading": "संबद्ध सोसाइटियां",
+    "noSocieties": "अभी तक कोई संबद्ध सोसाइटी नहीं है।",
+    "colName": "नाम",
+    "colMembers": "सदस्य",
+    "colRating": "रेटिंग",
+    "colCommission": "कमीशन",
+    "colWelfare": "कल्याण",
+    "trainingNeedsHeading": "प्रशिक्षण आवश्यकता आकलन",
+    "trainingNeedsSubtitle": "किन सोसाइटियों में कौशल अंतराल है, और कितने सदस्यों की रिफ्रेशर सर्टिफिकेशन देय है।",
+    "noTrainingData": "अभी तक कोई प्रशिक्षण डेटा नहीं है।",
+    "colSkillGap": "कौशल अंतराल",
+    "colDueForRefresh": "रिफ्रेशर देय",
+    "errorGeneric": "इसे लोड नहीं किया जा सका — फिर से प्रयास करें।"
+  },
+  "governance": {
+    "title": "सहकारी शासन",
+    "errorLoad": "आपकी सोसाइटी का शासन डेटा लोड नहीं हो सका।",
+    "errorGeneric": "कुछ गलत हो गया — फिर से प्रयास करें।",
+    "affiliationTitle": "महासंघ संबद्धता",
+    "affiliationSubtitle": "अपनी सोसाइटी को एक जिला सहकारी महासंघ से जोड़ें।",
+    "statusLabel": "स्थिति",
+    "affiliationStatus": {
+      "unaffiliated": "असंबद्ध",
+      "pending": "अनुरोध लंबित",
+      "affiliated": "संबद्ध",
+      "suspended": "निलंबित"
+    },
+    "districtFederation": "जिला महासंघ",
+    "selectDistrict": "जिला महासंघ चुनें",
+    "regNumber": "सोसाइटी पंजीकरण संख्या",
+    "registeredAct": "इस अधिनियम के तहत पंजीकृत",
+    "submitting": "सबमिट हो रहा है…",
+    "requestAffiliation": "संबद्धता का अनुरोध करें",
+    "byLawsTitle": "बाय-लॉज़",
+    "byLawsSubtitle": "आपकी सोसाइटी की अपनी कमीशन और कल्याण-निधि कटौती दरें, संबद्धता के बाद आपके जिला महासंघ की सीमा से बंधी होंगी।",
+    "commissionRate": "कमीशन दर (%)",
+    "welfareRate": "कल्याण निधि कटौती दर (%)",
+    "saving": "सेव हो रहा है…",
+    "saveByLaws": "बाय-लॉज़ सेव करें",
+    "sharesTitle": "सदस्य शेयर (इक्विटी)",
+    "sharesSubtitle": "सोसाइटी में प्रत्येक सदस्य की वास्तविक हिस्सेदारी।",
+    "noShares": "अभी तक कोई शेयर जारी नहीं हुए।",
+    "surplusTitle": "अधिशेष वितरण",
+    "surplusSubtitle": "रोकी गई कमीशन + कल्याण आय सदस्यों को उनके शेयरों के अनुपात में वापस दी जाती है।",
+    "noSurplus": "अभी तक कोई अधिशेष वितरण नहीं हुआ।",
+    "surplusStatus": {
+      "computed": "गणना की गई",
+      "distributed": "वितरित"
+    },
+    "pollsTitle": "लोकतांत्रिक मतदान",
+    "pollsSubtitle": "रेट-कार्ड प्रस्ताव और नेता चुनाव — सदस्य वोट करते हैं, बंद होने पर परिणाम वास्तव में लागू होता है।",
+    "proposeRateCard": "ऊपर की दर को मतदान के लिए प्रस्तावित करें",
+    "electionQuestionLabel": "चुनाव प्रश्न (वैकल्पिक)",
+    "leaderElectionDefaultQuestion": "इस सोसाइटी का अगला नेता कौन होना चाहिए?",
+    "startLeaderElection": "नेता चुनाव शुरू करें",
+    "noPolls": "अभी तक कोई पोल नहीं है।",
+    "pollType": {
+      "rate_card": "रेट-कार्ड वोट",
+      "leader_election": "नेता चुनाव"
+    },
+    "pollStatus": {
+      "open": "खुला",
+      "closed": "बंद"
+    },
+    "winner": "विजेता",
+    "youVoted": "आपने वोट दिया।",
+    "closePoll": "पोल अभी बंद करें",
+    "rateCardPollQuestion": "कमीशन {commission}% / कल्याण {welfare}% अपनाएं?",
+    "adoptOption": "{commission}% / {welfare}% अपनाएं",
+    "keepOption": "वर्तमान {commission}% / {welfare}% बनाए रखें",
+    "myDeductionsTitle": "मेरी कटौतियां",
+    "myDeductionsSubtitle": "हर काम में वास्तव में क्या और क्यों काटा गया।",
+    "noDeductions": "अभी तक कोई कटौती दर्ज नहीं हुई।",
+    "myShares": "मेरे शेयर"
   }
 }
