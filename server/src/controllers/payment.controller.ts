@@ -4,7 +4,33 @@ import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
 import { Payment } from '../models/Payment';
 import { createOrder } from '../services/payment.service';
+import { writeLedgerEntry } from '../services/ledger.service';
 import { env } from '../config/env';
+
+/**
+ * Posts the 'revenue' half of the money chain — ledger.service.ts's own
+ * doc comment flagged this as "not yet wired into real booking/payment/
+ * payout flows" (a follow-up that was never actually done); the payout
+ * side (payout.controller.ts) and the parametric-insurance side
+ * (parametricInsurance.service.ts) were both real, but a customer's own
+ * payment never posted anything, so GET /api/admin/ledger's revenue total
+ * was silently always zero regardless of how much money actually moved.
+ * Called only from a genuine pending/failed -> success transition (never
+ * on an already-success payment) so a redelivered webhook or a stale
+ * mock-capture retry can never double-post the same revenue twice.
+ */
+async function postRevenueLedgerEntry(payment: { _id: unknown; bookingId: unknown; amount: number }): Promise<void> {
+  const booking = await Booking.findById(payment.bookingId).select('region').lean();
+  await writeLedgerEntry({
+    type: 'revenue',
+    entityType: 'Payment',
+    entityId: String(payment._id),
+    amount: payment.amount,
+    description: `Payment received for booking ${String(payment.bookingId)}`,
+    status: 'posted',
+    region: booking?.region,
+  });
+}
 
 /**
  * POST /api/payments/order — customer creates (or re-fetches, idempotent)
@@ -87,6 +113,8 @@ export const paymentWebhook = asyncHandler(async (req: Request, res: Response) =
     return;
   }
 
+  const wasAlreadySuccess = payment.status === 'success';
+
   if (event === 'payment.captured') {
     payment.status = 'success';
     payment.razorpayPaymentId = paymentId;
@@ -94,6 +122,10 @@ export const paymentWebhook = asyncHandler(async (req: Request, res: Response) =
     payment.status = 'failed';
   }
   await payment.save();
+
+  if (event === 'payment.captured' && !wasAlreadySuccess) {
+    await postRevenueLedgerEntry(payment);
+  }
 
   res.status(200).json({ ok: true });
 });
@@ -114,9 +146,14 @@ export const mockCapturePayment = asyncHandler(async (req: Request, res: Respons
   const payment = await Payment.findOne({ bookingId: booking._id }).sort({ createdAt: -1 });
   if (!payment) throw new ApiError(404, 'No payment order found for this booking — create one first');
 
+  const wasAlreadySuccess = payment.status === 'success';
   payment.status = 'success';
   payment.razorpayPaymentId = `pay_mock_${Date.now()}`;
   await payment.save();
+
+  if (!wasAlreadySuccess) {
+    await postRevenueLedgerEntry(payment);
+  }
 
   res.status(200).json({ payment });
 });

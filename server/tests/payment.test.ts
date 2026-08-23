@@ -5,6 +5,7 @@ import { app } from '../src/app';
 import { User } from '../src/models/User';
 import { Booking } from '../src/models/Booking';
 import { Payment } from '../src/models/Payment';
+import { LedgerEntry } from '../src/models/LedgerEntry';
 import { signAccessToken } from '../src/services/token.service';
 
 async function loginAsCustomer(phone = '9910000001') {
@@ -79,6 +80,28 @@ describe('POST /api/payments/:bookingId/mock-capture', () => {
     expect(res.status).toBe(200);
     expect(res.body.payment.status).toBe('success');
     expect(res.body.payment.razorpayPaymentId).toBeTruthy();
+
+    // The money-chain regression this covers: writeLedgerEntry existed but
+    // was never actually called from a real payment-capture path (see
+    // ledger.service.ts's own former "not yet wired in" doc comment) — a
+    // successful payment must post a real 'revenue' LedgerEntry, not just
+    // flip the Payment's own status.
+    const entry = await LedgerEntry.findOne({ entityType: 'Payment', entityId: res.body.payment._id });
+    expect(entry).not.toBeNull();
+    expect(entry!.type).toBe('revenue');
+    expect(entry!.amount).toBe(res.body.payment.amount);
+  });
+
+  it('capturing twice never double-posts the revenue ledger entry', async () => {
+    const { agent, user } = await loginAsCustomer('9910000009');
+    const booking = await makeCompletedBooking(user._id.toString());
+    await agent.post(`/api/payments/order/${booking._id}`);
+    await agent.post(`/api/payments/${booking._id}/mock-capture`);
+    await agent.post(`/api/payments/${booking._id}/mock-capture`); // already-success retry
+
+    const payment = await Payment.findOne({ bookingId: booking._id });
+    const count = await LedgerEntry.countDocuments({ entityType: 'Payment', entityId: payment!._id });
+    expect(count).toBe(1);
   });
 
   it('404s if no payment order exists yet', async () => {
@@ -128,5 +151,10 @@ describe('POST /api/payments/webhook', () => {
     const payment = await Payment.findOne({ razorpayOrderId: orderId });
     expect(payment?.status).toBe('success');
     expect(payment?.razorpayPaymentId).toBe('pay_webhook_test');
+
+    const entry = await LedgerEntry.findOne({ entityType: 'Payment', entityId: payment!._id });
+    expect(entry).not.toBeNull();
+    expect(entry!.type).toBe('revenue');
+    expect(entry!.amount).toBe(payment!.amount);
   });
 });
