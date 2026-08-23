@@ -17,5 +17,13 @@
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  // vitest.config.ts pulls in @vitejs/plugin-react's own type declarations,
+  // which require a newer TypeScript than this app's own `strict`
+  // production build targets — excluded here so the app's real tsc gate
+  // (next build's own check, and this file's own `npm run typecheck`)
+  // never fails on test-tooling's types. Vitest itself doesn't need this
+  // file to pass tsc — it transpiles via esbuild independently, so test
+  // files still run and are still type-stripped correctly; only the
+  // separate, stricter whole-project tsc pass skips them.
+  "exclude": ["node_modules", "vitest.config.ts", "**/*.test.ts", "**/*.test.tsx"]
 }
