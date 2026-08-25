@@ -42,7 +42,7 @@ export default function AdminFaresPage() {
   const [rules, setRules] = useState<FareRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
-    region: 'Visakhapatnam',
+    region: '',
     category: 'vehicle_small' as FareRule['category'],
     baseFare: '',
     perKmRate: '',

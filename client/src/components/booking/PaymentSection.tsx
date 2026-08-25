@@ -42,7 +42,28 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
     }
   }
 
+  // Cash on delivery — creates a 'pending' Payment and stops there. Unlike
+  // payNow, nothing here ever sets it to 'success': only the worker who
+  // actually receives the cash can confirm that (payment.controller.ts's
+  // confirmCodPayment, called from the worker's own job screen) — the
+  // customer clicking a button on their own phone can't attest money
+  // changed hands, same discipline as HaltEvent.sealIntact.
+  async function payCod() {
+    setPending(true);
+    setError(null);
+    try {
+      const res = await api.post<{ payment: Payment }>(`/api/payments/${bookingId}/cod`);
+      setPayment(res.payment);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : t('errorPayment'));
+    } finally {
+      setPending(false);
+    }
+  }
+
   if (payment === undefined) return <div className="h-16 rounded-lg bg-surface animate-pulse mb-4" />;
+
+  const codAwaitingWorker = payment?.method === 'cod' && payment.status === 'pending';
 
   return (
     <Card elevation="raised" className="mb-4">
@@ -66,11 +87,16 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
             {t('downloadTaxInvoice')}
           </a>
         </>
+      ) : codAwaitingWorker ? (
+        <p className="text-sm text-text-muted">{t('codAwaitingWorker', { amount: payment.amount })}</p>
       ) : (
         <>
           {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
           <Button className="w-full mt-2" disabled={pending} onClick={payNow}>
             {pending ? t('processing') : t('payNow')}
+          </Button>
+          <Button className="w-full mt-2" variant="secondary" disabled={pending} onClick={payCod}>
+            {pending ? t('processing') : t('payCod')}
           </Button>
         </>
       )}

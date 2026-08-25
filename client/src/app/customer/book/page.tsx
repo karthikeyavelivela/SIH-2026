@@ -41,10 +41,15 @@ const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false
 
 type BookingType = 'truck' | 'hamali' | 'combo';
 
-// Launch region is fixed for Phase 2 — there's no multi-region picker yet
-// (that's Phase 5's /admin/regions), and every seeded FareRule is scoped
-// to this one region.
-const REGION = 'Visakhapatnam';
+// SIH26089 pan-India rewrite — region is no longer a fixed constant. It's
+// derived from the pickup point's own geocoded district/city (see
+// AddressField.tsx / geocode.service.ts's extractRegion), so a booking
+// prices against wherever the customer actually is, not a hardcoded
+// launch city. A region with no active FareRule yet surfaces the server's
+// existing honest "No active fare rule for {region}/{category}" error
+// (booking.controller.ts) rather than silently pricing at someone else's
+// rate.
+const FALLBACK_REGION_LABEL = 'your area';
 
 // Matches booking.routes.ts's server-side ceiling on body('stops').
 const MAX_STOPS = 5;
@@ -197,6 +202,14 @@ function BookForm() {
   const needsHamali = type !== 'truck';
   const weightValid = !needsWeight || Number(weightKg) > 0;
   const stopsFilled = stops.every((s) => s.address);
+  // Region always comes from wherever the job actually is (pickup), never
+  // drop — a fare is priced/dispatched at the pickup end. Deliberately NOT
+  // gated on region being non-empty: an address the geocoder couldn't
+  // extract a district/city for still submits a quote request, so the
+  // server's own "No active fare rule for {region}/{category}" (422)
+  // surfaces as a real, honest error instead of the form silently never
+  // reaching a fare at all.
+  const region = pickup?.region ?? '';
   const readyToQuote = pickup && drop && weightValid && stopsFilled && (!needsHamali || hamaliCount > 0);
 
   useEffect(() => {
@@ -213,7 +226,7 @@ function BookForm() {
       try {
         const res = await api.post<{ fareBreakdown: FareBreakdown }>('/api/bookings/quote', {
           type,
-          region: REGION,
+          region,
           pickupLocation: { coordinates: [pickup!.lng, pickup!.lat], address: pickup!.address },
           dropLocation: { coordinates: [drop!.lng, drop!.lat], address: drop!.address },
           stops: stops.map((s) => ({ coordinates: [s.lng, s.lat], address: s.address })),
@@ -236,7 +249,7 @@ function BookForm() {
 
     return () => clearTimeout(quoteDebounce.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, pickup, drop, stops, weightKg, hamaliCount, needsWeight, needsHamali, readyToQuote, selectedCategory]);
+  }, [type, pickup, drop, stops, weightKg, hamaliCount, needsWeight, needsHamali, readyToQuote, selectedCategory, region]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -246,7 +259,7 @@ function BookForm() {
     try {
       const res = await api.post<{ booking: { _id: string } }>('/api/bookings', {
         type,
-        region: REGION,
+        region,
         cargoDetails: { weightKg: needsWeight ? Number(weightKg) : 0 },
         pickupLocation: { coordinates: [pickup.lng, pickup.lat], address: pickup.address },
         dropLocation: { coordinates: [drop.lng, drop.lat], address: drop.address },
@@ -269,7 +282,7 @@ function BookForm() {
     <div className="min-h-screen bg-ip-surface">
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-lg pb-ip-xl">
         <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-1">{t('title')}</h1>
-        <p className="text-ip-body-md text-ip-on-surface-variant mb-6">{t('subtitle', { region: REGION })}</p>
+        <p className="text-ip-body-md text-ip-on-surface-variant mb-6">{t('subtitle', { region: region || FALLBACK_REGION_LABEL })}</p>
 
         <CategoryPicker
           selectedSlug={selectedCategory?.slug ?? null}
@@ -517,7 +530,7 @@ function BookForm() {
 
           {fareState === 'ready' && pickup && drop && (
             <PricingQuoteWidget
-              region={REGION}
+              region={region}
               category={type === 'hamali' ? 'hamali' : bucketVehicleCategory(Number(weightKg) || 1)}
               distanceKm={distanceKm(pickup, drop)}
               hamaliCount={needsHamali ? hamaliCount : undefined}

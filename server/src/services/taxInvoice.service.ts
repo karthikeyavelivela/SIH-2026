@@ -22,10 +22,17 @@ import { env } from '../config/env';
 const GTA_RATE = 0.05; // vehicle/freight component
 const LABOUR_RATE = 0.18; // hamali/labour component
 
-// Every launch region is within Andhra Pradesh (see customer/book's own
-// REGION constant) — so every booking is intra-state, CGST+SGST split,
-// never IGST. If this platform ever serves inter-state routes, this is
-// the one place that would need a buyer-state-vs-seller-state branch.
+// SIH26089 pan-India rewrite — the platform is no longer confined to one
+// launch state (see seedFederations.ts's multi-state hierarchy), but this
+// invoice still always splits CGST+SGST, never IGST. That's a real,
+// acknowledged simplification, not a claim of correctness: this codebase
+// has no reliable "customer's own registered state" vs "service region's
+// state" comparison to determine when a booking is genuinely inter-state,
+// and the invoice already carries its own "not a certified tax document,
+// consult a qualified tax professional" disclaimer (below) precisely
+// because of gaps like this one. A real deployment needs a buyer-state-vs-
+// seller-state branch here before this can be trusted for actual GST
+// filing on an inter-state booking.
 function splitInclusive(inclusive: number, rate: number) {
   const taxable = inclusive / (1 + rate);
   const tax = inclusive - taxable;

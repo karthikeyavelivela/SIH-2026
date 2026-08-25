@@ -81,7 +81,7 @@ export async function runDemandForecastAgent(
         ? 'The reader is a Mutha (labor crew) leader deciding how many of their members to keep online and when. Recommend which hours are worth having more people online for.'
         : 'The reader is a driver or Hamali worker deciding when to go online. Give them a plain-language earnings-opportunity hint: which hours tend to have more jobs.';
 
-  const systemPrompt = `You are FYRO's demand forecasting agent for a logistics marketplace region in Andhra Pradesh, India.
+  const systemPrompt = `You are FYRO's demand forecasting agent for a cooperative-owned household and logistics service marketplace region in India.
 You are given REAL historical booking counts by hour-of-day for the last ${LOOKBACK_DAYS} days in one region — never invent a number not in this data.
 ${audienceInstruction}
 Respond ONLY with JSON: {"summary": "<the recommendation, plain language, cites specific hours>", "confidence": "low"|"moderate"|"high", "evidence": [{"label": "<hour or metric>", "value": "<count or figure from the data>"}]}.

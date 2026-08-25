@@ -24,6 +24,7 @@ interface SeedCategory {
   defaultDurationMinutes: number;
   minWorkers: number;
   dispatchType: 'truck' | 'hamali';
+  guaranteeEligible?: boolean;
 }
 
 const CATEGORIES: SeedCategory[] = [

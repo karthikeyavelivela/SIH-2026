@@ -43,6 +43,16 @@ export interface IServiceCategory {
   // client-supplied type for a category" discipline as everywhere else in
   // this codebase).
   dispatchType: 'truck' | 'hamali';
+  // Phase D.2 — Workmanship Guarantee. True only for real named skilled
+  // trades (electrician, plumber, carpenter, painter, domestic help,
+  // caregiver, gardener, cleaner, technician) — NOT for plain cargo
+  // logistics/general labour/driving, where "workmanship" isn't a
+  // meaningful concept (there's no craft-quality claim to make about
+  // moving a box). Set per-category at seed/admin-create time, defaults to
+  // false so an admin adding an unrelated future category doesn't
+  // accidentally opt it into guarantee obligations.
+  guaranteeEligible: boolean;
+  guaranteePeriodDays: number;
   active: boolean;
   createdAt: Date;
 }
@@ -60,6 +70,8 @@ const serviceCategorySchema = new Schema<IServiceCategory>(
     defaultDurationMinutes: { type: Number, required: true, min: 15 },
     minWorkers: { type: Number, default: 1, min: 1 },
     dispatchType: { type: String, enum: ['truck', 'hamali'], required: true },
+    guaranteeEligible: { type: Boolean, default: false },
+    guaranteePeriodDays: { type: Number, default: 7, min: 1, max: 90 },
     active: { type: Boolean, default: true },
   },
   { timestamps: { createdAt: true, updatedAt: false } }

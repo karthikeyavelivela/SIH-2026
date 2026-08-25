@@ -11,7 +11,9 @@
     "seed:demo": "ts-node src/scripts/seedDemoAccounts.ts",
     "seed:training": "ts-node src/scripts/seedTrainingModules.ts",
     "seed:federations": "ts-node src/scripts/seedFederations.ts",
-    "seed:categories": "ts-node src/scripts/seedServiceCategories.ts"
+    "seed:categories": "ts-node src/scripts/seedServiceCategories.ts",
+    "seed:checkpoints": "ts-node src/scripts/seedCheckpoints.ts",
+    "seed:fares": "ts-node src/scripts/seedFareRules.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

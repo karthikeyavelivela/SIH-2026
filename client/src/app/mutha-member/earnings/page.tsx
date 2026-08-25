@@ -7,6 +7,7 @@ import { usePolling } from '@/lib/usePolling';
 import { EarningsResponse } from '@/lib/types';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
 import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
+import { CodCollectionSection } from '@/components/worker/CodCollectionSection';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { WalletIcon, StarIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 
@@ -33,6 +34,8 @@ export default function MuthaMemberEarningsPage() {
       )}
 
       <IncentiveProgressBar accent="secondary" />
+
+      <CodCollectionSection accent="secondary" />
 
       {/* Phase 3.1 — /mutha-member/insurance existed as a route with no
           nav entry anywhere (not even in the bottom tab bar), reachable

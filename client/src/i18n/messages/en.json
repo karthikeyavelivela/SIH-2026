@@ -30,7 +30,7 @@
       "backToHome": "Back to home"
     },
     "home": {
-      "liveBadge": "Live in Andhra Pradesh — cooperative-owned services",
+      "liveBadge": "Live across India — cooperative-owned services",
       "heroTitleLine1": "Trusted help,",
       "heroTitleAccent": "from your own cooperative.",
       "heroSubtitle": "Electricians, plumbers, carpenters, painters, domestic help, caregivers, gardeners, cleaners, technicians, and drivers — verified members of real Labour Cooperative Societies, not gig strangers. Book in minutes, fair wages guaranteed.",
@@ -43,8 +43,8 @@
       "statCargoRangeLabel": "service categories",
       "statOfferTimeValue": "< 60s",
       "statOfferTimeLabel": "to a live offer",
-      "statDistrictsValue": "13",
-      "statDistrictsLabel": "districts in AP",
+      "statDistrictsValue": "6",
+      "statDistrictsLabel": "states",
       "trust": {
         "realMatchesTitle": "Verified cooperative members",
         "realMatchesBody": "Every worker belongs to a real, registered Labour Cooperative Society — never an anonymous gig stranger. Jobs go to nearby verified members one at a time.",
@@ -67,22 +67,7 @@
         "payBody": "A fixed fare shown upfront, no surprises after. Pay your worker, then rate them."
       },
       "whereWeOperateHeading": "Where we operate",
-      "whereWeOperateSubtitle": "Live across Andhra Pradesh today, expanding district by district.",
-      "districts": {
-        "visakhapatnam": "Visakhapatnam",
-        "vijayawada": "Vijayawada",
-        "guntur": "Guntur",
-        "nellore": "Nellore",
-        "kurnool": "Kurnool",
-        "kakinada": "Kakinada",
-        "rajahmundry": "Rajahmundry",
-        "tirupati": "Tirupati",
-        "anantapur": "Anantapur",
-        "kadapa": "Kadapa",
-        "eluru": "Eluru",
-        "ongole": "Ongole",
-        "srikakulam": "Srikakulam"
-      },
+      "whereWeOperateSubtitle": "Live across India today, expanding state by state.",
       "closingHeading": "Skilled worker? Ready to earn fairly?",
       "closingSubtitle": "Join a cooperative society, set your own hours, and get matched to nearby jobs — with transparent pay and a real share in your society's success.",
       "closingDriveCta": "Offer your skills",
@@ -102,6 +87,14 @@
         "technician": "Technician",
         "general_logistics": "Cargo & Logistics",
         "general_labour": "General Labour"
+      },
+      "states": {
+        "andhraPradesh": "Andhra Pradesh",
+        "telangana": "Telangana",
+        "karnataka": "Karnataka",
+        "tamilNadu": "Tamil Nadu",
+        "maharashtra": "Maharashtra",
+        "kerala": "Kerala"
       }
     },
     "about": {
@@ -554,6 +547,12 @@
       "saving": "Saving…",
       "markComplete": "Mark complete",
       "unlockHint": "Complete previous modules to unlock"
+    },
+    "codCollection": {
+      "title": "Cash to collect",
+      "confirming": "Confirming…",
+      "confirmReceived": "Confirm cash received",
+      "error": "Could not confirm this payment."
     }
   },
   "trackBooking": {
@@ -609,7 +608,15 @@
     "accepting": "Accepting…",
     "errorAcceptBid": "Could not accept this bid — try again.",
     "stops": "Stops",
-    "downloadTaxInvoice": "Download tax invoice (PDF)"
+    "downloadTaxInvoice": "Download tax invoice (PDF)",
+    "haltTimeline": {
+      "title": "Chain of custody",
+      "unplannedStop": "Unplanned stop",
+      "ongoing": "ongoing",
+      "sealBroken": "seal broken"
+    },
+    "payCod": "Pay cash on delivery",
+    "codAwaitingWorker": "Cash on delivery selected — pay ₹{amount} to your worker in person. This updates once they confirm receipt."
   },
   "customerHistory": {
     "title": "Booking history",
@@ -1213,6 +1220,22 @@
       "unloadingPhotoBanner": "Take an unloading photo once the job is done, then mark it complete.",
       "startJob": "Start job",
       "markDone": "Mark done"
+    },
+    "halt": {
+      "title": "Transit checkpoint",
+      "description": "Check in when you stop — a designated checkpoint (CCTV-covered) keeps your halt on record.",
+      "checkInButton": "Check in at this stop",
+      "checkingIn": "Checking in…",
+      "stoppedAtCheckpoint": "Checked in at {name} — a designated checkpoint.",
+      "unplannedStopWarning": "No designated checkpoint here — this stop will be logged as unplanned if it runs long.",
+      "odometerLabel": "Odometer reading (optional)",
+      "odometerPlaceholder": "e.g. 45210",
+      "sealIntactYes": "Seal intact",
+      "sealIntactNo": "Seal broken",
+      "checkOutButton": "Resume trip",
+      "checkingOut": "Resuming…",
+      "errorLocation": "Could not get your location. Enable location access and try again.",
+      "errorUpdate": "Could not update this stop."
     }
   },
   "loadManifest": {

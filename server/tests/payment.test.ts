@@ -17,7 +17,16 @@ async function loginAsCustomer(phone = '9910000001') {
   return { agent, user };
 }
 
-async function makeCompletedBooking(customerId: string, total = 250) {
+async function loginAs(role: string, phone: string) {
+  const passwordHash = await bcrypt.hash('x', 10);
+  const user = await User.create({ name: 'W', phone, passwordHash, role });
+  const agent = request.agent(app);
+  const accessToken = signAccessToken({ id: user._id.toString(), role: role as never });
+  agent.jar.setCookie(`accessToken=${accessToken}`);
+  return { agent, user };
+}
+
+async function makeCompletedBooking(customerId: string, total = 250, driverId?: string) {
   return Booking.create({
     customerId,
     type: 'truck',
@@ -25,6 +34,7 @@ async function makeCompletedBooking(customerId: string, total = 250) {
     pickupLocation: { type: 'Point', coordinates: [78.4867, 17.385], address: 'Pickup' },
     dropLocation: { type: 'Point', coordinates: [78.5, 17.4], address: 'Drop' },
     requiredVehicles: [{ capacityKg: 500, count: 1 }],
+    assignedDriverIds: driverId ? [driverId] : [],
     status: 'completed',
     fareBreakdown: { baseFare: 200, distanceFare: 50, surgeMultiplier: 1, hamaliFare: 0, total },
     statusHistory: [{ status: 'completed', timestamp: new Date() }],
@@ -156,5 +166,121 @@ describe('POST /api/payments/webhook', () => {
     expect(entry).not.toBeNull();
     expect(entry!.type).toBe('revenue');
     expect(entry!.amount).toBe(payment!.amount);
+  });
+});
+
+describe('POST /api/payments/:bookingId/cod', () => {
+  it('creates a pending cash-on-delivery payment for the real fare total', async () => {
+    const { agent, user } = await loginAsCustomer('9910000010');
+    const booking = await makeCompletedBooking(user._id.toString(), 300.5);
+
+    const res = await agent.post(`/api/payments/${booking._id}/cod`);
+    expect(res.status).toBe(201);
+    expect(res.body.payment.method).toBe('cod');
+    expect(res.body.payment.status).toBe('pending');
+    expect(res.body.payment.amount).toBe(300.5);
+  });
+
+  it('rejects for a booking that is not completed', async () => {
+    const { agent, user } = await loginAsCustomer('9910000011');
+    const booking = await Booking.create({
+      customerId: user._id,
+      type: 'truck',
+      cargoDetails: { weightKg: 500 },
+      pickupLocation: { type: 'Point', coordinates: [78.4867, 17.385], address: 'Pickup' },
+      dropLocation: { type: 'Point', coordinates: [78.5, 17.4], address: 'Drop' },
+      requiredVehicles: [{ capacityKg: 500, count: 1 }],
+      status: 'in_progress',
+      fareBreakdown: { baseFare: 200, distanceFare: 50, surgeMultiplier: 1, hamaliFare: 0, total: 250 },
+      statusHistory: [{ status: 'in_progress', timestamp: new Date() }],
+    });
+    const res = await agent.post(`/api/payments/${booking._id}/cod`);
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('POST /api/payments/:bookingId/cod/confirm', () => {
+  it('the assigned driver confirms cash received, posting a real revenue ledger entry', async () => {
+    const { agent: driverAgent, user: driver } = await loginAs('driver', '9910000012');
+    const { agent: customerAgent, user: customer } = await loginAsCustomer('9910000013');
+    const booking = await makeCompletedBooking(customer._id.toString(), 275, driver._id.toString());
+    await customerAgent.post(`/api/payments/${booking._id}/cod`);
+
+    const res = await driverAgent.post(`/api/payments/${booking._id}/cod/confirm`);
+    expect(res.status).toBe(200);
+    expect(res.body.payment.status).toBe('success');
+    expect(res.body.payment.codConfirmedBy).toBe(driver._id.toString());
+
+    const entry = await LedgerEntry.findOne({ entityType: 'Payment', entityId: res.body.payment._id });
+    expect(entry).not.toBeNull();
+    expect(entry!.type).toBe('revenue');
+    expect(entry!.amount).toBe(275);
+  });
+
+  it('rejects confirmation from a driver not assigned to the booking (custody IDOR guard)', async () => {
+    const { user: driver } = await loginAs('driver', '9910000014');
+    const { agent: strangerAgent } = await loginAs('driver', '9910000015');
+    const { agent: customerAgent, user: customer } = await loginAsCustomer('9910000016');
+    const booking = await makeCompletedBooking(customer._id.toString(), 275, driver._id.toString());
+    await customerAgent.post(`/api/payments/${booking._id}/cod`);
+
+    const res = await strangerAgent.post(`/api/payments/${booking._id}/cod/confirm`);
+    expect(res.status).toBe(403);
+  });
+
+  it('the customer cannot confirm their own cash payment', async () => {
+    const { user: driver } = await loginAs('driver', '9910000017');
+    const { agent: customerAgent, user: customer } = await loginAsCustomer('9910000018');
+    const booking = await makeCompletedBooking(customer._id.toString(), 275, driver._id.toString());
+    await customerAgent.post(`/api/payments/${booking._id}/cod`);
+
+    const res = await customerAgent.post(`/api/payments/${booking._id}/cod/confirm`);
+    expect(res.status).toBe(403);
+  });
+
+  it('confirming twice never double-posts the revenue ledger entry', async () => {
+    const { agent: driverAgent, user: driver } = await loginAs('driver', '9910000019');
+    const { agent: customerAgent, user: customer } = await loginAsCustomer('9910000020');
+    const booking = await makeCompletedBooking(customer._id.toString(), 275, driver._id.toString());
+    await customerAgent.post(`/api/payments/${booking._id}/cod`);
+    await driverAgent.post(`/api/payments/${booking._id}/cod/confirm`);
+    await driverAgent.post(`/api/payments/${booking._id}/cod/confirm`);
+
+    const payment = await Payment.findOne({ bookingId: booking._id });
+    const count = await LedgerEntry.countDocuments({ entityType: 'Payment', entityId: payment!._id });
+    expect(count).toBe(1);
+  });
+});
+
+describe('GET /api/payments/cod/pending', () => {
+  it("lists the worker's own completed bookings with cash still awaiting their confirmation", async () => {
+    const { agent: driverAgent, user: driver } = await loginAs('driver', '9910000021');
+    const { agent: customerAgent, user: customer } = await loginAsCustomer('9910000022');
+    const booking = await makeCompletedBooking(customer._id.toString(), 275, driver._id.toString());
+    await customerAgent.post(`/api/payments/${booking._id}/cod`);
+
+    const res = await driverAgent.get('/api/payments/cod/pending');
+    expect(res.status).toBe(200);
+    expect(res.body.items).toHaveLength(1);
+    expect(res.body.items[0].payment.amount).toBe(275);
+    expect(res.body.items[0].booking._id).toBe(booking._id.toString());
+  });
+
+  it('does not list another driver\'s pending cash', async () => {
+    const { user: driver } = await loginAs('driver', '9910000023');
+    const { agent: strangerAgent } = await loginAs('driver', '9910000024');
+    const { agent: customerAgent, user: customer } = await loginAsCustomer('9910000025');
+    const booking = await makeCompletedBooking(customer._id.toString(), 275, driver._id.toString());
+    await customerAgent.post(`/api/payments/${booking._id}/cod`);
+
+    const res = await strangerAgent.get('/api/payments/cod/pending');
+    expect(res.status).toBe(200);
+    expect(res.body.items).toHaveLength(0);
+  });
+
+  it('is forbidden for a customer', async () => {
+    const { agent } = await loginAsCustomer('9910000026');
+    const res = await agent.get('/api/payments/cod/pending');
+    expect(res.status).toBe(403);
   });
 });

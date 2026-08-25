@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { TopBar } from '@/components/ui/TopBar';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
 import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
+import { CodCollectionSection } from '@/components/worker/CodCollectionSection';
 import { WalletIcon, StarIcon } from '@/components/ui/icons';
 
 // Also covers the "wallet_payouts" Stitch screen per DESIGN_INVENTORY.md's
@@ -38,6 +39,8 @@ export default function DriverEarningsPage() {
       )}
 
       <IncentiveProgressBar accent="primary" />
+
+      <CodCollectionSection accent="primary" />
 
       <h2 className="font-heading text-lg font-bold mb-3">{t('orderHistory')}</h2>
 

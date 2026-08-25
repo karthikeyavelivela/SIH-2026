@@ -45,7 +45,7 @@ const STEP_KEYS = ['tellUs', 'find', 'track', 'pay'] as const;
 // marketing homepage — that endpoint requires a session (every other
 // authenticated surface reads the live DB copy instead, see
 // components/booking/CategoryPicker.tsx). Same "real district list, not
-// fetched" precedent the DISTRICT_KEYS list below already sets on this
+// fetched" precedent the STATE_KEYS list below already sets on this
 // same page.
 const SERVICE_CATEGORY_DISPLAY: { key: string; icon: typeof TruckIcon }[] = [
   { key: 'electrician', icon: PowerIcon },
@@ -62,10 +62,12 @@ const SERVICE_CATEGORY_DISPLAY: { key: string; icon: typeof TruckIcon }[] = [
   { key: 'general_labour', icon: BoxIcon },
 ];
 
-const DISTRICT_KEYS = [
-  'visakhapatnam', 'vijayawada', 'guntur', 'nellore', 'kurnool', 'kakinada',
-  'rajahmundry', 'tirupati', 'anantapur', 'kadapa', 'eluru', 'ongole', 'srikakulam',
-] as const;
+// SIH26089 pan-India rewrite — mirrors seedFederations.ts's real 6-state
+// federation hierarchy (state name -> real districts). The homepage shows
+// state names, not all ~38 individual districts, to stay a readable grid;
+// the district-level federations still exist and are visible in the
+// federation dashboards.
+const STATE_KEYS = ['andhraPradesh', 'telangana', 'karnataka', 'tamilNadu', 'maharashtra', 'kerala'] as const;
 
 // Mirrors Button.tsx's `lg` primary/secondary variant classes exactly, so
 // these full-height nav links (they must stay real <Link>s for routing,
@@ -137,9 +139,10 @@ export default function HomePage() {
     body: t(`steps.${key}Body`),
   }));
 
-  // Real district list, not a "pan-India" overstatement. Matches the "13
-  // districts in AP" stat above the fold.
-  const districts = DISTRICT_KEYS.map((key) => t(`districts.${key}`));
+  // Real state list, matching seedFederations.ts's actual seeded
+  // hierarchy — not an unsubstantiated "we operate everywhere" claim.
+  // Matches the "6 states" stat above the fold.
+  const states = STATE_KEYS.map((key) => t(`states.${key}`));
 
   return (
     <div>
@@ -350,13 +353,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Coverage — real district list, not a "pan-India" overstatement.
-          Matches the "13 districts in AP" stat above the fold. */}
+      {/* Coverage — real state list, matching seedFederations.ts's actual
+          seeded hierarchy. Matches the "6 states" stat above the fold. */}
       <section className="max-w-4xl mx-auto px-6 pb-24 text-center">
         <h2 className="font-heading text-2xl font-bold text-text-primary mb-2">{t('whereWeOperateHeading')}</h2>
         <p className="text-sm text-text-muted mb-8">{t('whereWeOperateSubtitle')}</p>
         <div className="flex flex-wrap justify-center gap-2.5">
-          {districts.map((d) => (
+          {states.map((d) => (
             <span
               key={d}
               className="inline-flex items-center gap-1.5 rounded-full bg-surface-raised border border-border px-4 py-2 text-sm text-text-primary shadow-sm"

@@ -1,10 +1,11 @@
 'use client';
 
 // Address input with live autocomplete against the server's geocode proxy
-// (Nominatim, biased to Andhra Pradesh — see server/src/services/geocode.service.ts).
-// Debounced so a customer typing a full address doesn't fire a request per
-// keystroke, and every request goes through the authenticated /api/geocode
-// route, never Nominatim directly from the browser.
+// (Nominatim, biased toward India nationwide — see
+// server/src/services/geocode.service.ts). Debounced so a customer typing a
+// full address doesn't fire a request per keystroke, and every request goes
+// through the authenticated /api/geocode route, never Nominatim directly
+// from the browser.
 import { useEffect, useRef, useState } from 'react';
 import { api, ApiClientError } from '@/lib/api';
 import { MapPinIcon } from '@/components/ui/icons';
@@ -13,12 +14,18 @@ export interface GeoPoint {
   lat: number;
   lng: number;
   address: string;
+  // SIH26089 pan-India rewrite — best-effort district/city name from the
+  // geocoder, used to derive the booking's `region` (fare-rule lookup key)
+  // instead of a hardcoded city. Absent for a manually-typed point with no
+  // matching geocode result (e.g. "Same as pickup" copies it through).
+  region?: string;
 }
 
 interface GeocodeResult {
   lat: number;
   lon: number;
   displayName: string;
+  region?: string;
 }
 
 interface AddressFieldProps {
@@ -74,7 +81,7 @@ export function AddressField({ label, placeholder, value, onChange, markerColorC
   }
 
   function select(r: GeocodeResult) {
-    onChange({ lat: r.lat, lng: r.lon, address: r.displayName });
+    onChange({ lat: r.lat, lng: r.lon, address: r.displayName, region: r.region });
     setQuery(r.displayName);
     setOpen(false);
   }
@@ -129,7 +136,7 @@ export function AddressField({ label, placeholder, value, onChange, markerColorC
 
       {open && !loading && results.length === 0 && query.trim().length >= 3 && (
         <div className="absolute z-20 mt-1.5 w-full rounded-md border border-border bg-surface-raised shadow-lg px-3.5 py-3 text-sm text-text-muted">
-          No matches in Andhra Pradesh for &ldquo;{query}&rdquo;.
+          No matches for &ldquo;{query}&rdquo;.
         </div>
       )}
     </div>

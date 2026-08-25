@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
@@ -70,6 +71,100 @@ export const createPaymentOrder = asyncHandler(async (req: Request, res: Respons
   }
 
   res.status(201).json({ payment, order });
+});
+
+/**
+ * POST /api/payments/:bookingId/cod — customer chooses to pay cash on
+ * delivery instead of online. Creates a Payment the same way
+ * createPaymentOrder does (server-computed amount, idempotent on an
+ * existing pending/success row), just with no Razorpay order — status
+ * stays 'pending' until the worker who actually receives the cash
+ * confirms it via confirmCodPayment below.
+ */
+export const createCodPayment = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await Booking.findOne({ _id: req.params.bookingId, customerId: req.user!.id });
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  if (booking.status !== 'completed') {
+    throw new ApiError(400, 'Can only pay for a completed booking');
+  }
+
+  const existing = await Payment.findOne({ bookingId: booking._id, status: { $in: ['pending', 'success'] } }).sort({
+    createdAt: -1,
+  });
+  if (existing) {
+    res.status(200).json({ payment: existing });
+    return;
+  }
+
+  const payment = await Payment.create({
+    bookingId: booking._id,
+    amount: booking.fareBreakdown.total,
+    method: 'cod',
+    status: 'pending',
+  });
+
+  res.status(201).json({ payment });
+});
+
+/**
+ * POST /api/payments/:bookingId/cod/confirm — the assigned driver or hamali
+ * who actually collected the cash confirms receipt. Deliberately NOT
+ * callable by the customer (see Payment.codConfirmedBy's own doc comment)
+ * — only whoever physically held the cash can honestly attest it changed
+ * hands. IDOR-scoped to workers actually assigned to this booking, same
+ * pattern as checkpoint.controller.ts's assertDriverOnBooking.
+ */
+export const confirmCodPayment = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await Booking.findById(req.params.bookingId).select('assignedDriverIds assignedHamaliIds status');
+  if (!booking) throw new ApiError(404, 'Booking not found');
+
+  const workerId = req.user!.id;
+  const isAssigned =
+    booking.assignedDriverIds.some((id) => id.toString() === workerId) ||
+    booking.assignedHamaliIds.some((id) => id.toString() === workerId);
+  if (!isAssigned) throw new ApiError(403, 'Not assigned to this booking');
+
+  const payment = await Payment.findOne({ bookingId: booking._id, method: 'cod' }).sort({ createdAt: -1 });
+  if (!payment) throw new ApiError(404, 'No cash-on-delivery payment found for this booking');
+  if (payment.status === 'success') {
+    res.status(200).json({ payment });
+    return;
+  }
+
+  payment.status = 'success';
+  payment.codConfirmedBy = new Types.ObjectId(req.user!.id);
+  await payment.save();
+  await postRevenueLedgerEntry(payment);
+
+  res.status(200).json({ payment });
+});
+
+/**
+ * GET /api/payments/cod/pending — every completed booking assigned to the
+ * calling worker with a cash-on-delivery payment still awaiting their own
+ * confirmation. Drives the "cash to collect" list on the worker's earnings
+ * screen (client/src/components/worker/CodCollectionSection.tsx).
+ */
+export const listPendingCodForWorker = asyncHandler(async (req: Request, res: Response) => {
+  const workerId = req.user!.id;
+  const bookings = await Booking.find({
+    status: 'completed',
+    $or: [{ assignedDriverIds: workerId }, { assignedHamaliIds: workerId }],
+  })
+    .select('_id pickupLocation dropLocation fareBreakdown')
+    .lean();
+  const bookingIds = bookings.map((b) => b._id);
+
+  const payments = await Payment.find({ bookingId: { $in: bookingIds }, method: 'cod', status: 'pending' }).lean();
+  const bookingById = new Map(bookings.map((b) => [b._id.toString(), b]));
+
+  const items = [];
+  for (const payment of payments) {
+    const booking = bookingById.get(payment.bookingId.toString());
+    if (booking) items.push({ payment, booking });
+  }
+
+  res.status(200).json({ items });
 });
 
 /**

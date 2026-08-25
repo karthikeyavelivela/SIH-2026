@@ -140,9 +140,11 @@ export interface Payment {
   _id: string;
   bookingId: string;
   amount: number;
+  method: 'razorpay' | 'cod';
   status: 'pending' | 'success' | 'failed' | 'refunded';
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
+  codConfirmedBy?: string;
 }
 
 export const COMPLAINT_CATEGORIES = ['no_show', 'damage', 'payment', 'misconduct', 'other'] as const;
