@@ -80,15 +80,57 @@ describe('GET /api/insurance/plans + POST /api/insurance/enroll (Phase 3.2)', ()
   });
 
   it('rejects enrolling in a plan not offered to the caller\'s role (404)', async () => {
-    // hamali_solo, not customer — the insurance router itself already
-    // gates to WORKER_ROLES (driver/hamali_solo/mutha_member) at the RBAC
-    // layer, so a customer would 403 there and never reach the
-    // role-mismatch check this test is actually about.
     const { agent } = await loginAs('hamali_solo', '9870000005');
     const plan = await makeParametricPlan(); // forRoles: ['driver']
     const res = await agent.post('/api/insurance/enroll').send({ planId: plan._id, consent: true });
     expect(res.status).toBe(404);
   });
+
+  // This whole router used to hard-gate to WORKER_ROLES
+  // (driver/hamali_solo/mutha_member) at the RBAC layer, so customer,
+  // mutha_leader, fleet_owner, and warehouse_hub 403'd before ever
+  // reaching a controller that was already written role-agnostically —
+  // InsurancePlan.forRoles' own schema enum always supported all of them.
+  // Real bug, found via a live production check (customer's own insurance
+  // page returned "Could not load your insurance details"), not just a
+  // theoretical gap.
+  it('a customer can list, enrol in, and read back their own cargo/stock coverage — not just worker roles', async () => {
+    const { agent } = await loginAs('customer', '9870000006');
+    const plan = await InsurancePlan.create({
+      name: 'Customer Goods Protection',
+      type: 'standard',
+      category: 'cargo_transit',
+      coverageAmount: 50000,
+      description: 'x',
+      forRoles: ['customer'],
+      premium: 29,
+      active: true,
+    });
+
+    const listRes = await agent.get('/api/insurance/plans');
+    expect(listRes.status).toBe(200);
+    expect(listRes.body.plans).toHaveLength(1);
+
+    const enrollRes = await agent.post('/api/insurance/enroll').send({ planId: plan._id, consent: true });
+    expect(enrollRes.status).toBe(201);
+
+    const meRes = await agent.get('/api/insurance/me');
+    expect(meRes.status).toBe(200);
+    expect(meRes.body.policies).toHaveLength(1);
+  });
+
+  it.each([
+    ['mutha_leader', '9870000007'],
+    ['fleet_owner', '9870000008'],
+    ['warehouse_hub', '9870000009'],
+  ])(
+    '%s can also reach their own insurance endpoints (not just driver/hamali_solo/mutha_member)',
+    async (role, phone) => {
+      const { agent } = await loginAs(role, phone);
+      const res = await agent.get('/api/insurance/plans');
+      expect(res.status).toBe(200);
+    }
+  );
 });
 
 describe('admin insurance plan CRUD (Phase 3.5)', () => {

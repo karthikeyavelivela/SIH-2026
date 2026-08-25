@@ -5,15 +5,22 @@ import { requireRole } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
 import * as insuranceController from '../controllers/insurance.controller';
 
-const WORKER_ROLES = ['driver', 'hamali_solo', 'mutha_member'] as const;
-
-// Worker-facing router, mounted at /api/insurance — a driver/hamali_solo/
-// mutha_member viewing and filing against their own coverage. Mirrors the
-// incentive.routes.ts split of a worker-facing router + a separate
+// Self-service router, mounted at /api/insurance — any authenticated role
+// viewing and filing against their OWN coverage. Used to hard-gate this to
+// ['driver', 'hamali_solo', 'mutha_member'] only, which silently 403'd
+// customer/mutha_leader/fleet_owner/warehouse_hub even though every
+// controller here (getMyInsurance, listAvailablePlans, enrollInPlan) was
+// already written role-agnostically — filtered by req.user.role — and
+// InsurancePlan.forRoles' own schema enum always supported all of them.
+// listAvailablePlans naturally returns [] for a role with no matching
+// plan, so opening this to any authenticated user is safe by construction,
+// same "broad auth, narrow logic inside" pattern payment.routes.ts's
+// COD endpoints and checkpoint.routes.ts already use. Mirrors the
+// incentive.routes.ts split of a self-service router + a separate
 // admin-only router below.
 export const insuranceRouter = Router();
 
-insuranceRouter.use(verifyJwt, requireRole(...WORKER_ROLES));
+insuranceRouter.use(verifyJwt);
 
 insuranceRouter.get('/me', insuranceController.getMyInsurance);
 insuranceRouter.get('/plans', insuranceController.listAvailablePlans);
