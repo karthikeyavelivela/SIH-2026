@@ -16,6 +16,7 @@ import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
+import { HaltCheckIn } from '@/components/worker/HaltCheckIn';
 import { BackHeader } from '@/components/ui/BackHeader';
 import { Avatar } from '@/components/ui/Avatar';
 import { ChecklistItem } from '@/components/ui/ChecklistItem';
@@ -213,6 +214,12 @@ export default function DriverActiveJobPage() {
           <AlertBanner tone="warning" icon={<AlertIcon className="w-4 h-4" />} className="mb-6">
             {tDriver('deliveryPhotoBanner')}
           </AlertBanner>
+        )}
+
+        {/* Phase D.1 — Secure Transit Checkpoints. Only relevant once a
+            driver is actually en route with cargo. */}
+        {booking.status === 'in_progress' && booking.type !== 'hamali' && (
+          <HaltCheckIn bookingId={booking._id} accent="primary" />
         )}
 
         <div className="mb-6">

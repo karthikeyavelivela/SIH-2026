@@ -53,6 +53,11 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'ఫిర్యాదు అప్‌డేట్', body: `మీ ఫిర్యాదు ఇప్పుడు ${v.status}.` }),
     hi: (v) => ({ title: 'शिकायत अपडेट', body: `आपकी शिकायत अब ${v.status} है।` }),
   },
+  unplanned_halt: {
+    en: (v) => ({ title: 'Unplanned stop on your booking', body: `Your driver stopped outside a designated checkpoint for over ${v.minutes} minutes.` }),
+    te: (v) => ({ title: 'మీ బుకింగ్‌లో ప్రణాళిక లేని ఆగుట', body: `మీ డ్రైవర్ నిర్దేశిత చెక్‌పాయింట్ వెలుపల ${v.minutes} నిమిషాలకు పైగా ఆగారు.` }),
+    hi: (v) => ({ title: 'आपकी बुकिंग में अनियोजित रुकावट', body: `आपका ड्राइवर तय चेकपॉइंट के बाहर ${v.minutes} मिनट से अधिक रुका रहा।` }),
+  },
 };
 
 /**

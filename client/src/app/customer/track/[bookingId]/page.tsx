@@ -17,6 +17,7 @@ import { BackHeader } from '@/components/ui/BackHeader';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PaymentSection } from '@/components/booking/PaymentSection';
+import { HaltTimeline } from '@/components/booking/HaltTimeline';
 import { TruckIcon, BoxIcon, StarIcon, AlertIcon, MessageIcon, UsersIcon } from '@/components/ui/icons';
 
 // react-leaflet touches `window` at module load — must never run during
@@ -413,6 +414,13 @@ export default function TrackBookingPage() {
             })}
           </div>
         </Card>
+      )}
+
+      {/* Phase D.1 — Secure Transit Checkpoints. Vehicle transit only
+          (hamali jobs have no in-transit exposure this addresses), and only
+          once there's actually a transit leg to have halts on. */}
+      {booking.type !== 'hamali' && ['in_progress', 'completed'].includes(booking.status) && (
+        <HaltTimeline bookingId={bookingId} />
       )}
 
       {matched?.assigned && Object.keys(matched.assigned).length > 0 && (

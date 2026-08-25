@@ -174,3 +174,32 @@ export async function detectLocationJump(
     jobPickup: pickup,
   });
 }
+
+// A halt this long, with no designated Checkpoint on file, stops being
+// "driver took a break" and starts being "cargo sat somewhere unwitnessed
+// long enough to matter" — see Checkpoint.ts/HaltEvent.ts's own doc
+// comments for why checkpointId's absence is the unplanned-stop signal.
+const UNPLANNED_HALT_MINUTES = 20;
+
+/**
+ * Detector 5 (Phase D.1) — unplanned_halt_deviation. Run at halt check-out
+ * (see checkpoint.controller.ts's checkOutHalt) once both arrivalTime and
+ * departureTime are known, so the real duration — not a live estimate — is
+ * what's evaluated.
+ */
+export async function detectUnplannedHaltDeviation(
+  driverId: Types.ObjectId | string,
+  bookingId: Types.ObjectId | string,
+  haltEventId: Types.ObjectId | string,
+  durationMinutes: number,
+  geo: { lat: number; lng: number }
+): Promise<void> {
+  if (durationMinutes < UNPLANNED_HALT_MINUTES) return;
+
+  await raiseFraudSignal(driverId, 'unplanned_halt_deviation', durationMinutes >= 60 ? 'high' : 'medium', {
+    bookingId: bookingId.toString(),
+    haltEventId: haltEventId.toString(),
+    durationMinutes: Math.round(durationMinutes),
+    geo,
+  });
+}

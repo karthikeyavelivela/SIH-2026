@@ -17,7 +17,8 @@ export type NotificationType =
   | 'payout'
   | 'insurance_trigger'
   | 'dispute_update'
-  | 'complaint_update';
+  | 'complaint_update'
+  | 'unplanned_halt';
 
 export interface INotification {
   _id: Types.ObjectId;
@@ -35,7 +36,16 @@ const notificationSchema = new Schema<INotification>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   type: {
     type: String,
-    enum: ['booking_matched', 'booking_status', 'kyc_decision', 'payout', 'insurance_trigger', 'dispute_update', 'complaint_update'],
+    enum: [
+      'booking_matched',
+      'booking_status',
+      'kyc_decision',
+      'payout',
+      'insurance_trigger',
+      'dispute_update',
+      'complaint_update',
+      'unplanned_halt',
+    ],
     required: true,
   },
   title: { type: String, required: true },
