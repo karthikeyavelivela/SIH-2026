@@ -491,10 +491,10 @@
       "errorUpload": "ఫోటో అప్‌లోడ్ చేయలేకపోయాం — మళ్ళీ ప్రయత్నించండి."
     },
     "documentExpiry": {
-      "documents": "డాక్యుమెంట్లు",
+      "documents": "పత్రాల గడువు ట్రాకింగ్",
       "edit": "ఎడిట్",
-      "licenseId": "లైసెన్స్ / ఐడీ",
-      "vehicleInsurance": "వాహన ఇన్సూరెన్స్",
+      "licenseId": "డ్రైవింగ్ లైసెన్స్ / ID",
+      "vehicleInsurance": "వాహన బీమా",
       "notSet": "సెట్ చేయలేదు",
       "expired": "గడువు ముగిసింది",
       "expiresIn": "{days} రోజుల్లో గడువు ముగుస్తుంది",

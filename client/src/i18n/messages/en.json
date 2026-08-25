@@ -491,9 +491,9 @@
       "errorUpload": "Could not upload photo — try again."
     },
     "documentExpiry": {
-      "documents": "Documents",
+      "documents": "Document expiry tracking",
       "edit": "Edit",
-      "licenseId": "License / ID",
+      "licenseId": "Driving licence / ID",
       "vehicleInsurance": "Vehicle insurance",
       "notSet": "Not set",
       "expired": "Expired",

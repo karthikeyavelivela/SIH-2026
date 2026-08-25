@@ -491,9 +491,9 @@
       "errorUpload": "फ़ोटो अपलोड नहीं हो पाई — फिर कोशिश करें।"
     },
     "documentExpiry": {
-      "documents": "दस्तावेज़",
+      "documents": "दस्तावेज़ समाप्ति ट्रैकिंग",
       "edit": "बदलें",
-      "licenseId": "लाइसेंस / आईडी",
+      "licenseId": "ड्राइविंग लाइसेंस / ID",
       "vehicleInsurance": "वाहन बीमा",
       "notSet": "सेट नहीं है",
       "expired": "समाप्त हो गया",
