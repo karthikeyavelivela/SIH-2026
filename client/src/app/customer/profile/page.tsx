@@ -7,7 +7,7 @@ import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
-import { AlertIcon, ChevronRightIcon, MapPinIcon, XIcon } from '@/components/ui/icons';
+import { AlertIcon, ChevronRightIcon, MapPinIcon, ShieldIcon, XIcon } from '@/components/ui/icons';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -79,6 +79,23 @@ export default function CustomerProfilePage() {
       <RatingsReceivedSection />
       <ComplaintHistorySection />
       <ReferralSection />
+
+      {/* SIH26089 — cargo/stock protection for the customer's own goods.
+          Same InsuranceDashboard every worker role already uses; only the
+          nav entry point and a real seeded cargo_transit plan for
+          'customer' were missing. */}
+      <Link
+        href="/customer/insurance"
+        className="flex items-center justify-between p-4 mb-6 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base"
+      >
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+            <ShieldIcon className="w-5 h-5" />
+          </span>
+          <p className="text-sm font-semibold">{t('insurance.title')}</p>
+        </div>
+        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+      </Link>
 
       <Link
         href="/customer/support"

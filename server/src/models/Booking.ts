@@ -1,5 +1,24 @@
 import { Schema, model, Types } from 'mongoose';
 
+// SIH26089 — what kind of goods a truck/combo booking is actually moving.
+// Free-text `description` already existed but a structured type is what
+// lets fraud/insurance/e-way-bill logic reason about a booking without
+// parsing prose. Client mirrors this exact list (customer/book/page.tsx)
+// rather than fetching it — same "small fixed list, hardcode it" precedent
+// service-category display already sets on the marketing homepage.
+export const GOODS_TYPES = [
+  'general_goods',
+  'electronics',
+  'furniture',
+  'household_shifting',
+  'perishables',
+  'construction_material',
+  'industrial_machinery',
+  'documents_parcels',
+  'other',
+] as const;
+export type GoodsType = (typeof GOODS_TYPES)[number];
+
 export type BookingStatus =
   | 'scheduled'
   | 'requested'
@@ -31,7 +50,23 @@ export interface IBooking {
   // and every existing read path treats that as "generic logistics/labour"
   // exactly as before this field existed.
   serviceCategorySlug?: string;
-  cargoDetails: { weightKg: number; description?: string };
+  cargoDetails: {
+    weightKg: number;
+    description?: string;
+    // SIH26089 — what's actually being moved, for a truck/combo booking.
+    // Optional and self-declared by the customer, same discipline as
+    // BusinessProfileSection's GSTIN field elsewhere in this app — there is
+    // no government e-way-bill portal integration here, so
+    // ewayBillNumber is never verified against a real GSTN record, only
+    // stored as what the customer entered.
+    goodsType?: GoodsType;
+    estimatedValueRupees?: number;
+    // Real Indian rule this UI prompt is based on: an e-way bill is
+    // required for an intra/inter-state consignment worth >= Rs 50,000
+    // (CGST Rules, rule 138) — value-based, not weight-based, which is why
+    // this is gated on estimatedValueRupees, not weightKg.
+    ewayBillNumber?: string;
+  };
   pickupLocation: { type: 'Point'; coordinates: [number, number]; address: string };
   dropLocation: { type: 'Point'; coordinates: [number, number]; address: string };
   // Phase 6.3 — multi-stop routing. Ordered intermediate waypoints between
@@ -105,6 +140,9 @@ const bookingSchema = new Schema<IBooking>(
     cargoDetails: {
       weightKg: { type: Number, required: true, min: 0 },
       description: { type: String },
+      goodsType: { type: String, enum: GOODS_TYPES },
+      estimatedValueRupees: { type: Number, min: 0 },
+      ewayBillNumber: { type: String, trim: true },
     },
     pickupLocation: pointWithAddress,
     dropLocation: pointWithAddress,

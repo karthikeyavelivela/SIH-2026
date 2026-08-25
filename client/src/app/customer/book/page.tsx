@@ -54,6 +54,19 @@ const FALLBACK_REGION_LABEL = 'your area';
 // Matches booking.routes.ts's server-side ceiling on body('stops').
 const MAX_STOPS = 5;
 
+// Real Rs 50,000 e-way-bill threshold (CGST Rules, rule 138) — value-based,
+// not weight-based, hence gated on estimatedValueRupees below.
+const EWAY_BILL_THRESHOLD_RUPEES = 50000;
+
+// Mirrors server/src/models/Booking.ts's GOODS_TYPES exactly — a small
+// fixed list, hardcoded here rather than fetched, same precedent the
+// marketing homepage's SERVICE_CATEGORY_DISPLAY already sets.
+const GOODS_TYPES = [
+  'general_goods', 'electronics', 'furniture', 'household_shifting',
+  'perishables', 'construction_material', 'industrial_machinery',
+  'documents_parcels', 'other',
+] as const;
+
 const TYPES: { value: BookingType; labelKey: 'typeTruck' | 'typeHamali' | 'typeCombo'; icon: typeof TruckIcon }[] = [
   { value: 'truck', labelKey: 'typeTruck', icon: TruckIcon },
   { value: 'hamali', labelKey: 'typeHamali', icon: BoxIcon },
@@ -120,6 +133,13 @@ function BookForm() {
   // the server's own abuse ceiling (booking.routes.ts).
   const [stops, setStops] = useState<GeoPoint[]>([]);
   const [weightKg, setWeightKg] = useState('');
+  // SIH26089 — what's being moved, for a truck/combo booking. All three
+  // optional/self-declared; ewayBillNumber's field only shows once
+  // estimatedValueRupees crosses the real Rs 50,000 e-way-bill threshold
+  // (CGST Rules, rule 138) — value-based, not weight-based.
+  const [goodsType, setGoodsType] = useState('');
+  const [estimatedValue, setEstimatedValue] = useState('');
+  const [ewayBillNumber, setEwayBillNumber] = useState('');
   // Computed once on mount, not inline in JSX — calling
   // defaultScheduledForValue()/maxScheduledForValue() fresh on every render
   // means `min` keeps creeping forward as real time passes while the form
@@ -211,6 +231,7 @@ function BookForm() {
   // reaching a fare at all.
   const region = pickup?.region ?? '';
   const readyToQuote = pickup && drop && weightValid && stopsFilled && (!needsHamali || hamaliCount > 0);
+  const ewayRequired = needsWeight && Number(estimatedValue) >= EWAY_BILL_THRESHOLD_RUPEES;
 
   useEffect(() => {
     clearTimeout(quoteDebounce.current);
@@ -260,7 +281,12 @@ function BookForm() {
       const res = await api.post<{ booking: { _id: string } }>('/api/bookings', {
         type,
         region,
-        cargoDetails: { weightKg: needsWeight ? Number(weightKg) : 0 },
+        cargoDetails: {
+          weightKg: needsWeight ? Number(weightKg) : 0,
+          goodsType: needsWeight && goodsType ? goodsType : undefined,
+          estimatedValueRupees: needsWeight && estimatedValue ? Number(estimatedValue) : undefined,
+          ewayBillNumber: needsWeight && ewayRequired && ewayBillNumber ? ewayBillNumber : undefined,
+        },
         pickupLocation: { coordinates: [pickup.lng, pickup.lat], address: pickup.address },
         dropLocation: { coordinates: [drop.lng, drop.lat], address: drop.address },
         stops: stops.map((s) => ({ coordinates: [s.lng, s.lat], address: s.address })),
@@ -459,6 +485,53 @@ function BookForm() {
                 required
                 min={1}
               />
+
+              <label className="block text-xs font-semibold text-ip-on-surface-variant mb-1.5 mt-4" htmlFor="goodsType">
+                {t('goodsTypeLabel')}
+              </label>
+              <select
+                id="goodsType"
+                value={goodsType}
+                onChange={(e) => setGoodsType(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">{t('goodsTypePlaceholder')}</option>
+                {GOODS_TYPES.map((g) => (
+                  <option key={g} value={g}>
+                    {t(`goodsTypes.${g}` as never)}
+                  </option>
+                ))}
+              </select>
+
+              <label className="block text-xs font-semibold text-ip-on-surface-variant mb-1.5 mt-4" htmlFor="estimatedValue">
+                {t('estimatedValueLabel')}
+              </label>
+              <input
+                id="estimatedValue"
+                type="number"
+                placeholder="e.g. 25000"
+                value={estimatedValue}
+                onChange={(e) => setEstimatedValue(e.target.value)}
+                className={inputClass}
+                min={0}
+              />
+
+              {ewayRequired && (
+                <div className="mt-4">
+                  <label className="block text-xs font-semibold text-ip-on-surface-variant mb-1.5" htmlFor="ewayBill">
+                    {t('ewayBillLabel')}
+                  </label>
+                  <input
+                    id="ewayBill"
+                    type="text"
+                    placeholder={t('ewayBillPlaceholder')}
+                    value={ewayBillNumber}
+                    onChange={(e) => setEwayBillNumber(e.target.value)}
+                    className={inputClass}
+                  />
+                  <p className="text-[11px] text-ip-on-surface-variant mt-1.5">{t('ewayBillHint')}</p>
+                </div>
+              )}
             </div>
           )}
 

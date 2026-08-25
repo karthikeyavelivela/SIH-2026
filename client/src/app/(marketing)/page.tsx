@@ -1,13 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/Card';
-import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
-import { setLocaleAction } from '@/i18n/setLocale';
 import {
   SearchIcon,
   ChevronRightIcon,
@@ -88,17 +84,6 @@ const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 export default function HomePage() {
   const reduceMotion = useReducedMotion();
   const t = useTranslations('marketing.home');
-  const locale = useLocale() as LanguageCode;
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  function handleLocaleChange(code: LanguageCode) {
-    if (code === locale) return;
-    startTransition(async () => {
-      await setLocaleAction(code);
-      router.refresh();
-    });
-  }
 
   const rise = (delay = 0) =>
     reduceMotion
@@ -190,22 +175,17 @@ export default function HomePage() {
           style={{ background: 'linear-gradient(to bottom, transparent 0%, transparent 88%, var(--color-background) 100%)' }}
         />
 
-        {/* Language switcher — the first concrete, working example of the
-            NEXT_LOCALE cookie flow: LanguagePill calls setLocaleAction
-            (a Server Action in client/src/i18n/setLocale.ts) then
-            router.refresh() so Server Components re-render with the new
-            locale, no URL change. Placed here rather than in the shared
-            marketing header/layout, which this pass deliberately leaves
-            untouched (see client/src/i18n/README.md). */}
-        <div className="relative z-30 flex justify-center pt-24 px-4">
-          <LanguagePill
-            value={locale}
-            onChange={handleLocaleChange}
-            className={`bg-white/90 backdrop-blur-md shadow-lg transition-opacity duration-base ${isPending ? 'opacity-60' : ''}`}
-          />
-        </div>
+        {/* This page used to render its OWN LanguagePill here, stacked
+            directly under the shared marketing layout's nav-bar one
+            (app/(marketing)/layout.tsx) — on any viewport where the nav's
+            `md:inline-flex` switcher is visible, both showed at once,
+            reading as a broken duplicate rather than two intentional
+            controls. Removed, along with the locale-change handler this
+            page no longer needs — the layout's own switcher (present on
+            every marketing page, not just this one) is the single source
+            now. */}
 
-        <div className="max-w-4xl mx-auto text-center px-6 pt-8 pb-20">
+        <div className="max-w-4xl mx-auto text-center px-6 pt-24 pb-20">
           <motion.span
             {...rise()}
             className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-sm px-4 py-1.5 text-xs font-semibold text-white mb-7"

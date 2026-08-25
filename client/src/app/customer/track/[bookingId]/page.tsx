@@ -37,6 +37,8 @@ interface BookingDetail {
   proofPhotos?: { pickup?: string; delivery?: string };
   // Phase 6.2 — load board with bidding.
   openForBidding?: boolean;
+  // SIH26089 — self-declared goods info for a truck/combo booking.
+  cargoDetails?: { weightKg: number; goodsType?: string; estimatedValueRupees?: number; ewayBillNumber?: string };
 }
 
 interface Bid {
@@ -460,6 +462,18 @@ export default function TrackBookingPage() {
             <span className="text-text-muted">{t('dropLabel')}</span>
             {booking.dropLocation.address}
           </p>
+          {booking.cargoDetails?.goodsType && (
+            <p>
+              <span className="text-text-muted">{t('goodsTypeLabel')}</span>
+              {t(`goodsTypes.${booking.cargoDetails.goodsType}` as never)}
+            </p>
+          )}
+          {booking.cargoDetails?.ewayBillNumber && (
+            <p>
+              <span className="text-text-muted">{t('ewayBillLabel')}</span>
+              {booking.cargoDetails.ewayBillNumber}
+            </p>
+          )}
         </div>
       </Card>
 

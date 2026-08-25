@@ -279,9 +279,9 @@
       "genericError": "साइन अप विफल रहा"
     },
     "signupHamali": {
-      "eyebrow": "टीम से जुड़ें",
-      "title": "हमाली के रूप में FYRO से जुड़ें",
-      "subtitle": "आप कैसे शुरू करना चाहते हैं, चुनें।",
+      "eyebrow": "सहकारी समिति में शामिल हों",
+      "title": "कुशल कामगार के रूप में FYRO में शामिल हों",
+      "subtitle": "इलेक्ट्रीशियन, प्लंबर, बढ़ई, पेंटर, घरेलू सहायक, केयरगिवर, माली, सफाईकर्मी, तकनीशियन, या लोडिंग/अनलोडिंग श्रम — आप कैसे शुरुआत करना चाहते हैं चुनें। साइन अप के बाद आप अपनी प्रोफ़ाइल पर अपने विशिष्ट कौशल सेट कर सकते हैं।",
       "joinTypeAria": "आप कैसे शामिल होना चाहते हैं?",
       "joinTypes": {
         "solo": {
@@ -357,8 +357,8 @@
           "body": "मेरे पास एक वाहन है/मैं चलाता हूं और लोड ढूंढना चाहता हूं।"
         },
         "hamali": {
-          "title": "हमाली मजदूर",
-          "body": "मैं लोडिंग, अनलोडिंग, और मजदूरी सेवाएं प्रदान करता हूं।"
+          "title": "कुशल कामगार / सहकारी सदस्य",
+          "body": "इलेक्ट्रीशियन, प्लंबर, बढ़ई, पेंटर, घरेलू सहायक, केयरगिवर, माली, सफाईकर्मी, तकनीशियन, या लोडिंग/अनलोडिंग श्रम।"
         },
         "fleetOwner": {
           "title": "फ्लीट मालिक",
@@ -616,7 +616,20 @@
       "sealBroken": "सील टूटी"
     },
     "payCod": "डिलीवरी पर नकद भुगतान करें",
-    "codAwaitingWorker": "डिलीवरी पर नकद चुना गया — अपने वर्कर को व्यक्तिगत रूप से ₹{amount} का भुगतान करें। वे प्राप्ति की पुष्टि करने के बाद यह अपडेट होगा।"
+    "codAwaitingWorker": "डिलीवरी पर नकद चुना गया — अपने वर्कर को व्यक्तिगत रूप से ₹{amount} का भुगतान करें। वे प्राप्ति की पुष्टि करने के बाद यह अपडेट होगा।",
+    "goodsTypeLabel": "सामान का प्रकार: ",
+    "ewayBillLabel": "ई-वे बिल: ",
+    "goodsTypes": {
+      "general_goods": "सामान्य सामान",
+      "electronics": "इलेक्ट्रॉनिक्स",
+      "furniture": "फर्नीचर",
+      "household_shifting": "घरेलू शिफ्टिंग",
+      "perishables": "नाशवान वस्तुएं",
+      "construction_material": "निर्माण सामग्री",
+      "industrial_machinery": "औद्योगिक मशीनरी",
+      "documents_parcels": "दस्तावेज़ / पार्सल",
+      "other": "अन्य"
+    }
   },
   "customerHistory": {
     "title": "बुकिंग इतिहास",
@@ -682,7 +695,24 @@
     "removeStop": "हटाएं",
     "removeStopAria": "पड़ाव {n} हटाएं",
     "addStop": "पड़ाव जोड़ें",
-    "categorySelected": "बुकिंग: {name}"
+    "categorySelected": "बुकिंग: {name}",
+    "goodsTypeLabel": "आप क्या भेज रहे हैं?",
+    "goodsTypePlaceholder": "सामान का प्रकार चुनें",
+    "goodsTypes": {
+      "general_goods": "सामान्य सामान",
+      "electronics": "इलेक्ट्रॉनिक्स",
+      "furniture": "फर्नीचर",
+      "household_shifting": "घरेलू शिफ्टिंग",
+      "perishables": "नाशवान वस्तुएं",
+      "construction_material": "निर्माण सामग्री",
+      "industrial_machinery": "औद्योगिक मशीनरी",
+      "documents_parcels": "दस्तावेज़ / पार्सल",
+      "other": "अन्य"
+    },
+    "estimatedValueLabel": "सामान का अनुमानित मूल्य (रु, वैकल्पिक)",
+    "ewayBillLabel": "ई-वे बिल नंबर",
+    "ewayBillPlaceholder": "12-अंकों का ई-वे बिल नंबर",
+    "ewayBillHint": "रु 50,000 या उससे अधिक मूल्य की खेप के लिए GST नियमों के तहत आवश्यक। स्व-घोषित — सरकारी ई-वे बिल पोर्टल के विरुद्ध सत्यापित नहीं।"
   },
   "muthaMemberJob": {
     "hello": "नमस्ते,",
@@ -715,7 +745,8 @@
     "crewOperations": "टीम संचालन",
     "groupEarningsToDate": "समूह की कमाई — अब तक ₹{amount}",
     "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें",
-    "cooperativeGovernance": "सहकारी शासन"
+    "cooperativeGovernance": "सहकारी शासन",
+    "insuranceProtection": "बीमा और सुरक्षा"
   },
   "workerEarnings": {
     "pageTitle": "कमाई",
@@ -945,7 +976,10 @@
       "cancel": "रद्द करें"
     },
     "groupSettingsLink": "ग्रुप सेटिंग्स — नाम, क्षेत्र, फ़ोटो, आमंत्रण QR",
-    "accountEyebrow": "खाता"
+    "accountEyebrow": "खाता",
+    "insurance": {
+      "title": "आपके सामान के लिए बीमा और सुरक्षा"
+    }
   },
   "certifications": {
     "loadError": "आपके सर्टिफिकेट लोड नहीं हो सके",

@@ -14,6 +14,21 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = 'modal-title';
 
+  // `onClose` is a new function identity on every render for any caller
+  // passing an inline arrow (e.g. RatingModal's `onClose={() => {}}`) — and
+  // a caller with its own state (the comment textarea) re-renders on every
+  // keystroke. With `onClose` in this effect's own deps, that identity
+  // change re-ran the effect after every character typed, which called
+  // closeButtonRef.current?.focus() again and yanked focus off whatever
+  // the user was actually typing into, back to the × button. Routing
+  // through a ref keeps the escape handler always calling the LATEST
+  // onClose without needing it in the deps array below — the effect (and
+  // the focus-steal) now only runs when `open` itself actually changes.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!open) return;
 
@@ -22,7 +37,7 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
     document.body.style.overflow = 'hidden';
 
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     }
     document.addEventListener('keydown', handleKeyDown);
 
@@ -30,7 +45,7 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

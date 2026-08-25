@@ -279,9 +279,9 @@
       "genericError": "Signup failed"
     },
     "signupHamali": {
-      "eyebrow": "Join the crew",
-      "title": "Join FYRO as Hamali",
-      "subtitle": "Pick how you'd like to get started.",
+      "eyebrow": "Join a cooperative",
+      "title": "Join FYRO as a skilled worker",
+      "subtitle": "Electrician, plumber, carpenter, painter, domestic help, caregiver, gardener, cleaner, technician, or loading/unloading labour — pick how you'd like to get started. You'll set your specific skills on your profile after signing up.",
       "joinTypeAria": "How would you like to join?",
       "joinTypes": {
         "solo": {
@@ -357,8 +357,8 @@
           "body": "I own or operate a vehicle and want to find loads."
         },
         "hamali": {
-          "title": "Hamali Worker",
-          "body": "I provide loading, unloading, and labor services."
+          "title": "Skilled Worker / Cooperative Member",
+          "body": "Electrician, plumber, carpenter, painter, domestic help, caregiver, gardener, cleaner, technician, or loading/unloading labour."
         },
         "fleetOwner": {
           "title": "Fleet Owner",
@@ -616,7 +616,20 @@
       "sealBroken": "seal broken"
     },
     "payCod": "Pay cash on delivery",
-    "codAwaitingWorker": "Cash on delivery selected — pay ₹{amount} to your worker in person. This updates once they confirm receipt."
+    "codAwaitingWorker": "Cash on delivery selected — pay ₹{amount} to your worker in person. This updates once they confirm receipt.",
+    "goodsTypeLabel": "Goods type: ",
+    "ewayBillLabel": "E-way bill: ",
+    "goodsTypes": {
+      "general_goods": "General goods",
+      "electronics": "Electronics",
+      "furniture": "Furniture",
+      "household_shifting": "Household shifting",
+      "perishables": "Perishables",
+      "construction_material": "Construction material",
+      "industrial_machinery": "Industrial machinery",
+      "documents_parcels": "Documents / parcels",
+      "other": "Other"
+    }
   },
   "customerHistory": {
     "title": "Booking history",
@@ -682,7 +695,24 @@
     "removeStop": "Remove",
     "removeStopAria": "Remove stop {n}",
     "addStop": "Add a stop",
-    "categorySelected": "Booking: {name}"
+    "categorySelected": "Booking: {name}",
+    "goodsTypeLabel": "What are you shipping?",
+    "goodsTypePlaceholder": "Select goods type",
+    "goodsTypes": {
+      "general_goods": "General goods",
+      "electronics": "Electronics",
+      "furniture": "Furniture",
+      "household_shifting": "Household shifting",
+      "perishables": "Perishables",
+      "construction_material": "Construction material",
+      "industrial_machinery": "Industrial machinery",
+      "documents_parcels": "Documents / parcels",
+      "other": "Other"
+    },
+    "estimatedValueLabel": "Estimated value of goods (Rs, optional)",
+    "ewayBillLabel": "E-way bill number",
+    "ewayBillPlaceholder": "12-digit e-way bill number",
+    "ewayBillHint": "Required by GST rules for consignments worth Rs 50,000 or more. Self-declared — not verified against the government e-way bill portal."
   },
   "muthaMemberJob": {
     "hello": "Hello,",
@@ -715,7 +745,8 @@
     "crewOperations": "Crew operations",
     "groupEarningsToDate": "Group earnings — ₹{amount} to date",
     "rateLastCustomer": "Rate your last customer",
-    "cooperativeGovernance": "Cooperative governance"
+    "cooperativeGovernance": "Cooperative governance",
+    "insuranceProtection": "Insurance & protection"
   },
   "workerEarnings": {
     "pageTitle": "Earnings",
@@ -945,7 +976,10 @@
       "cancel": "Cancel"
     },
     "groupSettingsLink": "Group settings — name, region, photo, invite QR",
-    "accountEyebrow": "Account"
+    "accountEyebrow": "Account",
+    "insurance": {
+      "title": "Insurance & protection for your goods"
+    }
   },
   "certifications": {
     "loadError": "Couldn't load your certifications",

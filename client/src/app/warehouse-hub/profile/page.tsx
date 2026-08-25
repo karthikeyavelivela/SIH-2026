@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
-import { XIcon } from '@/components/ui/icons';
+import Link from 'next/link';
+import { XIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -193,6 +194,18 @@ export default function WarehouseHubProfilePage() {
         <NotificationPreferencesSection />
         <PrivacySettingsSection />
         <ComplaintHistorySection />
+        <Link
+          href="/warehouse-hub/insurance"
+          className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-6"
+        >
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
+              <ShieldIcon className="w-5 h-5" />
+            </span>
+            <p className="text-sm font-semibold">{t('insurance.title')}</p>
+          </div>
+          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        </Link>
         <SupportSection />
         <AccountDangerZoneSection />
       </div>

@@ -162,10 +162,17 @@ export default function MuthaDashboardPage() {
           </span>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>
-        <Link href="/mutha/governance" className="flex items-center justify-between py-3 last:pb-0">
+        <Link href="/mutha/governance" className="flex items-center justify-between py-3">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
             <ShieldIcon className="w-4 h-4 text-ip-outline" />
             {t('cooperativeGovernance')}
+          </span>
+          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        </Link>
+        <Link href="/mutha/insurance" className="flex items-center justify-between py-3 last:pb-0">
+          <span className="flex items-center gap-2.5 text-sm font-semibold">
+            <ShieldIcon className="w-4 h-4 text-ip-outline" />
+            {t('insuranceProtection')}
           </span>
           <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
         </Link>

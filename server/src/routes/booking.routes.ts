@@ -4,6 +4,7 @@ import { verifyJwt } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
 import { bookingCreateLimiter, bookingQuoteLimiter } from '../middleware/rateLimit';
+import { GOODS_TYPES } from '../models/Booking';
 import * as bookingController from '../controllers/booking.controller';
 
 export const bookingRouter = Router();
@@ -66,6 +67,12 @@ bookingRouter.post(
   [
     ...pricingRules,
     body('cargoDetails.weightKg').isFloat({ min: 0 }),
+    // SIH26089 — all three optional, self-declared by the customer. See
+    // Booking.ts's own doc comment on why ewayBillNumber is never verified
+    // against a real GSTN record.
+    body('cargoDetails.goodsType').optional().isIn(GOODS_TYPES),
+    body('cargoDetails.estimatedValueRupees').optional().isFloat({ min: 0 }),
+    body('cargoDetails.ewayBillNumber').optional().isString().trim().isLength({ max: 50 }),
     // Phase 6 — scheduled booking. Absent = instant (unchanged). Bounds
     // (30 min .. 14 days out) are enforced again in the controller with a
     // friendlier per-case message; this is just the shape check.

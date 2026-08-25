@@ -34,7 +34,17 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
   // so neither role had ever been live-verified.
   { role: 'fleet_owner', phone: '9000000015', name: 'Demo Fleet Owner' },
   { role: 'warehouse_hub', phone: '9000000016', name: 'Demo Warehouse Hub' },
+  // 'manager' had zero demo account anywhere — every requirePermission-gated
+  // admin-console surface (fare rules, complaint resolution, KYC review,
+  // analytics) was consequently never actually login-verified as this role,
+  // only ever exercised as 'admin' (which bypasses requirePermission
+  // entirely — see rbac.ts). Granted every permission string that exists
+  // in the codebase today (grepped from requirePermission() call sites),
+  // not a curated subset, so this one account can exercise all of them.
+  { role: 'manager', phone: '9000000017', name: 'Demo Manager' },
 ];
+
+const MANAGER_PERMISSIONS = ['edit_fare_rules', 'resolve_complaints', 'verify_kyc', 'view_analytics'];
 
 async function seedDemoAccounts() {
   await connectDb();
@@ -54,6 +64,7 @@ async function seedDemoAccounts() {
       passwordHash,
       role: acc.role,
       accountStatus: 'active',
+      permissions: acc.role === 'manager' ? MANAGER_PERMISSIONS : undefined,
     });
 
     if (acc.role === 'driver') {

@@ -6,6 +6,8 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import Link from 'next/link';
+import { ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
@@ -131,6 +133,18 @@ export default function FleetOwnerProfilePage() {
         <NotificationPreferencesSection />
         <PrivacySettingsSection />
         <ComplaintHistorySection />
+        <Link
+          href="/fleet-owner/insurance"
+          className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-6"
+        >
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+              <ShieldIcon className="w-5 h-5" />
+            </span>
+            <p className="text-sm font-semibold">{t('insurance.title')}</p>
+          </div>
+          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        </Link>
         <SupportSection />
         <AccountDangerZoneSection />
       </div>
