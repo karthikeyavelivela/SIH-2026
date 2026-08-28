@@ -55,12 +55,19 @@ function parseModelJson(text: string): ParsedModelOutput | null {
 }
 
 /**
- * Runs one agent call. Mock mode (no ANTHROPIC_API_KEY, or
- * MOCK_EXTERNAL_SERVICES=true) never calls the real API — it returns a
- * result built from the same `context` a real call would have used, with
- * `mock:true` set so no caller can mistake it for a real analysis. This
- * mirrors payment.service.ts/cloudinary.service.ts/otp.service.ts's
- * existing mock/real convention exactly.
+ * Runs one agent call. Mock mode (no ANTHROPIC_API_KEY) never calls the
+ * real API — it returns a result built from the same `context` a real call
+ * would have used, with `mock:true` set so no caller can mistake it for a
+ * real analysis.
+ *
+ * Deliberately gated on ANTHROPIC_API_KEY alone, NOT on the shared
+ * MOCK_EXTERNAL_SERVICES flag that payment.service.ts/cloudinary.service.ts
+ * still use: that flag also controls otp.service.ts's sendOtpSms, which
+ * *throws* in real mode with no SMS provider configured (none is, by
+ * design). Reusing it here would mean flipping it to unlock live agents
+ * also breaks the phone-change flow in production. Same
+ * one-flag-per-concern precedent as PARAMETRIC_PAYOUTS_ENABLED in env.ts —
+ * agents go live purely on whether a real key is present.
  */
 export async function callAgent(
   input: AgentCallInput,
@@ -68,7 +75,7 @@ export async function callAgent(
 ): Promise<AgentResult> {
   const generatedAt = new Date().toISOString();
 
-  if (env.MOCK_EXTERNAL_SERVICES || !env.ANTHROPIC_API_KEY) {
+  if (!env.ANTHROPIC_API_KEY) {
     const mock = mockResult(input.context);
     return { agentName: input.agentName, mock: true, generatedAt, ...mock };
   }

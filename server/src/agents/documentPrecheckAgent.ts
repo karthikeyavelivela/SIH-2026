@@ -68,7 +68,9 @@ export async function runDocumentPrecheckAgent(userId: string, documentType: Kyc
     hasFetchableImage: false, // overwritten below once we know
   };
 
-  if (env.MOCK_EXTERNAL_SERVICES || !env.ANTHROPIC_API_KEY) {
+  // See agents/client.ts's callAgent doc comment: agents gate on
+  // ANTHROPIC_API_KEY alone, not the shared MOCK_EXTERNAL_SERVICES flag.
+  if (!env.ANTHROPIC_API_KEY) {
     return callAgent({ agentName: 'document_precheck', systemPrompt: '', userPrompt: '', context, locale }, (ctx) =>
       mockPrecheck(ctx as typeof context, locale)
     );
