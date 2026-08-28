@@ -73,30 +73,55 @@ export async function callAgent(
     return { agentName: input.agentName, mock: true, generatedAt, ...mock };
   }
 
-  const Anthropic = (await import('@anthropic-ai/sdk')).default;
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  // A real API failure here (billing/credits, rate limit, transient
+  // outage) used to propagate straight up through asyncHandler into a
+  // bare 500 — every agent request-handler in agents.controller.ts calls
+  // this with no try/catch of its own, on the (correct, for an actual bug)
+  // assumption that an unexpected throw should surface loudly. But "the
+  // model API is temporarily unreachable" is an anticipatable failure
+  // mode, not a bug, and the whole point of mockResult already existing is
+  // "give a real, honest, data-grounded answer even without a live model
+  // call" — so that's exactly what a live-call failure degrades to here,
+  // instead of a 500. The caller can always tell the two mock paths apart:
+  // this one's evidence carries an explicit note, an env-not-configured
+  // mock doesn't.
+  try {
+    const Anthropic = (await import('@anthropic-ai/sdk')).default;
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
 
-  const systemPrompt = input.locale ? input.systemPrompt + localeInstruction(input.locale) : input.systemPrompt;
-  const message = await client.messages.create({
-    model: AGENT_MODEL,
-    max_tokens: MAX_OUTPUT_TOKENS,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: input.userPrompt }],
-  });
+    const systemPrompt = input.locale ? input.systemPrompt + localeInstruction(input.locale) : input.systemPrompt;
+    const message = await client.messages.create({
+      model: AGENT_MODEL,
+      max_tokens: MAX_OUTPUT_TOKENS,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: input.userPrompt }],
+    });
 
-  const textBlock = message.content.find((b) => b.type === 'text');
-  const parsed = textBlock && 'text' in textBlock ? parseModelJson(textBlock.text) : null;
+    const textBlock = message.content.find((b) => b.type === 'text');
+    const parsed = textBlock && 'text' in textBlock ? parseModelJson(textBlock.text) : null;
 
-  if (!parsed) {
+    if (!parsed) {
+      return {
+        agentName: input.agentName,
+        summary: 'The analysis could not be completed in a usable format this time — try again.',
+        confidence: 'low',
+        evidence: [],
+        mock: false,
+        generatedAt,
+      };
+    }
+
+    return { agentName: input.agentName, mock: false, generatedAt, ...parsed };
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(`callAgent(${input.agentName}): real API call failed, falling back to mock —`, err);
+    const mock = mockResult(input.context);
     return {
       agentName: input.agentName,
-      summary: 'The analysis could not be completed in a usable format this time — try again.',
-      confidence: 'low',
-      evidence: [],
-      mock: false,
+      mock: true,
       generatedAt,
+      ...mock,
+      evidence: [...mock.evidence, { label: 'Note', value: 'Live AI analysis was unavailable this time — showing a rule-based estimate from the same real data instead.' }],
     };
   }
-
-  return { agentName: input.agentName, mock: false, generatedAt, ...parsed };
 }
