@@ -33,11 +33,12 @@ const envSchema = z.object({
     .string()
     .default('true')
     .transform((v) => v === 'true'),
-  // Phase 4 AI agents. Same mock/real split as every other external
-  // integration in this codebase — absent key means agents run in mock
-  // mode (deterministic, clearly-labeled placeholder analysis) rather
-  // than either failing outright or silently pretending to call a model
-  // that was never configured.
+  // Phase 4 AI agents. Absent key means agents run in mock mode
+  // (deterministic, clearly-labeled placeholder analysis) rather than
+  // either failing outright or silently pretending to call a model that
+  // was never configured. Deliberately NOT gated by MOCK_EXTERNAL_SERVICES
+  // like the rest of this file's integrations — see agents/client.ts's
+  // callAgent doc comment for why agents need their own switch.
   ANTHROPIC_API_KEY: z.string().optional(),
   // Phase 6.4 — Indian tax documents. Optional on purpose: never fabricate
   // a real-looking GSTIN for a legal document. When absent,
