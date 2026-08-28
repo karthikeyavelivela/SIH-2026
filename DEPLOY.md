@@ -56,3 +56,28 @@ Visit your Vercel URL, log in with the admin phone/password you set, or a demo a
 - **Masked phone calling** — no telephony vendor integrated at all (see the commit that removed raw phone numbers from the socket payload) — in-app chat is the real contact channel right now.
 
 Give me real Cloudinary/Razorpay credentials as env vars whenever you're ready to flip those on — no code changes needed, `MOCK_EXTERNAL_SERVICES=false` and the four Cloudinary/Razorpay vars is the whole switch.
+
+## Turning on live AI agents (Phase 4)
+
+The six agents in `server/src/agents/` (pricing/quote, demand forecast, dispute
+triage, document precheck, market insights, support) run in mock mode —
+deterministic, clearly labeled `DEMO MODE` in the UI — until a real Anthropic
+key is configured. This is **independent of `MOCK_EXTERNAL_SERVICES`**
+on purpose: that flag also gates `otp.service.ts`'s SMS sending, which
+throws in real mode with no SMS provider wired up, so reusing it for agents
+would break the phone-change flow the moment agents went live.
+
+1. Get an API key from [console.anthropic.com](https://console.anthropic.com/settings/keys).
+   **Never paste it into a chat, commit it to a file, or put it in `render.yaml`** — it's a
+   live credential; treat it like a password.
+2. Render dashboard → your `fyro-server` service → **Environment** → add
+   `ANTHROPIC_API_KEY` with that value → Save. Render redeploys automatically.
+3. Verify live in the browser: open a page with an agent card (e.g.
+   `/customer/book` for the Pricing & Quote Agent) and confirm the
+   **"DEMO MODE"** badge is gone — `AgentResultCard.tsx` only renders it when
+   the API response has `mock:true`. You can also check the raw response
+   directly (e.g. via the network tab, or `curl`) for `"mock":false`.
+
+If a key is ever pasted somewhere it shouldn't be (chat, a commit, a log),
+revoke it immediately in the console above and generate a new one — don't
+just remove it from wherever it was pasted, the old value has to be killed.

@@ -23,3 +23,8 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      # Phase 4 AI agents — set the real value in Render's dashboard
+      # (Environment tab), never here. Absent = agents run in mock mode;
+      # unrelated to MOCK_EXTERNAL_SERVICES, see agents/client.ts.
+      - key: ANTHROPIC_API_KEY
+        sync: false

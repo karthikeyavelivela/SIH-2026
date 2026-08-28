@@ -19,7 +19,7 @@ export interface AgentResult {
   confidence: AgentConfidence;
   /** What the conclusion is actually based on — always non-empty; an agent with nothing to point at says so in `summary` and returns confidence:'low' with an empty array, never fabricates a citation. */
   evidence: AgentEvidenceItem[];
-  /** True when this ran without a real model call (no ANTHROPIC_API_KEY / MOCK_EXTERNAL_SERVICES) — surfaced to the UI so a mock response is never mistaken for a real analysis. */
+  /** True when this ran without a real model call (no ANTHROPIC_API_KEY configured) — surfaced to the UI so a mock response is never mistaken for a real analysis. */
   mock: boolean;
   generatedAt: string;
 }
