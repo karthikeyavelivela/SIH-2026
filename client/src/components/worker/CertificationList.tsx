@@ -74,6 +74,7 @@ export function CertificationList() {
           validFrom={formatDate(c.issuedAt)}
           validUntil={formatDate(c.validUntil)}
           qrValue={c.qrPayload}
+          credentialId={`ID: ${c._id.slice(-6).toUpperCase()}`}
           expired={c.status === 'expired'}
         />
       ))}

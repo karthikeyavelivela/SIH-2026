@@ -917,7 +917,23 @@
     "bonusEarned": "₹{amount} in rating-based bonuses earned",
     "totalEarned": "Total earned",
     "orderHistory": "Order history",
-    "noCompletedJobs": "No completed jobs yet."
+    "noCompletedJobs": "No completed jobs yet.",
+    "memberPill": "Member",
+    "ledgerEyebrow": "Cooperative ledger",
+    "rangeWeek": "Week",
+    "rangeMonth": "Month",
+    "rangeAll": "All",
+    "totalFor": {
+      "week": "Earned this week",
+      "month": "Earned this month",
+      "all": "Total earned"
+    },
+    "settlementNote": "Settled to your cooperative account after each completed job.",
+    "dailyBreakdown": "Daily breakdown",
+    "weekTrips": "{count, plural, =0 {No jobs this week} one {# job this week} other {# jobs this week}}",
+    "weekTotal": "₹{amount} this week",
+    "settledCount": "{count, plural, =0 {None} one {# settled} other {# settled}}",
+    "noCompletedJobsHint": "Completed jobs and what they paid appear here."
   },
   "workerRequests": {
     "pageTitle": "Job requests",
@@ -1215,7 +1231,17 @@
     "emptyTitle": "No certifications yet",
     "emptyDescription": "Complete every module in your training curriculum to earn your first certificate.",
     "pageTitle": "Certifications",
-    "pageSubtitle": "Endorsed skills, valid dates, and a scannable site-verification code."
+    "pageSubtitle": "Endorsed skills, valid dates, and a scannable site-verification code.",
+    "memberPill": "Member",
+    "registerEyebrow": "Cooperative training register",
+    "earnedHeading": "Earned certifications",
+    "credentialsHeading": "Your credentials",
+    "indemnityStanding": "Indemnity standing",
+    "coverActive": "Cover active",
+    "noCover": "No active cover",
+    "coverageAmount": "₹{amount} covered",
+    "bonded": "Bonded",
+    "notBonded": "Not bonded"
   },
   "agents": {
     "aiChip": "AI",

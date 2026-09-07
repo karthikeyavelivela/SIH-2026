@@ -917,7 +917,23 @@
     "bonusEarned": "రేటింగ్ ఆధారంగా ₹{amount} బోనస్ వచ్చింది",
     "totalEarned": "మొత్తం సంపాదన",
     "orderHistory": "ఆర్డర్ చరిత్ర",
-    "noCompletedJobs": "ఇంకా ఏ పనీ పూర్తి కాలేదు."
+    "noCompletedJobs": "ఇంకా ఏ పనీ పూర్తి కాలేదు.",
+    "memberPill": "సభ్యుడు",
+    "ledgerEyebrow": "సహకార ఖాతా",
+    "rangeWeek": "వారం",
+    "rangeMonth": "నెల",
+    "rangeAll": "అన్నీ",
+    "totalFor": {
+      "week": "ఈ వారం సంపాదన",
+      "month": "ఈ నెల సంపాదన",
+      "all": "మొత్తం సంపాదన"
+    },
+    "settlementNote": "ప్రతి పని పూర్తయ్యాక మీ సహకార ఖాతాకు జమ.",
+    "dailyBreakdown": "రోజువారీ వివరాలు",
+    "weekTrips": "{count, plural, =0 {ఈ వారం పనులు లేవు} one {ఈ వారం # పని} other {ఈ వారం # పనులు}}",
+    "weekTotal": "ఈ వారం ₹{amount}",
+    "settledCount": "{count, plural, =0 {ఏదీ లేదు} one {# పరిష్కారం} other {# పరిష్కారాలు}}",
+    "noCompletedJobsHint": "పూర్తయిన పనులు, వాటి చెల్లింపులు ఇక్కడ కనిపిస్తాయి."
   },
   "workerRequests": {
     "pageTitle": "పని అభ్యర్థనలు",
@@ -1215,7 +1231,17 @@
     "emptyTitle": "ఇంకా సర్టిఫికెట్‌లు లేవు",
     "emptyDescription": "మీ మొదటి సర్టిఫికెట్ పొందడానికి మీ శిక్షణలోని ప్రతి మాడ్యూల్‌ను పూర్తి చేయండి.",
     "pageTitle": "సర్టిఫికేషన్‌లు",
-    "pageSubtitle": "ఆమోదించిన నైపుణ్యాలు, చెల్లుబాటు తేదీలు, స్కాన్ చేయగల సైట్-వెరిఫికేషన్ కోడ్."
+    "pageSubtitle": "ఆమోదించిన నైపుణ్యాలు, చెల్లుబాటు తేదీలు, స్కాన్ చేయగల సైట్-వెరిఫికేషన్ కోడ్.",
+    "memberPill": "సభ్యుడు",
+    "registerEyebrow": "సహకార శిక్షణ రిజిస్టర్",
+    "earnedHeading": "పొందిన ధృవపత్రాలు",
+    "credentialsHeading": "మీ ధృవపత్రాలు",
+    "indemnityStanding": "బీమా స్థితి",
+    "coverActive": "బీమా అమలులో ఉంది",
+    "noCover": "అమలులో బీమా లేదు",
+    "coverageAmount": "₹{amount} వరకు రక్షణ",
+    "bonded": "బీమా ఉంది",
+    "notBonded": "బీమా లేదు"
   },
   "agents": {
     "aiChip": "AI",

@@ -917,7 +917,23 @@
     "bonusEarned": "रेटिंग के आधार पर ₹{amount} का बोनस मिला",
     "totalEarned": "कुल कमाई",
     "orderHistory": "ऑर्डर इतिहास",
-    "noCompletedJobs": "अभी तक कोई काम पूरा नहीं हुआ।"
+    "noCompletedJobs": "अभी तक कोई काम पूरा नहीं हुआ।",
+    "memberPill": "सदस्य",
+    "ledgerEyebrow": "सहकारी बही",
+    "rangeWeek": "सप्ताह",
+    "rangeMonth": "महीना",
+    "rangeAll": "सभी",
+    "totalFor": {
+      "week": "इस सप्ताह की कमाई",
+      "month": "इस महीने की कमाई",
+      "all": "कुल कमाई"
+    },
+    "settlementNote": "हर काम पूरा होने पर आपके सहकारी खाते में जमा।",
+    "dailyBreakdown": "रोज़ का ब्यौरा",
+    "weekTrips": "{count, plural, =0 {इस सप्ताह कोई काम नहीं} one {इस सप्ताह # काम} other {इस सप्ताह # काम}}",
+    "weekTotal": "इस सप्ताह ₹{amount}",
+    "settledCount": "{count, plural, =0 {कोई नहीं} one {# निपटा} other {# निपटे}}",
+    "noCompletedJobsHint": "पूरे हुए काम और उनका भुगतान यहाँ दिखता है।"
   },
   "workerRequests": {
     "pageTitle": "काम के अनुरोध",
@@ -1215,7 +1231,17 @@
     "emptyTitle": "अभी तक कोई सर्टिफिकेट नहीं",
     "emptyDescription": "अपना पहला सर्टिफिकेट पाने के लिए अपने प्रशिक्षण के हर मॉड्यूल को पूरा करें।",
     "pageTitle": "सर्टिफिकेशन",
-    "pageSubtitle": "मान्य कौशल, वैध तारीखें, और स्कैन किया जा सकने वाला साइट-सत्यापन कोड।"
+    "pageSubtitle": "मान्य कौशल, वैध तारीखें, और स्कैन किया जा सकने वाला साइट-सत्यापन कोड।",
+    "memberPill": "सदस्य",
+    "registerEyebrow": "सहकारी प्रशिक्षण रजिस्टर",
+    "earnedHeading": "अर्जित प्रमाणपत्र",
+    "credentialsHeading": "आपके प्रमाणपत्र",
+    "indemnityStanding": "बीमा स्थिति",
+    "coverActive": "कवर सक्रिय",
+    "noCover": "कोई सक्रिय कवर नहीं",
+    "coverageAmount": "₹{amount} तक कवर",
+    "bonded": "बीमित",
+    "notBonded": "बीमित नहीं"
   },
   "agents": {
     "aiChip": "AI",
