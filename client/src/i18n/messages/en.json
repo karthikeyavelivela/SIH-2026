@@ -1727,7 +1727,7 @@
     "pageTitle": "Job requests",
     "pageSubtitle": "Assign specific online members to each job.",
     "jobLabel": "{type} job",
-    "needsMore": "Needs {count} more worker{plural}",
+    "needsMore": "{count, plural, =0 {Fully crewed} one {Needs # more} other {Needs # more}}",
     "assignOnline": "Assign online members ({selected}/{remaining})",
     "noneOnline": "No members online right now, bring someone online to assign this job.",
     "currentlyActive": "Currently active",
@@ -1738,7 +1738,31 @@
     "acceptAndAssign": "Accept & assign",
     "holdNotice": "Accepting holds this job for your group, pick members from the list below to confirm.",
     "noOpenRequests": "No open requests",
-    "noOpenRequestsDesc": "Jobs your group qualifies for will show up here."
+    "noOpenRequestsDesc": "Jobs your group qualifies for will show up here.",
+    "queueEyebrow": "Cooperative queue · {count, plural, =0 {no new allocations} one {# new allocation} other {# new allocations}}",
+    "mandatesHeading": "Incoming mandates",
+    "dispatchesHeading": "Priority crew dispatches",
+    "openCount": "{count, plural, =0 {None open} one {# open} other {# open}}",
+    "crewReady": "{ready} of {total} members ready",
+    "mustered": "Crew mustered",
+    "noneReady": "None ready",
+    "transit": "{km} km transit",
+    "workersRequired": "Workers required",
+    "assignedCount": "{count, plural, =0 {None assigned yet} one {# assigned} other {# assigned}}",
+    "collectiveYield": "Collective yield",
+    "perWorker": "₹{amount} per worker",
+    "consignment": "Consignment",
+    "goodsTypes": {
+      "general_goods": "General goods",
+      "electronics": "Electronics",
+      "furniture": "Furniture",
+      "household_shifting": "Household shifting",
+      "perishables": "Perishables",
+      "construction_material": "Construction material",
+      "industrial_machinery": "Machinery",
+      "documents_parcels": "Parcels",
+      "other": "Other"
+    }
   },
   "muthaActiveJobs": {
     "pageTitle": "Active jobs",
@@ -1802,7 +1826,29 @@
     "removeMemberTitle": "Remove member?",
     "removeMemberBody": "{name} will no longer be matched to jobs through your group. Their account is not deleted.",
     "cancel": "Cancel",
-    "removing": "Removing…"
+    "removing": "Removing…",
+    "registerEyebrow": "Collective ledger · {count, plural, =0 {no active seals} one {# active seal} other {# active seals}}",
+    "rosterHeading": "Society member roster",
+    "rosterBlurb": "Every artisan and logistics member registered to this chapter, with their live availability.",
+    "portalEyebrow": "Self-federating labour portal",
+    "shareCode": "Share code",
+    "copied": "Copied",
+    "shareTitle": "Join our cooperative society on FYRO",
+    "shareText": "Join our society on FYRO with invite code {code}.",
+    "searchPlaceholder": "Search by name or number",
+    "filters": {
+      "all": "All",
+      "on_job": "On a job",
+      "online": "Standby ready",
+      "offline": "Resting"
+    },
+    "status": {
+      "online": "Ready",
+      "on_job": "On a job",
+      "offline": "Resting"
+    },
+    "noMatches": "No members match that filter.",
+    "rosterSection": "Members"
   },
   "muthaOperations": {
     "title": "Operations",

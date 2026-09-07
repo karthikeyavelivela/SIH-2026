@@ -1727,7 +1727,7 @@
     "pageTitle": "काम के अनुरोध",
     "pageSubtitle": "हर काम के लिए विशेष ऑनलाइन सदस्यों को असाइन करें।",
     "jobLabel": "{type} काम",
-    "needsMore": "अभी {count} और मज़दूर चाहिए",
+    "needsMore": "{count, plural, =0 {पूरी टोली} one {# और चाहिए} other {# और चाहिए}}",
     "assignOnline": "ऑनलाइन सदस्यों को असाइन करें ({selected}/{remaining})",
     "noneOnline": "अभी कोई सदस्य ऑनलाइन नहीं है, इस काम को असाइन करने के लिए किसी को ऑनलाइन लाएं।",
     "currentlyActive": "अभी सक्रिय है",
@@ -1738,7 +1738,31 @@
     "acceptAndAssign": "स्वीकार करें और असाइन करें",
     "holdNotice": "स्वीकार करने पर यह काम आपके ग्रुप के लिए रोका जाता है, पुष्टि के लिए नीचे सूची से सदस्य चुनें।",
     "noOpenRequests": "कोई खुला अनुरोध नहीं",
-    "noOpenRequestsDesc": "जिन कामों के लिए आपका ग्रुप योग्य है वे यहां दिखेंगे।"
+    "noOpenRequestsDesc": "जिन कामों के लिए आपका ग्रुप योग्य है वे यहां दिखेंगे।",
+    "queueEyebrow": "सहकारी क्यू · {count, plural, =0 {कोई नया आवंटन नहीं} one {# नया आवंटन} other {# नए आवंटन}}",
+    "mandatesHeading": "आने वाले काम",
+    "dispatchesHeading": "प्राथमिक टोली आवंटन",
+    "openCount": "{count, plural, =0 {कोई नहीं} one {# खुला} other {# खुले}}",
+    "crewReady": "{total} में से {ready} सदस्य तैयार",
+    "mustered": "टोली तैयार",
+    "noneReady": "कोई तैयार नहीं",
+    "transit": "{km} कि.मी. यात्रा",
+    "workersRequired": "आवश्यक कामगार",
+    "assignedCount": "{count, plural, =0 {अभी कोई नहीं सौंपा} one {# सौंपा} other {# सौंपे}}",
+    "collectiveYield": "सामूहिक आय",
+    "perWorker": "प्रति कामगार ₹{amount}",
+    "consignment": "खेप",
+    "goodsTypes": {
+      "general_goods": "सामान्य माल",
+      "electronics": "इलेक्ट्रॉनिक्स",
+      "furniture": "फ़र्नीचर",
+      "household_shifting": "घरेलू सामान",
+      "perishables": "जल्दी खराब होने वाला",
+      "construction_material": "निर्माण सामग्री",
+      "industrial_machinery": "मशीनरी",
+      "documents_parcels": "पार्सल",
+      "other": "अन्य"
+    }
   },
   "muthaActiveJobs": {
     "pageTitle": "सक्रिय काम",
@@ -1802,7 +1826,29 @@
     "removeMemberTitle": "सदस्य हटाएं?",
     "removeMemberBody": "{name} अब आपके ग्रुप के ज़रिए कामों से मैच नहीं होंगे। उनका खाता हटाया नहीं जाएगा।",
     "cancel": "रद्द करें",
-    "removing": "हटाया जा रहा है…"
+    "removing": "हटाया जा रहा है…",
+    "registerEyebrow": "सामूहिक बही · {count, plural, =0 {कोई सदस्य नहीं} one {# सक्रिय सदस्य} other {# सक्रिय सदस्य}}",
+    "rosterHeading": "समिति सदस्य सूची",
+    "rosterBlurb": "इस शाखा में पंजीकृत हर कारीगर और श्रमिक, उनकी मौजूदा उपलब्धता के साथ।",
+    "portalEyebrow": "स्वयं जुड़ने का पोर्टल",
+    "shareCode": "कोड साझा करें",
+    "copied": "कॉपी हो गया",
+    "shareTitle": "FYRO पर हमारी सहकारी समिति से जुड़ें",
+    "shareText": "इनवाइट कोड {code} से FYRO पर हमारी समिति से जुड़ें।",
+    "searchPlaceholder": "नाम या नंबर से खोजें",
+    "filters": {
+      "all": "सभी",
+      "on_job": "काम पर",
+      "online": "तैयार",
+      "offline": "विश्राम"
+    },
+    "status": {
+      "online": "तैयार",
+      "on_job": "काम पर",
+      "offline": "विश्राम"
+    },
+    "noMatches": "उस फ़िल्टर से मेल खाता कोई सदस्य नहीं।",
+    "rosterSection": "सदस्य"
   },
   "muthaOperations": {
     "title": "संचालन",

@@ -1727,7 +1727,7 @@
     "pageTitle": "జాబ్ రిక్వెస్ట్‌లు",
     "pageSubtitle": "ప్రతి జాబ్‌కు నిర్దిష్ట ఆన్‌లైన్ మెంబర్లను కేటాయించండి.",
     "jobLabel": "{type} జాబ్",
-    "needsMore": "ఇంకా {count} మంది వర్కర్లు అవసరం",
+    "needsMore": "{count, plural, =0 {పూర్తి బృందం} one {ఇంకా # కావాలి} other {ఇంకా # మంది కావాలి}}",
     "assignOnline": "ఆన్‌లైన్ మెంబర్లను కేటాయించండి ({selected}/{remaining})",
     "noneOnline": "ప్రస్తుతం ఎవరూ ఆన్‌లైన్‌లో లేరు, ఈ జాబ్‌ను కేటాయించడానికి ఎవరినైనా ఆన్‌లైన్‌లోకి తీసుకురండి.",
     "currentlyActive": "ప్రస్తుతం యాక్టివ్‌గా ఉంది",
@@ -1738,7 +1738,31 @@
     "acceptAndAssign": "అంగీకరించి కేటాయించండి",
     "holdNotice": "అంగీకరించడం ఈ జాబ్‌ను మీ గ్రూప్ కోసం పట్టి ఉంచుతుంది, నిర్ధారించడానికి క్రింది జాబితా నుండి మెంబర్లను ఎంచుకోండి.",
     "noOpenRequests": "ఓపెన్ రిక్వెస్ట్‌లు లేవు",
-    "noOpenRequestsDesc": "మీ గ్రూప్ అర్హత పొందిన జాబ్‌లు ఇక్కడ కనిపిస్తాయి."
+    "noOpenRequestsDesc": "మీ గ్రూప్ అర్హత పొందిన జాబ్‌లు ఇక్కడ కనిపిస్తాయి.",
+    "queueEyebrow": "సహకార క్యూ · {count, plural, =0 {కొత్తవి లేవు} one {# కొత్త కేటాయింపు} other {# కొత్త కేటాయింపులు}}",
+    "mandatesHeading": "వచ్చిన పనులు",
+    "dispatchesHeading": "ప్రాధాన్య బృంద కేటాయింపులు",
+    "openCount": "{count, plural, =0 {ఏదీ లేదు} one {# తెరిచి ఉంది} other {# తెరిచి ఉన్నాయి}}",
+    "crewReady": "{total}లో {ready} మంది సిద్ధం",
+    "mustered": "బృందం సిద్ధం",
+    "noneReady": "ఎవరూ సిద్ధంగా లేరు",
+    "transit": "{km} కి.మీ ప్రయాణం",
+    "workersRequired": "అవసరమైన కార్మికులు",
+    "assignedCount": "{count, plural, =0 {ఇంకా ఎవరినీ కేటాయించలేదు} one {# కేటాయించారు} other {# కేటాయించారు}}",
+    "collectiveYield": "సమిష్టి ఆదాయం",
+    "perWorker": "ఒక్కొక్కరికి ₹{amount}",
+    "consignment": "సరుకు",
+    "goodsTypes": {
+      "general_goods": "సాధారణ సరుకు",
+      "electronics": "ఎలక్ట్రానిక్స్",
+      "furniture": "ఫర్నిచర్",
+      "household_shifting": "ఇంటి సామాను",
+      "perishables": "పాడైపోయేవి",
+      "construction_material": "నిర్మాణ సామగ్రి",
+      "industrial_machinery": "యంత్రాలు",
+      "documents_parcels": "పార్సెల్స్",
+      "other": "ఇతరం"
+    }
   },
   "muthaActiveJobs": {
     "pageTitle": "యాక్టివ్ జాబ్‌లు",
@@ -1802,7 +1826,29 @@
     "removeMemberTitle": "మెంబర్‌ను తీసివేయాలా?",
     "removeMemberBody": "{name} ఇక మీ గ్రూప్ ద్వారా జాబ్‌లకు మ్యాచ్ చేయబడరు. వారి ఖాతా తొలగించబడదు.",
     "cancel": "రద్దు",
-    "removing": "తీసివేస్తోంది…"
+    "removing": "తీసివేస్తోంది…",
+    "registerEyebrow": "సమిష్టి ఖాతా · {count, plural, =0 {సభ్యులు లేరు} one {# సభ్యుడు} other {# సభ్యులు}}",
+    "rosterHeading": "సంఘ సభ్యుల జాబితా",
+    "rosterBlurb": "ఈ శాఖలో నమోదైన ప్రతి కళాకారుడు, కార్మికుడు — వారి ప్రస్తుత అందుబాటుతో.",
+    "portalEyebrow": "స్వయం చేరిక పోర్టల్",
+    "shareCode": "కోడ్ పంచుకోండి",
+    "copied": "కాపీ అయ్యింది",
+    "shareTitle": "FYROలో మా సహకార సంఘంలో చేరండి",
+    "shareText": "{code} ఇన్వైట్ కోడ్‌తో FYROలో మా సంఘంలో చేరండి.",
+    "searchPlaceholder": "పేరు లేదా నంబర్‌తో వెతకండి",
+    "filters": {
+      "all": "అన్నీ",
+      "on_job": "పనిలో",
+      "online": "సిద్ధం",
+      "offline": "విశ్రాంతి"
+    },
+    "status": {
+      "online": "సిద్ధం",
+      "on_job": "పనిలో",
+      "offline": "విశ్రాంతి"
+    },
+    "noMatches": "ఆ ఫిల్టర్‌కు సరిపోయే సభ్యులు లేరు.",
+    "rosterSection": "సభ్యులు"
   },
   "muthaOperations": {
     "title": "ఆపరేషన్స్",
