@@ -50,8 +50,23 @@ export const listLoadBoard = asyncHandler(async (req: Request, res: Response) =>
   const myBids = await Bid.find({ bookingId: { $in: bookingIds }, bidderId: userId, status: 'pending' }).lean();
   const myBidByBooking = new Map(myBids.map((b) => [b.bookingId.toString(), b]));
 
+  // How many others are bidding on each load. A bidder is quoting a price
+  // blind without it — the load board screen shows a competing-bid count for
+  // exactly this reason. Counted in one grouped query rather than per load,
+  // and it is a COUNT only: no amounts, no identities, so nobody can read
+  // another member's quote off this endpoint and undercut it.
+  const bidCounts = await Bid.aggregate<{ _id: unknown; count: number }>([
+    { $match: { bookingId: { $in: bookingIds }, status: 'pending' } },
+    { $group: { _id: '$bookingId', count: { $sum: 1 } } },
+  ]);
+  const bidCountByBooking = new Map(bidCounts.map((r) => [String(r._id), r.count]));
+
   res.status(200).json({
-    loads: bookings.map((b) => ({ ...b, myBid: myBidByBooking.get(b._id.toString()) ?? null })),
+    loads: bookings.map((b) => ({
+      ...b,
+      myBid: myBidByBooking.get(b._id.toString()) ?? null,
+      bidCount: bidCountByBooking.get(b._id.toString()) ?? 0,
+    })),
   });
 });
 
