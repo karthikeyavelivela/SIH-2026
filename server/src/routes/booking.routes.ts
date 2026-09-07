@@ -25,7 +25,18 @@ const pointRule = (field: string) => [
 // differently than the booking it's estimating.
 const pricingRules = [
   body('type').isIn(['truck', 'hamali', 'combo']),
-  body('region').isString().trim().isLength({ min: 1 }),
+  // Deliberately NOT isLength({min:1}) — customer/book/page.tsx sends
+  // region:'' on purpose when the geocoder couldn't classify the pickup
+  // address into a district/city/state (geocode.service.ts's extractRegion
+  // returns undefined for plenty of real addresses), specifically so the
+  // controller's own "No active fare rule for {region}/{category}" (422)
+  // surfaces as an honest, actionable error instead of this validator
+  // rejecting the request first with an opaque "Validation failed" that
+  // names no field and matches the client's documented intent. Still
+  // required as a *string* (never absent) so findActiveRule/Booking.create
+  // always get '' rather than undefined, which Mongo would otherwise treat
+  // as "match any region" in a query.
+  body('region').isString().trim(),
   // SIH26089 Phase C — optional. When present, the server derives the
   // real dispatch `type` from the category's own dispatchType and ignores
   // whatever `type` the client sent alongside it (booking.controller.ts) —
