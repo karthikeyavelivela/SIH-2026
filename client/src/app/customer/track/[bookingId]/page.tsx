@@ -9,16 +9,24 @@ import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
 import { useBookingSocket } from '@/lib/useBookingSocket';
+import { distanceKm } from '@/lib/geo';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
-import { BackHeader } from '@/components/ui/BackHeader';
+import { Icon } from '@/components/ui/Icon';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PaymentSection } from '@/components/booking/PaymentSection';
 import { HaltTimeline } from '@/components/booking/HaltTimeline';
-import { TruckIcon, BoxIcon, StarIcon, AlertIcon, MessageIcon, UsersIcon } from '@/components/ui/icons';
+import { StarIcon, MessageIcon, UsersIcon } from '@/components/ui/icons';
+import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { MetricBlock, StatRow } from '@/components/fy/Data';
+import { Button as FyButton } from '@/components/fy/Controls';
+import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -203,6 +211,9 @@ export default function TrackBookingPage() {
 
   const { status: liveStatus, matched, liveLocation, messages, sendChat } = useBookingSocket(bookingId);
   const [pendingRatingId, setPendingRatingId] = useState<string | null | undefined>(undefined);
+  // The design's four-tab row: Status / Chat / Payment / Custody.
+  const [tab, setTab] = useState<'status' | 'chat' | 'payment' | 'custody'>('status');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     if (booking?.status !== 'completed') return;
@@ -247,23 +258,27 @@ export default function TrackBookingPage() {
 
   if (error) {
     return (
-      <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
-        <Card elevation="raised" className="text-center py-10 text-sm text-fy-muted mx-5 mt-6">
-          {error}
-        </Card>
+      <div className="min-h-screen bg-fy-bone">
+        <TopBar title={t('pageTitle')} showBack />
+        <main className="pt-16 px-gutter max-w-2xl mx-auto">
+          <LightCard className="text-center py-10">
+            <Body size="label">{error}</Body>
+          </LightCard>
+        </main>
+        <CustomerTabBar />
       </div>
     );
   }
 
   if (!booking) {
     return (
-      <div className="max-w-lg mx-auto pb-6">
-        <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
-        <div className="px-5 pt-6 space-y-3">
+      <div className="min-h-screen bg-fy-bone">
+        <TopBar title={t('pageTitle')} showBack />
+        <main className="pt-16 px-gutter max-w-2xl mx-auto flex flex-col gap-3">
           <div className="h-8 w-1/2 rounded bg-fy-panel animate-pulse" />
           <div className="h-40 rounded-card bg-fy-panel animate-pulse" />
-        </div>
+        </main>
+        <CustomerTabBar />
       </div>
     );
   }
@@ -286,277 +301,336 @@ export default function TrackBookingPage() {
     }
   }
 
+  // Distance still to run, computed from the worker's own last GPS ping to
+  // the drop point. The design prints a "14 mins" ETA beside it; nothing
+  // server-side computes an ETA, and a travel-time estimate invented in the
+  // browser is a number the customer would plan around, so only the
+  // distance -- which is real -- is shown.
+  const kmLeft =
+    liveLocation && booking.status === 'in_progress'
+      ? distanceKm({ lat: liveLocation.lat, lng: liveLocation.lng }, { lat: dLat, lng: dLng })
+      : null;
+
+  async function copyShareLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      // Clipboard blocked -- the URL is in the address bar either way.
+    }
+  }
+
+  const assigned = matched?.assigned as Record<string, unknown> | undefined;
+  const hasAssigned = assigned != null && Object.keys(assigned).length > 0;
+  const chatOpen = !['requested', 'searching'].includes(booking.status);
+
   return (
-    <div className="max-w-lg mx-auto pb-6">
-      <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
-      <div className="px-5 pt-6">
-      <div className="flex items-center justify-end mb-6">
-        <Badge tone={statusTone[booking.status] ?? 'secondary'}>{t(`historyStatus.${booking.status}` as never) ?? booking.status}</Badge>
-      </div>
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
-      <Card elevation="raised" className="mb-4">
-        <div className="grid grid-cols-2 gap-y-4 gap-x-3 text-sm">
-          <div>
-            <p className="text-[11px] text-fy-muted mb-0.5">{t('trackingId')}</p>
-            <p className="font-heading font-bold tracking-wide">{booking._id.slice(-8).toUpperCase()}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-fy-muted mb-0.5">{t('type')}</p>
-            <p className="font-semibold capitalize">{booking.type}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-fy-muted mb-0.5">{t('status')}</p>
-            <p className="font-semibold capitalize">{t(`historyStatus.${booking.status}` as never) ?? booking.status}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-fy-muted mb-0.5">{t('totalFare')}</p>
-            <p className="font-semibold">₹{booking.fareBreakdown.total}</p>
-          </div>
-        </div>
-      </Card>
-
-      {(booking.status === 'requested' || booking.status === 'searching') && (
-        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-control bg-fy-brown/10 text-sm text-fy-brown">
-          <span className="w-3.5 h-3.5 rounded-full border-2 border-fy-brown/30 border-t-primary-600 animate-spin flex-shrink-0" />
-          {booking.openForBidding
-            ? t('waitingForBids')
-            : booking.status === 'requested'
-              ? t('waitingRequested')
-              : t('waitingSearching')}
-        </div>
-      )}
-
-      {booking.openForBidding && ['requested', 'searching'].includes(booking.status) && (
-        <BidsReviewSection bookingId={bookingId} onAccepted={setBooking} />
-      )}
-
-      <RouteMap
-        pickup={{ lat: pLat, lng: pLng }}
-        drop={{ lat: dLat, lng: dLng }}
-        stops={(booking.stops ?? []).map((s) => ({ lat: s.coordinates[1], lng: s.coordinates[0] }))}
-        liveMarker={liveLocation ? { lat: liveLocation.lat, lng: liveLocation.lng } : undefined}
-        liveMarkerType={booking.type === 'hamali' ? 'hamali' : 'truck'}
-        className="h-48 mb-3"
+      <TopBar
+        title={t('pageTitle')}
+        showBack
+        actions={
+          <StatusPill
+            tone={booking.status === 'completed' ? 'lime' : booking.status === 'cancelled' ? 'critical' : 'neutral'}
+          >
+            {t(`historyStatus.${booking.status}` as never) ?? booking.status}
+          </StatusPill>
+        }
       />
 
-      {booking.stops && booking.stops.length > 0 && (
-        <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('stops')}</p>
-          <div className="space-y-1.5 text-sm">
-            {booking.stops.map((s, i) => (
-              <p key={i}>
-                <span className="text-fy-muted">{i + 1}. </span>
-                {s.address}
-              </p>
-            ))}
-          </div>
-        </Card>
-      )}
+      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <RouteMap
+          pickup={{ lat: pLat, lng: pLng }}
+          drop={{ lat: dLat, lng: dLng }}
+          stops={(booking.stops ?? []).map((s) => ({ lat: s.coordinates[1], lng: s.coordinates[0] }))}
+          liveMarker={liveLocation ? { lat: liveLocation.lat, lng: liveLocation.lng } : undefined}
+          liveMarkerType={booking.type === 'hamali' ? 'hamali' : 'truck'}
+          className="h-56 rounded-card overflow-hidden mt-2"
+        />
 
-      {/* Honest GPS state — never implies live tracking that isn't
-          actually flowing. A driver/hamali only streams position once
-          they're in_progress AND their own device granted location
-          permission (see useLiveLocationBroadcast); until a ping actually
-          arrives this says so plainly instead of a silently frozen pin. */}
-      {booking.status === 'in_progress' && (
-        <p className="flex items-center gap-1.5 text-xs text-fy-muted mb-6 -mt-1">
-          {liveLocation ? (
-            <>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {t('liveLocationUpdated', { seconds: Math.max(0, Math.round((Date.now() - liveLocation.at) / 1000)) })}
-            </>
-          ) : (
-            <>
-              <span className="w-1.5 h-1.5 rounded-full bg-text-muted/40" />
-              {t('waitingForLiveLocation')}
-            </>
-          )}
-        </p>
-      )}
-
-      {stepIndex >= 0 && booking.status !== 'cancelled' && (
-        <div className="flex items-center mb-8">
-          {STEPS.map((step, i) => (
-            <div key={step} className="flex items-center flex-1 last:flex-none">
-              <div
-                className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                  i <= stepIndex ? 'bg-fy-brown' : 'bg-border-strong'
-                }`}
-              />
-              {i < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 ${i < stepIndex ? 'bg-fy-brown' : 'bg-border-strong'}`} />
-              )}
+        {/* Telemetry strip. Never implies live tracking that isn't flowing:
+            a worker only streams position once they are in_progress AND
+            their own device granted location permission, so until a ping
+            actually arrives this says so rather than showing a frozen pin. */}
+        {booking.status === 'in_progress' && (
+          <LightCard className="flex items-start gap-3">
+            <IconTile tone={liveLocation ? 'lime' : 'peach'} size="sm">
+              <Icon name="satellite_alt" size={18} />
+            </IconTile>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <EyebrowLabel tone={liveLocation ? 'green' : 'muted'}>{t('telemetrySync')}</EyebrowLabel>
+                {liveLocation && (
+                  <EyebrowLabel>
+                    {t('liveLocationUpdated', {
+                      seconds: Math.max(0, Math.round((Date.now() - liveLocation.at) / 1000)),
+                    })}
+                  </EyebrowLabel>
+                )}
+              </div>
+              <Body size="label" className="mt-0.5">
+                {liveLocation ? t('telemetryLocked') : t('waitingForLiveLocation')}
+              </Body>
             </div>
-          ))}
-        </div>
-      )}
+          </LightCard>
+        )}
 
-      {booking.statusHistory.length > 0 && (
-        <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-4">{t('statusTimeline')}</p>
-          <div className="space-y-4">
-            {[...booking.statusHistory].reverse().map((entry, i) => {
-              const { time, date } = formatHistoryTime(entry.timestamp);
-              return (
-                <div key={`${entry.status}-${entry.timestamp}`} className="flex gap-3">
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <span className={`w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-fy-brown' : 'bg-border-strong'}`} />
-                    {i < booking.statusHistory.length - 1 && <span className="w-px flex-1 bg-border mt-1" />}
-                  </div>
-                  <div className="pb-1 min-w-0">
-                    <p className={`text-sm font-semibold ${i === 0 ? 'text-fy-brown' : ''}`}>
-                      {t(`historyStatus.${entry.status}` as never) ?? entry.status}
-                    </p>
-                    <p className="text-xs text-fy-muted">
-                      {time} · {date}
-                    </p>
-                  </div>
+        <TabRow
+          variant="inset"
+          active={tab}
+          onChange={(k) => setTab(k as typeof tab)}
+          tabs={[
+            { key: 'status', label: t('tabStatus'), glyph: 'near_me' },
+            { key: 'chat', label: t('tabChat'), glyph: 'forum' },
+            { key: 'payment', label: t('tabPayment'), glyph: 'payments' },
+            { key: 'custody', label: t('tabCustody'), glyph: 'inventory' },
+          ]}
+        />
+
+        {tab === 'status' && (
+          <>
+            {(booking.status === 'requested' || booking.status === 'searching') && (
+              <LightCard className="flex items-center gap-3">
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-fy-brown/30 border-t-fy-brown animate-spin shrink-0" />
+                <Body size="label">
+                  {booking.openForBidding
+                    ? t('waitingForBids')
+                    : booking.status === 'requested'
+                      ? t('waitingRequested')
+                      : t('waitingSearching')}
+                </Body>
+              </LightCard>
+            )}
+
+            {booking.openForBidding && ['requested', 'searching'].includes(booking.status) && (
+              <BidsReviewSection bookingId={bookingId} onAccepted={setBooking} />
+            )}
+
+            {stepIndex >= 0 && booking.status !== 'cancelled' && (
+              <Panel className="p-4">
+                <div className="flex items-center">
+                  {STEPS.map((step, i) => (
+                    <div key={step} className="flex items-center flex-1 last:flex-none">
+                      <span className={`w-3 h-3 rounded-full shrink-0 ${i <= stepIndex ? 'bg-fy-green' : 'bg-fy-dim'}`} />
+                      {i < STEPS.length - 1 && (
+                        <span className={`h-0.5 flex-1 ${i < stepIndex ? 'bg-fy-green' : 'bg-fy-dim'}`} />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
+                {/* One legible line rather than six stacked labels: the
+                    status names are long enough that printing all of them
+                    under a six-dot bar wraps every one of them to three
+                    lines on a phone. */}
+                <div className="flex items-baseline justify-between gap-3 mt-3">
+                  <p className="font-body text-body font-semibold text-fy-ink truncate">
+                    {t(`historyStatus.${STEPS[stepIndex]}` as never) ?? STEPS[stepIndex]}
+                  </p>
+                  <EyebrowLabel>{t('stepOf', { step: stepIndex + 1, total: STEPS.length })}</EyebrowLabel>
+                </div>
+              </Panel>
+            )}
 
-      {/* Phase D.1 — Secure Transit Checkpoints. Vehicle transit only
-          (hamali jobs have no in-transit exposure this addresses), and only
-          once there's actually a transit leg to have halts on. */}
-      {booking.type !== 'hamali' && ['in_progress', 'completed'].includes(booking.status) && (
-        <HaltTimeline bookingId={bookingId} />
-      )}
+            {kmLeft != null && (
+              <Panel className="p-5">
+                <MetricBlock
+                  tone="green"
+                  label={t('distanceLeft')}
+                  value={kmLeft.toFixed(1)}
+                  unit="km"
+                  note={t('distanceLeftNote')}
+                />
+              </Panel>
+            )}
 
-      {matched?.assigned && Object.keys(matched.assigned).length > 0 && (
-        <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('assignedToYou')}</p>
-          {'driver' in matched.assigned && matched.assigned.driver != null && (
-            <AssignedRow entry={matched.assigned.driver as AssignedPerson} sub="vehicle" />
-          )}
-          {'mutha' in matched.assigned && matched.assigned.mutha != null && (
-            <AssignedRow entry={matched.assigned.mutha as AssignedPerson} sub="group" />
-          )}
-          {'hamalis' in matched.assigned &&
-            Array.isArray(matched.assigned.hamalis) &&
-            (matched.assigned.hamalis as AssignedPerson[]).map((h) => <AssignedRow key={h.id} entry={h} />)}
-        </Card>
-      )}
+            {hasAssigned && assigned && (
+              <Section title={<SectionHeading>{t('assignedToYou')}</SectionHeading>}>
+                <Panel>
+                  {'driver' in assigned && assigned.driver != null && (
+                    <AssignedRow entry={assigned.driver as AssignedPerson} sub="vehicle" />
+                  )}
+                  {'mutha' in assigned && assigned.mutha != null && (
+                    <AssignedRow entry={assigned.mutha as AssignedPerson} sub="group" />
+                  )}
+                  {'hamalis' in assigned &&
+                    Array.isArray(assigned.hamalis) &&
+                    (assigned.hamalis as AssignedPerson[]).map((h) => <AssignedRow key={h.id} entry={h} />)}
+                  {chatOpen && (
+                    <FyButton
+                      type="button"
+                      variant="light"
+                      size="md"
+                      glyph="forum"
+                      className="w-full mt-3"
+                      onClick={() => setTab('chat')}
+                    >
+                      {t('tabChat')}
+                    </FyButton>
+                  )}
+                </Panel>
+              </Section>
+            )}
 
-      {!['requested', 'searching'].includes(booking.status) && (
-        <div className="mb-4">
-          <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="primary" />
-        </div>
-      )}
+            <LightCard className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <IconTile tone="peach" size="sm">
+                  <Icon name="share_location" size={18} />
+                </IconTile>
+                <Body size="label">{t('shareLink')}</Body>
+              </div>
+              <button
+                type="button"
+                onClick={copyShareLink}
+                className="shrink-0 inline-flex items-center gap-1.5 font-body text-label font-semibold text-fy-brown hover:underline"
+              >
+                <Icon name={linkCopied ? 'check' : 'content_copy'} size={16} />
+                {linkCopied ? t('copied') : t('copy')}
+              </button>
+            </LightCard>
 
-      <Card elevation="raised" className="mb-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-fy-green/10 text-fy-green flex items-center justify-center">
-            {booking.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
-          </div>
-          <p className="font-semibold capitalize">{booking.type} {t('booking')}</p>
-        </div>
-        <div className="space-y-2 text-sm">
-          <p>
-            <span className="text-fy-muted">{t('pickupLabel')}</span>
-            {booking.pickupLocation.address}
-          </p>
-          <p>
-            <span className="text-fy-muted">{t('dropLabel')}</span>
-            {booking.dropLocation.address}
-          </p>
-          {booking.cargoDetails?.goodsType && (
-            <p>
-              <span className="text-fy-muted">{t('goodsTypeLabel')}</span>
-              {t(`goodsTypes.${booking.cargoDetails.goodsType}` as never)}
-            </p>
-          )}
-          {booking.cargoDetails?.ewayBillNumber && (
-            <p>
-              <span className="text-fy-muted">{t('ewayBillLabel')}</span>
-              {booking.cargoDetails.ewayBillNumber}
-            </p>
-          )}
-        </div>
-      </Card>
+            <Section title={<SectionHeading>{t('bookingDetails')}</SectionHeading>}>
+              <Panel className="flex flex-col gap-2">
+                <StatRow label={t('trackingId')} value={booking._id.slice(-8).toUpperCase()} />
+                <StatRow stacked label={t('pickupLabel')} value={booking.pickupLocation.address} />
+                <StatRow stacked label={t('dropLabel')} value={booking.dropLocation.address} />
+                {booking.stops?.map((s, i) => (
+                  <StatRow key={i} stacked label={`${t('stops')} ${i + 1}`} value={s.address} />
+                ))}
+                {booking.cargoDetails?.goodsType && (
+                  <StatRow label={t('goodsTypeLabel')} value={t(`goodsTypes.${booking.cargoDetails.goodsType}` as never)} />
+                )}
+                {booking.cargoDetails?.ewayBillNumber && (
+                  <StatRow label={t('ewayBillLabel')} value={booking.cargoDetails.ewayBillNumber} />
+                )}
+              </Panel>
+            </Section>
 
-      {(booking.proofPhotos?.pickup || booking.proofPhotos?.delivery) && (
-        <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('photoProof')}</p>
-          <div className="flex gap-3">
-            {booking.proofPhotos?.pickup && (
-              <div>
-                <img src={booking.proofPhotos.pickup} alt="Pickup proof" className="w-24 h-24 rounded-control object-cover" />
-                <p className="text-[11px] text-fy-muted mt-1 text-center">{t('pickupPhotoCaption')}</p>
+            <Link
+              href={`/customer/support?bookingId=${bookingId}`}
+              className="flex items-center gap-2 font-body text-label text-fy-muted hover:text-fy-ink"
+            >
+              <Icon name="report" size={16} />
+              {t('reportIssue')}
+            </Link>
+
+            {cancelError && (
+              <div role="alert" className="rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
+                {cancelError}
               </div>
             )}
-            {booking.proofPhotos?.delivery && (
-              <div>
-                <img src={booking.proofPhotos.delivery} alt="Delivery proof" className="w-24 h-24 rounded-control object-cover" />
-                <p className="text-[11px] text-fy-muted mt-1 text-center">{t('deliveryPhotoCaption')}</p>
-              </div>
+
+            {canCancel && (
+              <Button variant="ghost" className="w-full" onClick={handleCancel} disabled={cancelling}>
+                {cancelling ? t('cancelling') : t('cancelBooking')}
+              </Button>
             )}
-          </div>
-        </Card>
-      )}
+          </>
+        )}
 
-      <Card elevation="raised">
-        <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('fare')}</p>
-        <div className="space-y-1.5 text-sm">
-          <div className="flex justify-between">
-            <span className="text-fy-muted">{t('baseFare')}</span>
-            <span>₹{booking.fareBreakdown.baseFare}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-fy-muted">{t('distance')}</span>
-            <span>₹{booking.fareBreakdown.distanceFare}</span>
-          </div>
-          {booking.fareBreakdown.hamaliFare > 0 && (
-            <div className="flex justify-between">
-              <span className="text-fy-muted">{t('hamali')}</span>
-              <span>₹{booking.fareBreakdown.hamaliFare}</span>
-            </div>
-          )}
-          <div className="flex justify-between pt-2 mt-2 border-t border-fy-hairline font-heading font-bold">
-            <span>{t('total')}</span>
-            <span>₹{booking.fareBreakdown.total}</span>
-          </div>
-        </div>
-      </Card>
+        {tab === 'chat' &&
+          (chatOpen ? (
+            <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="primary" />
+          ) : (
+            <LightCard>
+              <Body size="label">{t('chatAfterMatch')}</Body>
+            </LightCard>
+          ))}
 
-      {booking.status === 'completed' && <PaymentSection bookingId={bookingId} />}
+        {tab === 'payment' && (
+          <>
+            <Panel className="flex flex-col gap-2">
+              <EyebrowLabel>{t('fare')}</EyebrowLabel>
+              <StatRow label={t('baseFare')} value={`${'₹'}${booking.fareBreakdown.baseFare}`} />
+              <StatRow label={t('distance')} value={`${'₹'}${booking.fareBreakdown.distanceFare}`} />
+              {booking.fareBreakdown.hamaliFare > 0 && (
+                <StatRow label={t('hamali')} value={`${'₹'}${booking.fareBreakdown.hamaliFare}`} />
+              )}
+              <Divider />
+              <StatRow label={t('total')} value={`${'₹'}${booking.fareBreakdown.total}`} valueTone="green" />
+            </Panel>
+            {booking.status === 'completed' ? (
+              <PaymentSection bookingId={bookingId} />
+            ) : (
+              <LightCard>
+                <Body size="label">{t('paymentAfterCompletion')}</Body>
+              </LightCard>
+            )}
+          </>
+        )}
 
-      <Link
-        href={`/customer/support?bookingId=${bookingId}`}
-        className="flex items-center gap-2 text-sm text-fy-muted hover:text-fy-ink mb-4"
-      >
-        <AlertIcon className="w-4 h-4" />
-        {t('reportIssue')}
-      </Link>
+        {tab === 'custody' && (
+          <>
+            {/* Phase D.1 -- Secure Transit Checkpoints. Vehicle transit only
+                (a hamali job has no in-transit exposure this addresses), and
+                only once there is actually a transit leg to have halts on. */}
+            {booking.type !== 'hamali' && ['in_progress', 'completed'].includes(booking.status) && (
+              <HaltTimeline bookingId={bookingId} />
+            )}
 
-      {cancelError && (
-        <div role="alert" className="mt-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {cancelError}
-        </div>
-      )}
+            {(booking.proofPhotos?.pickup || booking.proofPhotos?.delivery) && (
+              <Section title={<SectionHeading>{t('photoProof')}</SectionHeading>}>
+                <div className="flex gap-3">
+                  {booking.proofPhotos?.pickup && (
+                    <div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={booking.proofPhotos.pickup} alt="" className="w-28 h-28 rounded-card object-cover" />
+                      <Body size="label" className="mt-1 text-center">
+                        {t('pickupPhotoCaption')}
+                      </Body>
+                    </div>
+                  )}
+                  {booking.proofPhotos?.delivery && (
+                    <div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={booking.proofPhotos.delivery} alt="" className="w-28 h-28 rounded-card object-cover" />
+                      <Body size="label" className="mt-1 text-center">
+                        {t('deliveryPhotoCaption')}
+                      </Body>
+                    </div>
+                  )}
+                </div>
+              </Section>
+            )}
 
-      {canCancel && (
-        <Button
-          variant="ghost"
-          className="w-full mt-4"
-          onClick={handleCancel}
-          disabled={cancelling}
-        >
-          {cancelling ? t('cancelling') : t('cancelBooking')}
-        </Button>
-      )}
-      </div>
+            {booking.statusHistory.length > 0 && (
+              <Section title={<SectionHeading>{t('statusTimeline')}</SectionHeading>}>
+                <Panel>
+                  <div className="flex flex-col gap-4">
+                    {[...booking.statusHistory].reverse().map((entry, i) => {
+                      const { time, date } = formatHistoryTime(entry.timestamp);
+                      return (
+                        <div key={`${entry.status}-${entry.timestamp}`} className="flex gap-3">
+                          <div className="flex flex-col items-center shrink-0">
+                            <span className={`w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-fy-green' : 'bg-fy-dim'}`} />
+                            {i < booking.statusHistory.length - 1 && <span className="w-px flex-1 bg-fy-hairline mt-1" />}
+                          </div>
+                          <div className="pb-1 min-w-0">
+                            <p className={`font-body text-label font-semibold ${i === 0 ? 'text-fy-green' : 'text-fy-ink'}`}>
+                              {t(`historyStatus.${entry.status}` as never) ?? entry.status}
+                            </p>
+                            <Body size="label">
+                              {time} · {date}
+                            </Body>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Panel>
+              </Section>
+            )}
+          </>
+        )}
+      </main>
 
       {pendingRatingId === bookingId && (
-        <RatingModal
-          bookingId={bookingId}
-          open
-          accent="primary"
-          onDone={() => setPendingRatingId(null)}
-        />
+        <RatingModal bookingId={bookingId} open accent="primary" onDone={() => setPendingRatingId(null)} />
       )}
+
+      <CustomerTabBar />
     </div>
   );
 }

@@ -721,7 +721,22 @@
       "industrial_machinery": "Industrial machinery",
       "documents_parcels": "Documents / parcels",
       "other": "Other"
-    }
+    },
+    "tabStatus": "Status",
+    "tabChat": "Chat",
+    "tabPayment": "Payment",
+    "tabCustody": "Custody",
+    "telemetrySync": "Telemetry sync",
+    "telemetryLocked": "Receiving live position from the worker’s handset.",
+    "distanceLeft": "Distance left",
+    "distanceLeftNote": "Straight-line distance from the last position ping to the drop point.",
+    "shareLink": "Share this tracking link",
+    "copy": "Copy",
+    "copied": "Copied",
+    "bookingDetails": "Booking details",
+    "chatAfterMatch": "Chat opens once a cooperative member accepts the job.",
+    "paymentAfterCompletion": "Payment options appear once the job is completed.",
+    "stepOf": "Step {step} of {total}"
   },
   "customerHistory": {
     "title": "Booking history",
@@ -2677,5 +2692,100 @@
     "submitting": "Requesting…",
     "guaranteeNote": "Dispatched through registered cooperative transport societies.",
     "errorSubmit": "Could not create the booking."
+  },
+  "customerLedger": {
+    "title": "Passbook",
+    "eyebrow": "Cooperative ledger & archive",
+    "heading": "Your dispatches",
+    "searchPlaceholder": "Search by address or service",
+    "filters": {
+      "all": "All",
+      "household": "Household",
+      "labour": "Labour",
+      "transport": "Transport",
+      "month": "This month"
+    },
+    "noMatches": "No dispatches match that filter.",
+    "latestDispatch": "Latest dispatch",
+    "ref": "Ref #{id}",
+    "bucket": {
+      "household": "Household",
+      "labour": "Labour",
+      "transport": "Transport"
+    },
+    "fareLabel": "Fare paid",
+    "rebook": "Rebook",
+    "viewRecord": "View record",
+    "archive": "Archive",
+    "baseFare": "Base fare",
+    "distanceFare": "Distance",
+    "crewFare": "Crew",
+    "surge": "Demand multiplier",
+    "total": "Total"
+  },
+  "customerProfile": {
+    "title": "Your passbook",
+    "ledger": "Passbook ledger",
+    "verifiedPassbook": "Verified passbook",
+    "memberSince": "Cooperative member since {date}",
+    "credentialId": "Passbook credential ID",
+    "copy": "Copy",
+    "copied": "Copied",
+    "tabs": {
+      "identity": "Identity",
+      "addresses": "Addresses",
+      "payments": "Payments",
+      "reputation": "Reputation",
+      "settings": "Settings"
+    },
+    "addressCount": "{count} saved",
+    "noAddresses": "No saved addresses yet. They are offered as quick picks when you book.",
+    "passbookLedger": "Passbook ledger"
+  },
+  "serviceDetail": {
+    "title": "Service booking",
+    "guildVerified": "Guild verified",
+    "standardRate": "Standard guild rate",
+    "from": "From",
+    "directToPassbook": "The fare goes straight to the worker’s passbook. No commission is taken in between.",
+    "issuesHeading": "What needs attention?",
+    "multipleChoices": "Choose any",
+    "issues": {
+      "not_working": "Not working at all",
+      "intermittent": "Works intermittently",
+      "leak": "Leak or water damage",
+      "noise": "Unusual noise or vibration",
+      "smell": "Burning or gas smell",
+      "installation": "New installation",
+      "routine": "Routine servicing",
+      "other": "Something else"
+    },
+    "detailsHeading": "Anything else the worker should know?",
+    "optional": "Optional",
+    "detailsPlaceholder": "Model, floor, access notes…",
+    "detailsHint": "This is sent with the booking and reaches the worker before they arrive.",
+    "locationHeading": "Service location",
+    "addressLabel": "Where is the work?",
+    "addressPlaceholder": "Flat, building, street",
+    "dispatchZone": "Dispatch zone: {region}",
+    "slotHeading": "Preferred slot",
+    "now": "Now",
+    "later": "Later",
+    "nowHint": "The job goes to nearby verified members straight away.",
+    "slotHint": "Subject to a member accepting",
+    "estimated": "Estimated fare",
+    "fareAfterAddress": "Add an address for the fare",
+    "submit": "Request service",
+    "submitting": "Requesting…",
+    "notFoundTitle": "Service not found",
+    "notFoundBody": "That service is not offered right now.",
+    "backToServices": "Back to services",
+    "errorSubmit": "Could not create the booking.",
+    "pricingUnit": {
+      "per_hour": "per hour",
+      "per_job": "per job",
+      "per_km": "per km",
+      "per_worker": "per worker"
+    }
   }
 }

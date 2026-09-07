@@ -105,19 +105,34 @@ export function StatRow({
   label,
   value,
   valueTone = 'ink',
+  stacked = false,
   className = '',
 }: {
   label: ReactNode;
   value: ReactNode;
   valueTone?: 'ink' | 'green' | 'error';
+  /**
+   * `stacked` keeps the label above the value — right for a long value such
+   * as a full address. The default puts them on one baseline, which is how
+   * every register and fare row in the designs reads.
+   */
+  stacked?: boolean;
   className?: string;
 }) {
   const tone =
     valueTone === 'green' ? 'text-fy-green' : valueTone === 'error' ? 'text-fy-error' : 'text-fy-ink';
+  if (stacked) {
+    return (
+      <div className={`flex flex-col gap-0.5 ${className}`}>
+        <EyebrowLabel>{label}</EyebrowLabel>
+        <span className={`font-body text-body font-semibold ${tone}`}>{value}</span>
+      </div>
+    );
+  }
   return (
-    <div className={`flex flex-col gap-0.5 ${className}`}>
-      <EyebrowLabel>{label}</EyebrowLabel>
-      <span className={`font-body text-body font-semibold ${tone}`}>{value}</span>
+    <div className={`flex items-baseline justify-between gap-3 ${className}`}>
+      <EyebrowLabel className="shrink-0">{label}</EyebrowLabel>
+      <span className={`font-body text-body font-semibold text-right min-w-0 ${tone}`}>{value}</span>
     </div>
   );
 }

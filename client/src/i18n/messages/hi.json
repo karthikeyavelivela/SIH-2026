@@ -721,7 +721,22 @@
       "industrial_machinery": "औद्योगिक मशीनरी",
       "documents_parcels": "दस्तावेज़ / पार्सल",
       "other": "अन्य"
-    }
+    },
+    "tabStatus": "स्थिति",
+    "tabChat": "चैट",
+    "tabPayment": "भुगतान",
+    "tabCustody": "अभिरक्षा",
+    "telemetrySync": "टेलीमेट्री सिंक",
+    "telemetryLocked": "कामगार के हैंडसेट से लाइव स्थिति मिल रही है।",
+    "distanceLeft": "शेष दूरी",
+    "distanceLeftNote": "अंतिम स्थिति संकेत से ड्रॉप स्थान तक सीधी दूरी।",
+    "shareLink": "यह ट्रैकिंग लिंक साझा करें",
+    "copy": "कॉपी",
+    "copied": "कॉपी हो गया",
+    "bookingDetails": "बुकिंग विवरण",
+    "chatAfterMatch": "सहकारी सदस्य के काम स्वीकार करते ही चैट खुल जाती है।",
+    "paymentAfterCompletion": "काम पूरा होने पर भुगतान विकल्प दिखते हैं।",
+    "stepOf": "{total} में से चरण {step}"
   },
   "customerHistory": {
     "title": "बुकिंग इतिहास",
@@ -2677,5 +2692,100 @@
     "submitting": "अनुरोध भेजा जा रहा है…",
     "guaranteeNote": "पंजीकृत सहकारी परिवहन समितियों के माध्यम से भेजा जाता है।",
     "errorSubmit": "बुकिंग नहीं बन सकी।"
+  },
+  "customerLedger": {
+    "title": "पासबुक",
+    "eyebrow": "सहकारी बही और अभिलेख",
+    "heading": "आपके डिस्पैच",
+    "searchPlaceholder": "पते या सेवा से खोजें",
+    "filters": {
+      "all": "सभी",
+      "household": "घरेलू",
+      "labour": "श्रमिक",
+      "transport": "परिवहन",
+      "month": "इस महीने"
+    },
+    "noMatches": "उस फ़िल्टर से मेल खाता कोई डिस्पैच नहीं।",
+    "latestDispatch": "नवीनतम डिस्पैच",
+    "ref": "रेफ़ #{id}",
+    "bucket": {
+      "household": "घरेलू",
+      "labour": "श्रमिक",
+      "transport": "परिवहन"
+    },
+    "fareLabel": "चुकाया गया किराया",
+    "rebook": "फिर बुक करें",
+    "viewRecord": "रिकॉर्ड देखें",
+    "archive": "अभिलेख",
+    "baseFare": "मूल किराया",
+    "distanceFare": "दूरी",
+    "crewFare": "टोली",
+    "surge": "माँग गुणक",
+    "total": "कुल"
+  },
+  "customerProfile": {
+    "title": "आपकी पासबुक",
+    "ledger": "पासबुक बही",
+    "verifiedPassbook": "सत्यापित पासबुक",
+    "memberSince": "{date} से सहकारी सदस्य",
+    "credentialId": "पासबुक क्रेडेंशियल ID",
+    "copy": "कॉपी",
+    "copied": "कॉपी हो गया",
+    "tabs": {
+      "identity": "पहचान",
+      "addresses": "पते",
+      "payments": "भुगतान",
+      "reputation": "प्रतिष्ठा",
+      "settings": "सेटिंग्स"
+    },
+    "addressCount": "{count} सहेजे गए",
+    "noAddresses": "अभी कोई सहेजा पता नहीं। बुक करते समय ये त्वरित विकल्प के रूप में मिलते हैं।",
+    "passbookLedger": "पासबुक बही"
+  },
+  "serviceDetail": {
+    "title": "सेवा बुकिंग",
+    "guildVerified": "गिल्ड सत्यापित",
+    "standardRate": "मानक गिल्ड दर",
+    "from": "से",
+    "directToPassbook": "किराया सीधे कामगार की पासबुक में जाता है। बीच में कोई कमीशन नहीं लिया जाता।",
+    "issuesHeading": "किस पर ध्यान चाहिए?",
+    "multipleChoices": "कोई भी चुनें",
+    "issues": {
+      "not_working": "बिलकुल काम नहीं कर रहा",
+      "intermittent": "कभी-कभी काम करता है",
+      "leak": "रिसाव या पानी का नुकसान",
+      "noise": "असामान्य आवाज़ या कंपन",
+      "smell": "जलने या गैस की गंध",
+      "installation": "नई स्थापना",
+      "routine": "नियमित सर्विसिंग",
+      "other": "कुछ और"
+    },
+    "detailsHeading": "कामगार को और क्या पता होना चाहिए?",
+    "optional": "वैकल्पिक",
+    "detailsPlaceholder": "मॉडल, मंज़िल, पहुँच संबंधी बातें…",
+    "detailsHint": "यह बुकिंग के साथ भेजा जाता है और पहुँचने से पहले कामगार तक जाता है।",
+    "locationHeading": "सेवा स्थान",
+    "addressLabel": "काम कहाँ है?",
+    "addressPlaceholder": "फ्लैट, इमारत, गली",
+    "dispatchZone": "डिस्पैच ज़ोन: {region}",
+    "slotHeading": "पसंदीदा समय",
+    "now": "अभी",
+    "later": "बाद में",
+    "nowHint": "काम तुरंत पास के सत्यापित सदस्यों को भेजा जाता है।",
+    "slotHint": "सदस्य के स्वीकार करने पर निर्भर",
+    "estimated": "अनुमानित किराया",
+    "fareAfterAddress": "किराए के लिए पता भरें",
+    "submit": "सेवा का अनुरोध करें",
+    "submitting": "अनुरोध भेजा जा रहा है…",
+    "notFoundTitle": "सेवा नहीं मिली",
+    "notFoundBody": "यह सेवा अभी उपलब्ध नहीं है।",
+    "backToServices": "सेवाओं पर वापस",
+    "errorSubmit": "बुकिंग नहीं बन सकी।",
+    "pricingUnit": {
+      "per_hour": "प्रति घंटा",
+      "per_job": "प्रति काम",
+      "per_km": "प्रति कि.मी.",
+      "per_worker": "प्रति कामगार"
+    }
   }
 }

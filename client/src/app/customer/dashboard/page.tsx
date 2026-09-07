@@ -237,7 +237,7 @@ export default function CustomerDashboardPage() {
           {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} />}
 
           {heroCategory && (
-            <Link href={`/customer/book/household?category=${heroCategory.slug}`} className="block">
+            <Link href={`/customer/service/${heroCategory.slug}`} className="block">
               <PhotoCard
                 id={`household.category.${heroCategory.slug}`}
                 alt={heroCategory.name}
@@ -298,7 +298,7 @@ export default function CustomerDashboardPage() {
                   return (
                     <Link
                       key={c._id}
-                      href={`/customer/book/household?category=${c.slug}`}
+                      href={`/customer/service/${c.slug}`}
                       className={wide ? 'col-span-2' : ''}
                     >
                       {wide ? (

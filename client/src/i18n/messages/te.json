@@ -721,7 +721,22 @@
       "industrial_machinery": "పారిశ్రామిక యంత్రాలు",
       "documents_parcels": "పత్రాలు / పార్సిల్స్",
       "other": "ఇతర"
-    }
+    },
+    "tabStatus": "స్థితి",
+    "tabChat": "చాట్",
+    "tabPayment": "చెల్లింపు",
+    "tabCustody": "కస్టడీ",
+    "telemetrySync": "టెలిమెట్రీ సింక్",
+    "telemetryLocked": "కార్మికుడి ఫోన్ నుండి ప్రత్యక్ష స్థానం అందుతోంది.",
+    "distanceLeft": "మిగిలిన దూరం",
+    "distanceLeftNote": "చివరి స్థాన సంకేతం నుండి డ్రాప్ ప్రదేశానికి నేరు దూరం.",
+    "shareLink": "ఈ ట్రాకింగ్ లింక్ పంచుకోండి",
+    "copy": "కాపీ",
+    "copied": "కాపీ అయ్యింది",
+    "bookingDetails": "బుకింగ్ వివరాలు",
+    "chatAfterMatch": "సహకార సభ్యుడు పనిని అంగీకరించిన తర్వాత చాట్ అందుబాటులోకి వస్తుంది.",
+    "paymentAfterCompletion": "పని పూర్తయ్యాక చెల్లింపు ఎంపికలు కనిపిస్తాయి.",
+    "stepOf": "{total}లో {step}వ దశ"
   },
   "customerHistory": {
     "title": "బుకింగ్ చరిత్ర",
@@ -2677,5 +2692,100 @@
     "submitting": "అభ్యర్థిస్తున్నాం…",
     "guaranteeNote": "నమోదిత సహకార రవాణా సంఘాల ద్వారా పంపబడుతుంది.",
     "errorSubmit": "బుకింగ్ సృష్టించలేకపోయాం."
+  },
+  "customerLedger": {
+    "title": "పాస్‌బుక్",
+    "eyebrow": "సహకార ఖాతా & రికార్డులు",
+    "heading": "మీ డిస్పాచ్‌లు",
+    "searchPlaceholder": "చిరునామా లేదా సేవ ద్వారా వెతకండి",
+    "filters": {
+      "all": "అన్నీ",
+      "household": "గృహం",
+      "labour": "కార్మికులు",
+      "transport": "రవాణా",
+      "month": "ఈ నెల"
+    },
+    "noMatches": "ఆ ఫిల్టర్‌కు సరిపోయే డిస్పాచ్‌లు లేవు.",
+    "latestDispatch": "తాజా డిస్పాచ్",
+    "ref": "రిఫ్ #{id}",
+    "bucket": {
+      "household": "గృహం",
+      "labour": "కార్మికులు",
+      "transport": "రవాణా"
+    },
+    "fareLabel": "చెల్లించిన చార్జీ",
+    "rebook": "మళ్లీ బుక్",
+    "viewRecord": "రికార్డు చూడండి",
+    "archive": "రికార్డులు",
+    "baseFare": "మూల చార్జీ",
+    "distanceFare": "దూరం",
+    "crewFare": "బృందం",
+    "surge": "డిమాండ్ గుణకం",
+    "total": "మొత్తం"
+  },
+  "customerProfile": {
+    "title": "మీ పాస్‌బుక్",
+    "ledger": "పాస్‌బుక్ ఖాతా",
+    "verifiedPassbook": "ధృవీకృత పాస్‌బుక్",
+    "memberSince": "{date} నుండి సహకార సభ్యులు",
+    "credentialId": "పాస్‌బుక్ గుర్తింపు ID",
+    "copy": "కాపీ",
+    "copied": "కాపీ అయ్యింది",
+    "tabs": {
+      "identity": "గుర్తింపు",
+      "addresses": "చిరునామాలు",
+      "payments": "చెల్లింపులు",
+      "reputation": "ప్రతిష్ఠ",
+      "settings": "సెట్టింగ్‌లు"
+    },
+    "addressCount": "{count} సేవ్ చేసినవి",
+    "noAddresses": "ఇంకా సేవ్ చేసిన చిరునామాలు లేవు. బుక్ చేసేటప్పుడు అవి త్వరిత ఎంపికలుగా కనిపిస్తాయి.",
+    "passbookLedger": "పాస్‌బుక్ ఖాతా"
+  },
+  "serviceDetail": {
+    "title": "సేవ బుకింగ్",
+    "guildVerified": "గిల్డ్ ధృవీకృతం",
+    "standardRate": "ప్రామాణిక గిల్డ్ రేటు",
+    "from": "నుండి",
+    "directToPassbook": "చార్జీ నేరుగా కార్మికుడి పాస్‌బుక్‌కు వెళుతుంది. మధ్యలో ఎటువంటి కమీషన్ తీసుకోబడదు.",
+    "issuesHeading": "దేనికి శ్రద్ధ కావాలి?",
+    "multipleChoices": "ఏవైనా ఎంచుకోండి",
+    "issues": {
+      "not_working": "అస్సలు పనిచేయడం లేదు",
+      "intermittent": "అప్పుడప్పుడు పనిచేస్తుంది",
+      "leak": "లీక్ లేదా నీటి నష్టం",
+      "noise": "అసాధారణ శబ్దం లేదా కంపనం",
+      "smell": "కాలిన లేదా గ్యాస్ వాసన",
+      "installation": "కొత్త ఏర్పాటు",
+      "routine": "సాధారణ సర్వీసింగ్",
+      "other": "ఇంకేదైనా"
+    },
+    "detailsHeading": "కార్మికుడు తెలుసుకోవలసినది ఇంకేమైనా?",
+    "optional": "ఐచ్ఛికం",
+    "detailsPlaceholder": "మోడల్, అంతస్తు, ప్రవేశ వివరాలు…",
+    "detailsHint": "ఇది బుకింగ్‌తో పంపబడి, రాకముందే కార్మికుడికి చేరుతుంది.",
+    "locationHeading": "సేవ ప్రదేశం",
+    "addressLabel": "పని ఎక్కడ?",
+    "addressPlaceholder": "ఫ్లాట్, భవనం, వీధి",
+    "dispatchZone": "డిస్పాచ్ జోన్: {region}",
+    "slotHeading": "ఇష్టపడే సమయం",
+    "now": "ఇప్పుడు",
+    "later": "తర్వాత",
+    "nowHint": "పని వెంటనే దగ్గరలోని ధృవీకృత సభ్యులకు వెళుతుంది.",
+    "slotHint": "సభ్యుడు అంగీకరించడంపై ఆధారపడి",
+    "estimated": "అంచనా చార్జీ",
+    "fareAfterAddress": "చార్జీ కోసం చిరునామా ఇవ్వండి",
+    "submit": "సేవ అభ్యర్థించండి",
+    "submitting": "అభ్యర్థిస్తున్నాం…",
+    "notFoundTitle": "సేవ కనబడలేదు",
+    "notFoundBody": "ఆ సేవ ప్రస్తుతం అందుబాటులో లేదు.",
+    "backToServices": "సేవలకు తిరిగి",
+    "errorSubmit": "బుకింగ్ సృష్టించలేకపోయాం.",
+    "pricingUnit": {
+      "per_hour": "గంటకు",
+      "per_job": "ఒక్కో పనికి",
+      "per_km": "కి.మీ.కు",
+      "per_worker": "ఒక్కో కార్మికుడికి"
+    }
   }
 }
