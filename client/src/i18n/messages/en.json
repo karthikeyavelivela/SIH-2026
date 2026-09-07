@@ -347,7 +347,20 @@
       "submitLoading": "Creating account…",
       "loginPrompt": "Already have an account?",
       "loginLink": "Log in",
-      "genericError": "Signup failed"
+      "genericError": "Signup failed",
+      "brandSub": "Cooperative",
+      "oneStep": "One step",
+      "noSurgePromise": "Commission verified skilled trades, freight transit and loading crews — with no surge markup on top of the published rate.",
+      "nameLabel": "Full legal name",
+      "phoneLabel": "Mobile number",
+      "phoneHint": "Used to sign in",
+      "regionLabel": "Where do you book from?",
+      "regionPlaceholder": "Select a state",
+      "regionHint": "Sets the rate card and the societies your jobs go to. You can change it later.",
+      "emailLabel": "Email",
+      "passwordLabel": "Passkey",
+      "passwordHint": "At least 8 characters.",
+      "optional": "Optional"
     },
     "signupDriver": {
       "eyebrow": "Partner with us",
@@ -855,7 +868,47 @@
     "groupEarningsToDate": "Group earnings — ₹{amount} to date",
     "rateLastCustomer": "Rate your last customer",
     "cooperativeGovernance": "Cooperative governance",
-    "insuranceProtection": "Insurance & protection"
+    "insuranceProtection": "Insurance & protection",
+    "title": "Dashboard",
+    "society": "Cooperative society",
+    "ratingLine": "{rating} ★ · {count} rated runs",
+    "ratingNone": "No ratings yet",
+    "enrollmentCredential": "Enrollment credential",
+    "enrollmentHint": "Share this code so local workers can enrol in the society directly.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "aggregateSettlement": "Aggregate settlement",
+    "livePool": "Live pool",
+    "societyPool": "Society pool",
+    "completedRuns": "{count, plural, =0 {No completed runs yet} one {# completed run} other {# completed runs}}",
+    "societyReserve": "Society reserve ({pct}%)",
+    "distributable": "Distributable to crew",
+    "crewReady": "Crew ready",
+    "crewReadyValue": "{online} of {total} online",
+    "memberRoster": "Member roster",
+    "manage": "Manage",
+    "noMembers": "No members have enrolled yet.",
+    "crewStatus": {
+      "online": "Ready",
+      "on_job": "On a job",
+      "offline": "Offline"
+    },
+    "activeRuns": "Active society runs",
+    "inTransit": "{count, plural, =0 {None in transit} one {# in transit} other {# in transit}}",
+    "noActiveRuns": "No runs are under way right now.",
+    "runId": "Run #{id}",
+    "runFare": "Run fare",
+    "manifest": "Live manifest",
+    "status": {
+      "accepted": "Accepted",
+      "in_progress": "Underway"
+    },
+    "openRequests": "Open requests",
+    "societyEarnings": "Society earnings",
+    "societyInsurance": "Insurance cover",
+    "operations": "Operations",
+    "noSociety": "No society yet",
+    "noSocietyHint": "Create a society to start dispatching crew."
   },
   "workerEarnings": {
     "pageTitle": "Earnings",
@@ -1527,7 +1580,13 @@
         "q": "What happens if no driver responds?",
         "a": "You'll see an honest \"waiting\" status — we never fake a match. Try widening your pickup time or checking back shortly."
       }
-    ]
+    ],
+    "deskEyebrow": "Cooperative charter desk",
+    "heading": "Help & resolution",
+    "tabReport": "Report",
+    "tabFaq": "FAQ",
+    "reportCount": "{count, plural, =0 {None yet} one {# report} other {# reports}}",
+    "noReports": "You have not reported anything yet."
   },
   "muthaEarnings": {
     "title": "Group earnings",
@@ -2809,7 +2868,16 @@
       "per_job": "per job",
       "per_km": "per km",
       "per_worker": "per worker"
-    }
+    },
+    "moreOptions": "More options",
+    "exactTime": "Exact date and time",
+    "exactTimeHint": "At least {minutes} minutes from now, and within the next 14 days.",
+    "regionLabel": "Priced for",
+    "regionPlaceholder": "District or city",
+    "regionHint": "Taken from the address. Correct it if the rate should follow a different district.",
+    "openForBidding": "Open to society bids",
+    "openForBiddingHint": "Nearby societies quote for the job and you pick one, instead of it going to the first available member.",
+    "leadTooSoon": "Pick a time at least {minutes} minutes from now."
   },
   "roleNav": {
     "home": "Home",
@@ -2823,5 +2891,36 @@
     "vehicles": "Vehicles",
     "maintenance": "Maintenance",
     "docks": "Docks"
+  },
+  "customerDisputes": {
+    "tabDispute": "Dispute",
+    "whenToUse": "When to raise a dispute",
+    "whenToUseBody": "Use a dispute when money is contested — a fare you believe is wrong, damage, or a job you were charged for but did not receive. Anything else is better raised as a report, which is handled faster.",
+    "raiseDispute": "Raise a dispute",
+    "priority": "Priority",
+    "claim": "What happened?",
+    "claimPlaceholder": "Describe the claim, with amounts and dates where you can.",
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "statuses": {
+      "open": "Open",
+      "in_review": "In review",
+      "resolved": "Resolved",
+      "rejected": "Rejected",
+      "closed": "Closed",
+      "escalated": "Escalated"
+    },
+    "submit": "Submit dispute",
+    "submitting": "Submitting…",
+    "submittedNotice": "Dispute raised. It goes to the cooperative ombudsman, who will record a resolution against it.",
+    "errorSubmit": "Could not raise the dispute.",
+    "yourDisputes": "Your disputes",
+    "disputeCount": "{count, plural, =0 {None yet} one {# dispute} other {# disputes}}",
+    "noDisputes": "You have not raised a dispute.",
+    "ref": "Dispute #{id}"
   }
 }

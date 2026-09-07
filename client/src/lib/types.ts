@@ -116,6 +116,9 @@ export interface MuthaResponse {
     ratingAvg: number;
     ratingCount: number;
     activeJobsCount: number;
+    /** Society settings the server already returns on GET /api/mutha/me. */
+    commissionRatePct?: number;
+    welfareDeductionRatePct?: number;
   };
   members: MuthaMember[];
 }
@@ -134,6 +137,17 @@ export interface EarningsResponse {
   lines: EarningLine[];
   perMember?: { userId: string; name: string; phone: string; total: number }[];
   incentiveTotal: number;
+  /**
+   * mutha_leader only. `retained` is the real commission + welfare the
+   * society kept across every member on every booking, and the two rates
+   * are the society's own settings — the server has always returned these
+   * three (earnings.controller.ts's mutha_leader branch); they were just
+   * never declared here, so the society dashboard could not show the split
+   * between the society's reserve and what is distributable to the crew.
+   */
+  retained?: number;
+  commissionRatePct?: number;
+  welfareDeductionRatePct?: number;
 }
 
 export interface Payment {

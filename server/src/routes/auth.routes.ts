@@ -22,7 +22,16 @@ authRouter.post(
   // express-validator's optional() only skips *absent* fields by default,
   // not falsy ones. Without checkFalsy, signup with no email 400s every
   // time despite the field being labeled optional.
-  [nameRule, phoneRule, passwordRule, body('email').optional({ checkFalsy: true }).isEmail()],
+  // `region` is the district/state the customer books from. Optional, and
+  // checkFalsy for the same reason as email: the signup form is controlled,
+  // so it always sends '' rather than omitting the field.
+  [
+    nameRule,
+    phoneRule,
+    passwordRule,
+    body('email').optional({ checkFalsy: true }).isEmail(),
+    body('region').optional({ checkFalsy: true }).isString().trim().isLength({ max: 120 }),
+  ],
   validate,
   authController.signupCustomer
 );

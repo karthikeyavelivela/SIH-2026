@@ -58,14 +58,17 @@ function setAuthCookies(
 }
 
 export const signupCustomer = asyncHandler(async (req: Request, res: Response) => {
-  const { name, phone, email, password } = req.body;
+  const { name, phone, email, password, region } = req.body;
   const existing = await User.findOne({ phone });
   if (existing) throw new ApiError(409, 'Phone already registered');
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, email, passwordHash, role: 'customer', signupIp: req.ip });
+    // `region` seeds User.region, which the matching engine reads and which
+    // the customer can change later from their profile. Before this it was
+    // asked for at signup on some designs but had nowhere to go.
+    user = await User.create({ name, phone, email, region, passwordHash, role: 'customer', signupIp: req.ip });
   } catch (err) {
     // The findOne check above narrows the race window but doesn't close it —
     // two concurrent signups for the same phone can both pass it.

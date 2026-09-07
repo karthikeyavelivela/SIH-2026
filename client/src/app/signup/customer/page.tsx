@@ -3,21 +3,52 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { ChevronLeftIcon } from '@/components/ui/icons';
+import { setLocaleAction } from '@/i18n/setLocale';
+import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
+import { Icon } from '@/components/ui/Icon';
+import { LightCard, Panel, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, DisplayHeading, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { Button, Field } from '@/components/fy/Controls';
+import { TopBar } from '@/components/fy/Navigation';
 
-const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
+/* Built against client/public/design/signup_customer.html.
+
+   Section order there, top to bottom: brand bar with the EN / తె / हि
+   switcher -> "Member Registry · Form No. 16-C" eyebrow over "Hirer
+   Enrollment" -> a three-step indicator (Identity / Verify / Region) ->
+   "Step 1 of 3" pill -> display heading and the zero-surge-markup promise
+   -> full legal name -> handset mobile with the +91 prefix block ->
+   primary mandi / transit hub select -> audio & dispatch language ->
+   submit.
+
+   Largest element: the display heading. Dark surfaces: the submit button.
+   Brown is the accent throughout.
+
+   Two deviations, both because the backend says so:
+
+   1. The design's three-step indicator promises an OTP verification step
+      and a separate region step. POST /api/auth/signup/customer creates
+      the account in one call and there is no OTP endpoint anywhere in the
+      server, so this is one step. Showing "Step 1 of 3" over a form that
+      finishes in one step would be a lie about what happens next.
+   2. The design's hub picker lists five named terminals. Nothing seeds
+      terminals; the real geography the platform knows is the six state
+      federations, so that is what the picker offers, and it maps to the
+      User.region field the matching engine actually reads. */
+
+const STATE_KEYS = ['andhraPradesh', 'telangana', 'karnataka', 'tamilNadu', 'maharashtra', 'kerala'] as const;
 
 export default function SignupCustomerPage() {
   const router = useRouter();
   const { refetch } = useAuth();
   const t = useTranslations('auth.signupCustomer');
-  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
+  const tm = useTranslations('marketing.home');
+  const locale = useLocale() as LanguageCode;
+  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', region: '' });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,92 +68,165 @@ export default function SignupCustomerPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-fy-bone">
-      <Link
-        href="/"
-        aria-label="Back to home"
-        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-fy-card border border-fy-hairline shadow-sm hover:bg-fy-panel transition-colors duration-fast"
-      >
-        <ChevronLeftIcon className="w-5 h-5" />
-      </Link>
-      <div
-        className="pointer-events-none absolute -top-32 -right-24 w-80 h-80 rounded-full bg-fy-brown/10 blur-3xl"
-        aria-hidden="true"
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
+
+      <TopBar
+        eyebrow="FYRO"
+        title={t('brandSub')}
+        showBack
+        onBack={() => router.push('/')}
+        actions={
+          <LanguagePill
+            size="compact"
+            value={locale}
+            onChange={(code) => {
+              if (code !== locale) void setLocaleAction(code).then(() => router.refresh());
+            }}
+          />
+        }
       />
 
-      <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
-        <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">
-          {t('eyebrow')}
-        </p>
-        <h1 className="font-heading text-2xl font-bold mb-1">{t('title')}</h1>
-        <p className="text-sm text-fy-muted mb-7">{t('subtitle')}</p>
+      <main className="pt-16 pb-16 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3 pt-2">
+          <EyebrowLabel tone="brown">{t('eyebrow')}</EyebrowLabel>
+          <StatusPill tone="lime" className="shrink-0">
+            {t('oneStep')}
+          </StatusPill>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            placeholder={t('namePlaceholder')}
-            aria-label={t('namePlaceholder')}
-            autoComplete="name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className={inputClass}
-            required
-          />
-          <input
-            type="tel"
-            placeholder={t('phonePlaceholder')}
-            aria-label={t('phonePlaceholder')}
-            autoComplete="tel"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className={inputClass}
-            required
-          />
-          <input
-            type="email"
-            placeholder={t('emailPlaceholder')}
-            aria-label={t('emailPlaceholder')}
-            autoComplete="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="password"
-            placeholder={t('passwordPlaceholder')}
-            aria-label={t('passwordPlaceholder')}
-            autoComplete="new-password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className={inputClass}
-            required
-            minLength={8}
-          />
-          {error && (
-            <div
-              role="alert"
-              className="flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
-            >
-              <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-4a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <p>{error}</p>
+        <div>
+          <DisplayHeading size="heading">{t('title')}</DisplayHeading>
+          <Body size="body-lg" className="mt-2">
+            {t('subtitle')}
+          </Body>
+        </div>
+
+        <LightCard className="flex items-start gap-3">
+          <IconTile tone="lime" size="sm">
+            <Icon name="verified" size={18} />
+          </IconTile>
+          <Body size="label">{t('noSurgePromise')}</Body>
+        </LightCard>
+
+        <Panel className="p-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div>
+              <EyebrowLabel tone="ink">{t('nameLabel')}</EyebrowLabel>
+              <Field
+                placeholder={t('namePlaceholder')}
+                aria-label={t('nameLabel')}
+                autoComplete="name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
             </div>
-          )}
-          <Button type="submit" disabled={loading} className="w-full" size="lg">
-            {loading ? t('submitLoading') : t('submit')}
-          </Button>
-        </form>
-        <p className="text-sm text-fy-muted mt-7 pt-6 border-t border-fy-hairline">
-          {t('loginPrompt')}{' '}
-          <Link href="/login" className="text-fy-brown font-semibold hover:underline">
-            {t('loginLink')}
-          </Link>
-        </p>
-      </Card>
+
+            <div>
+              <div className="flex items-baseline justify-between gap-2">
+                <EyebrowLabel tone="ink">{t('phoneLabel')}</EyebrowLabel>
+                <EyebrowLabel>{t('phoneHint')}</EyebrowLabel>
+              </div>
+              <div className="flex items-center h-14 rounded-control bg-fy-field px-4 gap-3">
+                <span className="font-body text-body font-semibold text-fy-ink shrink-0">
+                  IND <span className="text-fy-brown">+91</span>
+                </span>
+                <span aria-hidden className="w-px h-6 bg-fy-hairline shrink-0" />
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder={t('phonePlaceholder')}
+                  aria-label={t('phoneLabel')}
+                  autoComplete="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  required
+                  className="flex-1 min-w-0 bg-transparent border-0 outline-none font-body text-body text-fy-ink placeholder:text-fy-muted/70"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-baseline justify-between gap-2">
+                <EyebrowLabel tone="ink">{t('regionLabel')}</EyebrowLabel>
+                <EyebrowLabel>{t('optional')}</EyebrowLabel>
+              </div>
+              <select
+                value={form.region}
+                onChange={(e) => setForm({ ...form, region: e.target.value })}
+                aria-label={t('regionLabel')}
+                className="w-full h-14 px-4 rounded-control bg-fy-field font-body text-body text-fy-ink outline-none border-0 focus:ring-2 focus:ring-fy-brown/25"
+              >
+                <option value="">{t('regionPlaceholder')}</option>
+                {STATE_KEYS.map((k) => (
+                  <option key={k} value={tm(`states.${k}`)}>
+                    {tm(`states.${k}`)}
+                  </option>
+                ))}
+              </select>
+              <Body size="label" className="mt-1">
+                {t('regionHint')}
+              </Body>
+            </div>
+
+            <div>
+              <div className="flex items-baseline justify-between gap-2">
+                <EyebrowLabel tone="ink">{t('emailLabel')}</EyebrowLabel>
+                <EyebrowLabel>{t('optional')}</EyebrowLabel>
+              </div>
+              <Field
+                type="email"
+                placeholder={t('emailPlaceholder')}
+                aria-label={t('emailLabel')}
+                autoComplete="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <EyebrowLabel tone="ink">{t('passwordLabel')}</EyebrowLabel>
+              <Field
+                type="password"
+                placeholder={t('passwordPlaceholder')}
+                aria-label={t('passwordLabel')}
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                required
+                minLength={8}
+              />
+              <Body size="label" className="mt-1">
+                {t('passwordHint')}
+              </Body>
+            </div>
+
+            {error && (
+              <div
+                role="alert"
+                className="flex items-start gap-2.5 rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg"
+              >
+                <Icon name="error" size={18} className="shrink-0 mt-px" />
+                <p>{error}</p>
+              </div>
+            )}
+
+            <Button type="submit" disabled={loading} glyph="how_to_reg" className="w-full">
+              {loading ? t('submitLoading') : t('submit')}
+            </Button>
+          </form>
+
+          <Divider className="my-4" />
+
+          <Body size="label">
+            {t('loginPrompt')}{' '}
+            <Link href="/login" className="font-semibold text-fy-brown hover:underline">
+              {t('loginLink')}
+            </Link>
+          </Body>
+        </Panel>
+      </main>
     </div>
   );
 }

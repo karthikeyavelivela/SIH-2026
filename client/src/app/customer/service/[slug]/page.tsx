@@ -18,7 +18,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
 import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill } from '@/components/fy/Status';
-import { Button, Chip, ChipRow, SelectCard, Field } from '@/components/fy/Controls';
+import { Button, Chip, ChipRow, SelectCard, Field, Toggle } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 
@@ -72,6 +72,14 @@ export default function ServiceDetailPage() {
   const [notes, setNotes] = useState('');
   const [when, setWhen] = useState<'now' | 'later'>('now');
   const [slot, setSlot] = useState(0);
+  // The legacy /customer/book/household form carried an exact date-time
+  // picker, an open-for-bidding switch and a correctable pricing region.
+  // The design has no separate household form screen, so rather than lose
+  // three real features when that page went away they live here, behind a
+  // disclosure so the common path stays the two-tap one the design shows.
+  const [advanced, setAdvanced] = useState(false);
+  const [exactTime, setExactTime] = useState('');
+  const [leadError, setLeadError] = useState<string | null>(null);
 
   const categoriesState = useApiState(
     () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
@@ -89,10 +97,22 @@ export default function ServiceDetailPage() {
     needsHamali: category?.dispatchType !== 'truck',
   });
 
-  const slots = useMemo(
-    () => SLOT_OFFSETS_MIN.map((m) => new Date(Date.now() + m * 60 * 1000)),
-    []
-  );
+  const slots = useMemo(() => SLOT_OFFSETS_MIN.map((m) => new Date(Date.now() + m * 60 * 1000)), []);
+
+  // Computed once, not inline in JSX: recomputing on every render makes the
+  // picker's `min` creep forward as real time passes, which can silently
+  // invalidate a value the customer already chose and block submit with no
+  // visible error. (Found live on the page this replaces.)
+  const [scheduleBounds] = useState(() => {
+    const fmt = (d: Date) => {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+    return {
+      min: fmt(new Date(Date.now() + (MIN_LEAD_MIN + 1) * 60 * 1000)),
+      max: fmt(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
+    };
+  });
 
   function toggleIssue(k: string) {
     setIssues((v) => (v.includes(k) ? v.filter((x) => x !== k) : [...v, k]));
@@ -105,10 +125,12 @@ export default function ServiceDetailPage() {
     // 'now' sends no scheduledFor at all, which is the API's own contract
     // for an instant booking.
     if (when === 'later') {
-      const picked = slots[slot];
+      const picked = exactTime ? new Date(exactTime) : slots[slot];
       const leadMin = (picked.getTime() - Date.now()) / 60000;
       if (leadMin < MIN_LEAD_MIN) {
-        // Server would reject it; say so here rather than after a round trip.
+        // The server would reject this; say so here rather than after a
+        // round trip that comes back as a validation error.
+        setLeadError(t('leadTooSoon', { minutes: MIN_LEAD_MIN }));
         return;
       }
       flow.setScheduledFor(picked.toISOString().slice(0, 16));
@@ -292,6 +314,75 @@ export default function ServiceDetailPage() {
             </div>
           )}
           {when === 'now' && <Body size="label">{t('nowHint')}</Body>}
+
+          <button
+            type="button"
+            onClick={() => setAdvanced((v) => !v)}
+            aria-expanded={advanced}
+            className="self-start inline-flex items-center gap-1 font-body text-label font-semibold text-fy-brown hover:underline"
+          >
+            <Icon name={advanced ? 'expand_less' : 'expand_more'} size={16} />
+            {t('moreOptions')}
+          </button>
+
+          {advanced && (
+            <LightCard className="flex flex-col gap-3">
+              {when === 'later' && (
+                <div>
+                  <EyebrowLabel>{t('exactTime')}</EyebrowLabel>
+                  <Field
+                    type="datetime-local"
+                    value={exactTime}
+                    onChange={(e) => {
+                      setExactTime(e.target.value);
+                      setLeadError(null);
+                    }}
+                    min={scheduleBounds.min}
+                    max={scheduleBounds.max}
+                  />
+                  <Body size="label" className="mt-1">
+                    {t('exactTimeHint', { minutes: MIN_LEAD_MIN })}
+                  </Body>
+                </div>
+              )}
+
+              <div>
+                <EyebrowLabel>{t('regionLabel')}</EyebrowLabel>
+                <Field
+                  value={flow.region}
+                  onChange={(e) => flow.setRegion(e.target.value)}
+                  placeholder={t('regionPlaceholder')}
+                />
+                <Body size="label" className="mt-1">
+                  {t('regionHint')}
+                </Body>
+              </div>
+
+              {/* Bidding is never combined with a scheduled booking — the
+                  server enforces that too, in createBooking. */}
+              {when === 'now' && (
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-body text-label font-semibold text-fy-ink">{t('openForBidding')}</p>
+                    <Body size="label" className="mt-0.5">
+                      {t('openForBiddingHint')}
+                    </Body>
+                  </div>
+                  <Toggle
+                    checked={flow.openForBidding}
+                    onChange={flow.setOpenForBidding}
+                    label={t('openForBidding')}
+                  />
+                </div>
+              )}
+            </LightCard>
+          )}
+
+          {leadError && (
+            <div role="alert" className="rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
+              {leadError}
+            </div>
+          )}
         </Section>
 
         {flow.submitError && (

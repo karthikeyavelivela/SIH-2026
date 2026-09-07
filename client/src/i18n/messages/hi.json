@@ -347,7 +347,20 @@
       "submitLoading": "खाता बनाया जा रहा है…",
       "loginPrompt": "पहले से खाता है?",
       "loginLink": "लॉग इन करें",
-      "genericError": "साइन अप विफल रहा"
+      "genericError": "साइन अप विफल रहा",
+      "brandSub": "सहकारी",
+      "oneStep": "एक चरण",
+      "noSurgePromise": "सत्यापित कुशल कारीगर, माल परिवहन और लोडिंग टोलियाँ — प्रकाशित दर के ऊपर कोई सर्ज शुल्क नहीं।",
+      "nameLabel": "पूरा कानूनी नाम",
+      "phoneLabel": "मोबाइल नंबर",
+      "phoneHint": "साइन इन के लिए",
+      "regionLabel": "आप कहाँ से बुक करते हैं?",
+      "regionPlaceholder": "राज्य चुनें",
+      "regionHint": "इससे दर सूची और वे समितियाँ तय होती हैं जिन्हें आपका काम जाता है। बाद में बदल सकते हैं।",
+      "emailLabel": "ईमेल",
+      "passwordLabel": "पासकी",
+      "passwordHint": "कम से कम 8 अक्षर।",
+      "optional": "वैकल्पिक"
     },
     "signupDriver": {
       "eyebrow": "हमारे साथ जुड़ें",
@@ -855,7 +868,47 @@
     "groupEarningsToDate": "समूह की कमाई — अब तक ₹{amount}",
     "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें",
     "cooperativeGovernance": "सहकारी शासन",
-    "insuranceProtection": "बीमा और सुरक्षा"
+    "insuranceProtection": "बीमा और सुरक्षा",
+    "title": "डैशबोर्ड",
+    "society": "सहकारी समिति",
+    "ratingLine": "{rating} ★ · {count} रेटेड काम",
+    "ratingNone": "अभी कोई रेटिंग नहीं",
+    "enrollmentCredential": "नामांकन कोड",
+    "enrollmentHint": "यह कोड साझा करें ताकि स्थानीय कामगार सीधे समिति में जुड़ सकें।",
+    "copy": "कॉपी",
+    "copied": "कॉपी हो गया",
+    "aggregateSettlement": "कुल निपटान",
+    "livePool": "लाइव पूल",
+    "societyPool": "समिति पूल",
+    "completedRuns": "{count, plural, =0 {अभी कोई काम पूरा नहीं} one {# काम पूरा} other {# काम पूरे}}",
+    "societyReserve": "समिति आरक्षित ({pct}%)",
+    "distributable": "टोली को वितरण योग्य",
+    "crewReady": "तैयार टोली",
+    "crewReadyValue": "{total} में से {online} ऑनलाइन",
+    "memberRoster": "सदस्य सूची",
+    "manage": "प्रबंधित करें",
+    "noMembers": "अभी कोई सदस्य नहीं जुड़ा।",
+    "crewStatus": {
+      "online": "तैयार",
+      "on_job": "काम पर",
+      "offline": "ऑफ़लाइन"
+    },
+    "activeRuns": "चालू समिति काम",
+    "inTransit": "{count, plural, =0 {कोई नहीं चल रहा} one {# चल रहा} other {# चल रहे}}",
+    "noActiveRuns": "अभी कोई काम नहीं चल रहा।",
+    "runId": "काम #{id}",
+    "runFare": "काम का किराया",
+    "manifest": "लाइव मेनिफ़ेस्ट",
+    "status": {
+      "accepted": "स्वीकृत",
+      "in_progress": "चल रहा है"
+    },
+    "openRequests": "खुले अनुरोध",
+    "societyEarnings": "समिति की कमाई",
+    "societyInsurance": "बीमा कवर",
+    "operations": "संचालन",
+    "noSociety": "अभी कोई समिति नहीं",
+    "noSocietyHint": "टोली भेजना शुरू करने के लिए समिति बनाएँ।"
   },
   "workerEarnings": {
     "pageTitle": "कमाई",
@@ -1527,7 +1580,13 @@
         "q": "अगर कोई ड्राइवर जवाब नहीं देता तो क्या होगा?",
         "a": "आपको ईमानदार \"प्रतीक्षा\" स्थिति दिखेगी — हम कभी झूठा मैच नहीं दिखाते। अपना पिकअप समय बढ़ाने या थोड़ी देर बाद देखने की कोशिश करें।"
       }
-    ]
+    ],
+    "deskEyebrow": "सहकारी चार्टर डेस्क",
+    "heading": "सहायता और समाधान",
+    "tabReport": "शिकायत",
+    "tabFaq": "सवाल",
+    "reportCount": "{count, plural, =0 {अभी कोई नहीं} one {# शिकायत} other {# शिकायतें}}",
+    "noReports": "आपने अभी तक कोई शिकायत नहीं की।"
   },
   "muthaEarnings": {
     "title": "ग्रुप की कमाई",
@@ -2809,7 +2868,16 @@
       "per_job": "प्रति काम",
       "per_km": "प्रति कि.मी.",
       "per_worker": "प्रति कामगार"
-    }
+    },
+    "moreOptions": "और विकल्प",
+    "exactTime": "सटीक तारीख और समय",
+    "exactTimeHint": "अभी से कम से कम {minutes} मिनट बाद, और अगले 14 दिनों के भीतर।",
+    "regionLabel": "किस क्षेत्र का किराया",
+    "regionPlaceholder": "ज़िला या शहर",
+    "regionHint": "पते से लिया गया। किसी और ज़िले की दर लगनी हो तो बदलें।",
+    "openForBidding": "समितियों की बोली के लिए खोलें",
+    "openForBiddingHint": "आस-पास की समितियाँ भाव देती हैं और आप चुनते हैं, बजाय इसके कि काम पहले उपलब्ध सदस्य को चला जाए।",
+    "leadTooSoon": "अभी से कम से कम {minutes} मिनट बाद का समय चुनें।"
   },
   "roleNav": {
     "home": "होम",
@@ -2823,5 +2891,36 @@
     "vehicles": "वाहन",
     "maintenance": "रखरखाव",
     "docks": "डॉक"
+  },
+  "customerDisputes": {
+    "tabDispute": "विवाद",
+    "whenToUse": "विवाद कब दर्ज करें",
+    "whenToUseBody": "जब पैसे को लेकर मतभेद हो तब विवाद दर्ज करें — गलत लगा किराया, नुकसान, या ऐसा काम जिसका शुल्क लगा पर हुआ नहीं। बाकी सब के लिए शिकायत बेहतर है, वह जल्दी निपटती है।",
+    "raiseDispute": "विवाद दर्ज करें",
+    "priority": "प्राथमिकता",
+    "claim": "क्या हुआ?",
+    "claimPlaceholder": "रकम और तारीखों सहित बताएँ।",
+    "priorities": {
+      "low": "कम",
+      "medium": "मध्यम",
+      "high": "ज़्यादा",
+      "critical": "अत्यावश्यक"
+    },
+    "statuses": {
+      "open": "खुला",
+      "in_review": "समीक्षा में",
+      "resolved": "हल हुआ",
+      "rejected": "अस्वीकृत",
+      "closed": "बंद",
+      "escalated": "ऊपर भेजा गया"
+    },
+    "submit": "विवाद भेजें",
+    "submitting": "भेजा जा रहा है…",
+    "submittedNotice": "विवाद दर्ज हो गया। यह सहकारी लोकपाल के पास जाता है, जो इस पर समाधान दर्ज करेंगे।",
+    "errorSubmit": "विवाद दर्ज नहीं हो सका।",
+    "yourDisputes": "आपके विवाद",
+    "disputeCount": "{count, plural, =0 {अभी कोई नहीं} one {# विवाद} other {# विवाद}}",
+    "noDisputes": "आपने कोई विवाद दर्ज नहीं किया।",
+    "ref": "विवाद #{id}"
   }
 }
