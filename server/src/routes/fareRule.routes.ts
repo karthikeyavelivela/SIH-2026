@@ -7,6 +7,21 @@ import * as fareRuleController from '../controllers/fareRule.controller';
 
 export const fareRuleRouter = Router();
 
+/**
+ * The published rate card, on its own non-admin mount (/api/fare-rules).
+ * Readable by any signed-in role: what a category costs is what a customer
+ * is shown before booking, not an internal lever. Returns only the
+ * customer-facing fields — no surge multiplier, no author, no history.
+ */
+export const publishedRatesRouter = Router();
+publishedRatesRouter.get(
+  '/published',
+  verifyJwt,
+  [query('region').optional().isString()],
+  validate,
+  fareRuleController.listPublishedRates
+);
+
 // Admin-only for every route below (fare rules are a pricing lever — no
 // manager-permission carve-out per spec), enforced once at the router level
 // so a future added route can't accidentally skip the gate.

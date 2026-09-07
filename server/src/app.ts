@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import { env } from './config/env';
 import { authRouter } from './routes/auth.routes';
 import { adminRouter } from './routes/admin.routes';
-import { fareRuleRouter } from './routes/fareRule.routes';
+import { fareRuleRouter, publishedRatesRouter } from './routes/fareRule.routes';
 import { geocodeRouter } from './routes/geocode.routes';
 import { bookingRouter } from './routes/booking.routes';
 import { availabilityRouter } from './routes/availability.routes';
@@ -127,6 +127,7 @@ app.use('/api/auth', authRouter);
 // accidentally match a sub-resource path first. Keep this ordering for any
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
+app.use('/api/fare-rules', publishedRatesRouter);
 app.use('/api/admin/complaints', adminComplaintRouter);
 app.use('/api/admin/incentives', incentiveRouter);
 app.use('/api/incentives', workerIncentiveRouter);

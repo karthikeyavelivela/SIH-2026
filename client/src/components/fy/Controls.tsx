@@ -245,6 +245,7 @@ export function SelectCard({
   description,
   badge,
   accent = 'lime',
+  compact = false,
   children,
   onClick,
   className = '',
@@ -254,28 +255,30 @@ export function SelectCard({
   title: ReactNode;
   description?: ReactNode;
   badge?: ReactNode;
-  accent?: 'lime' | 'slate';
+  accent?: 'lime' | 'slate' | 'green';
+  /** Drops the glyph row and tightens padding — the duration tiles. */
+  compact?: boolean;
   children?: ReactNode;
   onClick?: () => void;
   className?: string;
 }) {
   const selectedSurface =
-    accent === 'lime' ? 'bg-fy-lime-tint-1 text-fy-ink' : 'bg-fy-slate-soft text-fy-on-slate';
+    accent === 'slate' ? 'bg-fy-slate-soft text-fy-on-slate' : 'bg-fy-lime-tint-1 text-fy-ink';
   const iconChip = selected
-    ? accent === 'lime'
-      ? 'bg-fy-lime text-fy-green'
-      : 'bg-fy-slate text-fy-on-slate'
+    ? accent === 'slate'
+      ? 'bg-fy-slate text-fy-on-slate'
+      : 'bg-fy-lime text-fy-green'
     : 'bg-fy-well text-fy-ink-soft';
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`w-full text-left rounded-card p-3.5 transition-colors ${
+      className={`w-full text-left rounded-card transition-colors ${compact ? 'p-3' : 'p-3.5'} ${
         selected ? selectedSurface : 'bg-fy-panel text-fy-ink hover:bg-fy-well'
       } ${className}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className={`flex gap-3 ${compact ? 'flex-col' : 'items-start justify-between'}`}>
         <div className="flex items-start gap-3 min-w-0">
           {glyph && (
             <span className={`w-9 h-9 rounded-cell flex items-center justify-center shrink-0 mt-0.5 ${iconChip}`}>
@@ -295,11 +298,13 @@ export function SelectCard({
             {children}
           </div>
         </div>
-        <Icon
-          name={selected ? 'check_circle' : 'radio_button_unchecked'}
-          size={22}
-          className={selected ? (accent === 'lime' ? 'text-fy-green' : 'text-fy-lime') : 'text-fy-hairline'}
-        />
+        {!compact && (
+          <Icon
+            name={selected ? 'check_circle' : 'radio_button_unchecked'}
+            size={22}
+            className={selected ? (accent === 'slate' ? 'text-fy-lime' : 'text-fy-green') : 'text-fy-hairline'}
+          />
+        )}
       </div>
     </button>
   );

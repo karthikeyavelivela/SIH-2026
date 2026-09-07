@@ -116,7 +116,7 @@ export function PhotoStrip({
   return (
     <div className={`relative w-full h-28 rounded-card overflow-hidden ${className}`}>
       <Media id={id} kind="photo" fill treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
-      <div className="absolute inset-0 bg-gradient-to-r from-fy-brown/80 via-fy-brown-soft/55 to-fy-green/35" />
+      <div className="absolute inset-0 bg-gradient-to-r from-fy-brown/95 via-fy-brown-soft/85 to-fy-green/70" />
       {caption && (
         <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between gap-2 text-fy-bone z-10">
           {caption}

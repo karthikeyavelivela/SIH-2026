@@ -32,6 +32,9 @@ export interface ServiceCategory {
   accentColor: 'primary' | 'secondary';
   pricingUnit: 'per_hour' | 'per_job' | 'per_km' | 'per_worker';
   dispatchType: 'truck' | 'hamali';
+  /** Phase D.2 workmanship guarantee — true only for named skilled trades. */
+  guaranteeEligible?: boolean;
+  guaranteePeriodDays?: number;
 }
 
 interface CategoryPickerProps {

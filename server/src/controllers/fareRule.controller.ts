@@ -122,3 +122,30 @@ export const updateFareRule = asyncHandler(async (req: Request, res: Response) =
 
   res.status(200).json({ fareRule });
 });
+
+/**
+ * The published rate card, readable by any signed-in role.
+ *
+ * The rest of this router is admin-only because fare rules are a pricing
+ * lever. But what a category actually costs is not a secret — customers are
+ * shown it before they book, and every surface that quotes a price ("from
+ * ₹300 / hour") had no honest source for that number until this existed and
+ * so either omitted it or, worse, invented one. This exposes only the
+ * customer-facing fields of the currently active rules: no surgeMultiplier
+ * (an internal lever), no setByAdminId, no history.
+ */
+export const listPublishedRates = asyncHandler(async (req: Request, res: Response) => {
+  const { region } = req.query as Record<string, string>;
+  const filter: Record<string, unknown> = { active: true };
+  if (region) filter.region = region;
+
+  const rules = await FareRule.find(filter).sort({ region: 1, category: 1 }).lean();
+  const rates = rules.map((r) => ({
+    region: r.region,
+    category: r.category,
+    baseFare: r.baseFare,
+    perKmRate: r.perKmRate,
+    minimumFare: r.minimumFare,
+  }));
+  res.status(200).json({ rates });
+});
