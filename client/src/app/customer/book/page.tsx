@@ -14,6 +14,7 @@ import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/compon
 import { PricingQuoteWidget } from '@/components/worker/AgentWidgets';
 import { FareCard, bucketVehicleCategory, type FareBreakdown } from '@/components/booking/FareCard';
 import { CategoryPicker, type ServiceCategory } from '@/components/booking/CategoryPicker';
+import { StatusPill } from '@/components/ui/StatusPill';
 
 // How far a selected pickup can be from the device's GPS reading before we
 // ask "is this pickup for you or someone else?" — big enough that normal
@@ -53,6 +54,16 @@ const FALLBACK_REGION_LABEL = 'your area';
 
 // Matches booking.routes.ts's server-side ceiling on body('stops').
 const MAX_STOPS = 5;
+
+// There's no backend concept of "bulk tonnage" — hamali bookings are
+// counted in WORKERS, not weight, and no multi-society dispatch endpoint
+// exists (checked server-side before building this). Past this many
+// requested workers, a single crew almost certainly can't cover it from
+// one society, so we say so honestly instead of pretending an automatic
+// multi-crew assembly flow exists — the booking still submits normally,
+// operations coordinates the rest manually. See DESIGN_MAP.md's open
+// question #1.
+const LARGE_CREW_THRESHOLD = 15;
 
 // Real Rs 50,000 e-way-bill threshold (CGST Rules, rule 138) — value-based,
 // not weight-based, hence gated on estimatedValueRupees below.
@@ -229,7 +240,19 @@ function BookForm() {
   // server's own "No active fare rule for {region}/{category}" (422)
   // surfaces as a real, honest error instead of the form silently never
   // reaching a fare at all.
-  const region = pickup?.region ?? '';
+  // Visible + correctable region (Phase 1.2 requirement): the geocoder's
+  // derived region seeds this, but the server only ever sees a plain
+  // string (body('region').isString().trim() — no cross-check against
+  // pickup's own coordinates), so letting the customer override it here is
+  // real, not cosmetic. Re-syncs from a new pickup UNLESS the customer has
+  // already edited it by hand.
+  const [regionOverride, setRegionOverride] = useState('');
+  const [regionTouched, setRegionTouched] = useState(false);
+  const [editingRegion, setEditingRegion] = useState(false);
+  useEffect(() => {
+    if (!regionTouched) setRegionOverride(pickup?.region ?? '');
+  }, [pickup?.region, regionTouched]);
+  const region = regionOverride;
   const readyToQuote = pickup && drop && weightValid && stopsFilled && (!needsHamali || hamaliCount > 0);
   const ewayRequired = needsWeight && Number(estimatedValue) >= EWAY_BILL_THRESHOLD_RUPEES;
 
@@ -308,7 +331,26 @@ function BookForm() {
     <div className="min-h-screen bg-ip-surface">
       <div className="max-w-lg mx-auto px-ip-edge pt-ip-lg pb-ip-xl">
         <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-1">{t('title')}</h1>
-        <p className="text-ip-body-md text-ip-on-surface-variant mb-6">{t('subtitle', { region: region || FALLBACK_REGION_LABEL })}</p>
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          <p className="text-ip-body-md text-ip-on-surface-variant">{t('subtitle', { region: region || FALLBACK_REGION_LABEL })}</p>
+          {editingRegion ? (
+            <input
+              autoFocus
+              value={regionOverride}
+              onChange={(e) => { setRegionOverride(e.target.value); setRegionTouched(true); }}
+              onBlur={() => setEditingRegion(false)}
+              onKeyDown={(e) => e.key === 'Enter' && setEditingRegion(false)}
+              placeholder={FALLBACK_REGION_LABEL}
+              className="min-w-0 w-40 px-2.5 py-1 rounded-chip border border-fyro-ink/25 bg-white text-sm font-semibold text-fyro-ink"
+            />
+          ) : (
+            <button type="button" onClick={() => setEditingRegion(true)} className="inline-flex">
+              <StatusPill tone="transport" dot>
+                {region || FALLBACK_REGION_LABEL} · {t('editRegion')}
+              </StatusPill>
+            </button>
+          )}
+        </div>
 
         <CategoryPicker
           selectedSlug={selectedCategory?.slug ?? null}
@@ -536,12 +578,19 @@ function BookForm() {
           )}
 
           {needsHamali && (
-            <div className="ip-card flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-ip-on-surface">{t('hamaliWorkersTitle')}</p>
-                <p className="text-xs text-ip-on-surface-variant">{t('hamaliWorkersHint')}</p>
+            <div className="ip-card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-ip-on-surface">{t('hamaliWorkersTitle')}</p>
+                  <p className="text-xs text-ip-on-surface-variant">{t('hamaliWorkersHint')}</p>
+                </div>
+                <Stepper value={hamaliCount} onChange={setHamaliCount} />
               </div>
-              <Stepper value={hamaliCount} onChange={setHamaliCount} />
+              {hamaliCount >= LARGE_CREW_THRESHOLD && (
+                <p className="mt-3 pt-3 border-t border-ip-outline/10 text-xs text-ip-on-surface-variant">
+                  {t('largeCrewNotice')}
+                </p>
+              )}
             </div>
           )}
 

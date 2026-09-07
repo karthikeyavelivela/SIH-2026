@@ -652,6 +652,8 @@
   "customerBook": {
     "title": "डिलीवरी बुक करें",
     "subtitle": "{region} में — ट्रक, हमाली मज़दूर, या दोनों।",
+    "editRegion": "बदलें",
+    "largeCrewNotice": "इस तरह के बड़े क्रू अनुरोधों का समन्वय हमारी ऑपरेशन्स टीम करती है, कभी-कभी एक से अधिक सोसाइटी से — इसे सबमिट करने से अनुरोध बन जाता है; पूरी क्रू की पुष्टि हम सीधे आपसे करेंगे।",
     "typeTruck": "ट्रक",
     "typeHamali": "हमाली",
     "typeCombo": "दोनों",
@@ -1319,6 +1321,20 @@
     "labourQuickBookHint": "सामान्य मज़दूरी, प्रति व्यक्ति दर",
     "transportQuickBookTitle": "ट्रक या ड्राइवर बुक करें",
     "transportQuickBookHint": "कार्गो और लॉजिस्टिक्स, प्रति किमी दर",
+    "setYourArea": "अपना क्षेत्र सेट करें",
+    "categoriesAvailable": "श्रेणियां उपलब्ध हैं",
+    "mostBooked": "सबसे ज़्यादा बुक की गई",
+    "cooperativeGuilds": "सहकारी गिल्ड",
+    "fixedFairRate": "निश्चित उचित दर",
+    "noCategoriesTitle": "यहां अभी कुछ भी उपलब्ध नहीं है",
+    "guaranteeTitle": "सहकारी गारंटी",
+    "guaranteeHint": "उचित सदस्य मज़दूरी। कोई बिचौलिया कटौती नहीं।",
+    "pricingUnit": {
+      "per_hour": "प्रति घंटा दर",
+      "per_job": "प्रति काम दर",
+      "per_km": "प्रति किमी दर",
+      "per_worker": "प्रति व्यक्ति दर"
+    },
     "status": {
       "scheduled": "शेड्यूल किया गया",
       "requested": "अनुरोधित",

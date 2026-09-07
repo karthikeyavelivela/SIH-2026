@@ -60,6 +60,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       lang={locale}
       className={`${fraunces.variable} ${inter.variable} ${notoSerifTelugu.variable} ${notoSerifDevanagari.variable}`}
     >
+      <head>
+        {/* Material Symbols Outlined — the icon system every Stitch screen
+            actually uses (`<span class="material-symbols-outlined">
+            icon_name</span>`). Loaded once, globally, so every rebuilt page
+            can use the exact glyphs the design references instead of a
+            hand-drawn approximation — see components/ui/Icon.tsx. */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+          rel="stylesheet"
+        />
+      </head>
       <body className="font-body">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>

@@ -39,12 +39,12 @@ import { Media } from '@/components/ui/Media';
 import { AgentCard } from '@/components/ui/AgentResultCard';
 import { useToast } from '@/components/ui/Toast';
 import { RotaryDial } from '@/components/ui/RotaryDial';
-import { HomeIcon, UsersIcon, TruckIcon } from '@/components/ui/icons';
+import { Icon } from '@/components/ui/Icon';
 
 const DIAL_SECTORS = [
-  { key: 'household', label: 'Household', icon: <HomeIcon /> },
-  { key: 'labour', label: 'Labour', icon: <UsersIcon /> },
-  { key: 'transport', label: 'Transport', icon: <TruckIcon /> },
+  { key: 'household', label: 'Household', glyph: 'home_repair_service' },
+  { key: 'labour', label: 'Labour', glyph: 'engineering' },
+  { key: 'transport', label: 'Transport', glyph: 'local_shipping' },
 ];
 
 const PALETTE = [
@@ -282,6 +282,17 @@ export default function StyleguidePage() {
                 rowKey={(r) => r.id}
               />
             </div>
+          </div>
+        </StyleSection>
+
+        <StyleSection title="Icon" description="Material Symbols Outlined — the actual icon system every Stitch screen.code.html uses (a ligature glyph name, not a custom SVG). Loaded once in layout.tsx.">
+          <div className="flex gap-4 text-fyro-brown">
+            {['home_repair_service', 'engineering', 'local_shipping', 'verified_user', 'account_balance_wallet', 'diversity_3'].map((g) => (
+              <div key={g} className="flex flex-col items-center gap-1">
+                <Icon name={g} size={26} />
+                <span className="text-[10px] font-mono text-ip-outline">{g}</span>
+              </div>
+            ))}
           </div>
         </StyleSection>
 

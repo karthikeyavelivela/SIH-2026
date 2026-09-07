@@ -652,6 +652,8 @@
   "customerBook": {
     "title": "Book a delivery",
     "subtitle": "Trucks, Hamali labor, or both — in {region}.",
+    "editRegion": "edit",
+    "largeCrewNotice": "Large crew requests like this are coordinated by our operations team, sometimes across more than one society — submitting this creates the request; we'll confirm the full crew with you directly.",
     "typeTruck": "Truck",
     "typeHamali": "Hamali",
     "typeCombo": "Combo",
@@ -1319,6 +1321,20 @@
     "labourQuickBookHint": "General labour, priced per worker",
     "transportQuickBookTitle": "Book a truck or driver",
     "transportQuickBookHint": "Cargo & logistics, priced per km",
+    "setYourArea": "Set your area",
+    "categoriesAvailable": "categories available",
+    "mostBooked": "Most booked",
+    "cooperativeGuilds": "Cooperative Guilds",
+    "fixedFairRate": "Fixed fair rate",
+    "noCategoriesTitle": "Nothing available here yet",
+    "guaranteeTitle": "Cooperative Guarantee",
+    "guaranteeHint": "Fair member wages. No middleman cuts.",
+    "pricingUnit": {
+      "per_hour": "Priced per hour",
+      "per_job": "Priced per job",
+      "per_km": "Priced per km",
+      "per_worker": "Priced per worker"
+    },
     "status": {
       "scheduled": "Scheduled",
       "requested": "Requested",

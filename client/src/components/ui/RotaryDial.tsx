@@ -1,11 +1,13 @@
 'use client';
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { Icon } from './Icon';
 
 export interface DialSector {
   key: string;
   label: string;
-  icon: ReactNode;
+  /** Material Symbols Outlined glyph name — see components/ui/Icon.tsx. */
+  glyph: string;
 }
 
 interface RotaryDialProps {
@@ -121,19 +123,19 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
   };
 
   const isExpanded = mode !== 'collapsed';
-  // Radius ~45vw on mobile (capped for desktop) when expanded; a 28px
-  // radius (56px sliver diameter, per the brief) when collapsed. The box
-  // is always sized 2R x 2R and offset -R/-R from the viewport's top-right
-  // corner, so its CENTER stays pinned exactly on that corner at every R —
-  // animating R alone is the whole "retracts into the corner" effect,
-  // no transform-origin trickery needed.
-  const R = isExpanded ? 'min(45vw, 320px)' : '28px';
+  // Radius ~45vw on mobile (capped for desktop) when expanded. Collapsed
+  // mode doesn't scale this box down to a peeking circle any more — the
+  // real Stitch screens (fyro_household_home etc) show a flat pill trigger
+  // fixed below the header instead, not a corner sliver; see the pill
+  // below. The disc itself only exists in the DOM while expanded/rotating.
+  const R = 'min(45vw, 320px)';
   const discStyle: React.CSSProperties = {
     top: `calc(-1 * ${R})`,
     right: `calc(-1 * ${R})`,
     width: `calc(2 * ${R})`,
     height: `calc(2 * ${R})`,
   };
+  const activeSector = sectors[activeIndex];
 
   return (
     <div className="relative">
@@ -158,7 +160,27 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
         />
       )}
 
+      {/* Collapsed trigger — a flat pill fixed below the header, matching
+          every real Stitch page screen's "Quick Rotary Dial Sliver"
+          exactly (rounded-l-full, accent rule, active sector's glyph +
+          label). Tapping it grows the full disc in from the corner. */}
+      {!isExpanded && (
+        <button
+          type="button"
+          aria-label={`Expand mode dial — currently ${activeSector?.label}`}
+          onClick={expand}
+          className="fixed top-16 right-0 z-40 flex items-center gap-1.5 pl-4 pr-2.5 py-2 bg-ip-primary-container/90 backdrop-blur-md rounded-l-full shadow-md text-ip-on-primary transition-transform active:scale-95"
+        >
+          <span className="absolute inset-y-0 left-0 w-1 bg-accent-labour rounded-r-full" aria-hidden="true" />
+          <Icon name={activeSector?.glyph ?? 'tune'} size={18} className="text-accent-labour" />
+          <span className="font-label-caps text-label-caps tracking-widest text-ip-on-primary-container uppercase">
+            {activeSector?.label}
+          </span>
+        </button>
+      )}
+
       <div
+        hidden={!isExpanded}
         ref={dialRef}
         role="group"
         aria-label="Switch service mode"
@@ -219,20 +241,10 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
                   isActive ? 'bg-accent-labour text-fyro-ink scale-110' : 'text-fyro-bone/70 hover:text-fyro-bone hover:scale-105'
                 }`}
               >
-                <span className="w-6 h-6">{sector.icon}</span>
+                <Icon name={sector.glyph} size={22} />
               </button>
             );
           })}
-
-          {/* Collapsed-mode tap target: whole sliver reopens the dial. */}
-          {mode === 'collapsed' && (
-            <button
-              type="button"
-              aria-label={`Expand mode dial — currently ${sectors[activeIndex]?.label}`}
-              onClick={expand}
-              className="absolute inset-0 rounded-full"
-            />
-          )}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
-import { useNotificationPermission } from '@/lib/useNotificationPermission';
+import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 import { StatusPill, bookingStatusTone } from '@/components/ui/StatusPill';
@@ -14,13 +14,12 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PermissionDeniedState } from '@/components/ui/PermissionDeniedState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { Section } from '@/components/ui/Section';
 import { FlatRowList, FlatRow } from '@/components/ui/FlatRowList';
 import { RotaryDial, type DialSector } from '@/components/ui/RotaryDial';
+import { Media } from '@/components/ui/Media';
+import { Icon } from '@/components/ui/Icon';
 import { SupportAgentWidget } from '@/components/worker/AgentWidgets';
 import { CATEGORY_ICONS, type ServiceCategory } from '@/components/booking/CategoryPicker';
-import { BellIcon, TruckIcon, BoxIcon, HomeIcon, UsersIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 interface BookingSummary {
   _id: string;
@@ -38,13 +37,10 @@ function shortAddress(address: string): string {
   return address.split(',')[0];
 }
 
-// Buckets the platform's 12 service categories into the dial's 3 sectors.
-// `general_labour` is the traditional hamali/loading-crew category — the
-// one thing genuinely distinct from a named household trade even though
-// both ride the same `dispatchType:'hamali'` dispatch path server-side, so
-// slug (not dispatchType alone) is the discriminator. Everything else with
-// dispatchType:'truck' (cargo logistics + driver) is Transport; the
-// remaining 9 named trades (electrician, plumber, ...) are Household.
+// Same bucketing as before: `general_labour` is the traditional
+// hamali/loading-crew category — the one thing genuinely distinct from a
+// named household trade even though both ride dispatchType:'hamali'
+// server-side, so slug (not dispatchType alone) is the discriminator.
 function bucketCategories(categories: ServiceCategory[]) {
   const household: ServiceCategory[] = [];
   const labour: ServiceCategory[] = [];
@@ -57,19 +53,28 @@ function bucketCategories(categories: ServiceCategory[]) {
   return { household, labour, transport };
 }
 
+const DIAL_SECTORS_META: Record<string, { glyph: string }> = {
+  household: { glyph: 'home_repair_service' },
+  labour: { glyph: 'engineering' },
+  transport: { glyph: 'local_shipping' },
+};
+
+const SECTOR_HEADLINE: Record<string, string> = {
+  household: 'Household\nservices',
+  labour: 'Loading &\ncrew labour',
+  transport: 'Trucks &\ntransport',
+};
+
 export default function CustomerDashboardPage() {
   const t = useTranslations('customerDashboard');
   const { user } = useAuth();
-  const { permission, request } = useNotificationPermission();
+  const { addresses: savedAddresses } = useSavedAddresses();
   const [dialMode, setDialMode] = useState('household');
 
   const bookingsState = useApiState(
     () => api.get<{ bookings: BookingSummary[] }>('/api/bookings').then((r) => r.bookings),
     []
   );
-  // Prefetched once, up front — bucketed client-side into all 3 dial
-  // sectors so switching sectors is a pure render, never a new fetch
-  // (Phase 1.1's "no loading frame between modes" requirement).
   const categoriesState = useApiState(
     () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
     []
@@ -88,163 +93,223 @@ export default function CustomerDashboardPage() {
   };
 
   const bookings = bookingsState.data ?? [];
-  const firstName = user?.name?.split(' ')[0] ?? t('thereFallback');
   const activeBooking = bookings.find((b) => !['completed', 'cancelled'].includes(b.status));
   const recent = bookings.filter((b) => b._id !== activeBooking?._id).slice(0, 5);
   const activeStepIndex = activeBooking ? PROGRESS_STEPS.indexOf(activeBooking.status) : -1;
   const progressPct = activeStepIndex >= 0 ? Math.round((activeStepIndex / (PROGRESS_STEPS.length - 1)) * 100) : 0;
 
   const sectors: DialSector[] = [
-    { key: 'household', label: t('dialHousehold'), icon: <HomeIcon /> },
-    { key: 'labour', label: t('dialLabour'), icon: <UsersIcon /> },
-    { key: 'transport', label: t('dialTransport'), icon: <TruckIcon /> },
+    { key: 'household', label: t('dialHousehold'), glyph: DIAL_SECTORS_META.household.glyph },
+    { key: 'labour', label: t('dialLabour'), glyph: DIAL_SECTORS_META.labour.glyph },
+    { key: 'transport', label: t('dialTransport'), glyph: DIAL_SECTORS_META.transport.glyph },
   ];
+
+  const currentBucket = dialMode === 'household' ? buckets.household : dialMode === 'labour' ? buckets.labour : buckets.transport;
+  const [heroCategory, ...gridCategories] = currentBucket;
 
   return (
     <RotaryDial sectors={sectors} activeKey={dialMode} onChange={setDialMode}>
-      <div className="min-h-screen bg-fyro-bone">
-        <header className="w-full sticky top-0 z-20 bg-fyro-bone/90 backdrop-blur-sm flex justify-between items-center px-ip-edge py-3 max-w-[600px] mx-auto">
-          <div className="flex items-center gap-3 min-w-0">
-            <div
-              className="w-10 h-10 rounded-full bg-white overflow-hidden flex-shrink-0 flex items-center justify-center text-fyro-brown font-heading font-bold"
-              aria-hidden="true"
-            >
-              {user?.profilePhoto ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.profilePhoto} alt="" className="w-full h-full object-cover" />
-              ) : (
-                (user?.name ?? '?')[0]?.toUpperCase()
-              )}
+      <div className="min-h-screen bg-fyro-bone relative">
+        <div className="fixed inset-0 pointer-events-none fyro-grain z-0 opacity-40" />
+
+        {/* Fixed header — mirrors fyro_household_home/code.html's <header> almost line for line. */}
+        <header className="fixed top-0 w-full z-40 bg-fyro-bone/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+          <div className="h-16 px-4 flex items-center justify-between max-w-2xl mx-auto">
+            <div className="flex items-center gap-2">
+              {/* Brand mark — a real logo file drops into MEDIA_MANIFEST's
+                  brand.wordmark later; at 32px, <Media>'s verbose id-label
+                  placeholder is illegible, so this one small chrome slot
+                  gets a plain initial mark instead of the generic system. */}
+              <div className="h-8 w-8 rounded-full bg-fyro-brown text-white flex items-center justify-center font-heading font-bold text-sm shrink-0">F</div>
+              <div className="flex flex-col">
+                <span className="font-label-caps text-label-caps uppercase tracking-wider text-ip-outline">FYRO Cooperative</span>
+                <h1 className="font-heading text-headline-sm text-fyro-ink leading-none">
+                  {dialMode === 'household' ? 'Explore Services' : dialMode === 'labour' ? 'Loading & Crew' : 'Trucks & Transport'}
+                </h1>
+              </div>
             </div>
-            <h1 className="font-heading font-bold text-headline-sm text-fyro-brown tracking-tight uppercase truncate">FYRO</h1>
-          </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <NotificationBell href="/customer/notifications" />
-            <button
-              type="button"
-              aria-label={permission === 'granted' ? t('alertsOn') : t('enableAlerts')}
-              onClick={() => permission === 'default' && request()}
-              className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center transition-colors ${
-                permission === 'granted' ? 'bg-accent-labour/25 text-fyro-ink' : 'text-ip-on-surface-variant hover:bg-fyro-ink/5'
-              }`}
-            >
-              <BellIcon className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <Link href="/customer/history" className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-ip-on-surface-variant hover:text-fyro-ink transition-colors">
+                <Icon name="receipt_long" size={22} />
+              </Link>
+              <div className="w-8 h-8 rounded-full p-0.5 flex items-center justify-center bg-ip-surface-container-high overflow-hidden">
+                {user?.profilePhoto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.profilePhoto} alt="" className="w-full h-full rounded-full object-cover" />
+                ) : (
+                  <span className="font-heading font-bold text-fyro-brown text-sm">{(user?.name ?? '?')[0]?.toUpperCase()}</span>
+                )}
+              </div>
+            </div>
           </div>
         </header>
 
-        <main className="max-w-[600px] mx-auto px-ip-edge pt-ip-lg pb-ip-xl flex flex-col gap-ip-xl">
-          <NotificationPrompt accent="primary" copy={t('notifyPrompt')} />
+        <main className="pt-16 pb-28 px-4 max-w-2xl mx-auto relative z-10">
+          <div className="flex flex-col w-full relative pb-8">
+            <NotificationPrompt accent="primary" copy={t('notifyPrompt')} />
 
-          <PageHeader title={firstName} subline={t('welcomeBack')} />
-
-          {/* Mode-specific primary action — the one thing that actually
-              changes between dial sectors. Everything else on this page
-              (tracker, recent bookings, AI widget) is shared, since a
-              customer's own bookings aren't mode-specific. */}
-          {dialMode === 'household' && (
-            <Section title={t('categoriesHeading')}>
-              {categoriesState.status === 'loading' && (
-                <div className="grid grid-cols-3 gap-2">
-                  {[0, 1, 2].map((i) => <Skeleton key={i} className="h-20 rounded-card" />)}
+            {/* Location + language + notifications row — right-padded so
+                it never sits under the fixed dial pill (top-16 right-0). */}
+            <div className="w-full flex items-center justify-between py-2 pl-1 pr-20 mb-3">
+              <Link
+                href="/customer/book"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-ip-surface-container-highest text-ip-on-surface-variant text-[11px] font-medium shadow-sm"
+              >
+                <Icon name="location_on" size={14} className="text-fyro-brown" />
+                <span className="truncate max-w-[130px]">{savedAddresses[0]?.label ?? t('setYourArea')}</span>
+                <Icon name="expand_more" size={14} />
+              </Link>
+              <div className="flex items-center gap-2.5">
+                <Link href="/customer/profile" className="px-2 py-0.5 rounded-chip bg-ip-surface-container-high text-ip-on-surface-variant font-label-caps text-label-caps tracking-wide uppercase">
+                  EN / తె / हि
+                </Link>
+                <div className="relative">
+                  <NotificationBell href="/customer/notifications" />
                 </div>
-              )}
-              {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} />}
-              {(categoriesState.status === 'success' || categoriesState.status === 'empty') && (
-                <div className="grid grid-cols-3 gap-2">
-                  {buckets.household.map((c) => {
-                    const Icon = CATEGORY_ICONS[c.icon] ?? BoxIcon;
+              </div>
+            </div>
+
+            {/* Active dispatch — compact, real data only (no fabricated ETA/worker name). */}
+            {activeBooking && (
+              <Link href={`/customer/track/${activeBooking._id}`} className="w-full mb-4 px-1 block">
+                <div className="flex items-center justify-between p-2.5 rounded-control bg-ip-surface-container-low shadow-sm">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="relative flex h-2.5 w-2.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-labour opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-ip-secondary" />
+                    </span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-label-caps text-label-caps text-ip-secondary uppercase font-semibold">{t('activeTracking')}</span>
+                      <p className="font-body text-body-strong text-[12px] text-fyro-ink truncate">
+                        {statusLabel[activeBooking.status] ?? activeBooking.status} · {shortAddress(activeBooking.pickupLocation.address)} → {shortAddress(activeBooking.dropLocation.address)}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="shrink-0 p-1 rounded-full bg-ip-surface-container text-ip-on-surface-variant">
+                    <Icon name="near_me" size={18} />
+                  </span>
+                </div>
+                <div className="h-1 mx-1 mt-1.5 rounded-full bg-ip-outline/15 overflow-hidden">
+                  <div className="h-full bg-accent-labour rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+                </div>
+              </Link>
+            )}
+
+            {/* Headline */}
+            <div className="flex flex-col mb-4 px-1">
+              <div className="max-w-[78%]">
+                <h2 className="font-heading text-headline-lg-mobile text-fyro-ink tracking-tight leading-[1.05] whitespace-pre-line">
+                  {SECTOR_HEADLINE[dialMode]}
+                </h2>
+                <p className="font-body text-body-default text-ip-on-surface-variant mt-1.5 flex items-center gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-ip-secondary" />
+                  {currentBucket.length} {t('categoriesAvailable')}
+                </p>
+              </div>
+            </div>
+
+            {categoriesState.status === 'loading' && (
+              <div className="w-full h-60 rounded-card bg-ip-surface-container animate-pulse mb-6" />
+            )}
+            {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} className="mb-6" />}
+
+            {/* Hero card — first category in this sector, real photo placeholder, no fabricated price. */}
+            {heroCategory && (
+              <Link
+                href={`/customer/book?category=${heroCategory.slug}`}
+                className="relative w-full rounded-card overflow-hidden mb-6 shadow-md bg-fyro-brown block"
+              >
+                <Media
+                  id={`household.category.${heroCategory.slug}`}
+                  kind="photo"
+                  aspect={1.6}
+                  treatment="full-bleed"
+                  tint="household"
+                  alt={heroCategory.name}
+                  className="w-full h-60"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-fyro-brown via-fyro-brown/50 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white flex flex-col">
+                  <span className="self-start mb-1.5 px-2.5 py-0.5 rounded-chip bg-accent-labour text-fyro-ink font-label-caps text-label-caps tracking-wider uppercase font-semibold">
+                    {t('mostBooked')}
+                  </span>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="font-heading text-headline-sm text-white leading-snug">{heroCategory.name}</h3>
+                      <p className="font-body text-body-default text-white/70 text-xs">{t(`pricingUnit.${heroCategory.pricingUnit}` as never)}</p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* Category bento grid — real categories, varying tile sizes for visual rhythm. */}
+            {gridCategories.length > 0 && (
+              <>
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <h3 className="font-heading text-[1.1rem] text-fyro-ink">{t('cooperativeGuilds')}</h3>
+                  <span className="font-label-caps text-label-caps text-ip-outline uppercase tracking-wider">{t('fixedFairRate')}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  {gridCategories.map((c, i) => {
+                    const CatIcon = CATEGORY_ICONS[c.icon];
+                    const featured = i === 2; // one wide tile mid-grid, matching the reference's rhythm
                     return (
                       <Link
                         key={c._id}
                         href={`/customer/book?category=${c.slug}`}
-                        className="flex flex-col items-center gap-1.5 py-3.5 px-1 rounded-card border border-fyro-ink/10 bg-white/40 text-fyro-ink text-center hover:bg-accent-household/8 hover:border-accent-household/30 transition-colors"
+                        className={`flex flex-col justify-between p-3.5 rounded-card bg-ip-surface-container-low shadow-sm ${featured ? 'col-span-2 flex-row items-center' : 'min-h-[170px]'}`}
                       >
-                        <Icon className="w-5 h-5" />
-                        <span className="text-[11px] font-semibold leading-tight">{c.name}</span>
+                        <div className={featured ? 'flex items-center gap-3 min-w-0' : ''}>
+                          <div className={`rounded-cell bg-ip-surface-container-high flex items-center justify-center text-fyro-brown ${featured ? 'w-11 h-11 shrink-0' : 'w-9 h-9 mb-2'}`}>
+                            {CatIcon ? <CatIcon className="w-5 h-5" /> : <Icon name="handyman" size={20} />}
+                          </div>
+                          {!featured && (
+                            <div className="w-full h-16 rounded-cell overflow-hidden mb-2 bg-ip-surface-container">
+                              <Media id={`household.category.${c.slug}`} kind="photo" aspect={2} treatment="inline" tint="household" alt={c.name} className="w-full h-full" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <h4 className="font-body text-body-strong text-[14px] text-fyro-ink leading-tight truncate">{c.name}</h4>
+                            <p className="font-body text-body-default text-[11px] text-ip-on-surface-variant mt-0.5">{t(`pricingUnit.${c.pricingUnit}` as never)}</p>
+                          </div>
+                        </div>
                       </Link>
                     );
                   })}
                 </div>
-              )}
-            </Section>
-          )}
+              </>
+            )}
 
-          {dialMode === 'labour' && (
-            <Section title={t('dialLabour')}>
-              <Link
-                href="/customer/book?category=general_labour"
-                className="rounded-card border border-accent-labour/30 bg-accent-labour/10 p-5 flex items-center gap-4 hover:bg-accent-labour/16 transition-colors"
-              >
-                <div className="w-12 h-12 rounded-full bg-accent-labour text-fyro-ink flex items-center justify-center shrink-0">
-                  <BoxIcon className="w-6 h-6" />
-                </div>
-                <div className="flex flex-col items-start">
-                  <span className="font-heading text-body-strong text-fyro-ink">{t('labourQuickBookTitle')}</span>
-                  <span className="text-body-default text-ip-on-surface-variant font-body">{t('labourQuickBookHint')}</span>
-                </div>
-              </Link>
-            </Section>
-          )}
+            {currentBucket.length === 0 && categoriesState.status !== 'loading' && (
+              <EmptyState title={t('noCategoriesTitle')} className="mb-6" />
+            )}
 
-          {dialMode === 'transport' && (
-            <Section title={t('dialTransport')}>
-              <Link
-                href="/customer/book?category=general_logistics"
-                className="rounded-card border border-accent-transport/30 bg-accent-transport/10 p-5 flex items-center gap-4 hover:bg-accent-transport/16 transition-colors"
-              >
-                <div className="w-12 h-12 rounded-full bg-accent-transport text-white flex items-center justify-center shrink-0">
-                  <TruckIcon className="w-6 h-6" />
+            {/* Cooperative Guarantee — legitimate static brand copy, not fabricated data. */}
+            <div className="w-full p-4 rounded-card bg-ip-surface-container-high flex items-center justify-between shadow-sm mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-fyro-brown text-white flex items-center justify-center">
+                  <Icon name="verified_user" size={18} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="font-heading text-body-strong text-fyro-ink">{t('transportQuickBookTitle')}</span>
-                  <span className="text-body-default text-ip-on-surface-variant font-body">{t('transportQuickBookHint')}</span>
+                <div>
+                  <p className="font-body text-body-strong text-xs text-fyro-ink">{t('guaranteeTitle')}</p>
+                  <p className="font-body text-body-default text-[11px] text-ip-on-surface-variant">{t('guaranteeHint')}</p>
                 </div>
-              </Link>
-            </Section>
-          )}
+              </div>
+              <Icon name="arrow_forward" size={18} className="text-ip-outline" />
+            </div>
 
-          {activeBooking && (
-            <Section title={t('activeTracking')}>
-              <Link href={`/customer/track/${activeBooking._id}`} className="rounded-card border border-fyro-ink/10 bg-white/50 p-5 flex flex-col gap-4 hover:bg-white/70 transition-colors">
-                <div className="flex justify-between items-start gap-3">
-                  <div className="flex flex-col gap-1">
-                    <StatusPill tone={bookingStatusTone(activeBooking.status)} dot>
-                      {statusLabel[activeBooking.status] ?? activeBooking.status}
-                    </StatusPill>
-                    <span className="font-heading font-semibold text-data-metric text-fyro-ink tabular-nums">
-                      ₹{activeBooking.fareBreakdown.total}
-                    </span>
-                  </div>
-                  <span className="text-xs text-ip-on-surface-variant text-right">
-                    {new Date(activeBooking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-fyro-ink/10 relative">
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-accent-labour rounded-full transition-all" style={{ width: `${progressPct}%` }} />
-                  </div>
-                </div>
-                <div className="flex justify-between text-body-default text-ip-on-surface-variant gap-3 font-body">
-                  <span className="truncate">{shortAddress(activeBooking.pickupLocation.address)}</span>
-                  <span className="truncate text-right">{shortAddress(activeBooking.dropLocation.address)}</span>
-                </div>
-              </Link>
-            </Section>
-          )}
-
-          <Section
-            title={t('recentBookings')}
-            right={
+            {/* Recent bookings — preserved from the previous build, shared across all 3 sectors. */}
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h3 className="font-heading text-[1.1rem] text-fyro-ink">{t('recentBookings')}</h3>
               <Link href="/customer/history" className="text-sm font-semibold text-fyro-brown hover:underline">
                 {t('seeAll')}
               </Link>
-            }
-          >
+            </div>
+
             {bookingsState.status === 'loading' && <Skeleton lines={3} className="h-16" />}
             {bookingsState.status === 'error' && <ErrorState onRetry={bookingsState.reload} />}
             {bookingsState.status === 'forbidden' && <PermissionDeniedState />}
-
             {bookingsState.status === 'empty' && (
               <EmptyState
                 title={t('noBookingsTitle')}
@@ -256,11 +321,9 @@ export default function CustomerDashboardPage() {
                 }
               />
             )}
-
             {bookingsState.status === 'success' && recent.length === 0 && (
               <p className="text-center py-6 text-body-default text-ip-on-surface-variant font-body">{t('onlyActiveNote')}</p>
             )}
-
             {recent.length > 0 && (
               <FlatRowList>
                 {recent.map((b) => (
@@ -270,7 +333,7 @@ export default function CustomerDashboardPage() {
                     left={
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-ip-surface-container-highest flex items-center justify-center text-ip-on-surface-variant flex-shrink-0">
-                          {b.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
+                          <Icon name={b.type === 'hamali' ? 'engineering' : 'local_shipping'} size={18} />
                         </div>
                         <span className="truncate">{shortAddress(b.pickupLocation.address)} → {shortAddress(b.dropLocation.address)}</span>
                       </div>
@@ -279,16 +342,18 @@ export default function CustomerDashboardPage() {
                       <div className="flex items-center gap-2">
                         <span>₹{b.fareBreakdown.total}</span>
                         <StatusPill tone={bookingStatusTone(b.status)}>{statusLabel[b.status] ?? b.status}</StatusPill>
-                        <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+                        <Icon name="chevron_right" size={16} className="text-ip-on-surface-variant" />
                       </div>
                     }
                   />
                 ))}
               </FlatRowList>
             )}
-          </Section>
 
-          <SupportAgentWidget accent="primary" />
+            <div className="mt-5">
+              <SupportAgentWidget accent="primary" />
+            </div>
+          </div>
         </main>
       </div>
     </RotaryDial>
