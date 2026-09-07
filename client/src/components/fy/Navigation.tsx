@@ -21,17 +21,35 @@ export interface TabItem {
  * Fixed bottom bar. Icon above a 12px label; active item is ink, inactive is
  * muted — no pill, no underline, no background change (measured).
  */
-export function BottomTabBar({ items }: { items: TabItem[] }) {
+export function BottomTabBar({
+  items,
+  size = 'default',
+}: {
+  items: TabItem[];
+  /**
+   * The design set has exactly two bars, and they are consistent within each
+   * shell rather than in conflict: the signed-in customer shell is 80px with
+   * four 24px tabs (household_home, customer_profile_1), the marketing shell
+   * is 64px with five 22px tabs and the smaller caps label (landing).
+   */
+  size?: 'default' | 'compact';
+}) {
   const pathname = usePathname();
+  const compact = size === 'compact';
   return (
     <nav
       aria-label="Primary"
       className="fixed bottom-0 inset-x-0 z-40 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="h-20 max-w-2xl mx-auto flex items-center justify-around px-2">
+      <div
+        className={`${compact ? 'h-16' : 'h-20'} max-w-2xl mx-auto flex items-center justify-around px-2`}
+      >
         {items.map((item) => {
-          const active = pathname === item.href || pathname?.startsWith(item.href + '/');
+          const active =
+            item.href === '/'
+              ? pathname === '/'
+              : pathname === item.href || pathname?.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}
@@ -41,8 +59,14 @@ export function BottomTabBar({ items }: { items: TabItem[] }) {
                 active ? 'text-fy-ink' : 'text-fy-muted hover:text-fy-ink-soft'
               }`}
             >
-              <Icon name={item.glyph} size={24} filled={active} />
-              <span className={`font-body text-label ${active ? 'font-semibold' : ''}`}>{item.label}</span>
+              <Icon name={item.glyph} size={compact ? 22 : 24} filled={active} />
+              <span
+                className={`font-body ${compact ? 'text-eyebrow normal-case' : 'text-label'} ${
+                  active ? 'font-semibold' : ''
+                }`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
@@ -116,20 +140,24 @@ export function TabRow({
   tabs: { key: string; label: string; glyph?: string }[];
   active: string;
   onChange: (key: string) => void;
-  variant?: 'pill' | 'inset';
+  variant?: 'pill' | 'inset' | 'segment';
   className?: string;
 }) {
+  // `segment` is the squared-off version on landing's rate estimator: a
+  // 12px-radius track holding 8px-radius buttons, active one white.
+  const round = variant === 'segment' ? 'rounded-control' : 'rounded-full';
+  const buttonRound = variant === 'segment' ? 'rounded-cell' : 'rounded-full';
   return (
     <div
       role="tablist"
-      className={`flex items-center gap-1 p-1 rounded-full ${
-        variant === 'inset' ? 'bg-fy-well' : 'bg-fy-field'
+      className={`flex items-center gap-1 p-1 ${round} ${
+        variant === 'pill' ? 'bg-fy-field' : 'bg-fy-well'
       } ${className}`}
     >
       {tabs.map((t) => {
         const on = t.key === active;
         const activeClass =
-          variant === 'inset' ? 'bg-fy-card text-fy-ink shadow-card' : 'bg-fy-brown text-fy-on-brown';
+          variant === 'pill' ? 'bg-fy-brown text-fy-on-brown' : 'bg-fy-card text-fy-ink shadow-card';
         return (
           <button
             key={t.key}
@@ -137,7 +165,7 @@ export function TabRow({
             type="button"
             aria-selected={on}
             onClick={() => onChange(t.key)}
-            className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full font-body text-label whitespace-nowrap transition-colors ${
+            className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 ${buttonRound} font-body text-label whitespace-nowrap transition-colors ${
               on ? `${activeClass} font-semibold` : 'text-fy-ink-soft hover:text-fy-ink'
             }`}
           >

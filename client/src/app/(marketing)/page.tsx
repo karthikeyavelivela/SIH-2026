@@ -1,27 +1,37 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Card } from '@/components/ui/Card';
-import {
-  SearchIcon,
-  ChevronRightIcon,
-  CompassIcon,
-  CameraIcon,
-  StarIcon,
-  MapPinIcon,
-  TruckIcon,
-  BoxIcon,
-  PowerIcon,
-  WrenchIcon,
-  PaintBrushIcon,
-  HomeIcon,
-  UsersIcon,
-  LeafIcon,
-  BroomIcon,
-  ShieldIcon,
-} from '@/components/ui/icons';
+import { Icon } from '@/components/ui/Icon';
+import { LightCard, Panel, DarkCard, Section, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, DisplayHeading, SectionHeading, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { MetricBlock, StepRow } from '@/components/fy/Data';
+import { Button, ChipRow } from '@/components/fy/Controls';
+import { PhotoCard } from '@/components/fy/Media';
+import { TabRow } from '@/components/fy/Navigation';
+
+/* Built against design-reference landing (client/public/design/landing.html,
+   rendered at 430px).
+
+   Section order there, top to bottom: fixed brand header (in the marketing
+   layout) -> 480px hero photo card with a floating registration pill and a
+   bottom overlay carrying eyebrow chip / display heading / body / lime CTA +
+   glass icon button -> federation trust strip (light card, 40px brown icon
+   tile) -> DARK BROWN metric plate (header row + hairline + 2-up metric
+   grid) -> three guild cards (176px photo, tinted tag pill, serif title +
+   accent glyph, body, chip row) -> numbered How-It-Works steps -> WHITE
+   welfare panel with three pastel-tiled rows -> rate estimator (segmented
+   tabs + white inset box + brown CTA) -> charter pull-quote card -> DARK
+   GREEN closing CTA -> 64px 5-tab bottom bar (in the layout).
+
+   Largest element: the hero display heading. Dark surfaces: hero scrim,
+   metric plate, closing CTA. Everything else is light on bone.
+
+   Where the design implies data the backend does not have, this renders the
+   real equivalent instead of inventing one — see the comments at each site. */
 
 const HERO_VIDEO_URL = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v1787149585/fezidk7rqlmkmcepfuqn.mp4';
 // Cloudinary auto-generates a still from the video itself for the poster
@@ -30,358 +40,428 @@ const HERO_VIDEO_URL = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v17871
 // of a blank flash before the video can play.
 const HERO_VIDEO_POSTER = 'https://res.cloudinary.com/dqwm8wgg8/video/upload/so_0/v1787149585/fezidk7rqlmkmcepfuqn.jpg';
 
-// Icon set for the trust strip — order matches marketing.home.trust.* in
-// the message catalogs (client/src/i18n/messages/*.json).
-const TRUST_ICONS = [CompassIcon, CameraIcon, StarIcon, MapPinIcon];
-const TRUST_KEYS = ['realMatches', 'photoProof', 'ratings', 'liveMap'] as const;
-const STEP_KEYS = ['tellUs', 'find', 'track', 'pay'] as const;
-// SIH26089 Phase C — mirrors seedServiceCategories.ts's real 12 categories
-// (slug + icon), hardcoded here rather than fetched from GET
-// /api/service-categories: this is the anonymous, unauthenticated
-// marketing homepage — that endpoint requires a session (every other
-// authenticated surface reads the live DB copy instead, see
-// components/booking/CategoryPicker.tsx). Same "real district list, not
-// fetched" precedent the STATE_KEYS list below already sets on this
-// same page.
-const SERVICE_CATEGORY_DISPLAY: { key: string; icon: typeof TruckIcon }[] = [
-  { key: 'electrician', icon: PowerIcon },
-  { key: 'plumber', icon: WrenchIcon },
-  { key: 'carpenter', icon: WrenchIcon },
-  { key: 'painter', icon: PaintBrushIcon },
-  { key: 'domestic_helper', icon: HomeIcon },
-  { key: 'caregiver', icon: UsersIcon },
-  { key: 'gardener', icon: LeafIcon },
-  { key: 'cleaner', icon: BroomIcon },
-  { key: 'technician', icon: ShieldIcon },
-  { key: 'driver', icon: TruckIcon },
-  { key: 'general_logistics', icon: TruckIcon },
-  { key: 'general_labour', icon: BoxIcon },
+// SIH26089 Phase C — mirrors seedServiceCategories.ts's real 12 categories.
+// `guild` buckets them the same way lib/categoryBuckets.ts buckets the live
+// DB copy, so the three guild cards below list real bookable categories
+// rather than the design's invented feature chips ("Tool Inspection
+// Verified", "Hydration & Rest Enforced" — neither is a shipped mechanic).
+// Hardcoded rather than fetched from GET /api/service-categories because
+// this is the anonymous marketing homepage and that endpoint needs a session.
+const SERVICE_CATEGORIES: { key: string; guild: 'household' | 'hamali' | 'transport' }[] = [
+  { key: 'electrician', guild: 'household' },
+  { key: 'plumber', guild: 'household' },
+  { key: 'carpenter', guild: 'household' },
+  { key: 'painter', guild: 'household' },
+  { key: 'domestic_helper', guild: 'household' },
+  { key: 'caregiver', guild: 'household' },
+  { key: 'gardener', guild: 'household' },
+  { key: 'cleaner', guild: 'household' },
+  { key: 'technician', guild: 'household' },
+  { key: 'general_labour', guild: 'hamali' },
+  { key: 'driver', guild: 'transport' },
+  { key: 'general_logistics', guild: 'transport' },
 ];
 
-// SIH26089 pan-India rewrite — mirrors seedFederations.ts's real 6-state
-// federation hierarchy (state name -> real districts). The homepage shows
-// state names, not all ~38 individual districts, to stay a readable grid;
-// the district-level federations still exist and are visible in the
-// federation dashboards.
+const GUILDS = [
+  { key: 'household', glyph: 'carpenter', tag: 'brown', tint: 'household' },
+  { key: 'hamali', glyph: 'handyman', tag: 'lime', tint: 'labour' },
+  { key: 'transport', glyph: 'local_shipping', tag: 'slate', tint: 'transport' },
+] as const;
+
+// The four shipped mechanics the page has always claimed: sequential real
+// offers to nearby verified members, PhotoProofCapture on pickup/delivery,
+// the mandatory two-way rating gate, and the live GPS broadcast while a job
+// is in_progress. The design has no slot for them, but they are real and
+// dropping them would quietly weaken the page, so they reuse the same tinted
+// row anatomy as the welfare panel.
+const TRUST_KEYS = [
+  { key: 'realMatches', glyph: 'groups', tone: 'peach' },
+  { key: 'photoProof', glyph: 'photo_camera', tone: 'lime' },
+  { key: 'ratings', glyph: 'star', tone: 'slate-pale' },
+  { key: 'liveMap', glyph: 'location_on', tone: 'peach' },
+] as const;
+
+const STEP_KEYS = ['tellUs', 'find', 'track', 'pay'] as const;
+const STEP_TONES = ['brown', 'green', 'slate', 'brown'] as const;
+
+// Mirrors seedFederations.ts's real 6-state federation hierarchy.
 const STATE_KEYS = ['andhraPradesh', 'telangana', 'karnataka', 'tamilNadu', 'maharashtra', 'kerala'] as const;
 
-// Mirrors Button.tsx's `lg` primary/secondary variant classes exactly, so
-// these full-height nav links (they must stay real <Link>s for routing,
-// not <button>s) render identically to the shared primitive.
-const ctaStyles: Record<string, string> = {
-  'bg-fy-brown':
-    'bg-fy-brown text-white shadow-md hover:shadow-float hover:-translate-y-0.5 active:translate-y-0',
-  'bg-fy-green':
-    'bg-fy-green text-white shadow-md hover:shadow-float hover:-translate-y-0.5 active:translate-y-0',
-};
+// The three welfare mechanisms that actually exist server-side, replacing the
+// design's "100% Health Shield / 4.2% NPS auto-route / Child Education
+// Fellowship" — none of which the backend implements. These do:
+// InsurancePlan+InsurancePolicy+ParametricTrigger, Mutha.welfareDeductionRatePct
+// posted as its own 'welfare_fund' LedgerEntry, and SurplusDistribution.
+const WELFARE = [
+  { key: 'cover', glyph: 'health_and_safety', tone: 'peach' },
+  { key: 'fund', glyph: 'savings', tone: 'lime' },
+  { key: 'surplus', glyph: 'account_balance', tone: 'slate-pale' },
+] as const;
 
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
+// The published rate card — the same four rows /pricing renders, so the two
+// pages can never drift apart. The design's estimator shows a single invented
+// "₹380 / metric ton"; there is no per-tonne rate anywhere in the product.
+const RATE_KEYS = ['smallVehicle', 'mediumVehicle', 'largeVehicle', 'hamali'] as const;
+const RATE_TABS = ['smallVehicle', 'mediumVehicle', 'largeVehicle', 'hamali'] as const;
 
-// Demonstrated next-intl pattern for future page conversions: every
-// user-facing string below comes from useTranslations('marketing.home')
-// (client/src/i18n/messages/{en,te,hi}.json) instead of being hardcoded.
-// See client/src/i18n/README.md for what's NOT converted yet.
 export default function HomePage() {
   const reduceMotion = useReducedMotion();
   const t = useTranslations('marketing.home');
-
-  const rise = (delay = 0) =>
-    reduceMotion
-      ? {}
-      : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, delay, ease: easeOutExpo } };
-
-  const ctas = [
-    { href: '/signup/customer', label: t('ctaBookDelivery'), tone: 'bg-fy-brown' },
-    { href: '/signup/driver', label: t('ctaDriveWithUs'), tone: 'bg-fy-brown' },
-    { href: '/signup/hamali', label: t('ctaJoinMutha'), tone: 'bg-fy-green' },
-  ];
-
-  // Honest platform stats, not borrowed press logos — this is a young
-  // regional marketplace, not a brand with Forbes/Bloomberg coverage to
-  // legitimately display.
-  const stats = [
-    { value: t('statCargoRangeValue'), label: t('statCargoRangeLabel') },
-    { value: t('statOfferTimeValue'), label: t('statOfferTimeLabel') },
-    { value: t('statDistrictsValue'), label: t('statDistrictsLabel') },
-  ];
-
-  // Real, shipped platform mechanics — not marketing fluff. Every claim here
-  // maps to an actual feature already live in the product (PhotoProofCapture
-  // on pickup/delivery, the mandatory-rating gate, live GPS broadcast during
-  // in_progress, sequential real-offer matching), same "no borrowed press
-  // logos" discipline as the stats array above. Deliberately does NOT claim
-  // a KYC verification gate — kycStatus exists on the User model but nothing
-  // in the backend actually checks it before a worker can go online, so
-  // that claim would be false.
-  const trustPoints = TRUST_KEYS.map((key, i) => ({
-    icon: TRUST_ICONS[i],
-    title: t(`trust.${key}Title`),
-    body: t(`trust.${key}Body`),
-  }));
-
-  const steps = STEP_KEYS.map((key) => ({
-    title: t(`steps.${key}Title`),
-    body: t(`steps.${key}Body`),
-  }));
-
-  // Real state list, matching seedFederations.ts's actual seeded
-  // hierarchy — not an unsubstantiated "we operate everywhere" claim.
-  // Matches the "6 states" stat above the fold.
-  const states = STATE_KEYS.map((key) => t(`states.${key}`));
+  const tp = useTranslations('marketing.pricing');
+  const [rate, setRate] = useState<(typeof RATE_KEYS)[number]>('hamali');
 
   return (
-    <div>
-      <section className="relative overflow-hidden">
-        {/* Real footage background — replaces the earlier decorative SVG
-            route illustration (kept as the reduced-motion/no-JS fallback:
-            a video with no autoplay just renders its poster frame, so this
-            degrades to a static image rather than breaking). Muted+loop+
-            playsInline is required for autoplay to actually run on mobile
-            Safari/Chrome. */}
-        <video
-          aria-hidden
-          autoPlay={!reduceMotion}
-          muted
-          loop
-          playsInline
-          poster={HERO_VIDEO_POSTER}
-          className="absolute inset-0 -z-20 w-full h-full object-cover saturate-[1.15] contrast-[1.05]"
-        >
-          <source src={HERO_VIDEO_URL} type="video/mp4" />
-        </video>
-        {/* Layered scrim, not one flat dark wash — the earlier single
-            heavy gradient (black/75→55) crushed the footage into near-
-            solid black. This keeps the video itself clearly visible at
-            the edges/top, and only concentrates darkness (a soft radial
-            vignette) where the headline/copy actually sits, so text stays
-            legible without hiding what's supposed to be the "wow" moment.
-            The bottom-most layer fades to the page's real background so
-            the next section (not over video) transitions cleanly. */}
-        <div aria-hidden className="absolute inset-0 -z-10 bg-black/20" />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10"
-          style={{ background: 'radial-gradient(ellipse 75% 65% at 50% 40%, rgba(0,0,0,0.55), transparent 70%)' }}
-        />
-        {/* Precise stops, not the 0/50/100 spread of a named gradient
-            utility — the stats row sits ~80% down the section, and a
-            plain from/via/to fade was already lightening (and killing
-            contrast on) the white stat numbers well before the section
-            actually ended. This keeps the video dark through the stats
-            row and only fades out in the final ~12%. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10"
-          style={{ background: 'linear-gradient(to bottom, transparent 0%, transparent 88%, var(--fy-bone) 100%)' }}
-        />
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain opacity-40 z-0" />
 
-        {/* This page used to render its OWN LanguagePill here, stacked
-            directly under the shared marketing layout's nav-bar one
-            (app/(marketing)/layout.tsx) — on any viewport where the nav's
-            `md:inline-flex` switcher is visible, both showed at once,
-            reading as a broken duplicate rather than two intentional
-            controls. Removed, along with the locale-change handler this
-            page no longer needs — the layout's own switcher (present on
-            every marketing page, not just this one) is the single source
-            now. */}
-
-        <div className="max-w-4xl mx-auto text-center px-6 pt-24 pb-20">
-          <motion.span
-            {...rise()}
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-sm px-4 py-1.5 text-xs font-semibold text-white mb-7"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            {t('liveBadge')}
-          </motion.span>
-
-          <motion.h1
-            {...rise(0.06)}
-            className="font-heading text-display font-extrabold tracking-tight leading-[1.02] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]"
-          >
-            {t('heroTitleLine1')}
-            <br />
-            <span className="font-heading italic text-fy-brown font-medium">{t('heroTitleAccent')}</span>
-          </motion.h1>
-          <motion.p {...rise(0.14)} className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
-            {t('heroSubtitle')}
-          </motion.p>
-
-          {/* Search-style primary CTA — the reachable, honest version: it
-              routes into signup/booking rather than pretending to search a
-              live catalog on the marketing site. */}
-          <motion.div {...rise(0.2)} className="mt-9 max-w-xl mx-auto">
-            <Link
-              href="/signup/customer"
-              className="group flex items-center gap-3 rounded-full bg-fy-card border border-fy-hairline shadow-lg px-3 py-2.5 pl-5 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-base ease-out"
+      <div className="relative z-10 max-w-2xl mx-auto px-gutter pt-4 pb-8 flex flex-col gap-8">
+        {/* Hero — the design's 480px photo card, carrying the platform's own
+            footage instead of a stock still. autoplay is suppressed under
+            prefers-reduced-motion, where a <video> with no autoplay renders
+            its poster frame, so it degrades to the design's photo exactly. */}
+        <PhotoCard
+          id="landing.hero"
+          alt=""
+          height="tall"
+          scrim="brown"
+          className="rounded-sheet shadow-float"
+          media={
+            <video
+              aria-hidden
+              autoPlay={!reduceMotion}
+              muted
+              loop
+              playsInline
+              poster={HERO_VIDEO_POSTER}
+              className="w-full h-full object-cover object-center"
             >
-              <SearchIcon className="w-5 h-5 text-fy-muted flex-shrink-0" />
-              <span className="flex-1 text-left text-sm md:text-base text-fy-muted">
-                {t('searchPlaceholder')}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-fy-brown text-white text-sm font-semibold px-5 py-2.5 group-hover:shadow-float transition-shadow duration-base flex-shrink-0">
-                {t('searchCta')}
-                <ChevronRightIcon className="w-4 h-4" />
-              </span>
-            </Link>
-          </motion.div>
-
-          <motion.div {...rise(0.26)} className="mt-6 flex flex-wrap justify-center gap-3">
-            {ctas.slice(1).map((c) => (
-              <Link
-                key={c.href}
-                href={c.href}
-                className={`inline-flex items-center justify-center rounded-full font-semibold px-5 py-2.5 text-sm transition-all duration-base ease-out ${ctaStyles[c.tone]}`}
-              >
-                {c.label}
-              </Link>
-            ))}
-          </motion.div>
-
-          <motion.div {...rise(0.32)} className="mt-16 flex items-center justify-center gap-8 sm:gap-14">
-            {stats.map((s) => (
-              <div key={s.label}>
-                <p className="font-heading text-2xl font-extrabold text-white">{s.value}</p>
-                <p className="text-xs text-white/70 mt-1">{s.label}</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Trust strip — every claim maps to a shipped feature, not marketing
-          copy: KYC gating, photo-proof capture, the ratings system, and the
-          live-location broadcast are all real and already live. */}
-      <section className="max-w-6xl mx-auto px-6 pt-20">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {trustPoints.map((t2, i) => (
-            <motion.div
-              key={t2.title}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.5, delay: i * 0.08, ease: easeOutExpo }}
-            >
-              <Card className="h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-base ease-out">
-                <t2.icon className="w-6 h-6 text-fy-brown mb-3" />
-                <h3 className="font-heading text-sm font-bold mb-1.5 text-fy-ink">{t2.title}</h3>
-                <p className="text-xs text-fy-muted leading-relaxed">{t2.body}</p>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Services grid — SIH26089 Phase C's own answer to "does this read as
-          a cooperative household-services platform, not a trucking app?":
-          a judge sees Electrician/Plumber/Caregiver/Cleaner icons before
-          they see anything about cargo. */}
-      <section className="max-w-6xl mx-auto px-6 pt-20">
-        <div className="text-center mb-10">
-          <h2 className="font-heading text-2xl font-bold text-fy-ink">{t('servicesHeading')}</h2>
-          <p className="text-sm text-fy-muted mt-2 max-w-xl mx-auto">{t('servicesSubtitle')}</p>
-        </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          {SERVICE_CATEGORY_DISPLAY.map((c, i) => (
-            <motion.div
-              key={c.key}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.4, delay: i * 0.04, ease: easeOutExpo }}
-            >
-              <Card className="flex flex-col items-center gap-2 py-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-base ease-out">
-                <c.icon className="w-6 h-6 text-fy-brown" />
-                <span className="text-xs font-semibold text-fy-ink leading-tight">{t(`categories.${c.key}`)}</span>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <h2 className="font-heading text-2xl font-bold text-fy-ink">{t('howItWorksHeading')}</h2>
-          <span aria-hidden className="mt-4 inline-block w-14 h-1 rounded-full bg-fy-brown" />
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.title}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 24 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5, delay: i * 0.1, ease: easeOutExpo }}
-              className={i % 2 === 1 ? 'lg:mt-10' : ''}
-            >
-              <Card className="relative h-full overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-base ease-out">
-                <span
-                  aria-hidden
-                  className="pointer-events-none select-none absolute -top-5 -right-2 font-heading text-[6rem] leading-none font-extrabold text-fy-brown/10"
-                >
-                  {i + 1}
-                </span>
-                <div className="relative">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-fy-brown text-white font-heading font-bold text-sm mb-5 shadow-sm">
-                    {i + 1}
-                  </div>
-                  <h3 className="font-heading text-lg font-semibold mb-2 text-fy-ink">{s.title}</h3>
-                  <p className="text-sm text-fy-muted leading-relaxed">{s.body}</p>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Coverage — real state list, matching seedFederations.ts's actual
-          seeded hierarchy. Matches the "6 states" stat above the fold. */}
-      <section className="max-w-4xl mx-auto px-6 pb-24 text-center">
-        <h2 className="font-heading text-2xl font-bold text-fy-ink mb-2">{t('whereWeOperateHeading')}</h2>
-        <p className="text-sm text-fy-muted mb-8">{t('whereWeOperateSubtitle')}</p>
-        <div className="flex flex-wrap justify-center gap-2.5">
-          {states.map((d) => (
-            <span
-              key={d}
-              className="inline-flex items-center gap-1.5 rounded-full bg-fy-card border border-fy-hairline px-4 py-2 text-sm text-fy-ink shadow-sm"
-            >
-              <MapPinIcon className="w-3.5 h-3.5 text-fy-brown" />
-              {d}
+              <source src={HERO_VIDEO_URL} type="video/mp4" />
+            </video>
+          }
+          topLeft={
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-fy-card/92 backdrop-blur-md shadow-card font-body text-eyebrow uppercase text-fy-ink">
+              <span className="w-2 h-2 rounded-full bg-fy-green animate-pulse" aria-hidden />
+              {t('heroBadge')}
             </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Closing recruit banner — the two supply-side CTAs get one more,
-          higher-intent shot after the reader has seen how the whole thing
-          works, not just buried in the hero's button row. */}
-      <section className="max-w-6xl mx-auto px-6 pb-28">
-        <div className="relative overflow-hidden rounded-card bg-text-fy-brown px-8 py-14 sm:px-16 text-center">
-          <div aria-hidden className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-fy-brown/20 blur-[100px]" />
-          <div aria-hidden className="absolute -bottom-16 -right-16 w-72 h-72 rounded-full bg-fy-green/20 blur-[100px]" />
-          <div className="relative">
-            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-white mb-3">{t('closingHeading')}</h2>
-            <p className="text-white/70 max-w-lg mx-auto mb-8">
-              {t('closingSubtitle')}
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link
-                href="/signup/driver"
-                className="inline-flex items-center gap-2 rounded-full bg-fy-brown text-white font-semibold px-6 py-3 text-sm shadow-md hover:shadow-float hover:-translate-y-0.5 transition-all duration-base"
-              >
-                <TruckIcon className="w-4 h-4" />
-                {t('closingDriveCta')}
-              </Link>
-              <Link
-                href="/signup/hamali"
-                className="inline-flex items-center gap-2 rounded-full bg-fy-green text-white font-semibold px-6 py-3 text-sm shadow-md hover:shadow-float hover:-translate-y-0.5 transition-all duration-base"
-              >
-                <BoxIcon className="w-4 h-4" />
-                {t('closingHamaliCta')}
-              </Link>
+          }
+          overlay={
+            <div className="flex flex-col gap-3">
+              <span className="self-start rounded-tag bg-fy-brown/80 px-2.5 py-1 font-body text-eyebrow uppercase tracking-[0.12em] text-fy-lime">
+                {t('heroEyebrow')}
+              </span>
+              <DisplayHeading size="heading" tone="on-dark">
+                {t('heroTitleLine1')} {t('heroTitleAccent')}
+              </DisplayHeading>
+              <Body tone="on-dark" className="max-w-sm">
+                {t('heroSubtitle')}
+              </Body>
+              <div className="flex items-center gap-3 pt-1">
+                <Link href="/signup/customer" className="flex-1">
+                  <Button variant="lime" className="w-full">
+                    {t('ctaBookDelivery')}
+                  </Button>
+                </Link>
+                <Link
+                  href="/how-it-works"
+                  aria-label={t('heroSecondaryCta')}
+                  className="w-14 h-14 shrink-0 rounded-control bg-fy-card/20 backdrop-blur-md text-fy-bone flex items-center justify-center active:scale-95 transition-transform"
+                >
+                  <Icon name="play_circle" size={22} />
+                </Link>
+              </div>
             </div>
+          }
+        />
+
+        {/* Federation trust strip. The design claims "1,527 registered
+            cooperative societies"; the seeded hierarchy is 6 state
+            federations and their district societies, so that is what this
+            says. */}
+        <div className="bg-fy-well rounded-card p-4 flex items-start gap-3">
+          <IconTile tone="brown">
+            <Icon name="assured_workload" size={22} />
+          </IconTile>
+          <div className="min-w-0">
+            <EyebrowLabel tone="brown">{t('federationEyebrow')}</EyebrowLabel>
+            <Body className="mt-0.5">
+              {t.rich('federationBody', {
+                b: (chunks) => <strong className="font-semibold text-fy-ink">{chunks}</strong>,
+              })}
+            </Body>
           </div>
         </div>
-      </section>
+
+        {/* Metric plate. The design shows a live dividend and a retained-tariff
+            percentage; no anonymous endpoint exposes either figure (there is no
+            public stats route at all), so this carries the same honest platform
+            facts the page has always shown. */}
+        <DarkCard accent="brown" deep className="p-5 rounded-sheet shadow-card">
+          <div className="flex items-start justify-between gap-3 pb-4">
+            <div className="min-w-0">
+              <EyebrowLabel tone="on-dark" className="opacity-70">
+                {t('statsEyebrow')}
+              </EyebrowLabel>
+              <p className="font-body text-body font-semibold text-fy-bone mt-0.5">{t('statsTitle')}</p>
+            </div>
+            <StatusPill tone="lime" className="shrink-0">
+              {t('statOfferTimeValue')} {t('statOfferTimeLabel')}
+            </StatusPill>
+          </div>
+          <div className="border-t border-fy-bone/15 grid grid-cols-2 gap-4 pt-4">
+            <MetricBlock
+              onDark
+              tone="lime"
+              label={t('statCargoRangeLabel')}
+              value={t('statCargoRangeValue')}
+              note={t('statCargoRangeNote')}
+            />
+            <MetricBlock
+              onDark
+              tone="on-dark"
+              label={t('statDistrictsLabel')}
+              value={t('statDistrictsValue')}
+              note={t('statDistrictsNote')}
+            />
+          </div>
+        </DarkCard>
+
+        {/* Three guild cards. The chip row under each is that guild's real
+            bookable service categories, replacing the design's invented
+            feature badges. */}
+        <Section
+          title={
+            <div className="flex flex-col">
+              <EyebrowLabel>{t('guildsEyebrow')}</EyebrowLabel>
+              <SectionHeading>{t('guildsHeading')}</SectionHeading>
+            </div>
+          }
+        >
+          {GUILDS.map((g) => (
+            <LightCard key={g.key} className="p-0 overflow-hidden">
+              <PhotoCard
+                id={`landing.guild.${g.key}`}
+                alt=""
+                height="card"
+                scrim="none"
+                tint={g.tint}
+                className="rounded-none"
+                topLeft={<StatusPill tone={g.tag}>{t(`guilds.${g.key}.tag`)}</StatusPill>}
+              />
+              <div className="p-4 flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <SectionHeading as="h3">{t(`guilds.${g.key}.title`)}</SectionHeading>
+                  <Icon
+                    name={g.glyph}
+                    size={20}
+                    className={
+                      g.key === 'household'
+                        ? 'text-fy-brown shrink-0'
+                        : g.key === 'hamali'
+                          ? 'text-fy-green shrink-0'
+                          : 'text-fy-slate shrink-0'
+                    }
+                  />
+                </div>
+                <Body>{t(`guilds.${g.key}.body`)}</Body>
+                <ChipRow className="pt-1">
+                  {SERVICE_CATEGORIES.filter((c) => c.guild === g.key).map((c) => (
+                    <span
+                      key={c.key}
+                      className="px-2 py-0.5 rounded-tag bg-fy-dim font-body text-eyebrow uppercase text-fy-ink"
+                    >
+                      {t(`categories.${c.key}`)}
+                    </span>
+                  ))}
+                </ChipRow>
+              </div>
+            </LightCard>
+          ))}
+        </Section>
+
+        <Section
+          title={
+            <div className="flex flex-col">
+              <EyebrowLabel>{t('trustEyebrow')}</EyebrowLabel>
+              <SectionHeading>{t('trustHeading')}</SectionHeading>
+            </div>
+          }
+        >
+          {TRUST_KEYS.map((p) => (
+            <div key={p.key} className="p-4 rounded-card bg-fy-well flex items-start gap-3">
+              <IconTile tone={p.tone} size="sm">
+                <Icon name={p.glyph} size={20} />
+              </IconTile>
+              <div className="min-w-0">
+                <h4 className="font-body text-body font-semibold text-fy-ink">{t(`trust.${p.key}Title`)}</h4>
+                <Body className="mt-0.5">{t(`trust.${p.key}Body`)}</Body>
+              </div>
+            </div>
+          ))}
+        </Section>
+
+        <Section
+          title={
+            <div className="flex flex-col">
+              <EyebrowLabel>{t('stepsEyebrow')}</EyebrowLabel>
+              <SectionHeading>{t('howItWorksHeading')}</SectionHeading>
+            </div>
+          }
+        >
+          {STEP_KEYS.map((key, i) => (
+            <StepRow key={key} step={i + 1} tone={STEP_TONES[i]} title={t(`steps.${key}Title`)}>
+              {t(`steps.${key}Body`)}
+            </StepRow>
+          ))}
+        </Section>
+
+        {/* Worker welfare. Three real mechanisms — see the WELFARE comment. */}
+        <Panel className="p-5 rounded-sheet flex flex-col gap-4">
+          <span className="flex items-center gap-2 text-fy-brown">
+            <Icon name="volunteer_activism" size={24} />
+            <EyebrowLabel tone="brown">{t('welfareEyebrow')}</EyebrowLabel>
+          </span>
+          <SectionHeading as="h3" className="leading-snug">
+            {t('welfareHeading')}
+          </SectionHeading>
+          <div className="flex flex-col gap-3">
+            {WELFARE.map((w) => (
+              <div key={w.key} className="p-4 rounded-card bg-fy-panel flex items-start gap-3">
+                <IconTile tone={w.tone} size="sm">
+                  <Icon name={w.glyph} size={20} />
+                </IconTile>
+                <div className="min-w-0">
+                  <h5 className="font-body text-body font-semibold text-fy-ink">{t(`welfare.${w.key}.title`)}</h5>
+                  <Body className="mt-0.5">{t(`welfare.${w.key}.body`)}</Body>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        {/* Rate estimator — the real published rate card, not an invented
+            per-tonne figure. Same four rows as /pricing. */}
+        <LightCard className="p-4 flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <EyebrowLabel>{t('estimatorEyebrow')}</EyebrowLabel>
+              <p className="font-body text-body font-semibold text-fy-ink">{t('estimatorTitle')}</p>
+            </div>
+            <Icon name="calculate" size={22} className="text-fy-muted shrink-0" />
+          </div>
+          <TabRow
+            variant="segment"
+            active={rate}
+            onChange={(k) => setRate(k as (typeof RATE_KEYS)[number])}
+            tabs={RATE_TABS.map((k) => ({ key: k, label: t(`rateTabs.${k}`) }))}
+          />
+          <div className="p-4 rounded-control bg-fy-card flex items-start justify-between gap-3 shadow-card">
+            <div className="shrink-0">
+              <EyebrowLabel>{t('estimatorBaseLabel')}</EyebrowLabel>
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="font-heading text-metric text-fy-brown">{tp(`rows.${rate}.base`)}</span>
+                {/* Hamali is priced per worker, so its rate card row carries an
+                    em-dash for per-km. Rendering that verbatim leaves a dangling
+                    dash next to the fare. */}
+                {tp(`rows.${rate}.perKm`) !== '—' && (
+                  <span className="font-body text-body text-fy-muted">+ {tp(`rows.${rate}.perKm`)}</span>
+                )}
+              </div>
+            </div>
+            <div className="text-right min-w-0">
+              <EyebrowLabel tone="green">{t('estimatorFixed')}</EyebrowLabel>
+              <p className="font-body text-label text-fy-ink-soft">
+                {t('estimatorMinLabel')} {tp(`rows.${rate}.min`)}
+              </p>
+            </div>
+          </div>
+          <Link href="/pricing" className="block">
+            <Button className="w-full">{t('estimatorCta')}</Button>
+          </Link>
+        </LightCard>
+
+        {/* The design puts a named member testimonial here. The product has a
+            two-way Rating model but no reviews-of-the-platform content and no
+            public endpoint for one, so rather than invent a member and a quote
+            this carries the charter the cooperative actually operates under —
+            same card anatomy, seal in place of the portrait. */}
+        <Section
+          title={
+            <div className="flex flex-col">
+              <EyebrowLabel>{t('charterEyebrow')}</EyebrowLabel>
+              <SectionHeading>{t('charterHeading')}</SectionHeading>
+            </div>
+          }
+        >
+          <LightCard className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <IconTile tone="brown" size="lg" className="rounded-full">
+                <Icon name="workspace_premium" size={24} />
+              </IconTile>
+              <div className="min-w-0">
+                <p className="font-body text-body font-semibold text-fy-ink">{t('charterSource')}</p>
+                <EyebrowLabel>{t('charterSourceMeta')}</EyebrowLabel>
+              </div>
+            </div>
+            <Body className="italic">{t('charterQuote')}</Body>
+            <Divider />
+            <div className="flex items-center justify-between gap-3">
+              <EyebrowLabel>{t('charterMetaLeft')}</EyebrowLabel>
+              <EyebrowLabel tone="green">{t('charterMetaRight')}</EyebrowLabel>
+            </div>
+          </LightCard>
+        </Section>
+
+        {/* Coverage — the real seeded state list. The design has no equivalent
+            section, but dropping it would remove a shipped, honest claim that
+            backs the "6 states" metric directly above. */}
+        <Section
+          title={
+            <div className="flex flex-col">
+              <EyebrowLabel>{t('coverageEyebrow')}</EyebrowLabel>
+              <SectionHeading>{t('whereWeOperateHeading')}</SectionHeading>
+            </div>
+          }
+        >
+          <Body className="-mt-1">{t('whereWeOperateSubtitle')}</Body>
+          <ChipRow>
+            {STATE_KEYS.map((k) => (
+              // Plain spans, not Chip — these are labels, and a <button> that
+              // does nothing would be a keyboard trap for no reason.
+              <span
+                key={k}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-fy-card shadow-card font-body text-label text-fy-ink"
+              >
+                <Icon name="location_on" size={14} className="text-fy-brown" />
+                {t(`states.${k}`)}
+              </span>
+            ))}
+          </ChipRow>
+        </Section>
+
+        {/* Closing CTA — the design's full-green plate. Both buttons keep the
+            supply-side signup routes the page has always recruited through. */}
+        <DarkCard accent="green" deep className="p-6 rounded-sheet shadow-float flex flex-col items-center text-center gap-3">
+          <Icon name="handshake" size={36} className="text-fy-on-green" />
+          <SectionHeading as="h3" tone="on-dark" className="font-semibold">
+            {t('closingHeading')}
+          </SectionHeading>
+          <Body tone="on-dark" className="max-w-xs opacity-90">
+            {t('closingSubtitle')}
+          </Body>
+          <div className="w-full flex flex-col gap-2 pt-2">
+            <Link href="/signup/driver" className="block">
+              <Button variant="light" className="w-full">
+                {t('closingDriveCta')}
+              </Button>
+            </Link>
+            <Link href="/signup/hamali" className="block">
+              <Button variant="lime" className="w-full">
+                {t('closingHamaliCta')}
+              </Button>
+            </Link>
+          </div>
+        </DarkCard>
+      </div>
     </div>
   );
 }

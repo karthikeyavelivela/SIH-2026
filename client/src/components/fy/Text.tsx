@@ -37,18 +37,29 @@ export function EyebrowLabel({
   );
 }
 
-/** The biggest thing on a screen — serif, 44px, tight, often two lines. */
+/**
+ * The biggest thing on a screen — serif, tight, often two lines. The design
+ * export ships two hero sizes and uses both: 44px (`display-hero-mobile`,
+ * login) and 32px (`headline-lg-mobile`, the landing hero, where the heading
+ * shares a 480px card with a badge, body and two buttons).
+ */
 export function DisplayHeading({
   children,
   tone = 'brown',
+  size = 'display',
   className = '',
 }: {
   children: ReactNode;
   tone?: Tone;
+  size?: 'display' | 'heading';
   className?: string;
 }) {
   return (
-    <h1 className={`font-heading text-display ${toneClass[tone]} ${className}`}>{children}</h1>
+    <h1
+      className={`font-heading ${size === 'display' ? 'text-display' : 'text-heading'} ${toneClass[tone]} ${className}`}
+    >
+      {children}
+    </h1>
   );
 }
 

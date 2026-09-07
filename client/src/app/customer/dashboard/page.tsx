@@ -105,7 +105,7 @@ export default function CustomerDashboardPage() {
   return (
     <RotaryDial sectors={sectors} activeKey="household" onChange={handleDialChange}>
       <div className="min-h-screen bg-fy-bone relative">
-        <div className="fixed inset-0 pointer-events-none fyro-grain z-0 opacity-40" />
+        <div className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
         {/* Fixed header — mirrors fyro_household_home/code.html's <header> almost line for line. */}
         <header className="fixed top-0 w-full z-40 bg-fy-bone/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]">

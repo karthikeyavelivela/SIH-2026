@@ -198,22 +198,57 @@ stationary indicator notch at the 45° diagonal, and dashed concentric milling r
 
 ---
 
-## 5. TWO INCONSISTENCIES IN THE SOURCE DESIGNS
+## 5. TWO INCONSISTENCIES IN THE SOURCE DESIGNS — BOTH NOW RESOLVED
 
-Flagging rather than silently picking:
+Both were artefacts of measuring low-resolution `screen.png` thumbnails. Reading the
+export's own `code.html` markup settles them, and they turn out not to be a contradiction
+at all — there are two distinct bars, each internally consistent:
 
-1. **Customer bottom nav has two variants.** `household_home` and `customer_profile_1`
-   show **4 tabs**: Services / Transit / Passbook / Union. `hamali_labour_standard` and
-   `goods_transport` show **5 tabs**: Household / Hamali / Transit / Passbook / Profile.
-   I currently have the 5-tab version built. Tell me which is canonical.
-2. **Bottom bar height differs** (80px vs 64px) between those same two groups.
+1. **Customer app shell — 80px, 4 tabs.** `household_home` and `customer_profile_1` both
+   carry `<div class="h-20 …">` with exactly four links: Services / Transit / Passbook /
+   Union, 24px icons, 13px `label-ui` captions. No centre action button.
+2. **Marketing shell — 64px, 5 tabs.** `landing` carries `<div class="h-16 …">` with
+   Platform / How It Works / Pricing / About / Safety, 22px icons, 11px `label-caps`
+   captions.
+3. `hamali_labour_standard` and `goods_transport` use a third, 64px 5-tab booking-screen
+   bar. Since the two shell-defining screens (home + profile) agree on 80px/4-tab, that is
+   canonical for signed-in customers, and the booking screens follow the shell.
+
+`BottomTabBar` now takes `size="default" | "compact"` for exactly these two.
+
+### Correction to §2: the metric token was wrong
+
+The 56–64px figure above was measured off screen renders and is **wrong**. The export's own
+`fontSize` block gives `data-metric: 2.25rem` = **36px**. `--fy-text-metric` has been
+corrected to 36px, and the whole type scale in `tailwind.config.ts` is now copied verbatim
+from that block rather than eyeballed:
+
+| token | design name | px / line-height / tracking / weight |
+|---|---|---|
+| display | display-hero-mobile, headline-lg | 44 / 44 / -0.02em / 400 |
+| heading | headline-lg-mobile | 32 / 36 / -0.015em / 400 |
+| title | headline-sm | 22 / 28 / -0.01em / 500 |
+| metric | data-metric | 36 / 36 / -0.02em / 400 |
+| body-lg | body-lg | 17 / 26 / -0.01em / 400 |
+| body | body-default | 15 / 23 / 0 / 400 |
+| label | label-ui | 13 / 18 / 0.01em / 500 |
+| eyebrow | label-caps | 11 / 14 / 0.08em / 600 |
+
+(There is also a 72px `display-hero` for desktop, unused so far.)
 
 ---
 
 ## 6. HARDCODED-HEX COUNT
 
-Step 1 is documentation only — no code written yet. Current count in
-`client/src/**` (excluding SVG/canvas contexts and `globals.css`, which is where raw hex
-legitimately lives): **18**, unchanged from the last audit — of which 16 are inline
-SVG/canvas marker colours and 2 are stale comments. Step 2 will re-baseline this against
-the new palette.
+Re-audited after Step 5 page 2. Count in `client/src/**` excluding `globals.css` (where raw
+hex legitimately lives): **8**, all accounted for:
+
+- **4** in `app/global-error.tsx` — the root error boundary renders its own `<html>`/`<body>`
+  outside the app's stylesheet entirely, so no token exists to reference there.
+- **2** `readToken()` fallbacks (`QRCodeDisplay`, `SignatureCanvas`) — canvas and QR
+  generation cannot consume `var(--fy-…)`; they read the resolved value at runtime and the
+  hex is only the last-resort default.
+- **2** in comments/documentation strings, not rendered.
+
+`RouteMap.tsx`'s Leaflet marker markup (3 occurrences of `#fff`) was converted to
+`var(--fy-bone)` in this pass — those are DOM-rendered SVG, so CSS variables resolve.

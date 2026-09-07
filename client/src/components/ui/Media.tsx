@@ -7,6 +7,12 @@ interface MediaProps {
   id: string;
   kind?: 'photo' | 'render';
   aspect?: number;
+  /**
+   * Set when the caller already fixes the box (PhotoCard's h-44 / h-[480px]
+   * slots). Without it the intrinsic aspect ratio fights the height class and
+   * the placeholder renders at the wrong size inside its own card.
+   */
+  fill?: boolean;
   treatment?: Treatment;
   tint?: Tint;
   alt: string;
@@ -41,7 +47,7 @@ const treatmentShape: Record<Treatment, string> = {
  * in real assets later means editing MEDIA_MANIFEST.ts only — this
  * component and every page that calls it stay untouched.
  */
-export function Media({ id, kind, aspect, treatment = 'duotone', tint = 'household', alt, className = '' }: MediaProps) {
+export function Media({ id, kind, aspect, fill = false, treatment = 'duotone', tint = 'household', alt, className = '' }: MediaProps) {
   const manifestEntry = MEDIA_MANIFEST[id];
   const resolvedAspect = aspect ?? manifestEntry?.aspect ?? 1;
   const resolvedKind = kind ?? manifestEntry?.kind ?? 'photo';
@@ -54,7 +60,7 @@ export function Media({ id, kind, aspect, treatment = 'duotone', tint = 'househo
         src={real}
         alt={alt}
         className={`w-full h-full object-cover ${treatmentShape[treatment]} ${className}`}
-        style={{ aspectRatio: resolvedAspect }}
+        style={fill ? undefined : { aspectRatio: resolvedAspect }}
       />
     );
   }
@@ -64,9 +70,9 @@ export function Media({ id, kind, aspect, treatment = 'duotone', tint = 'househo
       role="img"
       aria-label={alt}
       className={`relative overflow-hidden flex items-center justify-center ${TINT_BG[tint]} ${treatmentShape[treatment]} ${className}`}
-      style={{ aspectRatio: resolvedAspect }}
+      style={fill ? undefined : { aspectRatio: resolvedAspect }}
     >
-      <div className="fyro-grain absolute inset-0 opacity-60" aria-hidden="true" />
+      <div className="fy-grain absolute inset-0 opacity-60" aria-hidden="true" />
       <div className={`relative z-10 flex flex-col items-center gap-1.5 px-4 text-center ${TINT_TEXT[tint]}`}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
           <rect x="3" y="3" width="18" height="18" rx="2" />

@@ -85,7 +85,10 @@
   --fy-text-display: 44px;
   --fy-text-heading: 32px;
   --fy-text-title: 22px;
-  --fy-text-metric: 56px;
+  /* 36px, read straight out of the design export's own tailwind fontSize
+     block ('data-metric': 2.25rem). The earlier 56px was measured off a
+     low-resolution screen render and was wrong. */
+  --fy-text-metric: 36px;
   --fy-text-body-lg: 17px;
   --fy-text-body: 15px;
   --fy-text-label: 13px;

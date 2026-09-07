@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
+import { BottomTabBar } from '@/components/fy/Navigation';
 import { setLocaleAction } from '@/i18n/setLocale';
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const t = useTranslations('marketing.layout');
   const locale = useLocale() as LanguageCode;
   const router = useRouter();
@@ -33,116 +33,55 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Floating pill nav — sits above the hero rather than spanning edge
-          to edge, so the hero's illustration reads as full-bleed behind it.
-          Must be `fixed`, not `sticky`: sticky still reserves its own box
-          height in normal flow, which left a solid page-background gap
-          above the hero section (glaringly visible once the hero became a
-          near-black video instead of a faint low-opacity decoration). Every
-          marketing subpage already has pt-24 on its own content wrapper
-          specifically to clear a floating header, confirming this was
-          always the intended layout. */}
-      <header className="fixed top-4 inset-x-0 z-40 px-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 rounded-full bg-fy-card/90 backdrop-blur-md border border-fy-hairline shadow-lg pl-5 pr-3 py-2.5">
-          <Link
-            href="/"
-            className="font-heading text-lg font-extrabold text-fy-brown tracking-tight transition-transform duration-base ease-out hover:scale-[1.03] flex items-center gap-1.5"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M3 12h4M3 7h9M3 17h6" strokeLinecap="round" />
-              <circle cx="19" cy="12" r="3" />
-            </svg>
-            FYRO
+      {/* Flat 64px bar on the page background, per the design's landing
+          header — not the floating pill this used to be. The wordmark keeps
+          its "Cooperative" eyebrow, the language switcher sits inline as the
+          EN / తె / हि group, and the avatar is the login entry point. */}
+      <header className="fixed top-0 inset-x-0 z-40 bg-fy-bone/88 backdrop-blur-xl shadow-[0_1px_12px_rgba(28,28,22,0.04)]">
+        <div className="h-16 max-w-2xl mx-auto px-gutter flex items-center justify-between gap-3">
+          <Link href="/" className="flex flex-col leading-none min-w-0">
+            <span className="font-heading text-title text-fy-brown tracking-tight">FYRO</span>
+            <span className="font-body text-eyebrow uppercase tracking-[0.08em] text-fy-muted mt-0.5">
+              {t('brandSub')}
+            </span>
           </Link>
-          <nav aria-label="Main" className="hidden lg:flex gap-6 text-sm font-medium text-fy-muted">
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="group relative py-1 transition-colors duration-base hover:text-fy-ink"
-              >
-                {l.label}
-                <span className="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-fy-brown transition-all duration-base ease-out group-hover:w-full" />
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2">
-            {/* Compact language switcher — same setLocaleAction + router.refresh
-                loop as the homepage hero (see client/src/app/(marketing)/page.tsx),
-                just styled to fit inline in the pill nav instead of floating
-                over a hero. */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Same setLocaleAction + router.refresh loop as before, now in
+                the design's inline EN / తె / हि group. */}
             <LanguagePill
+              size="compact"
               value={locale}
               onChange={handleLocaleChange}
-              className={`hidden md:inline-flex bg-fy-panel transition-opacity duration-base ${isPending ? 'opacity-60' : ''}`}
+              className={`transition-opacity duration-base ${isPending ? 'opacity-60' : ''}`}
             />
             <Link
               href="/login"
-              className="hidden sm:inline-flex text-sm font-semibold px-4 py-2 rounded-full text-fy-ink hover:bg-fy-panel transition-colors duration-base"
+              aria-label={t('login')}
+              className="w-9 h-9 rounded-full bg-fy-brown-soft text-fy-on-brown flex items-center justify-center ring-2 ring-fy-field active:scale-95 transition-transform"
             >
-              {t('login')}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5Z" />
+              </svg>
             </Link>
-            <Link
-              href="/signup/customer"
-              className="text-sm font-semibold px-4 py-2.5 rounded-full bg-fy-brown text-white shadow-sm hover:shadow-float hover:-translate-y-0.5 transition-all duration-base"
-            >
-              {t('bookDelivery')}
-            </Link>
-            {/* Mobile-only nav toggle. The four content links (nav above) are
-                hidden below md — this is the only way to reach them on a
-                phone viewport, so it isn't optional chrome. */}
-            <button
-              type="button"
-              onClick={() => setMobileNavOpen((open) => !open)}
-              className="lg:hidden p-2 text-fy-ink rounded-full hover:bg-fy-panel transition-colors duration-base"
-              aria-expanded={mobileNavOpen}
-              aria-controls="mobile-nav-panel"
-              aria-label={mobileNavOpen ? t('closeMenu') : t('openMenu')}
-            >
-              {mobileNavOpen ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-                </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />
-                </svg>
-              )}
-            </button>
           </div>
         </div>
-        {mobileNavOpen && (
-          <nav
-            id="mobile-nav-panel"
-            aria-label="Main (mobile)"
-            className="lg:hidden max-w-5xl mx-auto mt-2 rounded-2xl border border-fy-hairline px-6 py-5 flex flex-col gap-1 text-base font-medium text-fy-muted bg-fy-card shadow-lg animate-[fadeIn_200ms_ease-out]"
-          >
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setMobileNavOpen(false)}
-                className="py-3 px-2 rounded-control hover:bg-fy-panel hover:text-fy-ink transition-colors duration-base"
-              >
-                {l.label}
-              </Link>
-            ))}
-            <Link
-              href="/login"
-              onClick={() => setMobileNavOpen(false)}
-              className="py-3 px-2 rounded-control hover:bg-fy-panel hover:text-fy-ink transition-colors duration-base sm:hidden"
-            >
-              {t('login')}
-            </Link>
-            <div className="pt-3 mt-2 border-t border-fy-hairline md:hidden">
-              <LanguagePill value={locale} onChange={handleLocaleChange} />
-            </div>
-          </nav>
-        )}
       </header>
-      <main className="flex-1">{children}</main>
-      <footer className="border-t border-fy-hairline bg-fy-panel mt-32">
-        <div className="max-w-6xl mx-auto px-6 py-14 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+      <main className="flex-1 pt-16 pb-24">{children}</main>
+      {/* 64px five-tab bar, per the design. FAQ and Contact aren't in it —
+          they stay reachable through the footer below, which is the only
+          route to them on a phone now that the burger menu is gone. */}
+      <BottomTabBar
+        size="compact"
+        items={[
+          { href: '/', label: t('platform'), glyph: 'grid_view' },
+          { href: '/how-it-works', label: t('howItWorks'), glyph: 'hub' },
+          { href: '/pricing', label: t('pricing'), glyph: 'payments' },
+          { href: '/about', label: t('about'), glyph: 'diversity_3' },
+          { href: '/safety', label: t('safety'), glyph: 'verified_user' },
+        ]}
+      />
+      <footer className="border-t border-fy-hairline bg-fy-panel mt-16">
+        <div className="max-w-6xl mx-auto px-6 pt-14 pb-28 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
           <div>
             <span className="font-heading text-lg font-extrabold text-fy-brown tracking-tight">FYRO</span>
             <p className="mt-2 text-sm text-fy-muted">{t('copyright')}</p>

@@ -14,7 +14,7 @@ export default async function HowItWorksPage() {
     <div className="relative overflow-hidden">
       <div aria-hidden className="absolute -top-32 -right-32 w-[24rem] h-[24rem] rounded-full bg-fy-green/10 blur-[110px] -z-10" />
 
-      <div className="max-w-4xl mx-auto px-6 pt-24 pb-24">
+      <div className="max-w-4xl mx-auto px-6 pt-8 pb-8">
         <div className="max-w-xl mb-16">
           <span aria-hidden className="inline-block w-12 h-1.5 rounded-full bg-fy-brown mb-6" />
           <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink">{t('title')}</h1>

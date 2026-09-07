@@ -30,23 +30,38 @@ export function PhotoCard({
   topLeft,
   topRight,
   tint = 'household',
+  media,
   className = '',
 }: {
   id: string;
   alt: string;
-  height?: 'hero' | 'banner' | 'strip' | 'tile';
+  height?: 'tall' | 'hero' | 'card' | 'banner' | 'strip' | 'tile';
   scrim?: Scrim;
   overlay?: ReactNode;
   /** Floating badge, top-left — e.g. login's "passbook dispatch ready". */
   topLeft?: ReactNode;
   topRight?: ReactNode;
   tint?: 'household' | 'labour' | 'transport';
+  /**
+   * Replaces the placeholder with real media in the same crop — the landing
+   * hero is the platform's own footage, not a stock still.
+   */
+  media?: ReactNode;
   className?: string;
 }) {
-  const h = { hero: 'h-60', banner: 'h-40', strip: 'h-28', tile: 'h-24' }[height];
+  const h = {
+    tall: 'h-[480px]',
+    hero: 'h-60',
+    card: 'h-44',
+    banner: 'h-40',
+    strip: 'h-28',
+    tile: 'h-24',
+  }[height];
   return (
     <div className={`relative w-full ${h} rounded-card overflow-hidden ${className}`}>
-      <Media id={id} kind="photo" treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
+      {media ?? (
+        <Media id={id} kind="photo" fill treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
+      )}
       {scrim !== 'none' && <div className={`absolute inset-0 ${scrimClass[scrim]}`} />}
       {topLeft && <div className="absolute top-3 left-3 z-10">{topLeft}</div>}
       {topRight && <div className="absolute top-3 right-3 z-10">{topRight}</div>}
@@ -100,7 +115,7 @@ export function PhotoStrip({
 }) {
   return (
     <div className={`relative w-full h-28 rounded-card overflow-hidden ${className}`}>
-      <Media id={id} kind="photo" treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
+      <Media id={id} kind="photo" fill treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
       <div className="absolute inset-0 bg-gradient-to-r from-fy-brown/80 via-fy-brown-soft/55 to-fy-green/35" />
       {caption && (
         <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between gap-2 text-fy-bone z-10">

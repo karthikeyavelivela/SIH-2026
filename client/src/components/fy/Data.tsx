@@ -7,7 +7,7 @@ import { EyebrowLabel } from './Text';
    cards), society_governance (label/value register rows, trustee list),
    customer_profile_1 (personal-record rows). */
 
-type MetricTone = 'ink' | 'brown' | 'lime' | 'green' | 'error';
+type MetricTone = 'ink' | 'brown' | 'lime' | 'green' | 'error' | 'on-dark';
 
 const metricTone: Record<MetricTone, string> = {
   ink: 'text-fy-ink',
@@ -15,6 +15,7 @@ const metricTone: Record<MetricTone, string> = {
   lime: 'text-fy-lime',
   green: 'text-fy-green',
   error: 'text-fy-error',
+  'on-dark': 'text-fy-bone',
 };
 
 /**
@@ -28,6 +29,7 @@ export function MetricBlock({
   tone = 'brown',
   note,
   aside,
+  onDark = false,
   className = '',
 }: {
   label: ReactNode;
@@ -36,19 +38,64 @@ export function MetricBlock({
   tone?: MetricTone;
   note?: ReactNode;
   aside?: ReactNode;
+  /** Flips the eyebrow and note to the on-dark pair (landing's passbook plate). */
+  onDark?: boolean;
   className?: string;
 }) {
   return (
     <div className={`flex items-start justify-between gap-3 ${className}`}>
       <div className="min-w-0">
-        <EyebrowLabel>{label}</EyebrowLabel>
+        <EyebrowLabel tone={onDark ? 'on-dark' : 'muted'} className={onDark ? 'opacity-70' : ''}>
+          {label}
+        </EyebrowLabel>
         <div className="flex items-baseline gap-1.5 mt-1">
-          <span className={`font-heading text-metric leading-none ${metricTone[tone]}`}>{value}</span>
+          <span className={`font-heading text-metric ${metricTone[tone]}`}>{value}</span>
           {unit && <span className={`font-heading text-title ${metricTone[tone]}`}>{unit}</span>}
         </div>
-        {note && <div className="mt-1.5 font-body text-label text-fy-ink-soft">{note}</div>}
+        {note && (
+          <div className={`mt-1.5 font-body text-label ${onDark ? 'text-fy-bone/75' : 'text-fy-ink-soft'}`}>
+            {note}
+          </div>
+        )}
       </div>
       {aside}
+    </div>
+  );
+}
+
+/**
+ * A numbered process step: accent-coloured serif numeral in a rounded tile,
+ * title and body beside it, the whole row on a light card.
+ * Taken from: landing ("How Direct Trade Works", steps 1-3).
+ */
+export function StepRow({
+  step,
+  tone,
+  title,
+  children,
+  className = '',
+}: {
+  step: ReactNode;
+  tone: 'brown' | 'green' | 'slate';
+  title: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  const tile =
+    tone === 'brown'
+      ? 'bg-fy-brown text-fy-on-brown'
+      : tone === 'green'
+        ? 'bg-fy-green text-fy-on-green'
+        : 'bg-fy-slate text-fy-on-brown';
+  return (
+    <div className={`p-4 rounded-card bg-fy-well flex items-start gap-4 ${className}`}>
+      <span className={`w-12 h-12 rounded-card ${tile} flex items-center justify-center shrink-0 font-heading text-title`}>
+        {step}
+      </span>
+      <div className="min-w-0">
+        <h4 className="font-body text-body font-semibold text-fy-ink">{title}</h4>
+        <p className="font-body text-body text-fy-ink-soft mt-0.5">{children}</p>
+      </div>
     </div>
   );
 }

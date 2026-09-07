@@ -31,13 +31,15 @@
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
       "copyright": "© 2026 FYRO. Andhra Pradesh.",
-      "backToHome": "Back to home"
+      "backToHome": "Back to home",
+      "brandSub": "Cooperative",
+      "platform": "Platform"
     },
     "home": {
       "liveBadge": "Live across India — cooperative-owned services",
       "heroTitleLine1": "Trusted help,",
       "heroTitleAccent": "from your own cooperative.",
-      "heroSubtitle": "Electricians, plumbers, carpenters, painters, domestic help, caregivers, gardeners, cleaners, technicians, and drivers — verified members of real Labour Cooperative Societies, not gig strangers. Book in minutes, fair wages guaranteed.",
+      "heroSubtitle": "Verified members of registered Labour Cooperative Societies — not gig strangers. Fixed fares agreed upfront, fair wages guaranteed.",
       "searchPlaceholder": "What service do you need?",
       "searchCta": "Find help",
       "ctaBookDelivery": "Book a service",
@@ -99,7 +101,74 @@
         "tamilNadu": "Tamil Nadu",
         "maharashtra": "Maharashtra",
         "kerala": "Kerala"
-      }
+      },
+      "heroBadge": "Registered cooperative societies",
+      "heroEyebrow": "Autonomous labour collective",
+      "heroSecondaryCta": "See how it works",
+      "federationEyebrow": "Cooperative federation ledger",
+      "federationBody": "Federated across <b>6 state federations</b> and their district cooperative societies. Every deduction is posted to a society ledger that can be audited line by line.",
+      "statsEyebrow": "Platform at a glance",
+      "statsTitle": "Cooperative services, nationwide",
+      "statCargoRangeNote": "bookable across every guild",
+      "statDistrictsNote": "with district-level societies",
+      "guildsEyebrow": "Pillars of solidarity",
+      "guildsHeading": "Three cooperative guilds",
+      "guilds": {
+        "household": {
+          "tag": "Guild 01 · Brown ledger",
+          "title": "Household & Repairs",
+          "body": "Carpenters, licensed wiremen, plumbers, painters, gardeners, cleaners, caregivers and domestic help — booked directly from your district's society."
+        },
+        "hamali": {
+          "tag": "Guild 02 · Green banner",
+          "title": "Loading & Hamali Labour",
+          "body": "Mandi and warehouse loading crews, container de-stuffing and distributor transit yards, priced per worker rather than per middleman."
+        },
+        "transport": {
+          "tag": "Guild 03 · Slate fleet",
+          "title": "Goods Transport & Fleet",
+          "body": "Owner-operators with mini trucks, three-wheel tippers and multi-axle haulage — no aggregator commission between you and the driver."
+        }
+      },
+      "stepsEyebrow": "How direct trade works",
+      "welfareEyebrow": "Dignified labour protection",
+      "welfareHeading": "Every rupee spent with FYRO builds real security for working families.",
+      "welfare": {
+        "cover": {
+          "title": "Work cover and claims",
+          "body": "Work-compensation, commercial-auto and cargo-transit policies issued to members, including parametric plans that pay out on a trigger instead of a claims fight."
+        },
+        "fund": {
+          "title": "Society welfare fund",
+          "body": "Each society sets its own welfare deduction, and that slice is posted as its own ledger line — so the fund's balance can be checked independently of everything else."
+        },
+        "surplus": {
+          "title": "Surplus returned to members",
+          "body": "Whatever is left at the end of a distribution window is split proportionally among the society's members, not retained by the platform."
+        }
+      },
+      "estimatorEyebrow": "Guild transparency",
+      "estimatorTitle": "Published rate card",
+      "estimatorBaseLabel": "Base fare",
+      "estimatorFixed": "Fixed fare, shown upfront",
+      "estimatorMinLabel": "Minimum",
+      "estimatorCta": "View the full schedule of rates",
+      "rateTabs": {
+        "smallVehicle": "Small",
+        "mediumVehicle": "Medium",
+        "largeVehicle": "Large",
+        "hamali": "Hamali"
+      },
+      "charterEyebrow": "Cooperative charter",
+      "charterHeading": "What every member signs up to",
+      "charterSource": "The FYRO cooperative charter",
+      "charterSourceMeta": "Binding on every affiliated society",
+      "charterQuote": "“Work turns rotate fairly between members, the fare is fixed before the job starts, and the society's surplus goes back to the people who did the work.”",
+      "charterMetaLeft": "Set by member vote",
+      "charterMetaRight": "Auditable society ledger",
+      "coverageEyebrow": "Coverage",
+      "trustHeading": "What makes this different",
+      "trustEyebrow": "Shipped, not promised"
     },
     "about": {
       "title": "About FYRO",

@@ -53,7 +53,7 @@ const dropIcon = pinIcon('var(--fy-green)');
 function stopIcon(n: number) {
   return L.divIcon({
     className: '',
-    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:9999px;background:var(--fy-ink);color:#fff;font:700 11px sans-serif;border:2px solid white;box-shadow:0 2px 5px rgba(15,14,12,.35);">${n}</span>`,
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:9999px;background:var(--fy-ink);color:var(--fy-bone);font:700 11px sans-serif;border:2px solid white;box-shadow:0 2px 5px rgba(15,14,12,.35);">${n}</span>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
   });
@@ -69,8 +69,8 @@ function stopIcon(n: number) {
 function liveGlyph(kind: 'truck' | 'hamali') {
   const glyphSvg =
     kind === 'truck'
-      ? '<path d="M2 8h9v6H2z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M11 10h3.5l2 2.5V14H11z" fill="none" stroke="#fff" stroke-width="1.4"/><circle cx="5" cy="15" r="1.3" fill="#fff"/><circle cx="13" cy="15" r="1.3" fill="#fff"/>'
-      : '<circle cx="8" cy="4.5" r="1.6" fill="#fff"/><path d="M8 6.5v4.5m0 0-2.5 4M8 11l2.5 4M8 6.5l-2.8 1.6M8 6.5l2.8 1.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+      ? '<path d="M2 8h9v6H2z" fill="none" stroke="var(--fy-bone)" stroke-width="1.4"/><path d="M11 10h3.5l2 2.5V14H11z" fill="none" stroke="var(--fy-bone)" stroke-width="1.4"/><circle cx="5" cy="15" r="1.3" fill="var(--fy-bone)"/><circle cx="13" cy="15" r="1.3" fill="var(--fy-bone)"/>'
+      : '<circle cx="8" cy="4.5" r="1.6" fill="var(--fy-bone)"/><path d="M8 6.5v4.5m0 0-2.5 4M8 11l2.5 4M8 6.5l-2.8 1.6M8 6.5l2.8 1.6" stroke="var(--fy-bone)" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
   const bg = kind === 'truck' ? 'var(--fy-slate)' : 'var(--fy-green)';
   return L.divIcon({
     className: '',

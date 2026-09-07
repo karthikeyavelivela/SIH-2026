@@ -60,17 +60,26 @@ const config: Config = {
         body: ['var(--fy-font-body)'],
       },
       fontSize: {
-        // [size, { lineHeight, letterSpacing, fontWeight }] — measured in
-        // DESIGN_TOKENS.md §2. Serif roles (display/heading/title/metric)
-        // pair with font-heading; the rest with font-body.
-        display: ['var(--fy-text-display)', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '400' }],
-        heading: ['var(--fy-text-heading)', { lineHeight: '1.15', letterSpacing: '-0.015em', fontWeight: '500' }],
-        title: ['var(--fy-text-title)', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '500' }],
+        // [size, { lineHeight, letterSpacing, fontWeight }]. These are no
+        // longer eyeballed off screen renders — every row below is copied
+        // from the design export's own tailwind fontSize block, which the
+        // full-resolution reference pages are generated from:
+        //   display  = display-hero-mobile / headline-lg  44/44 -0.02  400
+        //   heading  = headline-lg-mobile                 32/36 -0.015 400
+        //   title    = headline-sm                        22/28 -0.01  500
+        //   metric   = data-metric                        36/36 -0.02  400
+        //   body-lg  = body-lg                            17/26 -0.01  400
+        //   body     = body-default                       15/23  0     400
+        //   label    = label-ui                           13/18  0.01  500
+        //   eyebrow  = label-caps                         11/14  0.08  600
+        display: ['var(--fy-text-display)', { lineHeight: '1', letterSpacing: '-0.02em', fontWeight: '400' }],
+        heading: ['var(--fy-text-heading)', { lineHeight: '1.125', letterSpacing: '-0.015em', fontWeight: '400' }],
+        title: ['var(--fy-text-title)', { lineHeight: '1.273', letterSpacing: '-0.01em', fontWeight: '500' }],
         metric: ['var(--fy-text-metric)', { lineHeight: '1', letterSpacing: '-0.02em', fontWeight: '400' }],
-        'body-lg': ['var(--fy-text-body-lg)', { lineHeight: '1.55', fontWeight: '400' }],
-        body: ['var(--fy-text-body)', { lineHeight: '1.5', fontWeight: '400' }],
-        label: ['var(--fy-text-label)', { lineHeight: '1.4', fontWeight: '500' }],
-        eyebrow: ['var(--fy-text-eyebrow)', { lineHeight: '1.3', letterSpacing: '0.08em', fontWeight: '600' }],
+        'body-lg': ['var(--fy-text-body-lg)', { lineHeight: '1.53', letterSpacing: '-0.01em', fontWeight: '400' }],
+        body: ['var(--fy-text-body)', { lineHeight: '1.533', fontWeight: '400' }],
+        label: ['var(--fy-text-label)', { lineHeight: '1.385', letterSpacing: '0.01em', fontWeight: '500' }],
+        eyebrow: ['var(--fy-text-eyebrow)', { lineHeight: '1.273', letterSpacing: '0.08em', fontWeight: '600' }],
       },
       borderRadius: {
         card: 'var(--fy-radius-card)',
