@@ -1400,7 +1400,17 @@
   },
   "training": {
     "academyTitle": "Training Academy",
-    "academySubtitle": "Complete your curriculum to unlock full certified status."
+    "academySubtitle": "Complete your curriculum to unlock full certified status.",
+    "memberPill": "Member",
+    "accreditationEyebrow": "Cooperative vocational accreditation",
+    "accreditationStanding": "Accreditation standing",
+    "curriculumComplete": "Curriculum complete",
+    "inProgress": "In progress",
+    "modulesValidated": "{done} of {total} modules validated",
+    "creditHours": "Credit hours",
+    "hoursOf": "{done} of {total} hrs",
+    "curriculumRoadmap": "Curriculum roadmap",
+    "unitCount": "{count, plural, =0 {No units} one {# unit} other {# units}}"
   },
   "muthaGroup": {
     "title": "My Mutha",
@@ -1582,7 +1592,16 @@
     "driverSignOff": "Driver sign-off",
     "signOffConfirmation": "I confirm that the cargo listed above has been loaded and inspected.",
     "submitting": "Submitting…",
-    "confirmAndAccept": "Confirm & Accept Load"
+    "confirmAndAccept": "Confirm & Accept Load",
+    "protocolEyebrow": "Verified transit protocol",
+    "statutoryNote": "Digital bill of lading for this consignment, kept with the cooperative record.",
+    "refNumber": "Reference number",
+    "formLabel": "Digital bill of lading",
+    "consignor": "Consignor (origin)",
+    "consignorUnnamed": "Consignor",
+    "loadSpecification": "Load specification",
+    "entryCount": "{count, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "totalMass": "Total mass"
   },
   "customerDashboard": {
     "alertsOn": "Alerts on",
@@ -3061,5 +3080,21 @@
     "disputeCount": "{count, plural, =0 {None yet} one {# dispute} other {# disputes}}",
     "noDisputes": "You have not raised a dispute.",
     "ref": "Dispute #{id}"
+  },
+  "workerProfile": {
+    "pageTitle": "Worker profile",
+    "memberPill": "Member",
+    "memberId": "Member ID {id}",
+    "ratingLine": "{rating} ★ · {count} rated jobs",
+    "noRatings": "No ratings yet",
+    "tabs": {
+      "vehicle": "Vehicle",
+      "documents": "Documents",
+      "reputation": "Reputation",
+      "payouts": "Payouts",
+      "settings": "Settings"
+    },
+    "registeredAsset": "Registered asset",
+    "maxPayload": "Max payload"
   }
 }

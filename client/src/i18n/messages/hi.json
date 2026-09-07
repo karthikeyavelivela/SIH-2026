@@ -1400,7 +1400,17 @@
   },
   "training": {
     "academyTitle": "ट्रेनिंग एकेडमी",
-    "academySubtitle": "पूरी सर्टिफाइड स्थिति पाने के लिए अपना पूरा पाठ्यक्रम पूरा करें।"
+    "academySubtitle": "पूरी सर्टिफाइड स्थिति पाने के लिए अपना पूरा पाठ्यक्रम पूरा करें।",
+    "memberPill": "सदस्य",
+    "accreditationEyebrow": "सहकारी व्यावसायिक मान्यता",
+    "accreditationStanding": "मान्यता स्थिति",
+    "curriculumComplete": "पाठ्यक्रम पूरा",
+    "inProgress": "चल रहा है",
+    "modulesValidated": "{total} में से {done} मॉड्यूल सत्यापित",
+    "creditHours": "क्रेडिट घंटे",
+    "hoursOf": "{total} घंटों में से {done}",
+    "curriculumRoadmap": "पाठ्यक्रम रूपरेखा",
+    "unitCount": "{count, plural, =0 {कोई यूनिट नहीं} one {# यूनिट} other {# यूनिट}}"
   },
   "muthaGroup": {
     "title": "मेरी मुठा",
@@ -1582,7 +1592,16 @@
     "driverSignOff": "ड्राइवर साइन-ऑफ",
     "signOffConfirmation": "मैं पुष्टि करता/करती हूं कि ऊपर सूचीबद्ध सामान लोड और निरीक्षित किया गया है।",
     "submitting": "सबमिट हो रहा है…",
-    "confirmAndAccept": "कन्फर्म करें और लोड स्वीकार करें"
+    "confirmAndAccept": "कन्फर्म करें और लोड स्वीकार करें",
+    "protocolEyebrow": "सत्यापित परिवहन प्रोटोकॉल",
+    "statutoryNote": "इस खेप का डिजिटल बिल ऑफ़ लेडिंग, सहकारी रिकॉर्ड में सुरक्षित।",
+    "refNumber": "संदर्भ संख्या",
+    "formLabel": "डिजिटल बिल ऑफ़ लेडिंग",
+    "consignor": "भेजने वाला (मूल)",
+    "consignorUnnamed": "भेजने वाला",
+    "loadSpecification": "लोड विवरण",
+    "entryCount": "{count, plural, =0 {कोई प्रविष्टि नहीं} one {# प्रविष्टि} other {# प्रविष्टियाँ}}",
+    "totalMass": "कुल वज़न"
   },
   "customerDashboard": {
     "alertsOn": "अलर्ट चालू हैं",
@@ -3061,5 +3080,21 @@
     "disputeCount": "{count, plural, =0 {अभी कोई नहीं} one {# विवाद} other {# विवाद}}",
     "noDisputes": "आपने कोई विवाद दर्ज नहीं किया।",
     "ref": "विवाद #{id}"
+  },
+  "workerProfile": {
+    "pageTitle": "कामगार प्रोफ़ाइल",
+    "memberPill": "सदस्य",
+    "memberId": "सदस्य ID {id}",
+    "ratingLine": "{rating} ★ · {count} रेटेड काम",
+    "noRatings": "अभी कोई रेटिंग नहीं",
+    "tabs": {
+      "vehicle": "वाहन",
+      "documents": "दस्तावेज़",
+      "reputation": "प्रतिष्ठा",
+      "payouts": "भुगतान",
+      "settings": "सेटिंग्स"
+    },
+    "registeredAsset": "पंजीकृत वाहन",
+    "maxPayload": "अधिकतम भार"
   }
 }

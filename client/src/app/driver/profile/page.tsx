@@ -2,16 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { Badge } from '@/components/ui/Badge';
-import { TopBar } from '@/components/ui/TopBar';
+import { useAuth } from '@/lib/auth-context';
+import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
+import { AvatarUpload } from '@/components/ui/AvatarUpload';
+import { Icon } from '@/components/ui/Icon';
 import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
-import { AvatarUpload } from '@/components/ui/AvatarUpload';
-import { TruckIcon } from '@/components/ui/icons';
-import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -25,6 +23,43 @@ import {
   SupportSection,
   AccountDangerZoneSection,
 } from '@/components/worker/ProfileSections';
+import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
+import { StatusPill, VerifiedBadge } from '@/components/fy/Status';
+import { MetricBlock } from '@/components/fy/Data';
+import { Button, Field } from '@/components/fy/Controls';
+import { TopBar, TabRow } from '@/components/fy/Navigation';
+
+/* Built against client/public/design/worker_profile.html.
+
+   Section order there, top to bottom: 64px brand bar with the MEMBER pill
+   -> a member-id credential card with the portrait, name, society line and
+   an ACTIVE pill -> a five-tab row (Vehicle / Documents / Reputation /
+   Payouts / Settings) -> the selected tab's records -> 5-tab bar.
+
+   Largest element: the member's name, then the payload figure on the
+   vehicle tab. Dark surfaces: none.
+
+   Every section the page carried before is still here, grouped under the
+   tab its subject belongs to rather than stacked in one column.
+
+   Not invented: the design prints a "Transit health 98.4% · OBD-II Clear"
+   gauge, a telemetry node id, a "verified 2 mins ago" heartbeat and a
+   "Consensus Standing: Exemplary Peer Record" line. There is no telemetry
+   integration, no OBD feed and no peer-standing metric — a vehicle stores
+   a type, capacity, registration, verification flag and compliance status,
+   and those are what the vehicle tab shows. */
+
+const TABS = ['vehicle', 'documents', 'reputation', 'payouts', 'settings'] as const;
+type Tab = (typeof TABS)[number];
+
+const TAB_GLYPH: Record<Tab, string> = {
+  vehicle: 'local_shipping',
+  documents: 'description',
+  reputation: 'stars',
+  payouts: 'account_balance',
+  settings: 'tune',
+};
 
 interface Vehicle {
   type: string;
@@ -37,14 +72,20 @@ interface Vehicle {
 
 export default function DriverProfilePage() {
   const t = useTranslations('profile');
+  const tw = useTranslations('workerProfile');
   const { user, refetch } = useAuth();
-  const { data, state, reload } = usePolling(() => api.get<{ vehicle: Vehicle }>('/api/vehicles/me').catch((err) => {
-    if (err instanceof ApiClientError && err.status === 404) return { vehicle: null as unknown as Vehicle };
-    throw err;
-  }), 60000);
+  const [tab, setTab] = useState<Tab>('vehicle');
+
+  const { data, state, reload } = usePolling(
+    () =>
+      api.get<{ vehicle: Vehicle }>('/api/vehicles/me').catch((err) => {
+        if (err instanceof ApiClientError && err.status === 404) return { vehicle: null as unknown as Vehicle };
+        throw err;
+      }),
+    60000
+  );
   const [licenseExpiryAt, setLicenseExpiryAt] = useState<string | null>(user?.licenseExpiryAt ?? null);
   const [insuranceExpiryAt, setInsuranceExpiryAt] = useState<string | null>(null);
-
   const [editingVehicle, setEditingVehicle] = useState(false);
   const [capacityKg, setCapacityKg] = useState('');
   const [vehicleSaving, setVehicleSaving] = useState(false);
@@ -67,92 +108,167 @@ export default function DriverProfilePage() {
 
   if (!user) return null;
 
+  const vehicle = data?.vehicle;
+
   return (
-    <div className="min-h-screen bg-fy-bone pb-24">
-      <TopBar title={t('pageTitle')} showBack={false} />
-      <div className="max-w-lg mx-auto px-gutter pt-4">
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
-      <div className="fy-surface-card flex items-center gap-4 mb-6">
-        <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
-        <div>
-          <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-fy-ink-soft">{user.phone}</p>
-          <Badge tone="secondary" className="mt-1.5">
-            {t(`account.statusLabels.${user.accountStatus}`)}
-          </Badge>
-        </div>
-      </div>
-
-      <LanguageSection />
-      <ProfileIdentitySection />
-      <RoleSwitcherSection />
-
-      <h2 className="font-heading text-lg font-bold mb-3">{t('vehicle.sectionTitle')}</h2>
-      {state === 'loading' && <div className="h-24 rounded-card bg-fy-field animate-pulse mb-6" />}
-      {state !== 'loading' && !data?.vehicle && (
-        <div className="fy-surface-card text-center py-8 mb-6">
-          <TruckIcon className="w-8 h-8 text-fy-ink-soft/50 mx-auto mb-3" />
-          <p className="text-sm text-fy-ink-soft">{t('vehicle.noneYet')}</p>
-        </div>
-      )}
-      {data?.vehicle && (
-        <div className="fy-surface-card mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <p className="font-heading font-bold capitalize">{data.vehicle.type.replace('_', ' ')}</p>
-            <div className="flex gap-1.5">
-              <Badge tone={data.vehicle.verified ? 'success' : 'muted'}>
-                {data.vehicle.verified ? t('vehicle.verified') : t('vehicle.verificationPending')}
-              </Badge>
-              {data.vehicle.complianceStatus === 'non_compliant' && <Badge tone="danger">{t('vehicle.complianceFailed')}</Badge>}
-            </div>
-          </div>
-          <p className="text-sm text-fy-ink-soft">{t('vehicle.reg', { reg: data.vehicle.registrationNumber })}</p>
-          {!editingVehicle ? (
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-sm text-fy-ink-soft">{t('vehicle.capacity', { kg: data.vehicle.capacityKg })}</p>
-              <button type="button" onClick={() => setEditingVehicle(true)} className="text-xs font-semibold text-fy-brown">
-                {t('vehicle.editCapacity')}
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                type="number"
-                value={capacityKg}
-                onChange={(e) => setCapacityKg(e.target.value)}
-                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
-              />
-              <button type="button" disabled={vehicleSaving} onClick={saveVehicle} className="text-xs font-semibold text-fy-brown">
-                {vehicleSaving ? t('vehicle.saving') : t('vehicle.save')}
-              </button>
-              <button type="button" onClick={() => setEditingVehicle(false)} className="text-xs text-fy-ink-soft">
-                {t('vehicle.cancel')}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.driver} />
-
-      <DocumentExpiryCard
-        license={licenseExpiryAt}
-        insurance={insuranceExpiryAt}
-        onSaved={(updated) => {
-          if (updated.licenseExpiryAt !== undefined) setLicenseExpiryAt(updated.licenseExpiryAt ?? null);
-          if (updated.insuranceExpiryAt !== undefined) setInsuranceExpiryAt(updated.insuranceExpiryAt ?? null);
-        }}
+      <TopBar
+        eyebrow="FYRO Cooperative"
+        title={tw('pageTitle')}
+        actions={user.accountStatus === 'active' ? <StatusPill tone="lime">{tw('memberPill')}</StatusPill> : undefined}
       />
 
-      <NotificationPreferencesSection />
-      <PrivacySettingsSection />
-      <PayoutDetailsSection />
-      <RatingsReceivedSection />
-      <ComplaintHistorySection />
-      <ReferralSection />
-      <SupportSection />
-      <AccountDangerZoneSection />
-      </div>
+      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <Panel className="p-5 flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-3">
+            <EyebrowLabel tone="brown">{tw('memberId', { id: user._id.slice(-6).toUpperCase() })}</EyebrowLabel>
+            <StatusPill tone="lime" className="shrink-0">
+              {t(`account.statusLabels.${user.accountStatus}`)}
+            </StatusPill>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative shrink-0">
+              <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
+              {user.accountStatus === 'active' && (
+                <span className="absolute -bottom-0.5 -right-0.5">
+                  <VerifiedBadge />
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <h2 className="font-heading text-heading text-fy-ink leading-tight truncate">{user.name}</h2>
+              <Body size="label" className="truncate">
+                {user.region ? `${user.region} · ` : ''}
+                {user.ratingCount ? tw('ratingLine', { rating: (user.ratingAvg ?? 0).toFixed(2), count: user.ratingCount }) : tw('noRatings')}
+              </Body>
+            </div>
+          </div>
+        </Panel>
+
+        <TabRow
+          variant="inset"
+          active={tab}
+          onChange={(k) => setTab(k as Tab)}
+          tabs={TABS.map((k) => ({ key: k, label: tw(`tabs.${k}`), glyph: TAB_GLYPH[k] }))}
+          className="overflow-x-auto"
+        />
+
+        {tab === 'vehicle' && (
+          <Section
+            title={<SectionHeading>{t('vehicle.sectionTitle')}</SectionHeading>}
+            aside={
+              vehicle ? (
+                <StatusPill tone={vehicle.verified ? 'lime' : 'outline'}>
+                  {vehicle.verified ? t('vehicle.verified') : t('vehicle.verificationPending')}
+                </StatusPill>
+              ) : undefined
+            }
+          >
+            {state === 'loading' && <div className="h-24 rounded-card bg-fy-field animate-pulse" />}
+
+            {state !== 'loading' && !vehicle && (
+              <LightCard className="flex items-center gap-3">
+                <IconTile tone="peach" size="md">
+                  <Icon name="local_shipping" size={20} />
+                </IconTile>
+                <Body size="label">{t('vehicle.noneYet')}</Body>
+              </LightCard>
+            )}
+
+            {vehicle && (
+              <Panel className="flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <EyebrowLabel>{tw('registeredAsset')}</EyebrowLabel>
+                    <SectionHeading as="h3" className="capitalize">
+                      {vehicle.type.replace('_', ' ')}
+                    </SectionHeading>
+                    <Body size="label">{vehicle.registrationNumber}</Body>
+                  </div>
+                  {vehicle.complianceStatus === 'non_compliant' && (
+                    <StatusPill tone="critical" className="shrink-0">
+                      {t('vehicle.complianceFailed')}
+                    </StatusPill>
+                  )}
+                </div>
+
+                <Divider />
+
+                {!editingVehicle ? (
+                  <div className="flex items-end justify-between gap-3">
+                    <MetricBlock
+                      label={tw('maxPayload')}
+                      value={vehicle.capacityKg.toLocaleString('en-IN')}
+                      unit="kg"
+                      tone="brown"
+                    />
+                    <Button variant="light" size="md" glyph="edit" onClick={() => setEditingVehicle(true)}>
+                      {t('vehicle.editCapacity')}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <EyebrowLabel>{tw('maxPayload')}</EyebrowLabel>
+                    <div className="flex items-center gap-2">
+                      <Field
+                        type="number"
+                        inputMode="numeric"
+                        value={capacityKg}
+                        onChange={(e) => setCapacityKg(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button size="md" disabled={vehicleSaving} onClick={saveVehicle} className="shrink-0">
+                        {vehicleSaving ? t('vehicle.saving') : t('vehicle.save')}
+                      </Button>
+                      <Button variant="ghost" size="md" onClick={() => setEditingVehicle(false)} className="shrink-0">
+                        {t('vehicle.cancel')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </Panel>
+            )}
+          </Section>
+        )}
+
+        {tab === 'documents' && (
+          <>
+            <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.driver} />
+            <DocumentExpiryCard
+              license={licenseExpiryAt}
+              insurance={insuranceExpiryAt}
+              onSaved={(updated) => {
+                if (updated.licenseExpiryAt !== undefined) setLicenseExpiryAt(updated.licenseExpiryAt ?? null);
+                if (updated.insuranceExpiryAt !== undefined) setInsuranceExpiryAt(updated.insuranceExpiryAt ?? null);
+              }}
+            />
+          </>
+        )}
+
+        {tab === 'reputation' && (
+          <>
+            <RatingsReceivedSection />
+            <ComplaintHistorySection />
+            <ReferralSection />
+          </>
+        )}
+
+        {tab === 'payouts' && <PayoutDetailsSection />}
+
+        {tab === 'settings' && (
+          <>
+            <LanguageSection />
+            <ProfileIdentitySection />
+            <RoleSwitcherSection />
+            <NotificationPreferencesSection />
+            <PrivacySettingsSection />
+            <SupportSection />
+            <AccountDangerZoneSection />
+          </>
+        )}
+      </main>
     </div>
   );
 }

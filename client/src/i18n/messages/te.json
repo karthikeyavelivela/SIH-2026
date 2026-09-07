@@ -1400,7 +1400,17 @@
   },
   "training": {
     "academyTitle": "ట్రైనింగ్ అకాడమీ",
-    "academySubtitle": "పూర్తి సర్టిఫైడ్ హోదా పొందడానికి మీ కరికులం మొత్తం పూర్తి చేయండి."
+    "academySubtitle": "పూర్తి సర్టిఫైడ్ హోదా పొందడానికి మీ కరికులం మొత్తం పూర్తి చేయండి.",
+    "memberPill": "సభ్యుడు",
+    "accreditationEyebrow": "సహకార వృత్తి ధృవీకరణ",
+    "accreditationStanding": "ధృవీకరణ స్థితి",
+    "curriculumComplete": "పాఠ్యక్రమం పూర్తి",
+    "inProgress": "కొనసాగుతోంది",
+    "modulesValidated": "{total}లో {done} మాడ్యూళ్లు ధృవీకరించారు",
+    "creditHours": "క్రెడిట్ గంటలు",
+    "hoursOf": "{total} గంటల్లో {done}",
+    "curriculumRoadmap": "పాఠ్యక్రమ ప్రణాళిక",
+    "unitCount": "{count, plural, =0 {యూనిట్లు లేవు} one {# యూనిట్} other {# యూనిట్లు}}"
   },
   "muthaGroup": {
     "title": "నా ముత",
@@ -1582,7 +1592,16 @@
     "driverSignOff": "డ్రైవర్ సైన్ ఆఫ్",
     "signOffConfirmation": "పైన లిస్ట్ చేసిన కార్గో లోడ్ చేయబడి, పరిశీలించబడిందని నేను నిర్ధారిస్తున్నాను.",
     "submitting": "సమర్పిస్తోంది…",
-    "confirmAndAccept": "నిర్ధారించి లోడ్ అంగీకరించండి"
+    "confirmAndAccept": "నిర్ధారించి లోడ్ అంగీకరించండి",
+    "protocolEyebrow": "ధృవీకృత రవాణా ప్రోటోకాల్",
+    "statutoryNote": "ఈ సరుకుకు డిజిటల్ బిల్ ఆఫ్ లేడింగ్, సహకార రికార్డులో భద్రం.",
+    "refNumber": "సూచన సంఖ్య",
+    "formLabel": "డిజిటల్ బిల్ ఆఫ్ లేడింగ్",
+    "consignor": "పంపేవారు (మూలం)",
+    "consignorUnnamed": "పంపేవారు",
+    "loadSpecification": "లోడ్ వివరణ",
+    "entryCount": "{count, plural, =0 {ఎంట్రీలు లేవు} one {# ఎంట్రీ} other {# ఎంట్రీలు}}",
+    "totalMass": "మొత్తం బరువు"
   },
   "customerDashboard": {
     "alertsOn": "అలర్ట్‌లు ఆన్‌లో ఉన్నాయి",
@@ -3061,5 +3080,21 @@
     "disputeCount": "{count, plural, =0 {ఇంకా ఏదీ లేదు} one {# వివాదం} other {# వివాదాలు}}",
     "noDisputes": "మీరు ఏ వివాదమూ లేవనెత్తలేదు.",
     "ref": "వివాదం #{id}"
+  },
+  "workerProfile": {
+    "pageTitle": "కార్మికుడి ప్రొఫైల్",
+    "memberPill": "సభ్యుడు",
+    "memberId": "సభ్యుడి ID {id}",
+    "ratingLine": "{rating} ★ · {count} రేటింగ్ పొందిన పనులు",
+    "noRatings": "ఇంకా రేటింగ్‌లు లేవు",
+    "tabs": {
+      "vehicle": "వాహనం",
+      "documents": "పత్రాలు",
+      "reputation": "ప్రతిష్ఠ",
+      "payouts": "చెల్లింపులు",
+      "settings": "సెట్టింగ్‌లు"
+    },
+    "registeredAsset": "నమోదిత వాహనం",
+    "maxPayload": "గరిష్ఠ బరువు"
   }
 }

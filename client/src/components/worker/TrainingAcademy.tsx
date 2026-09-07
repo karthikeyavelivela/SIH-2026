@@ -67,8 +67,6 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
   const [justCertified, setJustCertified] = useState<CertificationDoc | null>(null);
 
   const modules = data?.modules ?? [];
-  const completedCount = modules.filter((m) => m.status === 'completed').length;
-  const pct = modules.length ? Math.round((completedCount / modules.length) * 100) : 0;
 
   async function handleComplete(moduleId: string) {
     setActionError(null);
@@ -124,18 +122,9 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
         </AlertBanner>
       )}
 
-      <Card>
-        <div className="flex items-center justify-between mb-2">
-          <p className="font-heading font-bold">{t('curriculumProgress')}</p>
-          <span className={`font-heading font-extrabold text-xl ${tone.text}`}>{pct}%</span>
-        </div>
-        <p className="text-sm text-fy-muted mb-3">
-          {t('completedOfTotal', { completed: completedCount, total: modules.length })}
-        </p>
-        <div className="w-full h-2 rounded-full bg-fy-panel overflow-hidden">
-          <div className={`h-full rounded-full ${tone.bg} transition-all duration-base`} style={{ width: `${pct}%` }} />
-        </div>
-      </Card>
+      {/* The completion percentage and progress bar live on the screen's
+          own accreditation card now (TrainingScreen), so this component is
+          just the curriculum list and does not repeat them. */}
 
       {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
