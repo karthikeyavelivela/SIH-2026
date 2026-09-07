@@ -62,7 +62,7 @@ export function AvatarUpload({ name, photoUrl, accent = 'primary', onUploaded }:
           <CameraIcon className="w-3.5 h-3.5 text-fy-muted" />
         </span>
       </button>
-      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+      {error && <p className="text-xs text-fy-error mt-1">{error}</p>}
     </div>
   );
 }

@@ -20,8 +20,8 @@ const dotSize = {
 };
 
 const statusColor = {
-  online: 'bg-emerald-500',
-  on_job: 'bg-amber-500',
+  online: 'bg-fy-green',
+  on_job: 'bg-fy-brown',
   offline: 'bg-text-muted/50',
 };
 

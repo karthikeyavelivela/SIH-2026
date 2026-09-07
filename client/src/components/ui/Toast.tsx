@@ -22,7 +22,7 @@ export function useToast() {
 
 const toneClass: Record<ToastItem['tone'], string> = {
   success: 'bg-fy-ink text-fy-bone border-l-4 border-fy-lime',
-  error: 'bg-fy-ink text-fy-bone border-l-4 border-red-400',
+  error: 'bg-fy-ink text-fy-bone border-l-4 border-fy-error/40',
   neutral: 'bg-fy-ink text-fy-bone border-l-4 border-fy-slate',
 };
 

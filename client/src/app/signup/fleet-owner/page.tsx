@@ -99,7 +99,7 @@ export default function SignupFleetOwnerPage() {
           {error && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
+              className="flex items-start gap-2.5 rounded-control border border-fy-error/25 bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg animate-[fadeIn_200ms_ease-out]"
             >
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path

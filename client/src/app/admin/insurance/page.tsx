@@ -101,7 +101,7 @@ export default function AdminInsurancePage() {
               disabled={togglingSwitch || !monitor.envKillSwitchEnabled}
               onClick={() => toggleKillSwitch(!monitor.dbKillSwitchEnabled)}
               className={`relative w-12 h-7 rounded-full transition-colors disabled:opacity-40 ${
-                monitor.dbKillSwitchEnabled ? 'bg-emerald-500' : 'bg-fy-error'
+                monitor.dbKillSwitchEnabled ? 'bg-fy-green' : 'bg-fy-error'
               }`}
             >
               <span

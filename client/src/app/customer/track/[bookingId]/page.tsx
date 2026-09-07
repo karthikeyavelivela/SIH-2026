@@ -88,7 +88,7 @@ function BidsReviewSection({ bookingId, onAccepted }: { bookingId: string; onAcc
       {state !== 'loading' && bids.length === 0 && (
         <p className="text-sm text-fy-muted">{t('noBidsYet')}</p>
       )}
-      {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
+      {error && <p className="text-sm text-fy-on-error-bg mb-2">{error}</p>}
       <div className="space-y-3">
         {bids.map((bid) => (
           <div key={bid._id} className="flex items-center justify-between gap-3 p-3 rounded-control bg-fy-panel">

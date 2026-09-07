@@ -109,7 +109,7 @@ export function AddressField({ label, placeholder, value, onChange, markerColorC
           required
         />
         {loading && (
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-fy-hairline border-t-primary-600 animate-spin" />
+          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-fy-hairline border-t-fy-brown animate-spin" />
         )}
       </div>
 

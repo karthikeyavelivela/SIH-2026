@@ -78,7 +78,7 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
         className="w-full px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-sm placeholder:text-fy-muted/70 focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20 transition-colors duration-fast mb-4"
       />
       {error && (
-        <div role="alert" className="mb-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="mb-4 rounded-control border border-fy-error/25 bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg">
           {error}
         </div>
       )}

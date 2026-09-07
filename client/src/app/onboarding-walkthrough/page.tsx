@@ -65,7 +65,7 @@ export default function OnboardingWalkthroughPage() {
             <span
               key={k}
               className={`h-1.5 rounded-full transition-all duration-base ease-out ${
-                i === step ? 'w-6 bg-fy-brown' : 'w-1.5 bg-border-strong'
+                i === step ? 'w-6 bg-fy-brown' : 'w-1.5 bg-fy-dim'
               }`}
             />
           ))}

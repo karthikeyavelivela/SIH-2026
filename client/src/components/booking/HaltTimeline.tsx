@@ -53,7 +53,7 @@ export function HaltTimeline({ bookingId }: { bookingId: string }) {
               {unplanned ? (
                 <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-error" />
               ) : (
-                <ShieldIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-600" />
+                <ShieldIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-green" />
               )}
               <div className="min-w-0 flex-1 text-sm">
                 <p className={`font-semibold ${unplanned ? 'text-fy-error' : ''}`}>

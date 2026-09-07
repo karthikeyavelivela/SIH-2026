@@ -91,7 +91,7 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
         <p className="text-sm text-fy-muted">{t('codAwaitingWorker', { amount: payment.amount })}</p>
       ) : (
         <>
-          {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
+          {error && <p className="text-sm text-fy-on-error-bg mb-2">{error}</p>}
           <Button className="w-full mt-2" disabled={pending} onClick={payNow}>
             {pending ? t('processing') : t('payNow')}
           </Button>

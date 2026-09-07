@@ -257,7 +257,7 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
           </>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-fy-error">{error}</p>}
 
         <div className="flex gap-3 pt-1">
           <Button type="button" variant="ghost" className="flex-1" onClick={resetAndClose}>
@@ -418,7 +418,7 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
                       updatedAt={formatDate(claim.updatedAt)}
                       trailing={
                         claim.payoutAmount > 0 ? (
-                          <span className="text-sm font-bold text-emerald-700">+{formatMoney(claim.payoutAmount)}</span>
+                          <span className="text-sm font-bold text-fy-green">+{formatMoney(claim.payoutAmount)}</span>
                         ) : undefined
                       }
                     />
@@ -442,7 +442,7 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
                     <DataRow
                       label={entry.label}
                       hint={entry.hint}
-                      value={<span className="text-emerald-700">+{formatMoney(entry.amount)}</span>}
+                      value={<span className="text-fy-green">+{formatMoney(entry.amount)}</span>}
                     />
                   </div>
                 ))}
@@ -558,7 +558,7 @@ function EnrollModal({
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
             <span>{t('consentLabel')}</span>
           </label>
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <Button className="w-full" disabled={!consent || enrolling} onClick={enroll}>
             {enrolling ? t('confirming') : t('confirm')}
           </Button>

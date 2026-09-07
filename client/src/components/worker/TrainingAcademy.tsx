@@ -126,7 +126,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
           own accreditation card now (TrainingScreen), so this component is
           just the curriculum list and does not repeat them. */}
 
-      {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+      {actionError && <p className="text-sm text-fy-error">{actionError}</p>}
 
       <div className="space-y-4">
         {modules.map((entry) => {

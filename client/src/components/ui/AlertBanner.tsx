@@ -4,9 +4,9 @@ type Tone = 'info' | 'warning' | 'danger' | 'success';
 
 const toneClasses: Record<Tone, string> = {
   info: 'bg-fy-lime/40 text-fy-on-lime',
-  warning: 'bg-amber-500/15 text-amber-900',
+  warning: 'bg-fy-peach text-fy-brown',
   danger: 'bg-fy-error text-fy-on-error',
-  success: 'bg-emerald-500/15 text-emerald-900',
+  success: 'bg-fy-lime/35 text-fy-green',
 };
 
 interface AlertBannerProps {

@@ -103,7 +103,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
         </div>
         <span
           className={`relative w-12 h-7 rounded-full transition-colors duration-base flex-shrink-0 ${
-            isOnline ? (accent === 'primary' ? 'bg-fy-brown' : 'bg-fy-green') : 'bg-border-strong'
+            isOnline ? (accent === 'primary' ? 'bg-fy-brown' : 'bg-fy-green') : 'bg-fy-dim'
           }`}
         >
           <span
@@ -115,7 +115,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
       </button>
 
       {locationError && (
-        <div role="alert" className="mt-3 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="mt-3 flex items-start gap-2.5 rounded-control border border-fy-error/25 bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg">
           <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <p>{locationError}</p>
         </div>

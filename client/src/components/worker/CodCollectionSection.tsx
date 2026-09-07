@@ -49,7 +49,7 @@ export function CodCollectionSection({ accent = 'primary' }: { accent?: 'primary
         <WalletIcon className={`w-4.5 h-4.5 ${tone}`} />
         {t('title')}
       </h2>
-      {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
+      {error && <p className="text-sm text-fy-error mb-2">{error}</p>}
       <div className="space-y-3">
         {items.map(({ payment, booking }) => (
           <Card key={payment._id} elevation="raised">

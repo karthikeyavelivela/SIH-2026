@@ -37,20 +37,20 @@ export function ThresholdMeter({
     <div className="fy-surface-card">
       <div className="flex items-center justify-between mb-2">
         <p className="text-label font-semibold uppercase tracking-wide text-fy-ink-soft">Parametric trigger</p>
-        {autoPaid && <span className="text-xs font-bold text-emerald-700">Triggered — payout sent</span>}
+        {autoPaid && <span className="text-xs font-bold text-fy-green">Triggered — payout sent</span>}
         {triggered && payoutFailureReason && (
-          <span className="text-xs font-bold text-amber-700">Triggered — pending review</span>
+          <span className="text-xs font-bold text-fy-brown">Triggered — pending review</span>
         )}
       </div>
       {triggered && payoutFailureReason && (
-        <p className="text-xs text-amber-700 bg-amber-50 rounded-control px-3 py-2 mb-2">
+        <p className="text-xs text-fy-brown bg-fy-peach rounded-control px-3 py-2 mb-2">
           Your condition was met, but the automatic payout is on hold: {payoutFailureReason} A human will review and
           release it.
         </p>
       )}
       <div className="relative h-3 rounded-full bg-fy-well mb-2 mt-4">
         <div
-          className={`absolute inset-y-0 left-0 rounded-full ${triggered ? 'bg-emerald-500' : 'bg-fy-brown'}`}
+          className={`absolute inset-y-0 left-0 rounded-full ${triggered ? 'bg-fy-green' : 'bg-fy-brown'}`}
           style={{ width: `${currentPct}%` }}
         />
         <div

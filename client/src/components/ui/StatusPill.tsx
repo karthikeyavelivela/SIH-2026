@@ -12,9 +12,9 @@ const toneClasses: Record<Tone, string> = {
   labour: 'bg-fy-lime/20 text-fy-ink border border-fy-lime/40',
   transport: 'bg-fy-slate/12 text-fy-slate border border-fy-slate/25',
   neutral: 'bg-fy-well text-fy-ink-soft border border-fy-muted/15',
-  success: 'bg-emerald-500/12 text-emerald-800 border border-emerald-500/25',
+  success: 'bg-fy-green/12 text-fy-green border border-fy-green/25',
   danger: 'bg-fy-error-bg text-fy-on-error-bg border border-fy-error/25',
-  warning: 'bg-amber-500/12 text-amber-800 border border-amber-500/25',
+  warning: 'bg-fy-peach text-fy-brown border border-fy-brown/25',
 };
 
 interface StatusPillProps extends HTMLAttributes<HTMLSpanElement> {

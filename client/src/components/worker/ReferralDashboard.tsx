@@ -129,7 +129,7 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
             {inviting ? t('saving') : t('add')}
           </Button>
         </form>
-        {inviteError && <p className="text-xs text-red-600 mt-2">{inviteError}</p>}
+        {inviteError && <p className="text-xs text-fy-error mt-2">{inviteError}</p>}
         <p className="text-xs text-fy-muted mt-2">{t('trackHint')}</p>
       </Card>
 

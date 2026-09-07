@@ -15,7 +15,7 @@ interface MetricCardProps {
 // Anchors... at least 16px of clear space"), tonal card, no shadow.
 export function MetricCard({ label, value, delta, deltaTone = 'neutral', icon, className = '' }: MetricCardProps) {
   const deltaColor =
-    deltaTone === 'positive' ? 'text-emerald-700' : deltaTone === 'negative' ? 'text-fy-error' : 'text-fy-muted';
+    deltaTone === 'positive' ? 'text-fy-green' : deltaTone === 'negative' ? 'text-fy-error' : 'text-fy-muted';
   return (
     <div className={`fy-surface-card flex flex-col gap-3 ${className}`}>
       <div className="flex items-center justify-between">

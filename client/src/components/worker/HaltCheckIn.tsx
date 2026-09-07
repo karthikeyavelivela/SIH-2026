@@ -121,7 +121,7 @@ export function HaltCheckIn({ bookingId, accent = 'primary' }: { bookingId: stri
             <button
               type="button"
               onClick={() => setSealIntact(true)}
-              className={`flex-1 text-xs font-semibold py-2 rounded-card border ${sealIntact === true ? 'bg-emerald-600 text-white border-emerald-600' : 'border-fy-muted/30 text-fy-ink-soft'}`}
+              className={`flex-1 text-xs font-semibold py-2 rounded-card border ${sealIntact === true ? 'bg-fy-green text-fy-on-green border-fy-green' : 'border-fy-muted/30 text-fy-ink-soft'}`}
             >
               {t('sealIntactYes')}
             </button>
@@ -139,7 +139,7 @@ export function HaltCheckIn({ bookingId, accent = 'primary' }: { bookingId: stri
         </div>
       )}
 
-      {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+      {error && <p className="text-xs text-fy-error mt-2">{error}</p>}
     </div>
   );
 }

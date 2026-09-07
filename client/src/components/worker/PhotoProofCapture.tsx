@@ -87,7 +87,7 @@ export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, a
           {uploading ? t('uploading') : label}
         </Button>
       )}
-      {error && <p className="text-xs text-red-600 mt-1.5">{error}</p>}
+      {error && <p className="text-xs text-fy-error mt-1.5">{error}</p>}
     </div>
   );
 }

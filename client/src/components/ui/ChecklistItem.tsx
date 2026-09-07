@@ -8,8 +8,8 @@ interface ChecklistItemProps {
 }
 
 const stateStyle: Record<ChecklistState, string> = {
-  pass: 'bg-emerald-500/15 text-emerald-800',
-  warn: 'bg-amber-500/15 text-amber-800',
+  pass: 'bg-fy-lime/35 text-fy-green',
+  warn: 'bg-fy-peach text-fy-brown',
   fail: 'bg-fy-error-bg text-fy-on-error-bg',
   pending: 'bg-fy-well text-fy-ink-soft',
 };

@@ -118,7 +118,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
             <CompassIcon className="w-4 h-4 mr-1.5" />
             {locating ? t('findingYou') : t('useMyLocation')}
           </Button>
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <div className="flex gap-2">
             <Button
               type="button"

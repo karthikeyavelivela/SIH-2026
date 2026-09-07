@@ -102,7 +102,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
             );
           })}
           {rows.some((r) => r.value && daysUntil(r.value) <= WARN_WINDOW_DAYS) && (
-            <div className="flex items-start gap-2 rounded-control bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+            <div className="flex items-start gap-2 rounded-control bg-fy-peach border border-fy-brown/25 px-3 py-2 text-xs text-fy-brown">
               <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
               <span>{t('renewSoon')}</span>
             </div>
@@ -130,7 +130,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
               />
             </label>
           )}
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <div className="flex gap-2">
             <Button size="md" disabled={saving} onClick={save} className="flex-1">
               {saving ? t('saving') : t('save')}
