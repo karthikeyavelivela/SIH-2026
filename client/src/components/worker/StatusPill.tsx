@@ -4,11 +4,11 @@ import { useTranslations } from 'next-intl';
 import { BookingStatus } from '@/lib/types';
 
 const toneClasses: Record<BookingStatus, string> = {
-  requested: 'bg-text-muted/10 text-text-muted',
-  searching: 'bg-primary/10 text-primary-600',
-  matched: 'bg-primary/10 text-primary-600',
-  accepted: 'bg-secondary/10 text-secondary-600',
-  in_progress: 'bg-secondary/10 text-secondary-600',
+  requested: 'bg-text-muted/10 text-fy-muted',
+  searching: 'bg-fy-brown/10 text-fy-brown',
+  matched: 'bg-fy-brown/10 text-fy-brown',
+  accepted: 'bg-fy-green/10 text-fy-green',
+  in_progress: 'bg-fy-green/10 text-fy-green',
   completed: 'bg-emerald-500/10 text-emerald-700',
   cancelled: 'bg-red-500/10 text-red-700',
 };

@@ -34,23 +34,23 @@ export function ThresholdMeter({
   const autoPaid = triggered && !payoutFailureReason;
 
   return (
-    <div className="ip-card">
+    <div className="fy-surface-card">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-ip-body-sm font-semibold uppercase tracking-wide text-ip-on-surface-variant">Parametric trigger</p>
+        <p className="text-label font-semibold uppercase tracking-wide text-fy-ink-soft">Parametric trigger</p>
         {autoPaid && <span className="text-xs font-bold text-emerald-700">Triggered — payout sent</span>}
         {triggered && payoutFailureReason && (
           <span className="text-xs font-bold text-amber-700">Triggered — pending review</span>
         )}
       </div>
       {triggered && payoutFailureReason && (
-        <p className="text-xs text-amber-700 bg-amber-50 rounded-ip-input px-3 py-2 mb-2">
+        <p className="text-xs text-amber-700 bg-amber-50 rounded-control px-3 py-2 mb-2">
           Your condition was met, but the automatic payout is on hold: {payoutFailureReason} A human will review and
           release it.
         </p>
       )}
-      <div className="relative h-3 rounded-ip-pill bg-ip-surface-container-high mb-2 mt-4">
+      <div className="relative h-3 rounded-full bg-fy-well mb-2 mt-4">
         <div
-          className={`absolute inset-y-0 left-0 rounded-ip-pill ${triggered ? 'bg-emerald-500' : 'bg-ip-primary'}`}
+          className={`absolute inset-y-0 left-0 rounded-full ${triggered ? 'bg-emerald-500' : 'bg-fy-brown'}`}
           style={{ width: `${currentPct}%` }}
         />
         <div
@@ -58,11 +58,11 @@ export function ThresholdMeter({
           style={{ left: `${thresholdPct}%` }}
           aria-hidden="true"
         >
-          <span className="text-[10px] font-bold text-ip-on-surface-variant">threshold</span>
-          <span className="w-0.5 h-3 bg-ip-on-surface-variant" />
+          <span className="text-[10px] font-bold text-fy-ink-soft">threshold</span>
+          <span className="w-0.5 h-3 bg-fy-ink-soft" />
         </div>
       </div>
-      <div className="flex justify-between text-xs text-ip-on-surface-variant mb-3">
+      <div className="flex justify-between text-xs text-fy-ink-soft mb-3">
         <span>
           You: {unit}
           {currentValue.toLocaleString('en-IN')}
@@ -72,7 +72,7 @@ export function ThresholdMeter({
           {thresholdValue.toLocaleString('en-IN')}
         </span>
       </div>
-      <p className="text-sm text-ip-on-surface">{explainer}</p>
+      <p className="text-sm text-fy-ink">{explainer}</p>
     </div>
   );
 }

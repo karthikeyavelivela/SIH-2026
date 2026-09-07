@@ -68,7 +68,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
       <div className="flex items-center justify-between mb-3">
         <p className="font-heading font-bold">{t('documents')}</p>
         {!editing && (
-          <button type="button" onClick={() => setEditing(true)} className="text-xs font-semibold text-primary-600">
+          <button type="button" onClick={() => setEditing(true)} className="text-xs font-semibold text-fy-brown">
             {t('edit')}
           </button>
         )}
@@ -102,7 +102,7 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
             );
           })}
           {rows.some((r) => r.value && daysUntil(r.value) <= WARN_WINDOW_DAYS) && (
-            <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+            <div className="flex items-start gap-2 rounded-control bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
               <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
               <span>{t('renewSoon')}</span>
             </div>
@@ -111,22 +111,22 @@ export function DocumentExpiryCard({ license, insurance, onSaved }: DocumentExpi
       ) : (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs text-text-muted">{t('licenseExpiryLabel')}</span>
+            <span className="text-xs text-fy-muted">{t('licenseExpiryLabel')}</span>
             <input
               type="date"
               value={licenseDraft}
               onChange={(e) => setLicenseDraft(e.target.value)}
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-md border border-border bg-background text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-hairline bg-fy-bone text-sm"
             />
           </label>
           {insurance !== undefined && (
             <label className="block">
-              <span className="text-xs text-text-muted">{t('insuranceExpiryLabel')}</span>
+              <span className="text-xs text-fy-muted">{t('insuranceExpiryLabel')}</span>
               <input
                 type="date"
                 value={insuranceDraft}
                 onChange={(e) => setInsuranceDraft(e.target.value)}
-                className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-md border border-border bg-background text-sm"
+                className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-hairline bg-fy-bone text-sm"
               />
             </label>
           )}

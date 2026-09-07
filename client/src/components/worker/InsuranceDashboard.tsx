@@ -67,18 +67,18 @@ function PolicyCard({ policy }: { policy: InsurancePolicyWithPlan }) {
   const Icon = plan ? CATEGORY_ICON[plan.category] : ShieldIcon;
 
   return (
-    <div className="ip-card">
+    <div className="fy-surface-card">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="text-ip-primary flex-shrink-0" aria-hidden="true">
+          <span className="text-fy-brown flex-shrink-0" aria-hidden="true">
             <Icon className="w-5 h-5" />
           </span>
           <div className="min-w-0">
-            <p className="font-heading font-bold text-ip-on-surface truncate">
+            <p className="font-heading font-bold text-fy-ink truncate">
               {plan?.name ?? t('genericPolicyName')}
             </p>
             {plan && (
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">
+              <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft">
                 {t(`category.${plan.category}`)} · {plan.type === 'parametric' ? t('parametric') : t('standard')}
               </p>
             )}
@@ -88,7 +88,7 @@ function PolicyCard({ policy }: { policy: InsurancePolicyWithPlan }) {
           {t(`policyStatus.${policy.status}`)}
         </StatusChip>
       </div>
-      {plan?.description && <p className="text-sm text-ip-on-surface-variant mb-1">{plan.description}</p>}
+      {plan?.description && <p className="text-sm text-fy-ink-soft mb-1">{plan.description}</p>}
       <ListDivider className="my-1" />
       <DataRow label={t('coverageAmount')} value={plan ? formatMoney(plan.coverageAmount) : '—'} />
       <DataRow label={t('validUntil')} value={formatDate(policy.endDate)} />
@@ -170,17 +170,17 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
     <Modal open={open} onClose={resetAndClose} title={t('title')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {policies.length === 0 ? (
-          <p className="text-sm text-text-muted">{t('noPolicies')}</p>
+          <p className="text-sm text-fy-muted">{t('noPolicies')}</p>
         ) : (
           <>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-fy-muted mb-1.5">
                 {t('policy')}
               </label>
               <select
                 value={selectedPolicyId}
                 onChange={(e) => setPolicyId(e.target.value)}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm min-h-[44px]"
+                className="w-full rounded-control border border-fy-hairline bg-fy-panel px-3 py-2.5 text-sm min-h-[44px]"
               >
                 {policies.map((p) => (
                   <option key={p._id} value={p._id}>
@@ -191,7 +191,7 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-fy-muted mb-1.5">
                 {t('incidentDate')}
               </label>
               <input
@@ -199,12 +199,12 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
                 value={incidentDate}
                 max={new Date().toISOString().slice(0, 10)}
                 onChange={(e) => setIncidentDate(e.target.value)}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm min-h-[44px]"
+                className="w-full rounded-control border border-fy-hairline bg-fy-panel px-3 py-2.5 text-sm min-h-[44px]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-fy-muted mb-1.5">
                 {t('whatHappened')}
               </label>
               <textarea
@@ -213,12 +213,12 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
                 rows={4}
                 maxLength={2000}
                 placeholder={t('describePlaceholder')}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm resize-none"
+                className="w-full rounded-control border border-fy-hairline bg-fy-panel px-3 py-2.5 text-sm resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-fy-muted mb-1.5">
                 {t('photosOptional')}
               </label>
               <input
@@ -232,7 +232,7 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
               />
               <div className="flex flex-wrap gap-2">
                 {photos.map((src, i) => (
-                  <div key={i} className="relative w-16 h-16 rounded-md overflow-hidden border border-border">
+                  <div key={i} className="relative w-16 h-16 rounded-control overflow-hidden border border-fy-hairline">
                     <img src={src} alt={`Incident photo ${i + 1}`} className="w-full h-full object-cover" />
                     <button
                       type="button"
@@ -247,7 +247,7 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-16 h-16 rounded-md border border-dashed border-border-strong flex items-center justify-center text-text-muted"
+                  className="w-16 h-16 rounded-control border border-dashed border-fy-hairline flex items-center justify-center text-fy-muted"
                   aria-label={t('addPhoto')}
                 >
                   <CameraIcon className="w-5 h-5" />
@@ -316,7 +316,7 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
       <BackHeader title={t('headerTitle')} fallbackHref={dashboardHref} />
 
       <div className="px-5 pt-5">
-        <p className="text-sm text-text-muted mb-6">{t('subtitle')}</p>
+        <p className="text-sm text-fy-muted mb-6">{t('subtitle')}</p>
 
         <div className="flex gap-3 mb-8">
           <Button size="lg" className="flex-1" onClick={() => setEnrollOpen(true)}>
@@ -390,7 +390,7 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
                       />
                     ))}
                     {comingSoonCount > 0 && (
-                      <div className="ip-card text-sm text-text-muted">{t('comingSoonNotice')}</div>
+                      <div className="fy-surface-card text-sm text-fy-muted">{t('comingSoonNotice')}</div>
                     )}
                   </div>
                 </>
@@ -530,14 +530,14 @@ function EnrollModal({
         <p className="text-sm">{t('done')}</p>
       ) : selected ? (
         <div className="space-y-4">
-          <button type="button" onClick={() => setSelected(null)} className="text-xs font-semibold text-ip-primary">
+          <button type="button" onClick={() => setSelected(null)} className="text-xs font-semibold text-fy-brown">
             {t('backToPlans')}
           </button>
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <p className="font-heading font-bold mb-1">{selected.name}</p>
-            <p className="text-sm text-text-muted mb-3">{selected.description}</p>
+            <p className="text-sm text-fy-muted mb-3">{selected.description}</p>
             {selected.type === 'parametric' && selected.defaultTrigger && (
-              <p className="text-sm bg-ip-primary/5 text-ip-on-surface rounded-ip-input px-3 py-2.5 mb-3">
+              <p className="text-sm bg-fy-brown/5 text-fy-ink rounded-control px-3 py-2.5 mb-3">
                 {t('parametricExplainer', {
                   threshold: selected.defaultTrigger.thresholdValue.toLocaleString('en-IN'),
                   days: selected.defaultTrigger.periodDays,
@@ -546,11 +546,11 @@ function EnrollModal({
               </p>
             )}
             <div className="flex justify-between text-sm">
-              <span className="text-text-muted">{t('coverage')}</span>
+              <span className="text-fy-muted">{t('coverage')}</span>
               <span className="font-semibold">₹{selected.coverageAmount.toLocaleString('en-IN')}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-text-muted">{t('premium')}</span>
+              <span className="text-fy-muted">{t('premium')}</span>
               <span className="font-semibold">₹{selected.premium.toLocaleString('en-IN')}</span>
             </div>
           </div>
@@ -565,17 +565,17 @@ function EnrollModal({
         </div>
       ) : (
         <div className="space-y-3">
-          {plans === null && <p className="text-sm text-text-muted">{t('loading')}</p>}
-          {plans?.length === 0 && <p className="text-sm text-text-muted">{t('noNewPlans')}</p>}
+          {plans === null && <p className="text-sm text-fy-muted">{t('loading')}</p>}
+          {plans?.length === 0 && <p className="text-sm text-fy-muted">{t('noNewPlans')}</p>}
           {plans?.map((p) => (
             <button
               key={p._id}
               type="button"
               onClick={() => setSelected(p)}
-              className="w-full text-left ip-card hover:bg-ip-surface-container transition-colors"
+              className="w-full text-left fy-surface-card hover:bg-fy-field transition-colors"
             >
               <p className="font-heading font-bold">{p.name}</p>
-              <p className="text-xs text-text-muted">{p.type === 'parametric' ? t('parametricTag') : t('standardTag')} · ₹{p.premium}/mo</p>
+              <p className="text-xs text-fy-muted">{p.type === 'parametric' ? t('parametricTag') : t('standardTag')} · ₹{p.premium}/mo</p>
             </button>
           ))}
         </div>

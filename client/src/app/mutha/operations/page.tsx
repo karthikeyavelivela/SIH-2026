@@ -28,7 +28,7 @@ export default function MuthaOperationsPage() {
       <BackHeader title={t('title')} fallbackHref="/mutha/dashboard" />
 
       <div className="px-5 pt-5">
-        <p className="text-sm text-ip-on-surface-variant mb-5">{t('subtitle')}</p>
+        <p className="text-sm text-fy-ink-soft mb-5">{t('subtitle')}</p>
 
         <div className="grid grid-cols-3 gap-2.5 mb-6">
           <MetricCard label={t('activeJobs')} value={activeJobs.length} icon={<TruckIcon className="w-4 h-4" />} />
@@ -38,10 +38,10 @@ export default function MuthaOperationsPage() {
 
         <h2 className="font-heading text-lg font-bold mb-3">{t('activeDeployments')}</h2>
 
-        {state === 'loading' && <div className="h-40 rounded-ip-card bg-ip-surface-container animate-pulse" />}
+        {state === 'loading' && <div className="h-40 rounded-card bg-fy-field animate-pulse" />}
 
         {state !== 'loading' && activeJobs.length === 0 && (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <EmptyState icon={<TruckIcon className="w-6 h-6" />} title={t('noActiveDeployments')} description={t('noActiveDeploymentsDesc')} />
           </div>
         )}
@@ -52,17 +52,17 @@ export default function MuthaOperationsPage() {
               ReturnType<typeof membersById.get>
             >[];
             return (
-              <div key={b._id} className="ip-card">
+              <div key={b._id} className="fy-surface-card">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <p className="font-heading font-bold capitalize">{t('jobLabel', { type: b.type })}</p>
                   <StatusChip tone={b.status === 'in_progress' ? 'primary' : 'secondary'}>
                     {b.status === 'in_progress' ? t('working') : t('accepted')}
                   </StatusChip>
                 </div>
-                <p className="text-xs text-ip-on-surface-variant truncate mb-3">{b.pickupLocation.address}</p>
-                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">
+                <p className="text-xs text-fy-ink-soft truncate mb-3">{b.pickupLocation.address}</p>
+                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">
                   <span>{t('assigned', { assigned: b.assignedHamaliIds.length, required: b.requiredHamaliCount })}</span>
-                  <Link href={`/mutha/assign-members?bookingId=${b._id}`} className="text-ip-secondary normal-case font-semibold hover:underline">
+                  <Link href={`/mutha/assign-members?bookingId=${b._id}`} className="text-fy-green normal-case font-semibold hover:underline">
                     {t('manageCrew')}
                   </Link>
                 </div>

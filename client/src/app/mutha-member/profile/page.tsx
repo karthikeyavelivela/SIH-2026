@@ -85,26 +85,26 @@ function MuthaGroupSection() {
   return (
     <div className="mb-6">
       <h2 className="font-heading text-lg font-bold mb-3">{t('title')}</h2>
-      <div className="ip-card space-y-3">
+      <div className="fy-surface-card space-y-3">
         <div>
           <p className="font-semibold">{group.mutha.name}</p>
-          <p className="text-xs text-ip-on-surface-variant">
+          <p className="text-xs text-fy-ink-soft">
             {group.mutha.ratingCount > 0 ? `${group.mutha.ratingAvg.toFixed(1)}★ (${group.mutha.ratingCount})` : t('newGroup')}
           </p>
         </div>
-        <div className="pt-3 border-t border-ip-outline/10 text-sm">
-          <p className="text-xs text-ip-on-surface-variant">{t('leader')}</p>
+        <div className="pt-3 border-t border-fy-muted/10 text-sm">
+          <p className="text-xs text-fy-ink-soft">{t('leader')}</p>
           <p className="font-medium">{group.leader.name}</p>
-          <p className="text-ip-on-surface-variant">{group.leader.phone}</p>
+          <p className="text-fy-ink-soft">{group.leader.phone}</p>
         </div>
-        <Link href="/mutha-member/governance" className="block pt-3 border-t border-ip-outline/10 text-sm font-semibold text-ip-secondary">
+        <Link href="/mutha-member/governance" className="block pt-3 border-t border-fy-muted/10 text-sm font-semibold text-fy-green">
           {t('viewGovernance')}
         </Link>
-        <div className="flex gap-3 pt-3 border-t border-ip-outline/10">
-          <button type="button" onClick={() => setFlagOpen(true)} className="flex items-center gap-1 text-sm font-semibold text-ip-error">
+        <div className="flex gap-3 pt-3 border-t border-fy-muted/10">
+          <button type="button" onClick={() => setFlagOpen(true)} className="flex items-center gap-1 text-sm font-semibold text-fy-error">
             <AlertIcon className="w-3.5 h-3.5" /> {t('flagIssue')}
           </button>
-          <button type="button" onClick={() => setLeaveOpen(true)} className="text-sm font-semibold text-ip-on-surface-variant">
+          <button type="button" onClick={() => setLeaveOpen(true)} className="text-sm font-semibold text-fy-ink-soft">
             {t('leaveGroup')}
           </button>
         </div>
@@ -112,8 +112,8 @@ function MuthaGroupSection() {
 
       <Modal open={leaveOpen} onClose={() => setLeaveOpen(false)} title={t('leaveModalTitle')}>
         <div className="space-y-3">
-          <p className="text-sm text-ip-on-surface-variant">{t('leaveModalBody')}</p>
-          {leaveError && <p className="text-xs text-ip-error">{leaveError}</p>}
+          <p className="text-sm text-fy-ink-soft">{t('leaveModalBody')}</p>
+          {leaveError && <p className="text-xs text-fy-error">{leaveError}</p>}
           <Button variant="danger" className="w-full" disabled={leaving} onClick={leave}>
             {leaving ? t('leaving') : t('leaveGroup')}
           </Button>
@@ -125,25 +125,25 @@ function MuthaGroupSection() {
           <p className="text-sm">{t('flagSentNotice')}</p>
         ) : (
           <div className="space-y-3">
-            <p className="text-xs text-ip-on-surface-variant">{t('flagHint')}</p>
+            <p className="text-xs text-fy-ink-soft">{t('flagHint')}</p>
             <label className="block">
-              <span className="text-xs text-ip-on-surface-variant">{t('bookingIdLabel')}</span>
+              <span className="text-xs text-fy-ink-soft">{t('bookingIdLabel')}</span>
               <input
                 value={bookingId}
                 onChange={(e) => setBookingId(e.target.value)}
-                className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
             </label>
             <label className="block">
-              <span className="text-xs text-ip-on-surface-variant">{t('whatHappenedLabel')}</span>
+              <span className="text-xs text-fy-ink-soft">{t('whatHappenedLabel')}</span>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="mt-1 w-full px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="mt-1 w-full px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
             </label>
-            {flagError && <p className="text-xs text-ip-error">{flagError}</p>}
+            {flagError && <p className="text-xs text-fy-error">{flagError}</p>}
             <Button
               variant="danger"
               className="w-full"
@@ -172,7 +172,7 @@ export default function MuthaMemberProfilePage() {
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-text-muted">{user.phone}</p>
+          <p className="text-sm text-fy-muted">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>

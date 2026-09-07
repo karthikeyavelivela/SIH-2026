@@ -14,15 +14,15 @@ export function EarningLineCard({ line }: { line: EarningLine }) {
       </div>
       <div className="space-y-1.5 mb-1.5">
         <div className="flex items-start gap-2">
-          <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-text-muted" />
-          <p className="text-xs text-text-muted truncate">{line.pickupAddress}</p>
+          <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-fy-muted" />
+          <p className="text-xs text-fy-muted truncate">{line.pickupAddress}</p>
         </div>
         <div className="flex items-start gap-2">
-          <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-text-primary" />
+          <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-fy-ink" />
           <p className="text-xs truncate">{line.dropAddress}</p>
         </div>
       </div>
-      <p className="text-[11px] text-text-muted">
+      <p className="text-[11px] text-fy-muted">
         {line.completedAt ? new Date(line.completedAt).toLocaleString('en-IN') : ''}
       </p>
     </Card>

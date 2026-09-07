@@ -41,7 +41,7 @@ export function HaltTimeline({ bookingId }: { bookingId: string }) {
 
   return (
     <Card elevation="raised" className="mb-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3 flex items-center gap-1.5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3 flex items-center gap-1.5">
         <ShieldIcon className="w-3.5 h-3.5" />
         {t('title')}
       </p>
@@ -51,15 +51,15 @@ export function HaltTimeline({ bookingId }: { bookingId: string }) {
           return (
             <div key={h._id} className="flex items-start gap-2.5">
               {unplanned ? (
-                <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-error" />
+                <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-error" />
               ) : (
                 <ShieldIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-600" />
               )}
               <div className="min-w-0 flex-1 text-sm">
-                <p className={`font-semibold ${unplanned ? 'text-ip-error' : ''}`}>
+                <p className={`font-semibold ${unplanned ? 'text-fy-error' : ''}`}>
                   {unplanned ? t('unplannedStop') : h.checkpointId!.name}
                 </p>
-                <p className="text-xs text-text-muted">
+                <p className="text-xs text-fy-muted">
                   {formatTime(h.arrivalTime)}
                   {h.departureTime ? ` – ${formatTime(h.departureTime)}` : ` – ${t('ongoing')}`}
                   {h.sealIntact === false && ` · ${t('sealBroken')}`}

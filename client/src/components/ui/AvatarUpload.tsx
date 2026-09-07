@@ -58,8 +58,8 @@ export function AvatarUpload({ name, photoUrl, accent = 'primary', onUploaded }:
         aria-label="Change profile photo"
       >
         <Avatar name={name} photoUrl={photoUrl} accent={accent} size="lg" />
-        <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-surface-raised border border-border shadow-sm flex items-center justify-center">
-          <CameraIcon className="w-3.5 h-3.5 text-text-muted" />
+        <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-fy-card border border-fy-hairline shadow-sm flex items-center justify-center">
+          <CameraIcon className="w-3.5 h-3.5 text-fy-muted" />
         </span>
       </button>
       {error && <p className="text-xs text-red-600 mt-1">{error}</p>}

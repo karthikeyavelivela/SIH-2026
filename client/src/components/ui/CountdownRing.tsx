@@ -18,12 +18,12 @@ export function CountdownRing({ secondsLeft, totalSeconds, size = 96, accent = '
   const circumference = 2 * Math.PI * radius;
   const progress = Math.max(0, Math.min(1, secondsLeft / totalSeconds));
   const offset = circumference * (1 - progress);
-  const stroke = accent === 'primary' ? 'var(--ip-primary)' : 'var(--ip-secondary)';
+  const stroke = accent === 'primary' ? 'var(--fy-brown)' : 'var(--fy-green)';
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" role="img" aria-label={`${secondsLeft} seconds remaining`}>
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--ip-surface-container-high)" strokeWidth={6} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--fy-well)" strokeWidth={6} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -37,7 +37,7 @@ export function CountdownRing({ secondsLeft, totalSeconds, size = 96, accent = '
           style={{ transition: 'stroke-dashoffset 1s linear' }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-ip-on-surface">
+      <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-fy-ink">
         {children ?? secondsLeft}
       </div>
     </div>

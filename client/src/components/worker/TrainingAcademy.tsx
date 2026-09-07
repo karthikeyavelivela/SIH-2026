@@ -40,8 +40,8 @@ interface Accent {
 }
 
 const ACCENTS: Record<'primary' | 'secondary', Accent> = {
-  primary: { bg: 'bg-primary-600', text: 'text-primary-600', ring: 'border-primary-600' },
-  secondary: { bg: 'bg-secondary-600', text: 'text-secondary-600', ring: 'border-secondary-600' },
+  primary: { bg: 'bg-fy-brown', text: 'text-fy-brown', ring: 'border-fy-brown' },
+  secondary: { bg: 'bg-fy-green', text: 'text-fy-green', ring: 'border-fy-green' },
 };
 
 // Shared presentational curriculum view for driver/hamali_solo/fleet_owner
@@ -129,10 +129,10 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
           <p className="font-heading font-bold">{t('curriculumProgress')}</p>
           <span className={`font-heading font-extrabold text-xl ${tone.text}`}>{pct}%</span>
         </div>
-        <p className="text-sm text-text-muted mb-3">
+        <p className="text-sm text-fy-muted mb-3">
           {t('completedOfTotal', { completed: completedCount, total: modules.length })}
         </p>
-        <div className="w-full h-2 rounded-full bg-surface overflow-hidden">
+        <div className="w-full h-2 rounded-full bg-fy-panel overflow-hidden">
           <div className={`h-full rounded-full ${tone.bg} transition-all duration-base`} style={{ width: `${pct}%` }} />
         </div>
       </Card>
@@ -149,7 +149,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
               <div className="flex items-start gap-3">
                 <span
                   className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    completed ? `${tone.bg} text-white` : locked ? 'bg-surface text-text-muted' : `border ${tone.ring} ${tone.text}`
+                    completed ? `${tone.bg} text-white` : locked ? 'bg-fy-panel text-fy-muted' : `border ${tone.ring} ${tone.text}`
                   }`}
                 >
                   {completed ? <CheckIcon className="w-4 h-4" /> : locked ? (
@@ -163,22 +163,22 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-fy-muted">
                       {t('moduleN', { n: entry.module.order })}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs text-text-muted">
+                    <span className="inline-flex items-center gap-1 text-xs text-fy-muted">
                       <ClockIcon className="w-3 h-3" /> {t('minutesShort', { mins: entry.module.durationMinutes })}
                     </span>
                   </div>
                   <h3 className="font-heading font-bold text-base mb-1">{entry.module.title}</h3>
-                  <p className="text-sm text-text-muted mb-2">{entry.module.description}</p>
+                  <p className="text-sm text-fy-muted mb-2">{entry.module.description}</p>
 
                   {isExpanded && !locked && (
-                    <div className="text-sm bg-surface rounded-md p-3 mb-2 whitespace-pre-wrap">{entry.module.content}</div>
+                    <div className="text-sm bg-fy-panel rounded-control p-3 mb-2 whitespace-pre-wrap">{entry.module.content}</div>
                   )}
 
-                  <div className="flex items-center gap-3 flex-wrap pt-2 mt-1 border-t border-border">
-                    <span className={`text-xs font-semibold ${completed ? tone.text : 'text-text-muted'}`}>
+                  <div className="flex items-center gap-3 flex-wrap pt-2 mt-1 border-t border-fy-hairline">
+                    <span className={`text-xs font-semibold ${completed ? tone.text : 'text-fy-muted'}`}>
                       {statusLabel(entry.status)}
                     </span>
                     {!locked && !completed && (
@@ -186,7 +186,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
                         <button
                           type="button"
                           onClick={() => setExpanded(isExpanded ? null : entry.module._id)}
-                          className="text-xs font-semibold text-text-muted hover:underline"
+                          className="text-xs font-semibold text-fy-muted hover:underline"
                         >
                           {isExpanded ? t('hideLesson') : t('readLesson')}
                         </button>
@@ -201,7 +201,7 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
                         </Button>
                       </>
                     )}
-                    {locked && <span className="text-xs text-text-muted ml-auto">{t('unlockHint')}</span>}
+                    {locked && <span className="text-xs text-fy-muted ml-auto">{t('unlockHint')}</span>}
                   </div>
                 </div>
               </div>

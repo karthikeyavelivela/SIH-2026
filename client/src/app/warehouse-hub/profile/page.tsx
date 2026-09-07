@@ -71,24 +71,24 @@ function FacilityProfileSection() {
   return (
     <div className="mb-6">
       <h2 className="font-heading text-lg font-bold mb-3">{t('title')}</h2>
-      <div className="ip-card space-y-3">
+      <div className="fy-surface-card space-y-3">
         {!editing ? (
           <>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">{t('facilityName')}</span>
+              <span className="text-fy-ink-soft">{t('facilityName')}</span>
               <span className="font-medium">{hub.name}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">{t('dockSlots')}</span>
+              <span className="text-fy-ink-soft">{t('dockSlots')}</span>
               <span className="font-medium">{hub.totalDockSlots}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">{t('operatingHours')}</span>
+              <span className="text-fy-ink-soft">{t('operatingHours')}</span>
               <span className="font-medium">{hub.operatingHours || t('notSet')}</span>
             </div>
             {hub.gateContacts.length > 0 && (
-              <div className="pt-2 border-t border-ip-outline/10">
-                <p className="text-xs text-ip-on-surface-variant mb-1.5">{t('gateContacts')}</p>
+              <div className="pt-2 border-t border-fy-muted/10">
+                <p className="text-xs text-fy-ink-soft mb-1.5">{t('gateContacts')}</p>
                 {hub.gateContacts.map((c, i) => (
                   <p key={i} className="text-sm">
                     {c.name} — {c.phone}
@@ -96,7 +96,7 @@ function FacilityProfileSection() {
                 ))}
               </div>
             )}
-            <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
+            <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-fy-brown">
               {t('edit')}
             </button>
           </>
@@ -106,55 +106,55 @@ function FacilityProfileSection() {
               placeholder={t('facilityNamePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
             <input
               placeholder={t('addressPlaceholder')}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
             <input
               placeholder={t('operatingHoursPlaceholder')}
               value={operatingHours}
               onChange={(e) => setOperatingHours(e.target.value)}
-              className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
             <div className="space-y-2">
-              <p className="text-xs text-ip-on-surface-variant">{t('gateContacts')}</p>
+              <p className="text-xs text-fy-ink-soft">{t('gateContacts')}</p>
               {gateContacts.map((c, i) => (
                 <div key={i} className="flex gap-2">
                   <input
                     placeholder={t('contactNamePlaceholder')}
                     value={c.name}
                     onChange={(e) => setGateContacts((prev) => prev.map((x, xi) => (xi === i ? { ...x, name: e.target.value } : x)))}
-                    className="flex-1 min-h-[36px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                    className="flex-1 min-h-[36px] px-3 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
                   />
                   <input
                     placeholder={t('contactPhonePlaceholder')}
                     value={c.phone}
                     onChange={(e) => setGateContacts((prev) => prev.map((x, xi) => (xi === i ? { ...x, phone: e.target.value } : x)))}
-                    className="flex-1 min-h-[36px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                    className="flex-1 min-h-[36px] px-3 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
                   />
                   <button type="button" onClick={() => setGateContacts((prev) => prev.filter((_, xi) => xi !== i))}>
-                    <XIcon className="w-4 h-4 text-ip-on-surface-variant" />
+                    <XIcon className="w-4 h-4 text-fy-ink-soft" />
                   </button>
                 </div>
               ))}
               <button
                 type="button"
                 onClick={() => setGateContacts((prev) => [...prev, { name: '', phone: '' }])}
-                className="text-xs font-semibold text-ip-primary"
+                className="text-xs font-semibold text-fy-brown"
               >
                 {t('addContact')}
               </button>
             </div>
-            {error && <p className="text-xs text-ip-error">{error}</p>}
+            {error && <p className="text-xs text-fy-error">{error}</p>}
             <div className="flex gap-2">
-              <button type="button" disabled={saving} onClick={save} className="text-sm font-semibold text-ip-primary">
+              <button type="button" disabled={saving} onClick={save} className="text-sm font-semibold text-fy-brown">
                 {saving ? t('saving') : t('save')}
               </button>
-              <button type="button" onClick={() => setEditing(false)} className="text-sm text-ip-on-surface-variant">
+              <button type="button" onClick={() => setEditing(false)} className="text-sm text-fy-ink-soft">
                 {t('cancel')}
               </button>
             </div>
@@ -172,14 +172,14 @@ export default function WarehouseHubProfilePage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('accountEyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-6">{t('pageTitle')}</h1>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('accountEyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-6">{t('pageTitle')}</h1>
 
-      <div className="ip-card flex items-center gap-4 mb-6 max-w-2xl">
+      <div className="fy-surface-card flex items-center gap-4 mb-6 max-w-2xl">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
+          <p className="text-sm text-fy-ink-soft">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
@@ -196,15 +196,15 @@ export default function WarehouseHubProfilePage() {
         <ComplaintHistorySection />
         <Link
           href="/warehouse-hub/insurance"
-          className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-6"
+          className="flex items-center justify-between p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base mb-6"
         >
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
+            <span className="w-10 h-10 rounded-full bg-fy-green/10 text-fy-green flex items-center justify-center">
               <ShieldIcon className="w-5 h-5" />
             </span>
             <p className="text-sm font-semibold">{t('insurance.title')}</p>
           </div>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <SupportSection />
         <AccountDangerZoneSection />

@@ -31,10 +31,10 @@ export function SidebarNav({ items, className = '' }: SidebarNavProps) {
             key={item.href}
             href={item.href}
             aria-current={active ? 'page' : undefined}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-ip-input text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-control text-sm font-semibold transition-colors ${
               active
-                ? 'bg-ip-primary-container/20 text-ip-primary'
-                : 'text-ip-on-surface-variant hover:bg-ip-surface-container'
+                ? 'bg-fy-brown-soft/20 text-fy-brown'
+                : 'text-fy-ink-soft hover:bg-fy-field'
             }`}
           >
             {item.icon && <span aria-hidden="true">{item.icon}</span>}

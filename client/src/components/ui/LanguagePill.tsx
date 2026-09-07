@@ -21,7 +21,7 @@ export function LanguagePill({ value, onChange, className = '' }: LanguagePillPr
     <div
       role="radiogroup"
       aria-label="Select language"
-      className={`inline-flex p-1 rounded-ip-pill bg-ip-surface-container gap-1 ${className}`}
+      className={`inline-flex p-1 rounded-full bg-fy-field gap-1 ${className}`}
     >
       {LANGUAGES.map((lang) => (
         <button
@@ -30,10 +30,10 @@ export function LanguagePill({ value, onChange, className = '' }: LanguagePillPr
           role="radio"
           aria-checked={value === lang.code}
           onClick={() => onChange(lang.code)}
-          className={`px-4 py-2 rounded-ip-pill text-sm font-semibold transition-colors ${
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
             value === lang.code
-              ? 'bg-ip-primary text-ip-on-primary'
-              : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
+              ? 'bg-fy-brown text-fy-on-brown'
+              : 'text-fy-ink-soft hover:bg-fy-well'
           }`}
         >
           {lang.label}

@@ -76,23 +76,23 @@ function BidsReviewSection({ bookingId, onAccepted }: { bookingId: string; onAcc
 
   return (
     <Card elevation="raised" className="mb-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('bidsReceived')}</p>
-      {state === 'loading' && !data && <div className="h-16 rounded-lg bg-surface animate-pulse" />}
+      <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('bidsReceived')}</p>
+      {state === 'loading' && !data && <div className="h-16 rounded-card bg-fy-panel animate-pulse" />}
       {state !== 'loading' && bids.length === 0 && (
-        <p className="text-sm text-text-muted">{t('noBidsYet')}</p>
+        <p className="text-sm text-fy-muted">{t('noBidsYet')}</p>
       )}
       {error && <p className="text-sm text-red-700 mb-2">{error}</p>}
       <div className="space-y-3">
         {bids.map((bid) => (
-          <div key={bid._id} className="flex items-center justify-between gap-3 p-3 rounded-md bg-surface">
+          <div key={bid._id} className="flex items-center justify-between gap-3 p-3 rounded-control bg-fy-panel">
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate">{bid.bidderId.name}</p>
-              {bid.message && <p className="text-xs text-text-muted truncate">{bid.message}</p>}
+              {bid.message && <p className="text-xs text-fy-muted truncate">{bid.message}</p>}
               <span className="inline-flex items-center gap-0.5 mt-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <StarIcon
                     key={i}
-                    className={`w-3 h-3 ${i < Math.round(bid.bidderId.ratingAvg) ? 'text-primary-600' : 'text-border-strong'}`}
+                    className={`w-3 h-3 ${i < Math.round(bid.bidderId.ratingAvg) ? 'text-fy-brown' : 'text-border-strong'}`}
                     fill={i < Math.round(bid.bidderId.ratingAvg) ? 'currentColor' : 'none'}
                   />
                 ))}
@@ -153,7 +153,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
   return (
     <div className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
       {sub === 'group' ? (
-        <div className="w-11 h-11 rounded-full bg-primary/15 text-primary-600 flex items-center justify-center flex-shrink-0">
+        <div className="w-11 h-11 rounded-full bg-fy-brown/15 text-fy-brown flex items-center justify-center flex-shrink-0">
           <UsersIcon className="w-5 h-5" />
         </div>
       ) : (
@@ -162,20 +162,20 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold truncate">{entry.name}</p>
         {sub === 'vehicle' && entry.vehicle && (
-          <p className="text-xs text-text-muted truncate">
+          <p className="text-xs text-fy-muted truncate">
             {entry.vehicle.type.replace('_', ' ')} · {entry.vehicle.registrationNumber}
           </p>
         )}
-        {sub === 'group' && <p className="text-xs text-text-muted">{t('muthaGroup')}</p>}
+        {sub === 'group' && <p className="text-xs text-fy-muted">{t('muthaGroup')}</p>}
         <span className="inline-flex items-center gap-0.5 mt-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <StarIcon
               key={i}
-              className={`w-3.5 h-3.5 ${i < Math.round(entry.ratingAvg) ? 'text-primary-600' : 'text-border-strong'}`}
+              className={`w-3.5 h-3.5 ${i < Math.round(entry.ratingAvg) ? 'text-fy-brown' : 'text-border-strong'}`}
               fill={i < Math.round(entry.ratingAvg) ? 'currentColor' : 'none'}
             />
           ))}
-          <span className="text-[11px] text-text-muted ml-1">
+          <span className="text-[11px] text-fy-muted ml-1">
             {entry.ratingCount > 0 ? `${entry.ratingAvg.toFixed(1)} (${entry.ratingCount})` : t('new')}
           </span>
         </span>
@@ -184,7 +184,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
         type="button"
         onClick={focusChat}
         aria-label={t('messageAria', { name: entry.name })}
-        className="w-9 h-9 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center flex-shrink-0 hover:bg-secondary/20 transition-colors duration-fast"
+        className="w-9 h-9 rounded-full bg-fy-green/10 text-fy-green flex items-center justify-center flex-shrink-0 hover:bg-fy-green/20 transition-colors duration-fast"
       >
         <MessageIcon className="w-4 h-4" />
       </button>
@@ -249,7 +249,7 @@ export default function TrackBookingPage() {
     return (
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
-        <Card elevation="raised" className="text-center py-10 text-sm text-text-muted mx-5 mt-6">
+        <Card elevation="raised" className="text-center py-10 text-sm text-fy-muted mx-5 mt-6">
           {error}
         </Card>
       </div>
@@ -261,8 +261,8 @@ export default function TrackBookingPage() {
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title={t('pageTitle')} fallbackHref="/customer/dashboard" />
         <div className="px-5 pt-6 space-y-3">
-          <div className="h-8 w-1/2 rounded bg-surface animate-pulse" />
-          <div className="h-40 rounded-lg bg-surface animate-pulse" />
+          <div className="h-8 w-1/2 rounded bg-fy-panel animate-pulse" />
+          <div className="h-40 rounded-card bg-fy-panel animate-pulse" />
         </div>
       </div>
     );
@@ -297,27 +297,27 @@ export default function TrackBookingPage() {
       <Card elevation="raised" className="mb-4">
         <div className="grid grid-cols-2 gap-y-4 gap-x-3 text-sm">
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">{t('trackingId')}</p>
+            <p className="text-[11px] text-fy-muted mb-0.5">{t('trackingId')}</p>
             <p className="font-heading font-bold tracking-wide">{booking._id.slice(-8).toUpperCase()}</p>
           </div>
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">{t('type')}</p>
+            <p className="text-[11px] text-fy-muted mb-0.5">{t('type')}</p>
             <p className="font-semibold capitalize">{booking.type}</p>
           </div>
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">{t('status')}</p>
+            <p className="text-[11px] text-fy-muted mb-0.5">{t('status')}</p>
             <p className="font-semibold capitalize">{t(`historyStatus.${booking.status}` as never) ?? booking.status}</p>
           </div>
           <div>
-            <p className="text-[11px] text-text-muted mb-0.5">{t('totalFare')}</p>
+            <p className="text-[11px] text-fy-muted mb-0.5">{t('totalFare')}</p>
             <p className="font-semibold">₹{booking.fareBreakdown.total}</p>
           </div>
         </div>
       </Card>
 
       {(booking.status === 'requested' || booking.status === 'searching') && (
-        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-primary/10 text-sm text-primary-600">
-          <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-600/30 border-t-primary-600 animate-spin flex-shrink-0" />
+        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-control bg-fy-brown/10 text-sm text-fy-brown">
+          <span className="w-3.5 h-3.5 rounded-full border-2 border-fy-brown/30 border-t-primary-600 animate-spin flex-shrink-0" />
           {booking.openForBidding
             ? t('waitingForBids')
             : booking.status === 'requested'
@@ -341,11 +341,11 @@ export default function TrackBookingPage() {
 
       {booking.stops && booking.stops.length > 0 && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('stops')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('stops')}</p>
           <div className="space-y-1.5 text-sm">
             {booking.stops.map((s, i) => (
               <p key={i}>
-                <span className="text-text-muted">{i + 1}. </span>
+                <span className="text-fy-muted">{i + 1}. </span>
                 {s.address}
               </p>
             ))}
@@ -359,7 +359,7 @@ export default function TrackBookingPage() {
           permission (see useLiveLocationBroadcast); until a ping actually
           arrives this says so plainly instead of a silently frozen pin. */}
       {booking.status === 'in_progress' && (
-        <p className="flex items-center gap-1.5 text-xs text-text-muted mb-6 -mt-1">
+        <p className="flex items-center gap-1.5 text-xs text-fy-muted mb-6 -mt-1">
           {liveLocation ? (
             <>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -380,11 +380,11 @@ export default function TrackBookingPage() {
             <div key={step} className="flex items-center flex-1 last:flex-none">
               <div
                 className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                  i <= stepIndex ? 'bg-primary-600' : 'bg-border-strong'
+                  i <= stepIndex ? 'bg-fy-brown' : 'bg-border-strong'
                 }`}
               />
               {i < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 ${i < stepIndex ? 'bg-primary-600' : 'bg-border-strong'}`} />
+                <div className={`h-0.5 flex-1 ${i < stepIndex ? 'bg-fy-brown' : 'bg-border-strong'}`} />
               )}
             </div>
           ))}
@@ -393,21 +393,21 @@ export default function TrackBookingPage() {
 
       {booking.statusHistory.length > 0 && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-4">{t('statusTimeline')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-4">{t('statusTimeline')}</p>
           <div className="space-y-4">
             {[...booking.statusHistory].reverse().map((entry, i) => {
               const { time, date } = formatHistoryTime(entry.timestamp);
               return (
                 <div key={`${entry.status}-${entry.timestamp}`} className="flex gap-3">
                   <div className="flex flex-col items-center flex-shrink-0">
-                    <span className={`w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-primary-600' : 'bg-border-strong'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-fy-brown' : 'bg-border-strong'}`} />
                     {i < booking.statusHistory.length - 1 && <span className="w-px flex-1 bg-border mt-1" />}
                   </div>
                   <div className="pb-1 min-w-0">
-                    <p className={`text-sm font-semibold ${i === 0 ? 'text-primary-600' : ''}`}>
+                    <p className={`text-sm font-semibold ${i === 0 ? 'text-fy-brown' : ''}`}>
                       {t(`historyStatus.${entry.status}` as never) ?? entry.status}
                     </p>
-                    <p className="text-xs text-text-muted">
+                    <p className="text-xs text-fy-muted">
                       {time} · {date}
                     </p>
                   </div>
@@ -427,7 +427,7 @@ export default function TrackBookingPage() {
 
       {matched?.assigned && Object.keys(matched.assigned).length > 0 && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('assignedToYou')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('assignedToYou')}</p>
           {'driver' in matched.assigned && matched.assigned.driver != null && (
             <AssignedRow entry={matched.assigned.driver as AssignedPerson} sub="vehicle" />
           )}
@@ -448,29 +448,29 @@ export default function TrackBookingPage() {
 
       <Card elevation="raised" className="mb-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-secondary/10 text-secondary-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-fy-green/10 text-fy-green flex items-center justify-center">
             {booking.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
           </div>
           <p className="font-semibold capitalize">{booking.type} {t('booking')}</p>
         </div>
         <div className="space-y-2 text-sm">
           <p>
-            <span className="text-text-muted">{t('pickupLabel')}</span>
+            <span className="text-fy-muted">{t('pickupLabel')}</span>
             {booking.pickupLocation.address}
           </p>
           <p>
-            <span className="text-text-muted">{t('dropLabel')}</span>
+            <span className="text-fy-muted">{t('dropLabel')}</span>
             {booking.dropLocation.address}
           </p>
           {booking.cargoDetails?.goodsType && (
             <p>
-              <span className="text-text-muted">{t('goodsTypeLabel')}</span>
+              <span className="text-fy-muted">{t('goodsTypeLabel')}</span>
               {t(`goodsTypes.${booking.cargoDetails.goodsType}` as never)}
             </p>
           )}
           {booking.cargoDetails?.ewayBillNumber && (
             <p>
-              <span className="text-text-muted">{t('ewayBillLabel')}</span>
+              <span className="text-fy-muted">{t('ewayBillLabel')}</span>
               {booking.cargoDetails.ewayBillNumber}
             </p>
           )}
@@ -479,18 +479,18 @@ export default function TrackBookingPage() {
 
       {(booking.proofPhotos?.pickup || booking.proofPhotos?.delivery) && (
         <Card elevation="raised" className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('photoProof')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('photoProof')}</p>
           <div className="flex gap-3">
             {booking.proofPhotos?.pickup && (
               <div>
-                <img src={booking.proofPhotos.pickup} alt="Pickup proof" className="w-24 h-24 rounded-md object-cover" />
-                <p className="text-[11px] text-text-muted mt-1 text-center">{t('pickupPhotoCaption')}</p>
+                <img src={booking.proofPhotos.pickup} alt="Pickup proof" className="w-24 h-24 rounded-control object-cover" />
+                <p className="text-[11px] text-fy-muted mt-1 text-center">{t('pickupPhotoCaption')}</p>
               </div>
             )}
             {booking.proofPhotos?.delivery && (
               <div>
-                <img src={booking.proofPhotos.delivery} alt="Delivery proof" className="w-24 h-24 rounded-md object-cover" />
-                <p className="text-[11px] text-text-muted mt-1 text-center">{t('deliveryPhotoCaption')}</p>
+                <img src={booking.proofPhotos.delivery} alt="Delivery proof" className="w-24 h-24 rounded-control object-cover" />
+                <p className="text-[11px] text-fy-muted mt-1 text-center">{t('deliveryPhotoCaption')}</p>
               </div>
             )}
           </div>
@@ -498,23 +498,23 @@ export default function TrackBookingPage() {
       )}
 
       <Card elevation="raised">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('fare')}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('fare')}</p>
         <div className="space-y-1.5 text-sm">
           <div className="flex justify-between">
-            <span className="text-text-muted">{t('baseFare')}</span>
+            <span className="text-fy-muted">{t('baseFare')}</span>
             <span>₹{booking.fareBreakdown.baseFare}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-text-muted">{t('distance')}</span>
+            <span className="text-fy-muted">{t('distance')}</span>
             <span>₹{booking.fareBreakdown.distanceFare}</span>
           </div>
           {booking.fareBreakdown.hamaliFare > 0 && (
             <div className="flex justify-between">
-              <span className="text-text-muted">{t('hamali')}</span>
+              <span className="text-fy-muted">{t('hamali')}</span>
               <span>₹{booking.fareBreakdown.hamaliFare}</span>
             </div>
           )}
-          <div className="flex justify-between pt-2 mt-2 border-t border-border font-heading font-bold">
+          <div className="flex justify-between pt-2 mt-2 border-t border-fy-hairline font-heading font-bold">
             <span>{t('total')}</span>
             <span>₹{booking.fareBreakdown.total}</span>
           </div>
@@ -525,14 +525,14 @@ export default function TrackBookingPage() {
 
       <Link
         href={`/customer/support?bookingId=${bookingId}`}
-        className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary mb-4"
+        className="flex items-center gap-2 text-sm text-fy-muted hover:text-fy-ink mb-4"
       >
         <AlertIcon className="w-4 h-4" />
         {t('reportIssue')}
       </Link>
 
       {cancelError && (
-        <div role="alert" className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="mt-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {cancelError}
         </div>
       )}

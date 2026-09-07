@@ -44,11 +44,11 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
     }
   }
 
-  const starColor = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
+  const starColor = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
 
   return (
     <Modal open={open} onClose={() => {}} title={title ?? t('defaultTitle')}>
-      <p className="text-sm text-text-muted mb-5">{t('feedbackHint')}</p>
+      <p className="text-sm text-fy-muted mb-5">{t('feedbackHint')}</p>
       <div className="flex items-center justify-center gap-2 mb-5" role="radiogroup" aria-label={t('starRatingAria')}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -75,10 +75,10 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
         placeholder={t('commentPlaceholder')}
         aria-label={t('commentAria')}
         rows={3}
-        className="w-full px-4 py-2.5 rounded-md border border-border bg-background text-sm placeholder:text-text-muted/70 focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-colors duration-fast mb-4"
+        className="w-full px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-sm placeholder:text-fy-muted/70 focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20 transition-colors duration-fast mb-4"
       />
       {error && (
-        <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="mb-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}

@@ -15,8 +15,8 @@ export default function FederationDistrictLayout({ children }: { children: React
   }, [loading, user, router]);
 
   if (loading || !user || user.role !== 'federation_district_admin') {
-    return <div className="min-h-screen flex items-center justify-center text-text-muted">Loading…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-fy-muted">Loading…</div>;
   }
 
-  return <div className="min-h-screen bg-background">{children}</div>;
+  return <div className="min-h-screen bg-fy-bone">{children}</div>;
 }

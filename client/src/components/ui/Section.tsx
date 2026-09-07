@@ -15,11 +15,11 @@ export function Section({ title, description, right, children, className = '' }:
     <section className={`flex flex-col gap-4 ${className}`}>
       {(title || right) && (
         <div className="flex items-center justify-between gap-3">
-          {title && <h2 className="font-heading text-headline-sm text-fyro-ink">{title}</h2>}
+          {title && <h2 className="font-heading text-title text-fy-ink">{title}</h2>}
           {right}
         </div>
       )}
-      {description && <p className="font-body text-body-default text-ip-on-surface-variant -mt-2">{description}</p>}
+      {description && <p className="font-body text-body text-fy-ink-soft -mt-2">{description}</p>}
       {children}
     </section>
   );

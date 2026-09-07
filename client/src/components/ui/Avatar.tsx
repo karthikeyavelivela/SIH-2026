@@ -40,14 +40,14 @@ function initials(name: string): string {
 // the half-dozen hand-rolled "initials in a circle" divs that were
 // duplicated across AssignedRow, member cards, and profile headers.
 export function Avatar({ name, photoUrl, size = 'md', accent = 'primary', status, className = '' }: AvatarProps) {
-  const tint = accent === 'primary' ? 'bg-primary/15 text-primary-600' : 'bg-secondary/15 text-secondary-600';
+  const tint = accent === 'primary' ? 'bg-fy-brown/15 text-fy-brown' : 'bg-fy-green/15 text-fy-green';
   return (
     <div className={`relative flex-shrink-0 ${className}`}>
       {photoUrl ? (
         <img
           src={photoUrl}
           alt={name}
-          className={`${sizeClasses[size]} rounded-full object-cover border border-border`}
+          className={`${sizeClasses[size]} rounded-full object-cover border border-fy-hairline`}
         />
       ) : (
         <div

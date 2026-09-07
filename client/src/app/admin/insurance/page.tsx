@@ -66,31 +66,31 @@ export default function AdminInsurancePage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       {monitor && (
-        <div className="ip-card max-w-2xl mb-8">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">
+        <div className="fy-surface-card max-w-2xl mb-8">
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-3">
             {t('autoPayoutsToday')}
           </p>
           <div className="flex items-center justify-between mb-3">
             <span className="text-2xl font-heading font-extrabold">
               ₹{monitor.todayTotal.toLocaleString('en-IN')}
-              <span className="text-sm font-normal text-ip-on-surface-variant">{t('capLabel', { cap: monitor.dailyCap.toLocaleString('en-IN') })}</span>
+              <span className="text-sm font-normal text-fy-ink-soft">{t('capLabel', { cap: monitor.dailyCap.toLocaleString('en-IN') })}</span>
             </span>
           </div>
-          <div className="h-2 rounded-full bg-ip-surface-container-high overflow-hidden mb-4">
+          <div className="h-2 rounded-full bg-fy-well overflow-hidden mb-4">
             <div
-              className="h-full bg-ip-primary"
+              className="h-full bg-fy-brown"
               style={{ width: `${Math.min(100, (monitor.todayTotal / monitor.dailyCap) * 100)}%` }}
             />
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-ip-outline/10">
+          <div className="flex items-center justify-between pt-3 border-t border-fy-muted/10">
             <div>
               <p className="text-sm font-medium">{t('runtimeKillSwitch')}</p>
-              <p className="text-xs text-ip-on-surface-variant">
+              <p className="text-xs text-fy-ink-soft">
                 {!monitor.envKillSwitchEnabled && t('deployOff')}
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function AdminInsurancePage() {
               disabled={togglingSwitch || !monitor.envKillSwitchEnabled}
               onClick={() => toggleKillSwitch(!monitor.dbKillSwitchEnabled)}
               className={`relative w-12 h-7 rounded-full transition-colors disabled:opacity-40 ${
-                monitor.dbKillSwitchEnabled ? 'bg-emerald-500' : 'bg-ip-error'
+                monitor.dbKillSwitchEnabled ? 'bg-emerald-500' : 'bg-fy-error'
               }`}
             >
               <span
@@ -125,12 +125,12 @@ export default function AdminInsurancePage() {
 
       <div className="grid md:grid-cols-2 gap-4 max-w-4xl">
         {plans.map((p) => (
-          <div key={p._id} className="ip-card">
+          <div key={p._id} className="fy-surface-card">
             <div className="flex items-center justify-between mb-2">
               <p className="font-heading font-bold">{p.name}</p>
               <StatusChip tone={p.active ? 'success' : 'muted'}>{p.active ? t('active') : t('inactive')}</StatusChip>
             </div>
-            <p className="text-xs text-ip-on-surface-variant mb-2">
+            <p className="text-xs text-fy-ink-soft mb-2">
               {t('planMeta', {
                 type: p.type === 'parametric' ? t('parametric') : t('standard'),
                 category: t(`categories.${p.category}`),
@@ -139,7 +139,7 @@ export default function AdminInsurancePage() {
             </p>
             <p className="text-sm mb-2">{p.description}</p>
             {p.defaultTrigger && (
-              <p className="text-xs text-ip-on-surface-variant bg-ip-surface-container rounded-ip-input px-2.5 py-1.5">
+              <p className="text-xs text-fy-ink-soft bg-fy-field rounded-control px-2.5 py-1.5">
                 {t('triggerLabel', {
                   condition: p.defaultTrigger.condition.replace(/_/g, ' '),
                   threshold: p.defaultTrigger.thresholdValue,
@@ -154,7 +154,7 @@ export default function AdminInsurancePage() {
                 await api.patch(`/api/admin/insurance/plans/${p._id}`, { active: !p.active });
                 await reloadPlans();
               }}
-              className="text-xs font-semibold text-ip-primary mt-2"
+              className="text-xs font-semibold text-fy-brown mt-2"
             >
               {p.active ? t('deactivate') : t('reactivate')}
             </button>
@@ -217,32 +217,32 @@ function CreatePlanModal({ open, onClose, onCreated }: { open: boolean; onClose:
   return (
     <Modal open={open} onClose={onClose} title={t('newPlanTitle')}>
       <div className="space-y-3">
-        <input placeholder={t('namePlaceholder')} value={name} onChange={(e) => setName(e.target.value)} className="w-full min-h-[40px] px-3 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm" />
-        <textarea placeholder={t('descriptionPlaceholder')} value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm" />
+        <input placeholder={t('namePlaceholder')} value={name} onChange={(e) => setName(e.target.value)} className="w-full min-h-[40px] px-3 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm" />
+        <textarea placeholder={t('descriptionPlaceholder')} value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm" />
         <div className="flex gap-2">
-          <select value={type} onChange={(e) => setType(e.target.value as 'standard' | 'parametric')} className="flex-1 text-sm rounded-ip-input border border-ip-outline/20 bg-ip-surface px-3 py-2">
+          <select value={type} onChange={(e) => setType(e.target.value as 'standard' | 'parametric')} className="flex-1 text-sm rounded-control border border-fy-muted/20 bg-fy-bone px-3 py-2">
             <option value="parametric">{t('parametric')}</option>
             <option value="standard">{t('standard')}</option>
           </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex-1 text-sm rounded-ip-input border border-ip-outline/20 bg-ip-surface px-3 py-2">
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex-1 text-sm rounded-control border border-fy-muted/20 bg-fy-bone px-3 py-2">
             {CATEGORY_VALUES.map((c) => (
               <option key={c} value={c}>{t(`categories.${c}`)}</option>
             ))}
           </select>
         </div>
         <div className="flex gap-2">
-          <input placeholder={t('coveragePlaceholder')} type="number" value={coverageAmount} onChange={(e) => setCoverageAmount(e.target.value)} className="flex-1 min-h-[40px] px-3 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm" />
-          <input placeholder={t('premiumPlaceholder')} type="number" value={premium} onChange={(e) => setPremium(e.target.value)} className="flex-1 min-h-[40px] px-3 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm" />
+          <input placeholder={t('coveragePlaceholder')} type="number" value={coverageAmount} onChange={(e) => setCoverageAmount(e.target.value)} className="flex-1 min-h-[40px] px-3 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm" />
+          <input placeholder={t('premiumPlaceholder')} type="number" value={premium} onChange={(e) => setPremium(e.target.value)} className="flex-1 min-h-[40px] px-3 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm" />
         </div>
         <div>
-          <p className="text-xs text-ip-on-surface-variant mb-1.5">{t('availableTo')}</p>
+          <p className="text-xs text-fy-ink-soft mb-1.5">{t('availableTo')}</p>
           <div className="flex flex-wrap gap-1.5">
             {ROLES.map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setForRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]))}
-                className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${forRoles.includes(r) ? 'border-ip-primary bg-ip-primary/10 text-ip-primary' : 'border-ip-outline/20 text-ip-on-surface-variant'}`}
+                className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${forRoles.includes(r) ? 'border-fy-brown bg-fy-brown/10 text-fy-brown' : 'border-fy-muted/20 text-fy-ink-soft'}`}
               >
                 {t(`roles.${r}`)}
               </button>
@@ -250,16 +250,16 @@ function CreatePlanModal({ open, onClose, onCreated }: { open: boolean; onClose:
           </div>
         </div>
         {type === 'parametric' && (
-          <div className="rounded-ip-input bg-ip-surface-container p-3 space-y-2">
-            <p className="text-xs font-semibold text-ip-on-surface-variant">{t('triggerHeading')}</p>
+          <div className="rounded-control bg-fy-field p-3 space-y-2">
+            <p className="text-xs font-semibold text-fy-ink-soft">{t('triggerHeading')}</p>
             <div className="flex gap-2">
-              <input placeholder={t('thresholdPlaceholder')} type="number" value={thresholdValue} onChange={(e) => setThresholdValue(e.target.value)} className="flex-1 min-h-[36px] px-2.5 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-xs" />
-              <input placeholder={t('periodPlaceholder')} type="number" value={periodDays} onChange={(e) => setPeriodDays(e.target.value)} className="flex-1 min-h-[36px] px-2.5 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-xs" />
-              <input placeholder={t('payoutPlaceholder')} type="number" value={payoutAmount} onChange={(e) => setPayoutAmount(e.target.value)} className="flex-1 min-h-[36px] px-2.5 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-xs" />
+              <input placeholder={t('thresholdPlaceholder')} type="number" value={thresholdValue} onChange={(e) => setThresholdValue(e.target.value)} className="flex-1 min-h-[36px] px-2.5 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-xs" />
+              <input placeholder={t('periodPlaceholder')} type="number" value={periodDays} onChange={(e) => setPeriodDays(e.target.value)} className="flex-1 min-h-[36px] px-2.5 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-xs" />
+              <input placeholder={t('payoutPlaceholder')} type="number" value={payoutAmount} onChange={(e) => setPayoutAmount(e.target.value)} className="flex-1 min-h-[36px] px-2.5 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-xs" />
             </div>
           </div>
         )}
-        {error && <p className="text-xs text-ip-error">{error}</p>}
+        {error && <p className="text-xs text-fy-error">{error}</p>}
         <Button className="w-full" disabled={saving || !name || forRoles.length === 0} onClick={create}>
           {saving ? t('creating') : t('createPlan')}
         </Button>

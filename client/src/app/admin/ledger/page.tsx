@@ -69,9 +69,9 @@ export default function AdminLedgerPage() {
     <div className="animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-          <p className="text-sm text-ip-on-surface-variant">{t('subtitle')}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+          <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+          <p className="text-sm text-fy-ink-soft">{t('subtitle')}</p>
         </div>
         <Button variant="ghost" onClick={exportCsv}>
           {t('exportCsv')}
@@ -107,15 +107,15 @@ export default function AdminLedgerPage() {
         emptyTitle={t('noEntriesYet')}
         emptyDescription={t('noEntriesYetDesc')}
         columns={[
-          { key: 'time', header: t('time'), render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
+          { key: 'time', header: t('time'), render: (e) => <span className="whitespace-nowrap text-fy-ink-soft">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
           { key: 'type', header: t('type'), render: (e) => <span className="capitalize font-medium">{t(`types.${e.type}`)}</span> },
           { key: 'desc', header: t('description'), render: (e) => e.description },
-          { key: 'entity', header: t('entity'), render: (e) => <span className="text-ip-on-surface-variant">{e.entityType} · {e.entityId.slice(-6)}</span> },
+          { key: 'entity', header: t('entity'), render: (e) => <span className="text-fy-ink-soft">{e.entityType} · {e.entityId.slice(-6)}</span> },
           {
             key: 'amount',
             header: t('amount'),
             render: (e) => (
-              <span className={`font-semibold tabular-nums ${e.amount < 0 ? 'text-ip-error' : 'text-ip-on-surface'}`}>
+              <span className={`font-semibold tabular-nums ${e.amount < 0 ? 'text-fy-error' : 'text-fy-ink'}`}>
                 {e.amount < 0 ? '-' : ''}₹{Math.abs(e.amount)}
               </span>
             ),
@@ -129,15 +129,15 @@ export default function AdminLedgerPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
+            className="text-sm font-medium text-fy-brown disabled:text-fy-ink-soft disabled:cursor-not-allowed"
           >
             {t('previous')}
           </button>
-          <span className="text-sm text-ip-on-surface-variant">{t('pageOf', { page, totalPages })}</span>
+          <span className="text-sm text-fy-ink-soft">{t('pageOf', { page, totalPages })}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
+            className="text-sm font-medium text-fy-brown disabled:text-fy-ink-soft disabled:cursor-not-allowed"
           >
             {t('next')}
           </button>

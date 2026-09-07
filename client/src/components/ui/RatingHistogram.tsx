@@ -13,8 +13,8 @@ export function RatingHistogram({ counts, className = '' }: RatingHistogramProps
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       <div className="flex items-baseline gap-2">
-        <span className="font-heading text-data-metric text-fyro-ink">{total ? avg.toFixed(1) : '—'}</span>
-        <span className="font-body text-body-default text-ip-on-surface-variant">from {total} rating{total === 1 ? '' : 's'}</span>
+        <span className="font-heading text-metric text-fy-ink">{total ? avg.toFixed(1) : '—'}</span>
+        <span className="font-body text-body text-fy-ink-soft">from {total} rating{total === 1 ? '' : 's'}</span>
       </div>
       <div className="flex flex-col gap-1.5">
         {([5, 4, 3, 2, 1] as const).map((star) => {
@@ -22,11 +22,11 @@ export function RatingHistogram({ counts, className = '' }: RatingHistogramProps
           const pct = (n / total) * 100;
           return (
             <div key={star} className="flex items-center gap-2">
-              <span className="w-3 text-xs font-body text-ip-on-surface-variant tabular-nums">{star}</span>
-              <div className="flex-1 h-2 rounded-chip bg-ip-surface-container-high overflow-hidden">
-                <div className="h-full bg-accent-labour rounded-chip" style={{ width: `${pct}%` }} />
+              <span className="w-3 text-xs font-body text-fy-ink-soft tabular-nums">{star}</span>
+              <div className="flex-1 h-2 rounded-full bg-fy-well overflow-hidden">
+                <div className="h-full bg-fy-lime rounded-full" style={{ width: `${pct}%` }} />
               </div>
-              <span className="w-6 text-right text-xs font-body text-ip-on-surface-variant tabular-nums">{n}</span>
+              <span className="w-6 text-right text-xs font-body text-fy-ink-soft tabular-nums">{n}</span>
             </div>
           );
         })}

@@ -37,6 +37,12 @@ export interface ServiceCategory {
 interface CategoryPickerProps {
   selectedSlug: string | null;
   onSelect: (category: ServiceCategory | null) => void;
+  /** When provided (e.g. the household/labour/transport booking pages,
+   * which already fetch+bucket the full list to build their own hero/grid),
+   * skips this component's own fetch and renders exactly this set instead
+   * of all 12 categories — so a mode-specific booking page never shows
+   * categories from the other two modes. */
+  categories?: ServiceCategory[];
 }
 
 // SIH26089 Phase C — the real category grid, replacing the implicit
@@ -47,25 +53,29 @@ interface CategoryPickerProps {
 // (booking.controller.ts derives `type` server-side from the category,
 // never trusts a client-sent one alongside a category) and the category-
 // specific copy the rest of the booking form shows.
-export function CategoryPicker({ selectedSlug, onSelect }: CategoryPickerProps) {
+export function CategoryPicker({ selectedSlug, onSelect, categories: providedCategories }: CategoryPickerProps) {
   const t = useTranslations('categoryPicker');
-  const [categories, setCategories] = useState<ServiceCategory[] | null>(null);
+  const [fetchedCategories, setFetchedCategories] = useState<ServiceCategory[] | null>(null);
 
   useEffect(() => {
+    if (providedCategories) return; // parent already has the list — don't double-fetch
     api
       .get<{ categories: ServiceCategory[] }>('/api/service-categories')
-      .then((res) => setCategories(res.categories))
-      .catch(() => setCategories([]));
+      .then((res) => setFetchedCategories(res.categories))
+      .catch(() => setFetchedCategories([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const categories = providedCategories ?? fetchedCategories;
+
   if (!categories) {
-    return <div className="grid grid-cols-3 gap-2 mb-4">{[0, 1, 2].map((i) => <div key={i} className="h-20 rounded-ip-card bg-ip-surface-container animate-pulse" />)}</div>;
+    return <div className="grid grid-cols-3 gap-2 mb-4">{[0, 1, 2].map((i) => <div key={i} className="h-20 rounded-card bg-fy-field animate-pulse" />)}</div>;
   }
   if (categories.length === 0) return null;
 
   return (
     <div className="mb-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t('heading')}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">{t('heading')}</p>
       <div className="grid grid-cols-3 gap-2">
         {categories.map((c) => {
           const Icon = ICONS[c.icon] ?? BoxIcon;
@@ -75,15 +85,15 @@ export function CategoryPicker({ selectedSlug, onSelect }: CategoryPickerProps) 
           // literally find in source — actually produces these.
           const selectedClasses =
             c.accentColor === 'primary'
-              ? 'border-ip-primary bg-ip-primary/10 text-ip-primary'
-              : 'border-ip-secondary bg-ip-secondary/10 text-ip-secondary';
+              ? 'border-fy-brown bg-fy-brown/10 text-fy-brown'
+              : 'border-fy-green bg-fy-green/10 text-fy-green';
           return (
             <button
               key={c._id}
               type="button"
               onClick={() => onSelect(selected ? null : c)}
-              className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-ip-card border text-center transition-colors duration-fast ${
-                selected ? selectedClasses : 'border-ip-outline/15 text-ip-on-surface-variant hover:bg-ip-surface-container'
+              className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-card border text-center transition-colors duration-fast ${
+                selected ? selectedClasses : 'border-fy-muted/15 text-fy-ink-soft hover:bg-fy-field'
               }`}
             >
               <Icon className="w-5 h-5" />

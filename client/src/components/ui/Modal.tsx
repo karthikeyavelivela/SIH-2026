@@ -51,14 +51,14 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-text-primary/50 backdrop-blur-sm px-4 animate-[fadeIn_150ms_ease-out]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-text-fy-brown/50 backdrop-blur-sm px-4 animate-[fadeIn_150ms_ease-out]"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="bg-surface-raised rounded-lg w-full max-w-md p-7 shadow-lg animate-[scaleIn_200ms_ease-out]"
+        className="bg-fy-card rounded-card w-full max-w-md p-7 shadow-lg animate-[scaleIn_200ms_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
@@ -68,7 +68,7 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full text-text-muted hover:bg-surface hover:text-text-primary transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-fy-muted hover:bg-fy-panel hover:text-fy-ink transition-colors"
             aria-label="Close"
           >
             ✕

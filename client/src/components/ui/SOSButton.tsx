@@ -56,12 +56,12 @@ export function SOSButton({ onTrigger, holdMs = 3000, size = 140 }: SOSButtonPro
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className="-rotate-90 absolute inset-0">
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--ip-error-container)" strokeWidth={5} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--fy-error-bg)" strokeWidth={5} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="var(--ip-error)"
+          stroke="var(--fy-error)"
           strokeWidth={5}
           fill="none"
           strokeLinecap="round"
@@ -69,7 +69,7 @@ export function SOSButton({ onTrigger, holdMs = 3000, size = 140 }: SOSButtonPro
           strokeDashoffset={circumference * (1 - progress)}
         />
       </svg>
-      <div className="w-[76%] h-[76%] rounded-full bg-ip-error text-ip-on-error flex flex-col items-center justify-center font-heading font-extrabold">
+      <div className="w-[76%] h-[76%] rounded-full bg-fy-error text-fy-on-error flex flex-col items-center justify-center font-heading font-extrabold">
         <span className="text-lg">SOS</span>
         <span className="text-[10px] font-normal opacity-90">Hold 3s</span>
       </div>

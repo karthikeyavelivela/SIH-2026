@@ -46,24 +46,24 @@ export default function CustomerHistoryPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-ip-surface">
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-lg pb-ip-xl">
-        <h1 className="font-heading font-extrabold text-ip-display-md text-ip-on-surface mb-6">{t('title')}</h1>
+    <div className="min-h-screen bg-fy-bone">
+      <div className="max-w-lg mx-auto px-gutter pt-8 pb-12">
+        <h1 className="font-heading font-extrabold text-heading text-fy-ink mb-6">{t('title')}</h1>
 
         {state === 'loading' && (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <Skeleton lines={4} className="h-16" />
           </div>
         )}
 
         {state !== 'loading' && bookings.length === 0 && (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <EmptyState
               icon={<ClockIcon className="w-6 h-6" />}
               title={state === 'unavailable' ? t('unavailableTitle') : t('emptyTitle')}
               description={state === 'unavailable' ? t('unavailableDescription') : t('emptyDescription')}
               action={
-                <Link href="/customer/book" className="text-sm font-semibold text-ip-primary hover:underline">
+                <Link href="/customer/book" className="text-sm font-semibold text-fy-brown hover:underline">
                   {t('bookFirst')}
                 </Link>
               }
@@ -72,29 +72,29 @@ export default function CustomerHistoryPage() {
         )}
 
         {bookings.length > 0 && (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             {bookings.map((b, i) => (
               <div key={b._id}>
                 <Link
                   href={`/customer/track/${b._id}`}
-                  className="flex items-center justify-between gap-3 py-ip-sm -mx-2 px-2 rounded-ip-input active:bg-ip-surface-container-high transition-colors group"
+                  className="flex items-center justify-between gap-3 py-4 -mx-2 px-2 rounded-control active:bg-fy-well transition-colors group"
                 >
-                  <div className="flex items-center gap-ip-sm min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-ip-surface-container-highest group-hover:bg-ip-primary-container group-hover:text-ip-on-primary transition-colors flex items-center justify-center text-ip-on-surface-variant flex-shrink-0">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-fy-edge group-hover:bg-fy-brown-soft group-hover:text-fy-on-brown transition-colors flex items-center justify-center text-fy-ink-soft flex-shrink-0">
                       {b.type === 'hamali' ? <BoxIcon className="w-5 h-5" /> : <TruckIcon className="w-5 h-5" />}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-ip-on-surface truncate">
+                      <p className="text-sm font-semibold text-fy-ink truncate">
                         {b.pickupLocation.address.split(',')[0]} → {b.dropLocation.address.split(',')[0]}
                       </p>
-                      <p className="text-ip-body-sm text-ip-on-surface-variant">
+                      <p className="text-label text-fy-ink-soft">
                         ₹{b.fareBreakdown.total} · {new Date(b.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <StatusChip tone={statusTone[b.status] ?? 'muted'}>{t(`status.${b.status}` as never)}</StatusChip>
-                    <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+                    <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
                   </div>
                 </Link>
                 {i < bookings.length - 1 && <ListDivider />}

@@ -70,17 +70,17 @@ export default function DriverDashboardPage() {
   const firstName = user?.name?.split(' ')[0] ?? 'there';
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-24">
+    <div className="min-h-screen bg-fy-bone pb-24">
       <TopBar title="FYRO" showBack={false} right={<NotificationBell href="/driver/notifications" />} />
 
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
+      <div className="max-w-lg mx-auto px-gutter pt-4">
         <div className="flex items-center gap-3.5 mb-6">
           <Avatar name={user?.name ?? '?'} photoUrl={user?.profilePhoto} accent="primary" size="lg" status={status ?? undefined} />
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-ip-on-surface-variant">{t('welcomeBack')}</p>
+            <p className="text-xs text-fy-ink-soft">{t('welcomeBack')}</p>
             <h1 className="font-heading text-xl font-bold truncate">{firstName}</h1>
           </div>
-          <span className="inline-flex items-center gap-1 text-sm font-semibold bg-primary/10 text-primary-600 px-2.5 py-1.5 rounded-ip-pill flex-shrink-0">
+          <span className="inline-flex items-center gap-1 text-sm font-semibold bg-fy-brown/10 text-fy-brown px-2.5 py-1.5 rounded-full flex-shrink-0">
             <StarIcon className="w-3.5 h-3.5" fill="currentColor" />
             {user?.ratingCount ? user.ratingAvg?.toFixed(1) : t('new')}
           </span>
@@ -96,7 +96,7 @@ export default function DriverDashboardPage() {
 
         {/* Big honest hero number — the single biggest text element on the
             screen, per DESIGN.md, not competing with any other stat. */}
-        <div className="rounded-ip-card bg-primary-600 text-white p-6 mb-5">
+        <div className="rounded-card bg-fy-brown text-white p-6 mb-5">
           <p className="text-xs uppercase tracking-wide text-white/75 mb-1">{t('todaysEarnings')}</p>
           <p className="font-heading text-4xl font-extrabold tabular-nums">₹{todayTotal}</p>
           <Link href="/driver/earnings" className="inline-flex items-center gap-1 mt-3 pt-3 border-t border-white/20 text-sm font-semibold w-full">
@@ -106,7 +106,7 @@ export default function DriverDashboardPage() {
 
         {/* Secondary stats — MetricCard grid per the shared component
             library, replacing the earlier inline stat row. */}
-        <div className="grid grid-cols-2 gap-ip-sm mb-5">
+        <div className="grid grid-cols-2 gap-4 mb-5">
           <MetricCard label={t('trips')} value={earnings?.jobCount ?? 0} icon={<TruckIcon className="w-5 h-5" />} />
           <MetricCard
             label={t('rating')}
@@ -117,30 +117,30 @@ export default function DriverDashboardPage() {
 
         {activeJob ? (
           <Link href={`/driver/active-job/${activeJob._id}`} className="block mb-5">
-            <div className="ip-card hover:bg-ip-surface-container-high transition-colors duration-base">
+            <div className="fy-surface-card hover:bg-fy-well transition-colors duration-base">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">{t('activeJob')}</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft">{t('activeJob')}</span>
                 <StatusPill status={activeJob.status} />
               </div>
               <div className="space-y-1.5 mb-3">
                 <div className="flex items-start gap-2">
-                  <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-primary-600" />
+                  <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-fy-brown" />
                   <p className="text-sm truncate">{activeJob.pickupLocation.address}</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
-                  <p className="text-sm text-ip-on-surface-variant truncate">{activeJob.dropLocation.address}</p>
+                  <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-fy-ink-soft" />
+                  <p className="text-sm text-fy-ink-soft truncate">{activeJob.dropLocation.address}</p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600">
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-fy-brown">
                 {t('viewJob')} <ChevronRightIcon className="w-4 h-4" />
               </span>
             </div>
           </Link>
         ) : (
-          <div className="ip-card flex items-center gap-3 mb-5">
-            <TruckIcon className="w-8 h-8 text-ip-on-surface-variant flex-shrink-0" />
-            <p className="text-sm text-ip-on-surface-variant">{t('noActiveJob')}</p>
+          <div className="fy-surface-card flex items-center gap-3 mb-5">
+            <TruckIcon className="w-8 h-8 text-fy-ink-soft flex-shrink-0" />
+            <p className="text-sm text-fy-ink-soft">{t('noActiveJob')}</p>
           </div>
         )}
 
@@ -148,27 +148,27 @@ export default function DriverDashboardPage() {
           <ServiceAreaCard initial={willingLocation} radiusKm={DRIVER_WILLING_RADIUS_KM} accent="primary" />
         )}
 
-        <Link href="/driver/earnings" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-3">
+        <Link href="/driver/earnings" className="flex items-center justify-between p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base mb-3">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+            <span className="w-10 h-10 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center">
               <WalletIcon className="w-5 h-5" />
             </span>
             <p className="text-sm font-semibold">{t('viewEarnings')}</p>
           </div>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
 
         {/* Phase 3.1 — a worker should find this without being told it
             exists, not buried in a settings menu. Same visual weight as
             the earnings link right above it. */}
-        <Link href="/driver/insurance" className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base">
+        <Link href="/driver/insurance" className="flex items-center justify-between p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+            <span className="w-10 h-10 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center">
               <ShieldIcon className="w-5 h-5" />
             </span>
             <p className="text-sm font-semibold">{t('insuranceProtection')}</p>
           </div>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
 
         <div className="mt-5">

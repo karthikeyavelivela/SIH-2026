@@ -24,22 +24,22 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
         aria-label="Previous page"
         disabled={page <= 1}
         onClick={() => onChange(page - 1)}
-        className="w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-surface-raised text-text-muted hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-fast"
+        className="w-9 h-9 flex items-center justify-center rounded-card border border-fy-hairline bg-fy-card text-fy-muted hover:bg-fy-panel disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-fast"
       >
         <ChevronLeftIcon className="w-4 h-4" />
       </button>
 
       {sorted.map((p, i) => (
         <span key={p} className="flex items-center gap-1.5">
-          {i > 0 && sorted[i - 1] !== p - 1 && <span className="w-4 text-center text-text-muted text-sm">…</span>}
+          {i > 0 && sorted[i - 1] !== p - 1 && <span className="w-4 text-center text-fy-muted text-sm">…</span>}
           <button
             type="button"
             aria-current={p === page ? 'page' : undefined}
             onClick={() => onChange(p)}
-            className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all duration-fast ${
+            className={`w-9 h-9 rounded-card text-sm font-semibold transition-all duration-fast ${
               p === page
-                ? 'bg-primary-600 text-white shadow-md'
-                : 'border border-border bg-surface-raised text-text-primary hover:bg-surface'
+                ? 'bg-fy-brown text-white shadow-md'
+                : 'border border-fy-hairline bg-fy-card text-fy-ink hover:bg-fy-panel'
             }`}
           >
             {p}
@@ -52,7 +52,7 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
         aria-label="Next page"
         disabled={page >= totalPages}
         onClick={() => onChange(page + 1)}
-        className="w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-surface-raised text-text-muted hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-fast"
+        className="w-9 h-9 flex items-center justify-center rounded-card border border-fy-hairline bg-fy-card text-fy-muted hover:bg-fy-panel disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-fast"
       >
         <ChevronRightIcon className="w-4 h-4" />
       </button>

@@ -83,18 +83,18 @@ export function HaltCheckIn({ bookingId, accent = 'primary' }: { bookingId: stri
     }
   }
 
-  const tone = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
+  const tone = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
 
   return (
-    <div className="ip-card mb-6">
-      <p className="font-heading font-bold text-sm uppercase tracking-wide text-ip-on-surface-variant mb-2 flex items-center gap-1.5">
+    <div className="fy-surface-card mb-6">
+      <p className="font-heading font-bold text-sm uppercase tracking-wide text-fy-ink-soft mb-2 flex items-center gap-1.5">
         <MapPinIcon className={`w-4 h-4 ${tone}`} />
         {t('title')}
       </p>
 
       {!openHalt ? (
         <>
-          <p className="text-xs text-ip-on-surface-variant mb-3">{t('description')}</p>
+          <p className="text-xs text-fy-ink-soft mb-3">{t('description')}</p>
           <Button type="button" variant="secondary" className="w-full" disabled={loading} onClick={checkIn}>
             {loading ? t('checkingIn') : t('checkInButton')}
           </Button>
@@ -107,28 +107,28 @@ export function HaltCheckIn({ bookingId, accent = 'primary' }: { bookingId: stri
               : t('unplannedStopWarning')}
           </p>
           <div>
-            <label className="text-xs text-ip-on-surface-variant block mb-1">{t('odometerLabel')}</label>
+            <label className="text-xs text-fy-ink-soft block mb-1">{t('odometerLabel')}</label>
             <input
               type="number"
               inputMode="numeric"
               value={odometer}
               onChange={(e) => setOdometer(e.target.value)}
               placeholder={t('odometerPlaceholder')}
-              className="w-full rounded-ip-card border border-ip-outline/30 bg-ip-surface px-3 py-2 text-sm"
+              className="w-full rounded-card border border-fy-muted/30 bg-fy-bone px-3 py-2 text-sm"
             />
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setSealIntact(true)}
-              className={`flex-1 text-xs font-semibold py-2 rounded-ip-card border ${sealIntact === true ? 'bg-emerald-600 text-white border-emerald-600' : 'border-ip-outline/30 text-ip-on-surface-variant'}`}
+              className={`flex-1 text-xs font-semibold py-2 rounded-card border ${sealIntact === true ? 'bg-emerald-600 text-white border-emerald-600' : 'border-fy-muted/30 text-fy-ink-soft'}`}
             >
               {t('sealIntactYes')}
             </button>
             <button
               type="button"
               onClick={() => setSealIntact(false)}
-              className={`flex-1 text-xs font-semibold py-2 rounded-ip-card border ${sealIntact === false ? 'bg-ip-error text-white border-ip-error' : 'border-ip-outline/30 text-ip-on-surface-variant'}`}
+              className={`flex-1 text-xs font-semibold py-2 rounded-card border ${sealIntact === false ? 'bg-fy-error text-white border-fy-error' : 'border-fy-muted/30 text-fy-ink-soft'}`}
             >
               {t('sealIntactNo')}
             </button>

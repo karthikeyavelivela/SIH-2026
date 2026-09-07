@@ -23,8 +23,8 @@ export function ErrorState({ title = 'Something went wrong', description = 'We c
           </svg>
         )}
       </div>
-      <h3 className="font-heading font-bold text-lg text-ip-on-surface">{title}</h3>
-      <p className="text-sm text-ip-on-surface-variant max-w-xs">{description}</p>
+      <h3 className="font-heading font-bold text-lg text-fy-ink">{title}</h3>
+      <p className="text-sm text-fy-ink-soft max-w-xs">{description}</p>
       {onRetry && (
         <Button variant="secondary" size="md" onClick={onRetry} className="mt-2">
           Try again

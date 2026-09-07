@@ -19,22 +19,22 @@ export function SelectableWorkerCard({ name, photoUrl, ratingAvg, subtitle, sele
       onClick={onToggle}
       disabled={disabled}
       aria-pressed={selected}
-      className={`w-full flex items-center gap-ip-sm p-ip-sm rounded-ip-input text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-        selected ? 'bg-ip-primary-container/20' : 'hover:bg-ip-surface-container'
+      className={`w-full flex items-center gap-4 p-4 rounded-control text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+        selected ? 'bg-fy-brown-soft/20' : 'hover:bg-fy-field'
       }`}
     >
       <Avatar name={name} photoUrl={photoUrl} size="sm" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-ip-on-surface truncate">{name}</p>
-        <p className="text-xs text-ip-on-surface-variant truncate">
+        <p className="text-sm font-semibold text-fy-ink truncate">{name}</p>
+        <p className="text-xs text-fy-ink-soft truncate">
           {subtitle}
           {ratingAvg !== undefined && (subtitle ? ' · ' : '')}
           {ratingAvg !== undefined && `★ ${ratingAvg.toFixed(1)}`}
         </p>
       </div>
       <span
-        className={`w-5 h-5 rounded-md flex-shrink-0 border-2 flex items-center justify-center ${
-          selected ? 'bg-ip-primary border-ip-primary text-ip-on-primary' : 'border-ip-outline/40'
+        className={`w-5 h-5 rounded-control flex-shrink-0 border-2 flex items-center justify-center ${
+          selected ? 'bg-fy-brown border-fy-brown text-fy-on-brown' : 'border-fy-muted/40'
         }`}
         aria-hidden="true"
       >

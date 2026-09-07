@@ -102,9 +102,9 @@ export function FederationDashboardView() {
 
   if (state === 'loading' && !data) {
     return (
-      <div className="min-h-screen bg-ip-surface">
+      <div className="min-h-screen bg-fy-bone">
         <TopBar title={t('title')} showBack={false} />
-        <div className="max-w-3xl mx-auto px-ip-edge pt-ip-sm space-y-3">
+        <div className="max-w-3xl mx-auto px-gutter pt-4 space-y-3">
           <Skeleton className="h-24" />
           <Skeleton className="h-40" />
         </div>
@@ -114,7 +114,7 @@ export function FederationDashboardView() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-ip-surface">
+      <div className="min-h-screen bg-fy-bone">
         <TopBar title={t('title')} showBack={false} />
         <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('errorGeneric')} className="mt-10" />
       </div>
@@ -124,15 +124,15 @@ export function FederationDashboardView() {
   const { federation, counts, societies, districts } = data;
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-16">
+    <div className="min-h-screen bg-fy-bone pb-16">
       <TopBar title={t('title')} showBack={false} />
-      <div className="max-w-3xl mx-auto px-ip-edge pt-ip-sm space-y-6">
+      <div className="max-w-3xl mx-auto px-gutter pt-4 space-y-6">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-1">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-1">
             {federation.type === 'state' ? t('tierState') : t('tierDistrict')}
           </p>
-          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{federation.name}</h1>
-          <p className="text-sm text-ip-on-surface-variant">
+          <h1 className="font-heading text-heading font-extrabold mb-1">{federation.name}</h1>
+          <p className="text-sm text-fy-ink-soft">
             {t('registrationLine', { number: federation.registrationNumber, act: federation.registeredUnderAct })}
           </p>
         </div>
@@ -151,13 +151,13 @@ export function FederationDashboardView() {
           <Card>
             <p className="font-heading font-semibold mb-3">{t('districtsHeading')}</p>
             {districts.length === 0 ? (
-              <p className="text-sm text-ip-on-surface-variant">{t('noDistricts')}</p>
+              <p className="text-sm text-fy-ink-soft">{t('noDistricts')}</p>
             ) : (
               <div className="space-y-2">
                 {districts.map((d) => (
-                  <div key={d._id} className="flex items-center justify-between text-sm py-1.5 border-b border-ip-outline/10 last:border-0">
+                  <div key={d._id} className="flex items-center justify-between text-sm py-1.5 border-b border-fy-muted/10 last:border-0">
                     <span>{d.name}</span>
-                    <span className="text-ip-on-surface-variant">{t('societyCount', { count: d.societyCount })}</span>
+                    <span className="text-fy-ink-soft">{t('societyCount', { count: d.societyCount })}</span>
                   </div>
                 ))}
               </div>
@@ -169,7 +169,7 @@ export function FederationDashboardView() {
           <Card>
             <div className="flex items-center justify-between mb-3">
               <p className="font-heading font-semibold">{t('affiliationRequestsHeading')}</p>
-              <span className="text-xs text-ip-on-surface-variant">
+              <span className="text-xs text-fy-ink-soft">
                 {t('bylawBounds', {
                   commission: federation.maxCommissionRatePct ?? '—',
                   welfare: federation.maxWelfareDeductionRatePct ?? '—',
@@ -177,19 +177,19 @@ export function FederationDashboardView() {
               </span>
             </div>
             {error && (
-              <p role="alert" className="text-sm text-ip-error mb-3">
+              <p role="alert" className="text-sm text-fy-error mb-3">
                 {error}
               </p>
             )}
             {!requests || requests.length === 0 ? (
-              <p className="text-sm text-ip-on-surface-variant">{t('noAffiliationRequests')}</p>
+              <p className="text-sm text-fy-ink-soft">{t('noAffiliationRequests')}</p>
             ) : (
               <div className="space-y-3">
                 {requests.map((r) => (
-                  <div key={r._id} className="flex items-center justify-between gap-3 p-3 rounded-ip-input bg-ip-surface-container">
+                  <div key={r._id} className="flex items-center justify-between gap-3 p-3 rounded-control bg-fy-field">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold truncate">{r.name}</p>
-                      <p className="text-xs text-ip-on-surface-variant truncate">
+                      <p className="text-xs text-fy-ink-soft truncate">
                         {r.leaderId?.name} · {r.societyRegistrationNumber} · {r.registeredUnderAct}
                       </p>
                     </div>
@@ -216,7 +216,7 @@ export function FederationDashboardView() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-ip-on-surface-variant">
+                  <tr className="text-left text-xs uppercase tracking-wide text-fy-ink-soft">
                     <th className="pb-2 pr-3">{t('colName')}</th>
                     <th className="pb-2 pr-3">{t('colMembers')}</th>
                     <th className="pb-2 pr-3">{t('colRating')}</th>
@@ -226,7 +226,7 @@ export function FederationDashboardView() {
                 </thead>
                 <tbody>
                   {societies.map((s) => (
-                    <tr key={s._id} className="border-t border-ip-outline/10">
+                    <tr key={s._id} className="border-t border-fy-muted/10">
                       <td className="py-2 pr-3 font-medium">{s.name}</td>
                       <td className="py-2 pr-3 tabular-nums">{s.memberCount}</td>
                       <td className="py-2 pr-3 tabular-nums">{s.ratingAvg.toFixed(1)}</td>
@@ -242,14 +242,14 @@ export function FederationDashboardView() {
 
         <Card>
           <p className="font-heading font-semibold mb-1">{t('trainingNeedsHeading')}</p>
-          <p className="text-xs text-ip-on-surface-variant mb-3">{t('trainingNeedsSubtitle')}</p>
+          <p className="text-xs text-fy-ink-soft mb-3">{t('trainingNeedsSubtitle')}</p>
           {!needsData || needsData.assessment.length === 0 ? (
-            <p className="text-sm text-ip-on-surface-variant">{t('noTrainingData')}</p>
+            <p className="text-sm text-fy-ink-soft">{t('noTrainingData')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-ip-on-surface-variant">
+                  <tr className="text-left text-xs uppercase tracking-wide text-fy-ink-soft">
                     <th className="pb-2 pr-3">{t('colName')}</th>
                     <th className="pb-2 pr-3">{t('colSkillGap')}</th>
                     <th className="pb-2 flex items-center gap-1">
@@ -259,9 +259,9 @@ export function FederationDashboardView() {
                 </thead>
                 <tbody>
                   {needsData.assessment.map((a) => (
-                    <tr key={a.muthaId} className="border-t border-ip-outline/10">
+                    <tr key={a.muthaId} className="border-t border-fy-muted/10">
                       <td className="py-2 pr-3 font-medium">{a.name}</td>
-                      <td className={`py-2 pr-3 tabular-nums ${a.skillGapPct > 50 ? 'text-ip-error font-semibold' : ''}`}>
+                      <td className={`py-2 pr-3 tabular-nums ${a.skillGapPct > 50 ? 'text-fy-error font-semibold' : ''}`}>
                         {a.skillGapPct}%
                       </td>
                       <td className="py-2 tabular-nums">{a.dueForRefreshCount}</td>

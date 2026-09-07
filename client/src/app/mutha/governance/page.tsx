@@ -11,14 +11,14 @@ function SectionCard({ title, subtitle, children }: { title: string; subtitle?: 
   return (
     <div className="mb-6">
       <h2 className="font-heading text-lg font-bold mb-1">{title}</h2>
-      {subtitle && <p className="text-xs text-text-muted mb-3">{subtitle}</p>}
-      <div className="ip-card space-y-4">{children}</div>
+      {subtitle && <p className="text-xs text-fy-muted mb-3">{subtitle}</p>}
+      <div className="fy-surface-card space-y-4">{children}</div>
     </div>
   );
 }
 
 const inputClass =
-  'w-full min-h-[40px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm';
+  'w-full min-h-[40px] px-3 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm';
 
 interface MuthaMe {
   _id: string;
@@ -247,7 +247,7 @@ export default function MuthaGovernancePage() {
     return (
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title={t('title')} fallbackHref="/mutha/dashboard" />
-        <p className="px-5 pt-6 text-sm text-text-muted">{error ?? t('errorLoad')}</p>
+        <p className="px-5 pt-6 text-sm text-fy-muted">{error ?? t('errorLoad')}</p>
       </div>
     );
   }
@@ -257,7 +257,7 @@ export default function MuthaGovernancePage() {
       <BackHeader title={t('title')} fallbackHref="/mutha/dashboard" />
       <div className="px-5 pt-6">
         {error && (
-          <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div role="alert" className="mb-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -269,7 +269,7 @@ export default function MuthaGovernancePage() {
           {mutha.affiliationStatus === 'unaffiliated' && (
             <>
               <label className="block">
-                <span className="text-xs text-text-muted">{t('districtFederation')}</span>
+                <span className="text-xs text-fy-muted">{t('districtFederation')}</span>
                 <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className={inputClass}>
                   <option value="">{t('selectDistrict')}</option>
                   {districts.map((d) => (
@@ -280,11 +280,11 @@ export default function MuthaGovernancePage() {
                 </select>
               </label>
               <label className="block">
-                <span className="text-xs text-text-muted">{t('regNumber')}</span>
+                <span className="text-xs text-fy-muted">{t('regNumber')}</span>
                 <input value={regNumber} onChange={(e) => setRegNumber(e.target.value)} className={inputClass} />
               </label>
               <label className="block">
-                <span className="text-xs text-text-muted">{t('registeredAct')}</span>
+                <span className="text-xs text-fy-muted">{t('registeredAct')}</span>
                 <select value={act} onChange={(e) => setAct(e.target.value)} className={inputClass}>
                   <option value="AP Cooperative Societies Act 1964">AP Cooperative Societies Act 1964</option>
                   <option value="AP Mutually Aided Cooperative Societies Act 1995">AP Mutually Aided Cooperative Societies Act 1995</option>
@@ -296,7 +296,7 @@ export default function MuthaGovernancePage() {
             </>
           )}
           {mutha.affiliationStatus !== 'unaffiliated' && mutha.societyRegistrationNumber && (
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-fy-muted">
               {mutha.societyRegistrationNumber} · {mutha.registeredUnderAct}
             </p>
           )}
@@ -304,7 +304,7 @@ export default function MuthaGovernancePage() {
 
         <SectionCard title={t('byLawsTitle')} subtitle={t('byLawsSubtitle')}>
           <label className="block">
-            <span className="text-xs text-text-muted">{t('commissionRate')}</span>
+            <span className="text-xs text-fy-muted">{t('commissionRate')}</span>
             <input
               type="number"
               min={0}
@@ -315,7 +315,7 @@ export default function MuthaGovernancePage() {
             />
           </label>
           <label className="block">
-            <span className="text-xs text-text-muted">{t('welfareRate')}</span>
+            <span className="text-xs text-fy-muted">{t('welfareRate')}</span>
             <input
               type="number"
               min={0}
@@ -332,7 +332,7 @@ export default function MuthaGovernancePage() {
 
         <SectionCard title={t('sharesTitle')} subtitle={t('sharesSubtitle')}>
           {!shares || shares.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noShares')}</p>
+            <p className="text-sm text-fy-muted">{t('noShares')}</p>
           ) : (
             <div className="space-y-2">
               {shares.map((s) => (
@@ -349,7 +349,7 @@ export default function MuthaGovernancePage() {
 
         <SectionCard title={t('surplusTitle')} subtitle={t('surplusSubtitle')}>
           {!distributions || distributions.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noSurplus')}</p>
+            <p className="text-sm text-fy-muted">{t('noSurplus')}</p>
           ) : (
             <div className="space-y-2">
               {distributions.map((d) => (
@@ -367,12 +367,12 @@ export default function MuthaGovernancePage() {
         </SectionCard>
 
         <SectionCard title={t('pollsTitle')} subtitle={t('pollsSubtitle')}>
-          <div className="flex flex-col gap-2 pb-3 border-b border-ip-outline/10">
+          <div className="flex flex-col gap-2 pb-3 border-b border-fy-muted/10">
             <Button variant="ghost" disabled={creatingPoll} onClick={proposeRateCard} className="w-full">
               {t('proposeRateCard')}
             </Button>
             <label className="block">
-              <span className="text-xs text-text-muted">{t('electionQuestionLabel')}</span>
+              <span className="text-xs text-fy-muted">{t('electionQuestionLabel')}</span>
               <input
                 value={newPollQuestion}
                 onChange={(e) => setNewPollQuestion(e.target.value)}
@@ -386,13 +386,13 @@ export default function MuthaGovernancePage() {
           </div>
 
           {!polls || polls.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noPolls')}</p>
+            <p className="text-sm text-fy-muted">{t('noPolls')}</p>
           ) : (
             <div className="space-y-3">
               {polls.map((p) => (
-                <div key={p._id} className="rounded-ip-input bg-ip-surface-container p-3">
+                <div key={p._id} className="rounded-control bg-fy-field p-3">
                   <p className="text-sm font-semibold">{p.question}</p>
-                  <p className="text-xs text-text-muted mb-2">
+                  <p className="text-xs text-fy-muted mb-2">
                     {t(`pollType.${p.type}`)} · {t(`pollStatus.${p.status}`)}
                     {p.status === 'closed' && p.winningOptionIndex !== undefined && (
                       <> · {t('winner')}: {p.options[p.winningOptionIndex]?.label}</>
@@ -406,20 +406,20 @@ export default function MuthaGovernancePage() {
                           type="button"
                           disabled={pollBusyId === p._id}
                           onClick={() => voteOn(p._id, i)}
-                          className="text-xs font-semibold px-3 py-1.5 rounded-full border border-ip-primary/40 text-ip-primary disabled:opacity-50"
+                          className="text-xs font-semibold px-3 py-1.5 rounded-full border border-fy-brown/40 text-fy-brown disabled:opacity-50"
                         >
                           {o.label}
                         </button>
                       ))}
                     </div>
                   )}
-                  {p.status === 'open' && p.hasVoted && <p className="text-xs text-ip-primary mb-2">{t('youVoted')}</p>}
+                  {p.status === 'open' && p.hasVoted && <p className="text-xs text-fy-brown mb-2">{t('youVoted')}</p>}
                   {p.status === 'open' && (
                     <button
                       type="button"
                       disabled={pollBusyId === p._id}
                       onClick={() => closePollNow(p._id)}
-                      className="text-xs font-semibold text-ip-error underline disabled:opacity-50"
+                      className="text-xs font-semibold text-fy-error underline disabled:opacity-50"
                     >
                       {t('closePoll')}
                     </button>

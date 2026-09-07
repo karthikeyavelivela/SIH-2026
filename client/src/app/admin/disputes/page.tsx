@@ -46,9 +46,9 @@ export default function AdminDisputesPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {STATUS_FILTERS.map((s) => (
@@ -61,12 +61,12 @@ export default function AdminDisputesPage() {
       {state === 'loading' && !data && <Skeleton lines={4} className="h-14" />}
 
       {state !== 'loading' && disputes.length === 0 && (
-        <div className="ip-card max-w-2xl">
+        <div className="fy-surface-card max-w-2xl">
           <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('noDisputes')} description={t('noDisputesDesc')} />
         </div>
       )}
 
-      <div className="ip-card max-w-3xl divide-y divide-ip-outline/10">
+      <div className="fy-surface-card max-w-3xl divide-y divide-fy-muted/10">
         {disputes.map((d) => (
           <TicketCard
             key={d._id}

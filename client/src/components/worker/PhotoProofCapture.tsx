@@ -54,7 +54,7 @@ export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, a
   }
 
   const label = stage === 'pickup' ? t('takePickupPhoto') : t('takeDeliveryPhoto');
-  const tone = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
+  const tone = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
 
   return (
     <div className="mb-4">
@@ -67,8 +67,8 @@ export function PhotoProofCapture({ bookingId, stage, existingUrl, onUploaded, a
         className="hidden"
       />
       {existingUrl ? (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-raised p-3">
-          <img src={existingUrl} alt={`${stage} proof`} className="w-14 h-14 rounded-md object-cover flex-shrink-0" />
+        <div className="flex items-center gap-3 rounded-card border border-fy-hairline bg-fy-card p-3">
+          <img src={existingUrl} alt={`${stage} proof`} className="w-14 h-14 rounded-control object-cover flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold">{stage === 'pickup' ? t('pickupPhotoCaptured') : t('deliveryPhotoCaptured')}</p>
             <button type="button" onClick={() => inputRef.current?.click()} className={`text-xs font-semibold ${tone}`}>

@@ -20,10 +20,10 @@ export function NotificationPrompt({ accent = 'primary', copy = 'Get notified th
 
   if (dismissed || permission !== 'default') return null;
 
-  const tint = accent === 'primary' ? 'bg-primary/10 text-primary-600' : 'bg-secondary/10 text-secondary-600';
+  const tint = accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green';
 
   return (
-    <div className={`flex items-center gap-3 rounded-lg px-4 py-3 mb-4 ${tint}`}>
+    <div className={`flex items-center gap-3 rounded-card px-4 py-3 mb-4 ${tint}`}>
       <BellIcon className="w-4 h-4 flex-shrink-0" />
       <p className="text-sm flex-1">{copy}</p>
       <button type="button" onClick={() => request()} className="text-xs font-semibold underline flex-shrink-0">

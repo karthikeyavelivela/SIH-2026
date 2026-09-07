@@ -21,9 +21,9 @@ export function Accordion({ title, children, defaultOpen = false, className = ''
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-3 py-ip-sm text-left"
+        className="w-full flex items-center justify-between gap-3 py-4 text-left"
       >
-        <span className="font-heading font-bold text-sm text-ip-on-surface">{title}</span>
+        <span className="font-heading font-bold text-sm text-fy-ink">{title}</span>
         <svg
           width="18"
           height="18"
@@ -33,12 +33,12 @@ export function Accordion({ title, children, defaultOpen = false, className = ''
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={`flex-shrink-0 text-ip-on-surface-variant transition-transform duration-fast ${open ? 'rotate-180' : ''}`}
+          className={`flex-shrink-0 text-fy-ink-soft transition-transform duration-fast ${open ? 'rotate-180' : ''}`}
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
-      {open && <div className="pb-ip-sm text-sm text-ip-on-surface-variant">{children}</div>}
+      {open && <div className="pb-4 text-sm text-fy-ink-soft">{children}</div>}
     </div>
   );
 }

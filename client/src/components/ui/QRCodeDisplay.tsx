@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import { readToken } from '@/lib/token';
 
 interface QRCodeDisplayProps {
   value: string;
@@ -17,7 +18,7 @@ export function QRCodeDisplay({ value, size = 160, className = '' }: QRCodeDispl
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: '#1D1B19', light: '#FEF8F4' } })
+    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: readToken('--fy-ink', '#1C1C16'), light: readToken('--fy-bone', '#FDF9F0') } })
       .then((url) => {
         if (!cancelled) setDataUrl(url);
       })
@@ -32,12 +33,12 @@ export function QRCodeDisplay({ value, size = 160, className = '' }: QRCodeDispl
   if (!dataUrl) {
     return (
       <div
-        className={`animate-pulse rounded-ip-input bg-ip-surface-container-high ${className}`}
+        className={`animate-pulse rounded-control bg-fy-well ${className}`}
         style={{ width: size, height: size }}
       />
     );
   }
 
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={dataUrl} alt={`QR code for ${value}`} width={size} height={size} className={`rounded-ip-input ${className}`} />;
+  return <img src={dataUrl} alt={`QR code for ${value}`} width={size} height={size} className={`rounded-control ${className}`} />;
 }

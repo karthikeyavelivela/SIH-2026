@@ -40,7 +40,7 @@ export function ErrorBoundaryContent({ error, reset, homeHref, className = '' }:
           <div className="flex items-center gap-3">
             <Button onClick={reset}>{t('tryAgain')}</Button>
             {homeHref && (
-              <Link href={homeHref} className="text-sm font-semibold text-ip-primary hover:underline">
+              <Link href={homeHref} className="text-sm font-semibold text-fy-brown hover:underline">
                 {t('goHome')}
               </Link>
             )}

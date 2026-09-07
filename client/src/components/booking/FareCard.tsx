@@ -40,57 +40,57 @@ export function FareCard({
   const t = useTranslations('customerBook');
   if (state === 'idle') {
     return (
-      <div className="text-center py-6 text-ip-body-sm text-ip-on-surface-variant">
+      <div className="text-center py-6 text-label text-fy-ink-soft">
         {t('fareIdle')}
       </div>
     );
   }
   if (state === 'loading') {
     return (
-      <div className="ip-card">
+      <div className="fy-surface-card">
         <Skeleton lines={3} className="h-4" />
       </div>
     );
   }
   if (state === 'error') {
     return (
-      <div className="rounded-ip-card bg-ip-error-container text-ip-on-error-container text-sm p-ip-md">
+      <div className="rounded-card bg-fy-error-bg text-fy-on-error-bg text-sm p-6">
         {errorMessage ?? t('fareErrorGeneric')}
       </div>
     );
   }
   if (!fare) return null;
   return (
-    <div className="ip-card">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">{t('fareEstimate')}</p>
+    <div className="fy-surface-card">
+      <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-3">{t('fareEstimate')}</p>
       <div className="space-y-1.5 text-sm">
         {fare.baseFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-ip-on-surface-variant">{t('baseFare')}</span>
+            <span className="text-fy-ink-soft">{t('baseFare')}</span>
             <span>₹{fare.baseFare}</span>
           </div>
         )}
         {fare.distanceFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-ip-on-surface-variant">{t('distance')}</span>
+            <span className="text-fy-ink-soft">{t('distance')}</span>
             <span>₹{fare.distanceFare}</span>
           </div>
         )}
         {fare.hamaliFare > 0 && (
           <div className="flex justify-between">
-            <span className="text-ip-on-surface-variant">{t('hamaliLabor')}</span>
+            <span className="text-fy-ink-soft">{t('hamaliLabor')}</span>
             <span>₹{fare.hamaliFare}</span>
           </div>
         )}
         {fare.surgeMultiplier > 1 && (
-          <div className="flex justify-between text-ip-primary">
+          <div className="flex justify-between text-fy-brown">
             <span>{t('surge')}</span>
             <span>×{fare.surgeMultiplier}</span>
           </div>
         )}
-        <div className="flex justify-between pt-2.5 mt-1 border-t border-ip-outline/10">
-          <span className="font-heading font-bold text-ip-on-surface">{t('total')}</span>
-          <span className="font-heading font-bold text-lg text-ip-on-surface tabular-nums">₹{fare.total}</span>
+        <div className="flex justify-between pt-2.5 mt-1 border-t border-fy-muted/10">
+          <span className="font-heading font-bold text-fy-ink">{t('total')}</span>
+          <span className="font-heading font-bold text-lg text-fy-ink tabular-nums">₹{fare.total}</span>
         </div>
       </div>
     </div>

@@ -17,7 +17,7 @@ export function TrendChart({ points, labels, height = 80, accent = 'primary', cl
   const range = max - min || 1;
   const stepX = width / (points.length - 1);
   const coords = points.map((p, i) => `${i * stepX},${height - ((p - min) / range) * (height - 8) - 4}`);
-  const stroke = accent === 'primary' ? 'var(--ip-primary)' : 'var(--ip-secondary)';
+  const stroke = accent === 'primary' ? 'var(--fy-brown)' : 'var(--fy-green)';
   const fillId = `trend-fill-${accent}`;
 
   return (
@@ -33,7 +33,7 @@ export function TrendChart({ points, labels, height = 80, accent = 'primary', cl
         <polygon points={`0,${height} ${coords.join(' ')} ${width},${height}`} fill={`url(#${fillId})`} />
       </svg>
       {labels && (
-        <div className="flex justify-between text-xs text-ip-on-surface-variant mt-1">
+        <div className="flex justify-between text-xs text-fy-ink-soft mt-1">
           {labels.map((l) => (
             <span key={l}>{l}</span>
           ))}

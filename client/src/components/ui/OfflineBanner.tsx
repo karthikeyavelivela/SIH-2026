@@ -30,7 +30,7 @@ export function OfflineBanner() {
   return (
     <div
       role="status"
-      className="fixed bottom-0 inset-x-0 z-[100] bg-ip-inverse-surface text-ip-inverse-on-surface px-4 py-2.5 text-sm text-center shadow-lg"
+      className="fixed bottom-0 inset-x-0 z-[100] bg-fy-inverse text-fy-on-inverse px-4 py-2.5 text-sm text-center shadow-lg"
     >
       <span className="font-semibold">{t('offline')}</span> — {t('offlineDesc')}
     </div>

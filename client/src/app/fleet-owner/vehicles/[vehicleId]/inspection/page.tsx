@@ -132,9 +132,9 @@ export default function VehicleInspectionPage() {
 
   return (
     <div className="max-w-2xl mx-auto animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-6">
         {t('unit', { reg: vehicle?.registrationNumber ?? vehicleId })}
         {lastInspection && t('lastInspected', { date: new Date(lastInspection.inspectedAt).toLocaleDateString('en-IN') })}
       </p>
@@ -152,12 +152,12 @@ export default function VehicleInspectionPage() {
       )}
 
       <div className="mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">{t('exteriorPhotos')}</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-3">{t('exteriorPhotos')}</h2>
         <div className="grid grid-cols-2 gap-3">
           {ANGLES.map((a) => (
             <label
               key={a.key}
-              className="relative aspect-square rounded-ip-card bg-ip-surface-container overflow-hidden flex flex-col items-center justify-center gap-2 cursor-pointer border border-ip-outline/10 hover:border-ip-primary/40 transition-colors"
+              className="relative aspect-square rounded-card bg-fy-field overflow-hidden flex flex-col items-center justify-center gap-2 cursor-pointer border border-fy-muted/10 hover:border-fy-brown/40 transition-colors"
             >
               <input
                 type="file"
@@ -170,9 +170,9 @@ export default function VehicleInspectionPage() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photos[a.key]!} alt={a.label} className="absolute inset-0 w-full h-full object-cover" />
               ) : (
-                <CameraIcon className="w-6 h-6 text-ip-outline" />
+                <CameraIcon className="w-6 h-6 text-fy-muted" />
               )}
-              <span className="absolute bottom-2 left-2 bg-ip-inverse-surface/80 text-ip-inverse-on-surface px-2 py-1 rounded text-[10px] font-semibold uppercase">
+              <span className="absolute bottom-2 left-2 bg-fy-inverse/80 text-fy-on-inverse px-2 py-1 rounded text-[10px] font-semibold uppercase">
                 {a.label}
               </span>
             </label>
@@ -181,21 +181,21 @@ export default function VehicleInspectionPage() {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t('inspectionChecklist')}</h2>
-        <div className="ip-card divide-y divide-ip-outline/10">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">{t('inspectionChecklist')}</h2>
+        <div className="fy-surface-card divide-y divide-fy-muted/10">
           {checklist.map((row, i) => (
             <ChecklistItem key={row.item} label={row.item} state={row.state} onStateChange={(s) => updateChecklistState(i, s)} />
           ))}
         </div>
         <div className="flex items-center justify-between mt-3">
-          <span className="text-xs text-ip-on-surface-variant">{t('overallVerdict')}</span>
+          <span className="text-xs text-fy-ink-soft">{t('overallVerdict')}</span>
           <StatusChip tone={computedVerdict === 'compliant' ? 'success' : 'danger'} dot>
             {computedVerdict === 'compliant' ? t('compliant') : t('nonCompliant')}
           </StatusChip>
         </div>
       </div>
 
-      {error && <p className="text-sm text-ip-error mb-4">{error}</p>}
+      {error && <p className="text-sm text-fy-error mb-4">{error}</p>}
 
       <Button className="w-full mb-10" disabled={submitting} onClick={handleSubmit}>
         {submitting ? t('submitting') : t('addInspection')}
@@ -206,14 +206,14 @@ export default function VehicleInspectionPage() {
         {historyState === 'loading' ? (
           <Skeleton className="h-24" />
         ) : history.length === 0 ? (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <EmptyState title={t('noInspections')} description={t('submitFirstAbove')} />
           </div>
         ) : (
-          <div className="ip-card divide-y divide-ip-outline/10">
+          <div className="fy-surface-card divide-y divide-fy-muted/10">
             {history.map((h) => (
               <div key={h._id} className="flex items-center justify-between py-3">
-                <span className="text-sm text-ip-on-surface">{new Date(h.inspectedAt).toLocaleString('en-IN')}</span>
+                <span className="text-sm text-fy-ink">{new Date(h.inspectedAt).toLocaleString('en-IN')}</span>
                 <StatusChip tone={h.overallVerdict === 'compliant' ? 'success' : 'danger'}>
                   {h.overallVerdict === 'compliant' ? t('compliant') : t('nonCompliant')}
                 </StatusChip>

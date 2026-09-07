@@ -16,7 +16,7 @@ export default async function NotFound() {
         title={t('notFoundTitle')}
         description={t('notFoundDescription')}
         action={
-          <Link href="/" className="text-sm font-semibold text-ip-primary hover:underline">
+          <Link href="/" className="text-sm font-semibold text-fy-brown hover:underline">
             {t('goToHomepage')}
           </Link>
         }

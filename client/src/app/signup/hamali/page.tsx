@@ -13,7 +13,7 @@ import { ChevronLeftIcon } from '@/components/ui/icons';
 type JoinType = 'solo' | 'leader' | 'member';
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 export default function SignupHamaliPage() {
   const router = useRouter();
@@ -53,28 +53,28 @@ export default function SignupHamaliPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-background">
+    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-fy-bone">
       <Link
         href="/"
         aria-label="Back to home"
-        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-surface-raised border border-border shadow-sm hover:bg-surface transition-colors duration-fast"
+        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-fy-card border border-fy-hairline shadow-sm hover:bg-fy-panel transition-colors duration-fast"
       >
         <ChevronLeftIcon className="w-5 h-5" />
       </Link>
       <div
-        className="pointer-events-none absolute -top-32 -left-24 w-80 h-80 rounded-full bg-secondary/10 blur-3xl"
+        className="pointer-events-none absolute -top-32 -left-24 w-80 h-80 rounded-full bg-fy-green/10 blur-3xl"
         aria-hidden="true"
       />
 
       <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
-        <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-secondary-600 mb-2">
+        <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-fy-green mb-2">
           {t('eyebrow')}
         </p>
         <h1 className="font-heading text-2xl font-bold mb-1">{t('title')}</h1>
-        <p className="text-sm text-text-muted mb-6">{t('subtitle')}</p>
+        <p className="text-sm text-fy-muted mb-6">{t('subtitle')}</p>
 
         <div
-          className="grid grid-cols-3 gap-2 mb-7 p-1.5 rounded-lg border border-border bg-surface shadow-sm"
+          className="grid grid-cols-3 gap-2 mb-7 p-1.5 rounded-card border border-fy-hairline bg-fy-panel shadow-sm"
           role="radiogroup"
           aria-label={t('joinTypeAria')}
         >
@@ -85,14 +85,14 @@ export default function SignupHamaliPage() {
               role="radio"
               aria-checked={joinType === jt}
               onClick={() => setJoinType(jt)}
-              className={`flex flex-col items-center gap-0.5 py-2.5 px-1 rounded-md text-xs font-semibold transition-all duration-fast ${
+              className={`flex flex-col items-center gap-0.5 py-2.5 px-1 rounded-control text-xs font-semibold transition-all duration-fast ${
                 joinType === jt
-                  ? 'bg-secondary-600 text-white shadow-md -translate-y-0.5'
-                  : 'text-text-muted hover:bg-surface-raised hover:text-text-primary'
+                  ? 'bg-fy-green text-white shadow-md -translate-y-0.5'
+                  : 'text-fy-muted hover:bg-fy-card hover:text-fy-ink'
               }`}
             >
               <span>{joinTypeMeta[jt].label}</span>
-              <span className={`text-[10px] font-normal ${joinType === jt ? 'text-white/80' : 'text-text-muted/70'}`}>
+              <span className={`text-[10px] font-normal ${joinType === jt ? 'text-white/80' : 'text-fy-muted/70'}`}>
                 {joinTypeMeta[jt].hint}
               </span>
             </button>
@@ -153,7 +153,7 @@ export default function SignupHamaliPage() {
           {error && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
+              className="flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
             >
               <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
@@ -169,9 +169,9 @@ export default function SignupHamaliPage() {
             {loading ? t('submitLoading') : t('submit')}
           </Button>
         </form>
-        <p className="text-sm text-text-muted mt-7 pt-6 border-t border-border">
+        <p className="text-sm text-fy-muted mt-7 pt-6 border-t border-fy-hairline">
           {t('loginPrompt')}{' '}
-          <Link href="/login" className="text-secondary-600 font-semibold hover:underline">
+          <Link href="/login" className="text-fy-green font-semibold hover:underline">
             {t('loginLink')}
           </Link>
         </p>

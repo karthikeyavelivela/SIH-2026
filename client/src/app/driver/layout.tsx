@@ -26,11 +26,11 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
   }, [loading, user, router]);
 
   if (loading || !user || user.role !== 'driver') {
-    return <div className="min-h-screen flex items-center justify-center text-text-muted">Loading…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-fy-muted">Loading…</div>;
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-fy-bone pb-24">
       {children}
       <BottomTabNav items={tabs} />
     </div>

@@ -84,7 +84,7 @@ export default function DriverActiveJobPage() {
     return (
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title={t('title')} fallbackHref="/driver/dashboard" />
-        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">{t('loadingJob')}</p>
+        <p className="px-5 pt-6 text-sm text-fy-ink-soft">{t('loadingJob')}</p>
       </div>
     );
   }
@@ -93,7 +93,7 @@ export default function DriverActiveJobPage() {
   const pickupConfirmed = !!booking.proofPhotos?.pickup;
 
   return (
-    <div className="max-w-lg mx-auto pb-6 bg-ip-surface min-h-screen">
+    <div className="max-w-lg mx-auto pb-6 bg-fy-bone min-h-screen">
       <BackHeader title={t('title')} fallbackHref="/driver/dashboard" />
       <RouteMap
         pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
@@ -101,13 +101,13 @@ export default function DriverActiveJobPage() {
         className="h-56"
       />
 
-      <div className="px-ip-edge pt-ip-md">
+      <div className="px-gutter pt-6">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ip-on-surface-variant">{t('jobStatus')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('jobStatus')}</p>
           <StatusPill status={booking.status} />
         </div>
         {booking.status === 'in_progress' && (
-          <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mb-5">
+          <p className="flex items-center gap-1.5 text-xs text-fy-ink-soft mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             {t('sharingLocation')}
           </p>
@@ -121,28 +121,28 @@ export default function DriverActiveJobPage() {
               <div className="flex flex-col items-center gap-1.5">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-base ${
-                    i <= stepIndex ? 'bg-primary-600 text-white' : 'bg-ip-surface-container text-ip-on-surface-variant'
+                    i <= stepIndex ? 'bg-fy-brown text-white' : 'bg-fy-field text-fy-ink-soft'
                   }`}
                 >
                   {i < stepIndex ? <CheckIcon className="w-4 h-4" /> : i + 1}
                 </span>
-                <span className="text-[11px] text-ip-on-surface-variant whitespace-nowrap">{step.label}</span>
+                <span className="text-[11px] text-fy-ink-soft whitespace-nowrap">{step.label}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`h-0.5 flex-1 mx-1.5 -mt-4 transition-colors duration-base ${i < stepIndex ? 'bg-primary-600' : 'bg-ip-outline/20'}`} />
+                <div className={`h-0.5 flex-1 mx-1.5 -mt-4 transition-colors duration-base ${i < stepIndex ? 'bg-fy-brown' : 'bg-fy-muted/20'}`} />
               )}
             </div>
           ))}
         </div>
 
         {booking.customer && (
-          <div className="ip-card flex items-center gap-3 mb-5">
+          <div className="fy-surface-card flex items-center gap-3 mb-5">
             <Avatar name={booking.customer.name} photoUrl={booking.customer.profilePhoto} accent="primary" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold truncate">{booking.customer.name}</p>
               <span className="inline-flex items-center gap-0.5">
-                <StarIcon className="w-3.5 h-3.5 text-primary-600" fill="currentColor" />
-                <span className="text-[11px] text-ip-on-surface-variant ml-0.5">
+                <StarIcon className="w-3.5 h-3.5 text-fy-brown" fill="currentColor" />
+                <span className="text-[11px] text-fy-ink-soft ml-0.5">
                   {booking.customer.ratingCount > 0 ? `${booking.customer.ratingAvg.toFixed(1)} (${booking.customer.ratingCount})` : t('newRating')}
                 </span>
               </span>
@@ -151,7 +151,7 @@ export default function DriverActiveJobPage() {
               type="button"
               onClick={focusChat}
               aria-label={t('messageCustomer')}
-              className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center flex-shrink-0 hover:bg-primary/15 transition-colors duration-fast"
+              className="w-10 h-10 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center flex-shrink-0 hover:bg-fy-brown/15 transition-colors duration-fast"
             >
               <MessageIcon className="w-4 h-4" />
             </button>
@@ -160,12 +160,12 @@ export default function DriverActiveJobPage() {
 
         <div className="space-y-3 mb-6">
           <div className="flex items-start gap-2.5">
-            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-600" />
+            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-brown" />
             <p className="text-sm">{booking.pickupLocation.address}</p>
           </div>
           <div className="flex items-start gap-2.5">
-            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
-            <p className="text-sm text-ip-on-surface-variant">{booking.dropLocation.address}</p>
+            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-ink-soft" />
+            <p className="text-sm text-fy-ink-soft">{booking.dropLocation.address}</p>
           </div>
         </div>
 
@@ -175,8 +175,8 @@ export default function DriverActiveJobPage() {
             own doc comment on that distinction). Only relevant before pickup
             is confirmed. */}
         {booking.status === 'accepted' && (
-          <div className="ip-card mb-6">
-            <p className="font-heading font-bold text-sm uppercase tracking-wide text-ip-on-surface-variant mb-1">
+          <div className="fy-surface-card mb-6">
+            <p className="font-heading font-bold text-sm uppercase tracking-wide text-fy-ink-soft mb-1">
               {tDriver('cargoVerification')}
             </p>
             <ChecklistItem
@@ -200,13 +200,13 @@ export default function DriverActiveJobPage() {
         {booking.status === 'accepted' && pickupConfirmed && (
           <Link
             href={`/driver/active-job/${booking._id}/manifest`}
-            className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container mb-6 hover:bg-ip-surface-container-high transition-colors"
+            className="flex items-center justify-between p-4 rounded-card bg-fy-field mb-6 hover:bg-fy-well transition-colors"
           >
             <div>
-              <p className="text-sm font-semibold text-ip-on-surface">{tDriver('manifestTitle')}</p>
-              <p className="text-xs text-ip-on-surface-variant">{tDriver('manifestSubtitle')}</p>
+              <p className="text-sm font-semibold text-fy-ink">{tDriver('manifestTitle')}</p>
+              <p className="text-xs text-fy-ink-soft">{tDriver('manifestSubtitle')}</p>
             </div>
-            <span className="text-primary-600 font-semibold text-sm">{tDriver('manifestOpen')}</span>
+            <span className="text-fy-brown font-semibold text-sm">{tDriver('manifestOpen')}</span>
           </Link>
         )}
 
@@ -227,7 +227,7 @@ export default function DriverActiveJobPage() {
         </div>
 
         {error && (
-          <div role="alert" className="mb-4 rounded-ip-card bg-ip-error-container px-4 py-3 text-sm text-ip-on-error-container">
+          <div role="alert" className="mb-4 rounded-card bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg">
             {error}
           </div>
         )}
@@ -246,7 +246,7 @@ export default function DriverActiveJobPage() {
           <>
             {!pending &&
               (booking.status === 'accepted' ? !booking.proofPhotos?.pickup : !booking.proofPhotos?.delivery) && (
-                <p className="text-xs text-ip-on-surface-variant text-center mb-2">
+                <p className="text-xs text-fy-ink-soft text-center mb-2">
                   {t('takePhotoToContinue', { stage: booking.status === 'accepted' ? t('stagePickup') : t('stageDelivery') })}
                 </p>
               )}

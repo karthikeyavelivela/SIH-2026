@@ -68,15 +68,15 @@ export default function DriverProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-24">
+    <div className="min-h-screen bg-fy-bone pb-24">
       <TopBar title={t('pageTitle')} showBack={false} />
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
+      <div className="max-w-lg mx-auto px-gutter pt-4">
 
-      <div className="ip-card flex items-center gap-4 mb-6">
+      <div className="fy-surface-card flex items-center gap-4 mb-6">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
+          <p className="text-sm text-fy-ink-soft">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
@@ -88,15 +88,15 @@ export default function DriverProfilePage() {
       <RoleSwitcherSection />
 
       <h2 className="font-heading text-lg font-bold mb-3">{t('vehicle.sectionTitle')}</h2>
-      {state === 'loading' && <div className="h-24 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />}
+      {state === 'loading' && <div className="h-24 rounded-card bg-fy-field animate-pulse mb-6" />}
       {state !== 'loading' && !data?.vehicle && (
-        <div className="ip-card text-center py-8 mb-6">
-          <TruckIcon className="w-8 h-8 text-ip-on-surface-variant/50 mx-auto mb-3" />
-          <p className="text-sm text-ip-on-surface-variant">{t('vehicle.noneYet')}</p>
+        <div className="fy-surface-card text-center py-8 mb-6">
+          <TruckIcon className="w-8 h-8 text-fy-ink-soft/50 mx-auto mb-3" />
+          <p className="text-sm text-fy-ink-soft">{t('vehicle.noneYet')}</p>
         </div>
       )}
       {data?.vehicle && (
-        <div className="ip-card mb-6">
+        <div className="fy-surface-card mb-6">
           <div className="flex items-center justify-between mb-3">
             <p className="font-heading font-bold capitalize">{data.vehicle.type.replace('_', ' ')}</p>
             <div className="flex gap-1.5">
@@ -106,11 +106,11 @@ export default function DriverProfilePage() {
               {data.vehicle.complianceStatus === 'non_compliant' && <Badge tone="danger">{t('vehicle.complianceFailed')}</Badge>}
             </div>
           </div>
-          <p className="text-sm text-ip-on-surface-variant">{t('vehicle.reg', { reg: data.vehicle.registrationNumber })}</p>
+          <p className="text-sm text-fy-ink-soft">{t('vehicle.reg', { reg: data.vehicle.registrationNumber })}</p>
           {!editingVehicle ? (
             <div className="flex items-center justify-between mt-1">
-              <p className="text-sm text-ip-on-surface-variant">{t('vehicle.capacity', { kg: data.vehicle.capacityKg })}</p>
-              <button type="button" onClick={() => setEditingVehicle(true)} className="text-xs font-semibold text-ip-primary">
+              <p className="text-sm text-fy-ink-soft">{t('vehicle.capacity', { kg: data.vehicle.capacityKg })}</p>
+              <button type="button" onClick={() => setEditingVehicle(true)} className="text-xs font-semibold text-fy-brown">
                 {t('vehicle.editCapacity')}
               </button>
             </div>
@@ -120,12 +120,12 @@ export default function DriverProfilePage() {
                 type="number"
                 value={capacityKg}
                 onChange={(e) => setCapacityKg(e.target.value)}
-                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="flex-1 min-h-[40px] px-3 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
-              <button type="button" disabled={vehicleSaving} onClick={saveVehicle} className="text-xs font-semibold text-ip-primary">
+              <button type="button" disabled={vehicleSaving} onClick={saveVehicle} className="text-xs font-semibold text-fy-brown">
                 {vehicleSaving ? t('vehicle.saving') : t('vehicle.save')}
               </button>
-              <button type="button" onClick={() => setEditingVehicle(false)} className="text-xs text-ip-on-surface-variant">
+              <button type="button" onClick={() => setEditingVehicle(false)} className="text-xs text-fy-ink-soft">
                 {t('vehicle.cancel')}
               </button>
             </div>

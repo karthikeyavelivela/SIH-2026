@@ -48,7 +48,7 @@ export function BottomTabNav({ items }: BottomTabNavProps) {
   return (
     <nav
       aria-label="Primary"
-      className="fixed bottom-0 inset-x-0 z-40 bg-surface-raised border-t border-border shadow-lg"
+      className="fixed bottom-0 inset-x-0 z-40 bg-fy-card border-t border-fy-hairline shadow-lg"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="max-w-lg mx-auto grid grid-flow-col auto-cols-fr">
@@ -62,7 +62,7 @@ export function BottomTabNav({ items }: BottomTabNavProps) {
               href={item.href}
               aria-current={active ? 'page' : undefined}
               className={`flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors duration-fast ${
-                active ? 'text-primary-600' : 'text-text-muted hover:text-text-primary'
+                active ? 'text-fy-brown' : 'text-fy-muted hover:text-fy-ink'
               }`}
             >
               <item.icon className="w-[22px] h-[22px]" />

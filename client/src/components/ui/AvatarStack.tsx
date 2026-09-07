@@ -22,13 +22,13 @@ export function AvatarStack({ people, max = 4, size = 'sm', className = '' }: Av
   return (
     <div className={`flex items-center ${className}`}>
       {visible.map((p, i) => (
-        <div key={`${p.name}-${i}`} className="rounded-full ring-2 ring-ip-surface" style={{ marginLeft: i === 0 ? 0 : '-0.6rem' }}>
+        <div key={`${p.name}-${i}`} className="rounded-full ring-2 ring-fy-bone" style={{ marginLeft: i === 0 ? 0 : '-0.6rem' }}>
           <Avatar name={p.name} photoUrl={p.photoUrl} size={size} />
         </div>
       ))}
       {overflow > 0 && (
         <div
-          className={`${dims} -ml-2.5 rounded-full ring-2 ring-ip-surface bg-ip-surface-container-high text-ip-on-surface-variant font-heading font-bold flex items-center justify-center`}
+          className={`${dims} -ml-2.5 rounded-full ring-2 ring-fy-bone bg-fy-well text-fy-ink-soft font-heading font-bold flex items-center justify-center`}
         >
           +{overflow}
         </div>

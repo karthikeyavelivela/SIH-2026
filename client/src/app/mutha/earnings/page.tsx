@@ -17,14 +17,14 @@ export default function MuthaEarningsPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <h1 className="font-heading text-2xl font-bold mb-6">{t('title')}</h1>
 
-      <div className="rounded-lg bg-secondary-600 text-white p-6 shadow-lg mb-6">
+      <div className="rounded-card bg-fy-green text-white p-6 shadow-lg mb-6">
         <p className="text-sm text-white/80 mb-1">{t('groupTotal')}</p>
         <p className="font-heading text-3xl font-extrabold">₹{data?.total ?? 0}</p>
         <p className="text-sm text-white/80 mt-1">{t('completedJobs', { count: data?.jobCount ?? 0 })}</p>
       </div>
 
       {!!data?.incentiveTotal && (
-        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-md bg-secondary/10 text-sm text-secondary-600">
+        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-control bg-fy-green/10 text-sm text-fy-green">
           <StarIcon className="w-4 h-4 flex-shrink-0" />
           {t('bonusEarned', { amount: data.incentiveTotal })}
         </div>
@@ -33,20 +33,20 @@ export default function MuthaEarningsPage() {
       <IncentiveProgressBar accent="secondary" />
 
       <h2 className="font-heading text-lg font-bold mb-3">{t('perMember')}</h2>
-      {state === 'loading' && <div className="h-24 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />}
+      {state === 'loading' && <div className="h-24 rounded-card bg-fy-field animate-pulse mb-6" />}
 
       {state !== 'loading' && (data?.perMember?.length ?? 0) === 0 && (
-        <div className="ip-card mb-6">
+        <div className="fy-surface-card mb-6">
           <EmptyState icon={<WalletIcon className="w-6 h-6" />} title={t('noCompletedJobs')} />
         </div>
       )}
 
       <div className="space-y-3 mb-8">
         {data?.perMember?.map((m) => (
-          <div key={m.userId} className="ip-card flex items-center justify-between gap-3">
+          <div key={m.userId} className="fy-surface-card flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate">{m.name}</p>
-              <p className="text-xs text-ip-on-surface-variant">{m.phone}</p>
+              <p className="text-xs text-fy-ink-soft">{m.phone}</p>
             </div>
             <p className="font-heading font-bold whitespace-nowrap">₹{m.total}</p>
           </div>

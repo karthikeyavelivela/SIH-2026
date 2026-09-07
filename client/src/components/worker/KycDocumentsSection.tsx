@@ -94,7 +94,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
 
   if (requiredTypes.length === 0) return null;
   if (docs === null) {
-    return <div className="h-32 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />;
+    return <div className="h-32 rounded-card bg-fy-field animate-pulse mb-6" />;
   }
 
   return (
@@ -121,7 +121,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
                       type="button"
                       disabled={precheckType === type}
                       onClick={() => handlePrecheck(type)}
-                      className="text-xs font-semibold text-ip-secondary hover:underline disabled:opacity-50"
+                      className="text-xs font-semibold text-fy-green hover:underline disabled:opacity-50"
                     >
                       {precheckType === type ? t('checking') : t('action')}
                     </button>
@@ -132,7 +132,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
           );
         })}
       </div>
-      {error && <p className="text-xs text-ip-error mt-2">{error}</p>}
+      {error && <p className="text-xs text-fy-error mt-2">{error}</p>}
     </div>
   );
 }

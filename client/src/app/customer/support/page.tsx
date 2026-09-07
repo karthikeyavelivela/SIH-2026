@@ -13,7 +13,7 @@ import { BackHeader } from '@/components/ui/BackHeader';
 import { AlertIcon } from '@/components/ui/icons';
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 const statusTone: Record<Complaint['status'], 'muted' | 'secondary' | 'success'> = {
   open: 'muted',
@@ -64,7 +64,7 @@ function SupportForm() {
     <div className="max-w-lg mx-auto pb-4">
       <BackHeader title={t('title')} fallbackHref="/customer/dashboard" />
       <div className="px-5 pt-6">
-      <p className="text-sm text-text-muted mb-6">{t('subtitle')}</p>
+      <p className="text-sm text-fy-muted mb-6">{t('subtitle')}</p>
 
       <Card elevation="raised" className="mb-8">
         <h2 className="font-heading text-lg font-bold mb-4">{t('reportIssue')}</h2>
@@ -101,12 +101,12 @@ function SupportForm() {
             className={inputClass}
           />
           {error && (
-            <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div role="alert" className="rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
           {submitted && !error && (
-            <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <div className="rounded-control border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               {t('submittedNotice')}
             </div>
           )}
@@ -126,9 +126,9 @@ function SupportForm() {
                   <p className="text-sm font-semibold">{CATEGORY_LABEL[c.category]}</p>
                   <Badge tone={statusTone[c.status]}>{t(`status.${c.status}`)}</Badge>
                 </div>
-                <p className="text-sm text-text-muted mb-1">{c.description}</p>
+                <p className="text-sm text-fy-muted mb-1">{c.description}</p>
                 {c.resolutionNote && (
-                  <p className="text-xs text-text-muted mt-2 pt-2 border-t border-border">
+                  <p className="text-xs text-fy-muted mt-2 pt-2 border-t border-fy-hairline">
                     <span className="font-semibold">{t('resolutionLabel')}</span>
                     {c.resolutionNote}
                   </p>
@@ -144,10 +144,10 @@ function SupportForm() {
         {FAQ.map((f) => (
           <Card key={f.q} elevation="flat">
             <p className="text-sm font-semibold mb-1 flex items-center gap-2">
-              <AlertIcon className="w-4 h-4 text-primary-600 flex-shrink-0" />
+              <AlertIcon className="w-4 h-4 text-fy-brown flex-shrink-0" />
               {f.q}
             </p>
-            <p className="text-sm text-text-muted">{f.a}</p>
+            <p className="text-sm text-fy-muted">{f.a}</p>
           </Card>
         ))}
       </div>

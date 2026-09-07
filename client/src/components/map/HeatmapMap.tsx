@@ -23,7 +23,7 @@ interface HeatmapMapProps {
 
 export default function HeatmapMap({ points, center, zoom = 11, className = '' }: HeatmapMapProps) {
   return (
-    <div className={`overflow-hidden rounded-ip-card ${className}`}>
+    <div className={`overflow-hidden rounded-card ${className}`}>
       <MapContainer center={[center.lat, center.lng]} zoom={zoom} style={{ height: '100%', width: '100%' }} zoomControl={false} scrollWheelZoom={false}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -34,7 +34,7 @@ export default function HeatmapMap({ points, center, zoom = 11, className = '' }
             key={i}
             center={[p.lat, p.lng]}
             radius={400 + p.intensity * 1800}
-            pathOptions={{ color: '#A83900', fillColor: '#FF6B2B', fillOpacity: 0.15 + p.intensity * 0.35, weight: 1 }}
+            pathOptions={{ color: 'var(--fy-brown)', fillColor: 'var(--fy-brown-soft)', fillOpacity: 0.15 + p.intensity * 0.35, weight: 1 }}
           >
             {p.label && <Tooltip>{p.label}</Tooltip>}
           </Circle>

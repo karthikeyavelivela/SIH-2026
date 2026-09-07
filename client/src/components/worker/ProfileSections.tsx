@@ -30,7 +30,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
   return (
     <div className="mb-6">
       <h2 className="font-heading text-lg font-bold mb-3">{title}</h2>
-      <div className="ip-card space-y-4">{children}</div>
+      <div className="fy-surface-card space-y-4">{children}</div>
     </div>
   );
 }
@@ -44,11 +44,11 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative w-12 h-7 rounded-full transition-colors duration-base flex-shrink-0 disabled:opacity-50 ${
-        checked ? 'bg-ip-primary' : 'bg-ip-outline/30'
+        checked ? 'bg-fy-brown' : 'bg-fy-muted/30'
       }`}
     >
       <span
-        className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-base ease-out-expo ${
+        className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-base ease-out ${
           checked ? 'translate-x-6' : 'translate-x-1'
         }`}
       />
@@ -87,7 +87,7 @@ export function LanguageSection() {
   return (
     <SectionCard title={t('title')}>
       <LanguagePill value={locale} onChange={handleChange} className={isPending ? 'opacity-60 pointer-events-none' : ''} />
-      <p className="text-xs text-ip-on-surface-variant">{t('hint')}</p>
+      <p className="text-xs text-fy-ink-soft">{t('hint')}</p>
     </SectionCard>
   );
 }
@@ -127,38 +127,38 @@ export function ProfileIdentitySection() {
       {!editing ? (
         <>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">{t('name')}</span>
+            <span className="text-fy-ink-soft">{t('name')}</span>
             <span className="font-medium">{user.name}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">{t('email')}</span>
+            <span className="text-fy-ink-soft">{t('email')}</span>
             <span className="font-medium">{user.email || t('notSet')}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">{t('phone')}</span>
+            <span className="text-fy-ink-soft">{t('phone')}</span>
             <div className="flex items-center gap-2">
               <span className="font-medium">{user.phone}</span>
-              <button type="button" onClick={() => setPhoneModalOpen(true)} className="text-xs font-semibold text-ip-primary">
+              <button type="button" onClick={() => setPhoneModalOpen(true)} className="text-xs font-semibold text-fy-brown">
                 {t('change')}
               </button>
             </div>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">{t('accountCreated')}</span>
+            <span className="text-fy-ink-soft">{t('accountCreated')}</span>
             <span className="font-medium">{user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : '—'}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-ip-on-surface-variant">{t('userId')}</span>
-            <span className="font-mono text-xs text-ip-on-surface-variant">{user._id.slice(-10)}</span>
+            <span className="text-fy-ink-soft">{t('userId')}</span>
+            <span className="font-mono text-xs text-fy-ink-soft">{user._id.slice(-10)}</span>
           </div>
-          <div className="flex gap-3 pt-2 border-t border-ip-outline/10">
-            <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
+          <div className="flex gap-3 pt-2 border-t border-fy-muted/10">
+            <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-fy-brown">
               {t('editNameEmail')}
             </button>
             <button
               type="button"
               onClick={() => setPasswordModalOpen(true)}
-              className="flex items-center gap-1 text-sm font-semibold text-ip-primary"
+              className="flex items-center gap-1 text-sm font-semibold text-fy-brown"
             >
               <LockIcon className="w-3.5 h-3.5" /> {t('changePassword')}
             </button>
@@ -167,23 +167,23 @@ export function ProfileIdentitySection() {
       ) : (
         <>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">{t('name')}</span>
+            <span className="text-xs text-fy-ink-soft">{t('name')}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">{t('email')}</span>
+            <span className="text-xs text-fy-ink-soft">{t('email')}</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           </label>
-          {error && <p className="text-xs text-ip-error">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <div className="flex gap-2">
             <Button size="md" disabled={saving} onClick={saveProfile} className="flex-1">
               {saving ? t('saving') : t('save')}
@@ -260,24 +260,24 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
       {step === 'enter' ? (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">{t('newPhoneLabel')}</span>
+            <span className="text-xs text-fy-ink-soft">{t('newPhoneLabel')}</span>
             <input
               value={newPhone}
               onChange={(e) => setNewPhone(e.target.value)}
               inputMode="tel"
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           </label>
-          {error && <p className="text-xs text-ip-error">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <Button className="w-full" disabled={busy || newPhone.length < 10} onClick={requestOtp}>
             {busy ? t('sending') : t('sendCode')}
           </Button>
         </div>
       ) : (
         <div className="space-y-3">
-          <p className="text-sm text-ip-on-surface-variant">{t('enterCode', { phone: newPhone })}</p>
+          <p className="text-sm text-fy-ink-soft">{t('enterCode', { phone: newPhone })}</p>
           {devOtp && (
-            <p className="text-xs rounded-ip-input bg-ip-primary/10 text-ip-primary px-3 py-2">
+            <p className="text-xs rounded-control bg-fy-brown/10 text-fy-brown px-3 py-2">
               {t('devModeNotice', { otp: devOtp })}
             </p>
           )}
@@ -285,10 +285,10 @@ function PhoneChangeModal({ open, onClose }: { open: boolean; onClose: () => voi
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
             inputMode="numeric"
-            className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-center text-lg tracking-[0.4em]"
+            className="w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-center text-lg tracking-[0.4em]"
             placeholder="000000"
           />
-          {error && <p className="text-xs text-ip-error">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <Button className="w-full" disabled={busy || otp.length !== 6} onClick={confirm}>
             {busy ? t('verifying') : t('confirm')}
           </Button>
@@ -336,24 +336,24 @@ function PasswordChangeModal({ open, onClose }: { open: boolean; onClose: () => 
       ) : (
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">{t('currentPassword')}</span>
+            <span className="text-xs text-fy-ink-soft">{t('currentPassword')}</span>
             <input
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           </label>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">{t('newPassword')}</span>
+            <span className="text-xs text-fy-ink-soft">{t('newPassword')}</span>
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           </label>
-          {error && <p className="text-xs text-ip-error">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <Button className="w-full" disabled={busy || newPassword.length < 8 || !currentPassword} onClick={save}>
             {busy ? t('saving') : t('changePassword')}
           </Button>
@@ -417,24 +417,24 @@ export function HamaliSkillsSection() {
             type="button"
             onClick={() => toggleSkill(s)}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors duration-fast ${
-              skills.includes(s) ? 'border-ip-secondary bg-ip-secondary/10 text-ip-secondary' : 'border-ip-outline/20 text-ip-on-surface-variant'
+              skills.includes(s) ? 'border-fy-green bg-fy-green/10 text-fy-green' : 'border-fy-muted/20 text-fy-ink-soft'
             }`}
           >
             {t(`skills.${SKILL_KEY[s] ?? s}`)}
           </button>
         ))}
       </div>
-      <div className="flex items-center gap-2 pt-3 border-t border-ip-outline/10">
+      <div className="flex items-center gap-2 pt-3 border-t border-fy-muted/10">
         <label className="flex-1">
-          <span className="text-xs text-ip-on-surface-variant">{t('capacityLabel')}</span>
+          <span className="text-xs text-fy-ink-soft">{t('capacityLabel')}</span>
           <input
             type="number"
             value={capacity}
             onChange={(e) => setCapacity(e.target.value)}
-            className="mt-1 w-full min-h-[40px] px-3 py-1.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+            className="mt-1 w-full min-h-[40px] px-3 py-1.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
           />
         </label>
-        <button type="button" disabled={saving} onClick={saveCapacity} className="text-xs font-semibold text-ip-secondary mt-4">
+        <button type="button" disabled={saving} onClick={saveCapacity} className="text-xs font-semibold text-fy-green mt-4">
           {saving ? t('saving') : t('save')}
         </button>
       </div>
@@ -468,7 +468,7 @@ export function NotificationPreferencesSection() {
     <SectionCard title={t('title')}>
       {(['push', 'sms'] as const).map((channel) => (
         <div key={channel}>
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t(channel)}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">{t(channel)}</p>
           <div className="space-y-2.5">
             {NOTIF_CATEGORY_KEYS.map((cat) => (
               <div key={cat} className="flex items-center justify-between">
@@ -510,7 +510,7 @@ export function PrivacySettingsSection() {
       <div className="flex items-center justify-between">
         <div className="pr-4">
           <p className="text-sm font-medium">{t('shareLocation')}</p>
-          <p className="text-xs text-ip-on-surface-variant">{t('shareLocationHint')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('shareLocationHint')}</p>
         </div>
         <Toggle
           checked={privacy.shareLocationWhileOffline}
@@ -518,16 +518,16 @@ export function PrivacySettingsSection() {
           onChange={(v) => update({ shareLocationWhileOffline: v })}
         />
       </div>
-      <div className="flex items-center justify-between pt-3 border-t border-ip-outline/10">
+      <div className="flex items-center justify-between pt-3 border-t border-fy-muted/10">
         <div className="flex items-center gap-2">
-          <EyeIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <EyeIcon className="w-4 h-4 text-fy-ink-soft" />
           <span className="text-sm">{t('profileVisibility')}</span>
         </div>
         <select
           value={privacy.profileVisibility}
           disabled={busy}
           onChange={(e) => update({ profileVisibility: e.target.value as 'public' | 'private' })}
-          className="text-sm rounded-ip-input border border-ip-outline/20 bg-ip-surface px-3 py-1.5"
+          className="text-sm rounded-control border border-fy-muted/20 bg-fy-bone px-3 py-1.5"
         >
           <option value="public">{t('public')}</option>
           <option value="private">{t('private')}</option>
@@ -558,7 +558,7 @@ export function RatingsReceivedSection() {
   return (
     <SectionCard title={t('title')}>
       {total === 0 ? (
-        <p className="text-sm text-ip-on-surface-variant">{t('none')}</p>
+        <p className="text-sm text-fy-ink-soft">{t('none')}</p>
       ) : (
         <>
           <div className="space-y-1.5">
@@ -567,26 +567,26 @@ export function RatingsReceivedSection() {
               const pct = total > 0 ? (count / total) * 100 : 0;
               return (
                 <div key={score} className="flex items-center gap-2 text-xs">
-                  <span className="w-3 text-ip-on-surface-variant">{score}</span>
-                  <StarIcon className="w-3 h-3 text-ip-primary" fill="currentColor" />
-                  <div className="flex-1 h-1.5 rounded-full bg-ip-outline/15 overflow-hidden">
-                    <div className="h-full bg-ip-primary" style={{ width: `${pct}%` }} />
+                  <span className="w-3 text-fy-ink-soft">{score}</span>
+                  <StarIcon className="w-3 h-3 text-fy-brown" fill="currentColor" />
+                  <div className="flex-1 h-1.5 rounded-full bg-fy-muted/15 overflow-hidden">
+                    <div className="h-full bg-fy-brown" style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="w-6 text-right text-ip-on-surface-variant">{count}</span>
+                  <span className="w-6 text-right text-fy-ink-soft">{count}</span>
                 </div>
               );
             })}
           </div>
           {data.recentComments.length > 0 && (
-            <div className="pt-3 border-t border-ip-outline/10 space-y-2.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">{t('recentComments')}</p>
+            <div className="pt-3 border-t border-fy-muted/10 space-y-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft">{t('recentComments')}</p>
               {data.recentComments.slice(0, 5).map((c) => (
                 <div key={c._id} className="text-sm">
-                  <span className="inline-flex items-center gap-0.5 mr-1.5 text-ip-primary">
+                  <span className="inline-flex items-center gap-0.5 mr-1.5 text-fy-brown">
                     {c.score}
                     <StarIcon className="w-3 h-3" fill="currentColor" />
                   </span>
-                  <span className="text-ip-on-surface-variant">{c.comment}</span>
+                  <span className="text-fy-ink-soft">{c.comment}</span>
                 </div>
               ))}
             </div>
@@ -621,16 +621,16 @@ export function ComplaintHistorySection() {
   return (
     <SectionCard title={t('title')}>
       {complaints.length === 0 ? (
-        <p className="text-sm text-ip-on-surface-variant">{t('none')}</p>
+        <p className="text-sm text-fy-ink-soft">{t('none')}</p>
       ) : (
         <div className="space-y-2.5">
           {complaints.slice(0, 10).map((c) => (
             <div key={c._id} className="flex items-center justify-between text-sm">
               <div className="min-w-0 flex-1 pr-3">
                 <p className="capitalize font-medium truncate">{c.category.replace('_', ' ')}</p>
-                <p className="text-xs text-ip-on-surface-variant truncate">{c.description}</p>
+                <p className="text-xs text-fy-ink-soft truncate">{c.description}</p>
               </div>
-              <span className="text-xs capitalize text-ip-on-surface-variant flex-shrink-0">{c.status.replace('_', ' ')}</span>
+              <span className="text-xs capitalize text-fy-ink-soft flex-shrink-0">{c.status.replace('_', ' ')}</span>
             </div>
           ))}
         </div>
@@ -676,18 +676,18 @@ export function PayoutDetailsSection() {
         <>
           {user?.payoutDetails ? (
             <div className="flex items-center gap-3">
-              <BankIcon className="w-5 h-5 text-ip-on-surface-variant flex-shrink-0" />
+              <BankIcon className="w-5 h-5 text-fy-ink-soft flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium uppercase">{user.payoutDetails.method}</p>
-                <p className="text-xs text-ip-on-surface-variant font-mono">
+                <p className="text-xs text-fy-ink-soft font-mono">
                   {user.payoutDetails.method === 'bank' ? user.payoutDetails.bankAccountNumber : user.payoutDetails.upiId}
                 </p>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-ip-on-surface-variant">{t('none')}</p>
+            <p className="text-sm text-fy-ink-soft">{t('none')}</p>
           )}
-          <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
+          <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-fy-brown">
             {user?.payoutDetails ? t('update') : t('add')}
           </button>
         </>
@@ -697,14 +697,14 @@ export function PayoutDetailsSection() {
             <button
               type="button"
               onClick={() => setMethod('upi')}
-              className={`flex-1 py-2 rounded-ip-input border text-sm font-semibold ${method === 'upi' ? 'border-ip-primary text-ip-primary bg-ip-primary/10' : 'border-ip-outline/20'}`}
+              className={`flex-1 py-2 rounded-control border text-sm font-semibold ${method === 'upi' ? 'border-fy-brown text-fy-brown bg-fy-brown/10' : 'border-fy-muted/20'}`}
             >
               {t('upi')}
             </button>
             <button
               type="button"
               onClick={() => setMethod('bank')}
-              className={`flex-1 py-2 rounded-ip-input border text-sm font-semibold ${method === 'bank' ? 'border-ip-primary text-ip-primary bg-ip-primary/10' : 'border-ip-outline/20'}`}
+              className={`flex-1 py-2 rounded-control border text-sm font-semibold ${method === 'bank' ? 'border-fy-brown text-fy-brown bg-fy-brown/10' : 'border-fy-muted/20'}`}
             >
               {t('bank')}
             </button>
@@ -714,7 +714,7 @@ export function PayoutDetailsSection() {
               placeholder={t('upiPlaceholder')}
               value={upiId}
               onChange={(e) => setUpiId(e.target.value)}
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           ) : (
             <>
@@ -722,23 +722,23 @@ export function PayoutDetailsSection() {
                 placeholder={t('accountHolderPlaceholder')}
                 value={accountHolderName}
                 onChange={(e) => setAccountHolderName(e.target.value)}
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
               <input
                 placeholder={t('accountNumberPlaceholder')}
                 value={bankAccountNumber}
                 onChange={(e) => setBankAccountNumber(e.target.value)}
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
               <input
                 placeholder={t('ifscPlaceholder')}
                 value={ifsc}
                 onChange={(e) => setIfsc(e.target.value.toUpperCase())}
-                className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
             </>
           )}
-          {error && <p className="text-xs text-ip-error">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <div className="flex gap-2">
             <Button size="md" disabled={saving} onClick={save} className="flex-1">
               {saving ? t('saving') : t('save')}
@@ -790,24 +790,24 @@ export function BusinessProfileSection() {
         <Toggle checked={!!biz?.isBusiness} onChange={toggleBusiness} disabled={saving} />
       </div>
       {(editing || biz?.isBusiness) && (
-        <div className="space-y-3 pt-3 border-t border-ip-outline/10">
+        <div className="space-y-3 pt-3 border-t border-fy-muted/10">
           <input
             placeholder={t('companyNamePlaceholder')}
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+            className="w-full min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
           />
           <input
             placeholder={t('gstinPlaceholder')}
             value={gstin}
             onChange={(e) => setGstin(e.target.value.toUpperCase())}
-            className="w-full min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+            className="w-full min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
           />
           <button
             type="button"
             disabled={saving}
             onClick={() => saveBusiness(true)}
-            className="text-xs font-semibold text-ip-primary"
+            className="text-xs font-semibold text-fy-brown"
           >
             {saving ? t('saving') : t('save')}
           </button>
@@ -843,7 +843,7 @@ export function FrequentRoutesSection() {
           <span className="truncate pr-3">
             {r.pickup} → {r.drop}
           </span>
-          <span className="text-xs text-ip-on-surface-variant flex-shrink-0">{r.count}×</span>
+          <span className="text-xs text-fy-ink-soft flex-shrink-0">{r.count}×</span>
         </div>
       ))}
     </SectionCard>
@@ -873,7 +873,7 @@ export function ReferralSection() {
     <SectionCard title={t('title')}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-ip-on-surface-variant">{t('yourCode')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('yourCode')}</p>
           <p className="font-mono font-bold">{data.code}</p>
         </div>
         <button
@@ -883,13 +883,13 @@ export function ReferralSection() {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
           }}
-          className="text-sm font-semibold text-ip-primary"
+          className="text-sm font-semibold text-fy-brown"
         >
           {copied ? t('copied') : t('copyLink')}
         </button>
       </div>
-      <div className="flex items-center justify-between text-sm pt-3 border-t border-ip-outline/10">
-        <span className="text-ip-on-surface-variant">{t('earnedSoFar')}</span>
+      <div className="flex items-center justify-between text-sm pt-3 border-t border-fy-muted/10">
+        <span className="text-fy-ink-soft">{t('earnedSoFar')}</span>
         <span className="font-semibold">₹{data.stats.totalEarned}</span>
       </div>
     </SectionCard>
@@ -902,7 +902,7 @@ export function SupportSection() {
     <SectionCard title={t('title')}>
       <Link href="/customer/support" className="flex items-center justify-between text-sm py-1">
         <span>{t('helpCentre')}</span>
-        <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+        <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
       </Link>
     </SectionCard>
   );
@@ -944,7 +944,7 @@ export function RoleSwitcherSection() {
 
   return (
     <SectionCard title={t('title')}>
-      <p className="text-xs text-ip-on-surface-variant -mt-1">{t('subtitle')}</p>
+      <p className="text-xs text-fy-ink-soft -mt-1">{t('subtitle')}</p>
       <div className="space-y-2">
         {user.roles
           .filter((r) => r !== user.role)
@@ -954,17 +954,17 @@ export function RoleSwitcherSection() {
               type="button"
               disabled={busy}
               onClick={() => switchTo(r)}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 text-sm font-medium hover:bg-ip-surface-container disabled:opacity-50"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-control border border-fy-muted/20 text-sm font-medium hover:bg-fy-field disabled:opacity-50"
             >
               <span className="flex items-center gap-2">
-                <SwitchIcon className="w-4 h-4 text-ip-on-surface-variant" />
+                <SwitchIcon className="w-4 h-4 text-fy-ink-soft" />
                 {t(`roles.${r}` as never)}
               </span>
-              <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+              <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
             </button>
           ))}
       </div>
-      {error && <p className="text-xs text-ip-error">{error}</p>}
+      {error && <p className="text-xs text-fy-error">{error}</p>}
     </SectionCard>
   );
 }
@@ -999,23 +999,23 @@ export function AccountDangerZoneSection() {
       <button
         type="button"
         onClick={() => setConfirmOpen(true)}
-        className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-ip-error py-2"
+        className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-fy-error py-2"
       >
         <TrashIcon className="w-4 h-4" /> {t('deleteAccount')}
       </button>
 
       <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={t('deleteModalTitle')}>
         <div className="space-y-3">
-          <p className="text-sm text-ip-on-surface-variant">{t('deleteModalBody')}</p>
+          <p className="text-sm text-fy-ink-soft">{t('deleteModalBody')}</p>
           <label className="block">
-            <span className="text-xs text-ip-on-surface-variant">{t('confirmLabel')}</span>
+            <span className="text-xs text-fy-ink-soft">{t('confirmLabel')}</span>
             <input
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
-              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
           </label>
-          {error && <p className="text-xs text-ip-error">{error}</p>}
+          {error && <p className="text-xs text-fy-error">{error}</p>}
           <Button
             variant="danger"
             className="w-full"

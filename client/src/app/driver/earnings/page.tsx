@@ -21,18 +21,18 @@ export default function DriverEarningsPage() {
   const { data, state } = usePolling(() => api.get<EarningsResponse>('/api/earnings/me'), 30000);
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-24">
+    <div className="min-h-screen bg-fy-bone pb-24">
       <TopBar title={t('pageTitle')} showBack={false} />
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
+      <div className="max-w-lg mx-auto px-gutter pt-4">
 
-      <div className="rounded-ip-card bg-primary-600 text-white p-6 mb-ip-sm">
+      <div className="rounded-card bg-fy-brown text-white p-6 mb-4">
         <p className="text-sm text-white/80 mb-1">{t('walletBalance')}</p>
         <p className="font-heading text-3xl font-extrabold">₹{data?.total ?? 0}</p>
         <p className="text-sm text-white/80 mt-1">{t('completedJobs', { count: data?.jobCount ?? 0 })}</p>
       </div>
 
       {!!data?.incentiveTotal && (
-        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-ip-card bg-primary/10 text-sm text-primary-600">
+        <div className="flex items-center gap-3 mb-6 px-4 py-3 rounded-card bg-fy-brown/10 text-sm text-fy-brown">
           <StarIcon className="w-4 h-4 flex-shrink-0" />
           {t('bonusEarned', { amount: data.incentiveTotal })}
         </div>
@@ -44,12 +44,12 @@ export default function DriverEarningsPage() {
 
       <h2 className="font-heading text-lg font-bold mb-3">{t('orderHistory')}</h2>
 
-      {state === 'loading' && <div className="h-24 rounded-ip-card bg-ip-surface-container animate-pulse" />}
+      {state === 'loading' && <div className="h-24 rounded-card bg-fy-field animate-pulse" />}
 
       {state !== 'loading' && (data?.lines.length ?? 0) === 0 && (
         <Card elevation="raised" className="text-center py-10">
-          <WalletIcon className="w-8 h-8 text-ip-on-surface-variant/50 mx-auto mb-3" />
-          <p className="text-sm text-ip-on-surface-variant">{t('noCompletedJobs')}</p>
+          <WalletIcon className="w-8 h-8 text-fy-ink-soft/50 mx-auto mb-3" />
+          <p className="text-sm text-fy-ink-soft">{t('noCompletedJobs')}</p>
         </Card>
       )}
 

@@ -21,9 +21,9 @@ export function useToast() {
 }
 
 const toneClass: Record<ToastItem['tone'], string> = {
-  success: 'bg-fyro-ink text-fyro-bone border-l-4 border-accent-labour',
-  error: 'bg-fyro-ink text-fyro-bone border-l-4 border-red-400',
-  neutral: 'bg-fyro-ink text-fyro-bone border-l-4 border-accent-transport',
+  success: 'bg-fy-ink text-fy-bone border-l-4 border-fy-lime',
+  error: 'bg-fy-ink text-fy-bone border-l-4 border-red-400',
+  neutral: 'bg-fy-ink text-fy-bone border-l-4 border-fy-slate',
 };
 
 // Ephemeral confirmation strip — "saved", "copied invite code", "reported"
@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             role="status"
-            className={`pointer-events-auto px-4 py-3 rounded-control font-body text-body-default shadow-lg animate-[fadeUp_0.2s_ease-out] ${toneClass[t.tone]}`}
+            className={`pointer-events-auto px-4 py-3 rounded-control font-body text-body shadow-lg animate-[fadeUp_0.2s_ease-out] ${toneClass[t.tone]}`}
           >
             {t.message}
           </div>

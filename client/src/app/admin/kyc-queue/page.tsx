@@ -91,9 +91,9 @@ export default function AdminKycQueuePage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       <div className="max-w-xs mb-8">
         <QueueCounter count={users.length} label={t('pendingReview')} tone={users.length > 0 ? 'primary' : 'muted'} />
@@ -102,7 +102,7 @@ export default function AdminKycQueuePage() {
       {state === 'loading' && !data && <Skeleton lines={4} className="h-16" />}
 
       {state !== 'loading' && users.length === 0 && (
-        <div className="ip-card max-w-2xl">
+        <div className="fy-surface-card max-w-2xl">
           <EmptyState icon={<ShieldIcon className="w-7 h-7" />} title={t('queueEmpty')} description={t('queueEmptyDesc')} />
         </div>
       )}
@@ -113,14 +113,14 @@ export default function AdminKycQueuePage() {
             key={u._id}
             type="button"
             onClick={() => openDetail(u)}
-            className="ip-card text-left hover:bg-ip-surface-container-high transition-colors"
+            className="fy-surface-card text-left hover:bg-fy-well transition-colors"
           >
             <div className="flex items-center justify-between mb-2">
               <p className="font-heading font-semibold">{u.name}</p>
               <StatusChip tone="secondary">{u.role.replace('_', ' ')}</StatusChip>
             </div>
-            <p className="text-sm text-ip-on-surface-variant mb-2">{u.phone}{u.region ? ` · ${u.region}` : ''}</p>
-            <p className="text-xs text-ip-outline">{t('docsSubmitted', { count: u.kycDocs.length, plural: u.kycDocs.length === 1 ? '' : 's' })}</p>
+            <p className="text-sm text-fy-ink-soft mb-2">{u.phone}{u.region ? ` · ${u.region}` : ''}</p>
+            <p className="text-xs text-fy-muted">{t('docsSubmitted', { count: u.kycDocs.length, plural: u.kycDocs.length === 1 ? '' : 's' })}</p>
           </button>
         ))}
       </div>
@@ -132,16 +132,16 @@ export default function AdminKycQueuePage() {
       >
         {selected && (
           <div className="space-y-4">
-            <div className="text-sm text-ip-on-surface-variant">
+            <div className="text-sm text-fy-ink-soft">
               <p>{selected.phone}</p>
               <p className="capitalize">{selected.role.replace('_', ' ')}{selected.region ? ` · ${selected.region}` : ''}</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">
                 {t('submittedDocs')}
               </p>
-              {selected.kycDocs.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noDocsOnFile')}</p>}
+              {selected.kycDocs.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noDocsOnFile')}</p>}
               <div className="space-y-2">
                 {selected.kycDocs.map((doc) => (
                   <a
@@ -149,9 +149,9 @@ export default function AdminKycQueuePage() {
                     href={doc.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 text-sm hover:bg-ip-surface-container"
+                    className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-control border border-fy-muted/20 text-sm hover:bg-fy-field"
                   >
-                    <span className="text-ip-primary truncate">{t(`docType.${doc.type}`) ?? doc.type}</span>
+                    <span className="text-fy-brown truncate">{t(`docType.${doc.type}`) ?? doc.type}</span>
                     <StatusChip tone={docStatusTone[doc.status]}>{t(`docStatus.${doc.status}`)}</StatusChip>
                   </a>
                 ))}
@@ -160,7 +160,7 @@ export default function AdminKycQueuePage() {
 
             {rejecting && (
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
                   {t('rejectionReason')}
                 </label>
                 <textarea
@@ -168,12 +168,12 @@ export default function AdminKycQueuePage() {
                   onChange={(e) => setReason(e.target.value)}
                   rows={3}
                   placeholder={t('rejectionPlaceholder')}
-                  className="w-full px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
+                  className="w-full px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
                 />
               </div>
             )}
 
-            {error && <p className="text-sm text-ip-error">{error}</p>}
+            {error && <p className="text-sm text-fy-error">{error}</p>}
 
             <div className="flex gap-3 pt-2">
               {!rejecting ? (

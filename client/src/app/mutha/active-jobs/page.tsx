@@ -31,7 +31,7 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
   }
 
   return (
-    <div className="ip-card">
+    <div className="fy-surface-card">
       <div className="flex items-center justify-between mb-3">
         <StatusChip tone={booking.status === 'in_progress' ? 'primary' : 'secondary'}>
           {booking.status === 'in_progress' ? t('working') : t('accepted')}
@@ -40,27 +40,27 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
       </div>
       <div className="space-y-2 mb-4">
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-secondary" />
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-green" />
           <p className="text-sm truncate">{booking.pickupLocation.address}</p>
         </div>
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
-          <p className="text-sm text-ip-on-surface-variant truncate">{booking.dropLocation.address}</p>
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-ink-soft" />
+          <p className="text-sm text-fy-ink-soft truncate">{booking.dropLocation.address}</p>
         </div>
       </div>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs text-ip-on-surface-variant">
+        <p className="text-xs text-fy-ink-soft">
           {t('membersAssigned', { assigned: booking.assignedHamaliIds.length, required: booking.requiredHamaliCount })}
         </p>
         <Link
           href={`/mutha/assign-members?bookingId=${booking._id}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-ip-secondary hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-fy-green hover:underline"
         >
           <UsersIcon className="w-3.5 h-3.5" />
           {t('manageCrew')}
         </Link>
       </div>
-      {error && <p className="text-xs text-ip-error mb-3">{error}</p>}
+      {error && <p className="text-xs text-fy-error mb-3">{error}</p>}
       {booking.status !== 'completed' && (
         <Button variant="secondary" size="md" disabled={pending} onClick={advance} className="w-full">
           {pending ? t('updating') : booking.status === 'accepted' ? t('startJob') : t('markComplete')}
@@ -78,9 +78,9 @@ export default function MuthaActiveJobsPage() {
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
       <h1 className="font-heading text-2xl font-bold mb-1">{t('pageTitle')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">{t('pageSubtitle')}</p>
+      <p className="text-sm text-fy-ink-soft mb-6">{t('pageSubtitle')}</p>
 
-      {state === 'loading' && <div className="h-40 rounded-ip-card bg-ip-surface-container animate-pulse" />}
+      {state === 'loading' && <div className="h-40 rounded-card bg-fy-field animate-pulse" />}
 
       {state !== 'loading' && jobs.length === 0 && (
         <EmptyState icon={<TruckIcon className="w-6 h-6" />} title={t('noActiveJobs')} description={t('noActiveJobsDesc')} />

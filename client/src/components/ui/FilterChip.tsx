@@ -12,10 +12,10 @@ export function FilterChip({ active = false, className = '', children, ...props 
     <button
       type="button"
       aria-pressed={active}
-      className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-ip-pill text-sm font-semibold transition-colors ${
+      className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold transition-colors ${
         active
-          ? 'bg-ip-primary text-ip-on-primary'
-          : 'bg-ip-surface-container text-ip-on-surface-variant hover:bg-ip-surface-container-high'
+          ? 'bg-fy-brown text-fy-on-brown'
+          : 'bg-fy-field text-fy-ink-soft hover:bg-fy-well'
       } ${className}`}
       {...props}
     >

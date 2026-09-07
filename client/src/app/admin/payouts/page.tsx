@@ -94,9 +94,9 @@ export default function AdminPayoutsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
         <div className="flex flex-wrap gap-2">
@@ -111,29 +111,29 @@ export default function AdminPayoutsPage() {
         </Button>
       </div>
 
-      {generateResult && <p className="text-sm text-ip-on-surface-variant mb-4">{generateResult}</p>}
-      {error && <p className="text-sm text-ip-error mb-4">{error}</p>}
+      {generateResult && <p className="text-sm text-fy-ink-soft mb-4">{generateResult}</p>}
+      {error && <p className="text-sm text-fy-error mb-4">{error}</p>}
 
       {state === 'loading' && !data && <Skeleton lines={3} className="h-20" />}
 
       {state !== 'loading' && payouts.length === 0 && (
-        <div className="ip-card max-w-2xl">
+        <div className="fy-surface-card max-w-2xl">
           <EmptyState icon={<WalletIcon className="w-7 h-7" />} title={t('noPayouts')} description={t('noPayoutsDesc')} />
         </div>
       )}
 
       <div className="grid md:grid-cols-2 gap-4 max-w-4xl">
         {payouts.map((p) => (
-          <div key={p._id} className="ip-card">
+          <div key={p._id} className="fy-surface-card">
             <div className="flex items-center justify-between mb-2">
               <p className="font-heading font-bold">₹{p.amount}</p>
               <StatusChip tone={tone[p.status]}>{t(`status.${p.status}`)}</StatusChip>
             </div>
-            <p className="text-sm text-ip-on-surface-variant mb-1">
+            <p className="text-sm text-fy-ink-soft mb-1">
               {p.userId?.name ?? t('unknown')} ({p.userId?.role}) · {p.period}
             </p>
             {Object.keys(p.breakdown).length > 0 && (
-              <ul className="text-xs text-ip-on-surface-variant mb-3 space-y-0.5">
+              <ul className="text-xs text-fy-ink-soft mb-3 space-y-0.5">
                 {Object.entries(p.breakdown).map(([k, v]) => (
                   <li key={k} className="flex justify-between">
                     <span className="capitalize">{k.replace(/_/g, ' ')}</span>
@@ -143,7 +143,7 @@ export default function AdminPayoutsPage() {
               </ul>
             )}
             {p.status === 'pending' && (
-              <div className="flex gap-2 pt-2 border-t border-ip-outline/10 mt-2">
+              <div className="flex gap-2 pt-2 border-t border-fy-muted/10 mt-2">
                 <Button variant="danger" size="md" disabled={busyId === p._id} onClick={() => decide(p._id, 'reject')}>
                   {t('reject')}
                 </Button>
@@ -153,7 +153,7 @@ export default function AdminPayoutsPage() {
               </div>
             )}
             {p.status === 'approved' && (
-              <div className="pt-2 border-t border-ip-outline/10 mt-2">
+              <div className="pt-2 border-t border-fy-muted/10 mt-2">
                 <Button size="md" disabled={busyId === p._id} onClick={() => decide(p._id, 'paid')}>
                   {busyId === p._id ? t('marking') : t('markPaid')}
                 </Button>

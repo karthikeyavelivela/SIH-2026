@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/Button';
 import { ChevronLeftIcon } from '@/components/ui/icons';
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-md border border-border bg-background text-text-primary placeholder:text-text-muted/70 transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 const CODE_LENGTH = 4;
 const RESEND_SECONDS = 30;
@@ -77,7 +77,7 @@ export default function OtpVerificationPage() {
   const codeComplete = digits.every((d) => d !== '');
 
   return (
-    <div className="relative min-h-screen flex flex-col px-6 py-8 overflow-hidden bg-background">
+    <div className="relative min-h-screen flex flex-col px-6 py-8 overflow-hidden bg-fy-bone">
       <div className="flex items-center gap-3 mb-10">
         <Link
           href={step === 'code' ? '#' : '/role-selection'}
@@ -90,20 +90,20 @@ export default function OtpVerificationPage() {
               : undefined
           }
           aria-label={t('back')}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-raised border border-border shadow-sm hover:bg-surface transition-colors duration-fast"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-fy-card border border-fy-hairline shadow-sm hover:bg-fy-panel transition-colors duration-fast"
         >
           <ChevronLeftIcon className="w-5 h-5" />
         </Link>
-        <span className="font-heading text-lg font-extrabold text-primary-600 tracking-tight">FYRO</span>
+        <span className="font-heading text-lg font-extrabold text-fy-brown tracking-tight">FYRO</span>
       </div>
 
       <div className="max-w-sm w-full mx-auto flex-1 flex flex-col">
         {step === 'phone' ? (
           <>
-            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-text-primary mb-2">
+            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-2">
               {t('stepPhoneTitle')}
             </h1>
-            <p className="text-text-muted mb-8">{t('stepPhoneSubtitle')}</p>
+            <p className="text-fy-muted mb-8">{t('stepPhoneSubtitle')}</p>
             <form onSubmit={handleSendCode} className="space-y-4">
               <input
                 type="tel"
@@ -122,10 +122,10 @@ export default function OtpVerificationPage() {
           </>
         ) : (
           <>
-            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-text-primary mb-2">
+            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-2">
               {t('stepCodeTitle')}
             </h1>
-            <p className="text-text-muted mb-8">{t('sentTo', { phone: phone || '—' })}</p>
+            <p className="text-fy-muted mb-8">{t('sentTo', { phone: phone || '—' })}</p>
 
             <div className="flex justify-center gap-3 mb-6" role="group" aria-label={t('stepCodeTitle')}>
               {digits.map((d, i) => (
@@ -141,19 +141,19 @@ export default function OtpVerificationPage() {
                   onChange={(e) => handleDigitChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
                   aria-label={`Digit ${i + 1}`}
-                  className="w-14 h-14 text-center text-xl font-heading font-bold rounded-md border border-border bg-background text-text-primary focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20 transition-colors duration-fast"
+                  className="w-14 h-14 text-center text-xl font-heading font-bold rounded-control border border-fy-hairline bg-fy-bone text-fy-ink focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20 transition-colors duration-fast"
                 />
               ))}
             </div>
 
             <div className="text-center mb-6">
               {secondsLeft > 0 ? (
-                <p className="text-sm text-text-muted">{t('resendIn', { seconds: secondsLeft })}</p>
+                <p className="text-sm text-fy-muted">{t('resendIn', { seconds: secondsLeft })}</p>
               ) : (
                 <button
                   type="button"
                   onClick={() => setSecondsLeft(RESEND_SECONDS)}
-                  className="text-sm font-semibold text-primary-600 hover:underline"
+                  className="text-sm font-semibold text-fy-brown hover:underline"
                 >
                   {t('resend')}
                 </button>
@@ -173,7 +173,7 @@ export default function OtpVerificationPage() {
             <button
               type="button"
               onClick={() => setStep('phone')}
-              className="text-sm font-medium text-text-muted hover:text-text-primary mt-4 mx-auto block"
+              className="text-sm font-medium text-fy-muted hover:text-fy-ink mt-4 mx-auto block"
             >
               {t('changeNumber')}
             </button>
@@ -183,13 +183,13 @@ export default function OtpVerificationPage() {
         {/* Honest disclaimer — always visible, not just after a verify
             attempt, so this never reads as a working flow at a glance. */}
         <div
-          className={`mt-8 rounded-md border border-border-strong bg-surface px-4 py-3.5 text-sm text-text-muted ${
+          className={`mt-8 rounded-control border border-fy-hairline bg-fy-panel px-4 py-3.5 text-sm text-fy-muted ${
             verifyAttempted ? 'animate-[fadeIn_200ms_ease-out]' : ''
           }`}
         >
-          <p className="font-semibold text-text-primary mb-1">{t('disclaimerTitle')}</p>
+          <p className="font-semibold text-fy-ink mb-1">{t('disclaimerTitle')}</p>
           <p className="leading-relaxed">{t('disclaimer')}</p>
-          <Link href="/login" className="inline-block mt-2 text-primary-600 font-semibold hover:underline">
+          <Link href="/login" className="inline-block mt-2 text-fy-brown font-semibold hover:underline">
             {t('backToLogin')}
           </Link>
         </div>

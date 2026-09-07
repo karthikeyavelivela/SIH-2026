@@ -36,7 +36,7 @@ export default function CustomerProfilePage() {
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-text-muted">{user.phone}</p>
+          <p className="text-sm text-fy-muted">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
@@ -49,20 +49,20 @@ export default function CustomerProfilePage() {
 
       {addresses.length > 0 && (
         <Card elevation="raised" className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">{t('savedAddresses.title')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-3">{t('savedAddresses.title')}</p>
           <div className="space-y-2.5">
             {addresses.map((a) => (
               <div key={a._id} className="flex items-start gap-2.5">
-                <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-600" />
+                <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-brown" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">{a.label}</p>
-                  <p className="text-xs text-text-muted truncate">{a.address}</p>
+                  <p className="text-xs text-fy-muted truncate">{a.address}</p>
                 </div>
                 <button
                   type="button"
                   aria-label={t('savedAddresses.removeAria', { label: a.label })}
                   onClick={() => remove(a._id)}
-                  className="flex-shrink-0 text-text-muted hover:text-red-600"
+                  className="flex-shrink-0 text-fy-muted hover:text-red-600"
                 >
                   <XIcon className="w-4 h-4" />
                 </button>
@@ -86,28 +86,28 @@ export default function CustomerProfilePage() {
           'customer' were missing. */}
       <Link
         href="/customer/insurance"
-        className="flex items-center justify-between p-4 mb-6 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base"
+        className="flex items-center justify-between p-4 mb-6 rounded-card bg-fy-card border border-fy-hairline shadow-sm hover:shadow-md transition-all duration-base"
       >
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+          <span className="w-10 h-10 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center">
             <ShieldIcon className="w-5 h-5" />
           </span>
           <p className="text-sm font-semibold">{t('insurance.title')}</p>
         </div>
-        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+        <ChevronRightIcon className="w-4 h-4 text-fy-muted" />
       </Link>
 
       <Link
         href="/customer/support"
-        className="flex items-center justify-between p-4 mb-6 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base"
+        className="flex items-center justify-between p-4 mb-6 rounded-card bg-fy-card border border-fy-hairline shadow-sm hover:shadow-md transition-all duration-base"
       >
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+          <span className="w-10 h-10 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center">
             <AlertIcon className="w-5 h-5" />
           </span>
           <p className="text-sm font-semibold">{t('support.title')}</p>
         </div>
-        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+        <ChevronRightIcon className="w-4 h-4 text-fy-muted" />
       </Link>
 
       <AccountDangerZoneSection />

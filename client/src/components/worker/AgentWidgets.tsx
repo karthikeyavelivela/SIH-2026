@@ -41,24 +41,24 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-3 p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base w-full text-left mb-3"
+        className="flex items-center gap-3 p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base w-full text-left mb-3"
       >
-        <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-primary/10 text-primary-600' : 'bg-secondary/10 text-secondary-600'}`}>
+        <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green'}`}>
           <SparkleIcon className="w-5 h-5" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">{t('collapsedTitle')}</p>
-          <p className="text-xs text-ip-on-surface-variant">{t('collapsedHint')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('collapsedHint')}</p>
         </div>
       </button>
     );
   }
 
   return (
-    <div className="ip-card mb-3">
+    <div className="fy-surface-card mb-3">
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-semibold">{t('askTitle')}</p>
-        <button type="button" onClick={() => setOpen(false)} className="text-xs text-ip-on-surface-variant">
+        <button type="button" onClick={() => setOpen(false)} className="text-xs text-fy-ink-soft">
           {t('close')}
         </button>
       </div>
@@ -68,18 +68,18 @@ export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' 
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && ask()}
           placeholder={t('placeholder')}
-          className="flex-1 min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
+          className="flex-1 min-h-[44px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
         />
         <button
           type="button"
           disabled={loading || !question.trim()}
           onClick={ask}
-          className="px-4 rounded-ip-input bg-primary-600 text-white text-sm font-semibold disabled:opacity-50"
+          className="px-4 rounded-control bg-fy-brown text-white text-sm font-semibold disabled:opacity-50"
         >
           {loading ? '…' : t('ask')}
         </button>
       </div>
-      {error && <p className="text-sm text-ip-error mt-2">{error}</p>}
+      {error && <p className="text-sm text-fy-error mt-2">{error}</p>}
       {result && (
         <div className="mt-3">
           <AgentResultCard result={result} accent={accent} />
@@ -127,18 +127,18 @@ export function DemandForecastWidget({ region, accent = 'primary' }: { region: s
           type="button"
           disabled={loading}
           onClick={run}
-          className="flex items-center gap-3 p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base w-full text-left disabled:opacity-50"
+          className="flex items-center gap-3 p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base w-full text-left disabled:opacity-50"
         >
-          <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-primary/10 text-primary-600' : 'bg-secondary/10 text-secondary-600'}`}>
+          <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green'}`}>
             <SparkleIcon className="w-5 h-5" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">{loading ? t('loading') : t('titleFor', { region })}</p>
-            <p className="text-xs text-ip-on-surface-variant">{t('subtitle')}</p>
+            <p className="text-xs text-fy-ink-soft">{t('subtitle')}</p>
           </div>
         </button>
       )}
-      {error && <p className="text-sm text-ip-error mt-2">{error}</p>}
+      {error && <p className="text-sm text-fy-error mt-2">{error}</p>}
     </div>
   );
 }
@@ -199,18 +199,18 @@ export function PricingQuoteWidget({
           type="button"
           disabled={loading}
           onClick={run}
-          className="flex items-center gap-3 p-3.5 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base w-full text-left disabled:opacity-50"
+          className="flex items-center gap-3 p-3.5 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base w-full text-left disabled:opacity-50"
         >
-          <span className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-primary/10 text-primary-600' : 'bg-secondary/10 text-secondary-600'}`}>
+          <span className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green'}`}>
             <SparkleIcon className="w-4.5 h-4.5" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">{loading ? t('loading') : t('title')}</p>
-            <p className="text-xs text-ip-on-surface-variant">{t('subtitle')}</p>
+            <p className="text-xs text-fy-ink-soft">{t('subtitle')}</p>
           </div>
         </button>
       )}
-      {error && <p className="text-sm text-ip-error mt-2">{error}</p>}
+      {error && <p className="text-sm text-fy-error mt-2">{error}</p>}
     </div>
   );
 }
@@ -248,18 +248,18 @@ export function MarketInsightsWidget({ region, accent = 'primary' }: { region?: 
           type="button"
           disabled={loading}
           onClick={run}
-          className="flex items-center gap-3 p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base w-full text-left disabled:opacity-50"
+          className="flex items-center gap-3 p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base w-full text-left disabled:opacity-50"
         >
-          <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-primary/10 text-primary-600' : 'bg-secondary/10 text-secondary-600'}`}>
+          <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green'}`}>
             <SparkleIcon className="w-5 h-5" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">{loading ? t('loading') : t('title')}</p>
-            <p className="text-xs text-ip-on-surface-variant">{t('subtitle')}</p>
+            <p className="text-xs text-fy-ink-soft">{t('subtitle')}</p>
           </div>
         </button>
       )}
-      {error && <p className="text-sm text-ip-error mt-2">{error}</p>}
+      {error && <p className="text-sm text-fy-error mt-2">{error}</p>}
     </div>
   );
 }

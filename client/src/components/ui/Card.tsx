@@ -12,6 +12,6 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 // inside an already-elevated context); `raised` is the default — pure
 // white so it separates from the warm-beige page without needing a border.
 export function Card({ elevation = 'raised', className = '', ...props }: CardProps) {
-  const base = elevation === 'raised' ? 'bg-surface-raised' : 'bg-surface';
-  return <div className={`${base} rounded-lg p-6 ${className}`} {...props} />;
+  const base = elevation === 'raised' ? 'bg-fy-card' : 'bg-fy-panel';
+  return <div className={`${base} rounded-card p-6 ${className}`} {...props} />;
 }

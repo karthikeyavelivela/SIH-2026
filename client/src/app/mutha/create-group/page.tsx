@@ -11,7 +11,7 @@ import { QRCodeDisplay } from '@/components/ui/QRCodeDisplay';
 import { CameraIcon, CheckIcon } from '@/components/ui/icons';
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/30 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/60 transition-colors duration-fast focus:border-ip-secondary focus:ring-2 focus:ring-ip-secondary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/30 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/60 transition-colors duration-fast focus:border-fy-green focus:ring-2 focus:ring-fy-green/20';
 
 function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -98,29 +98,29 @@ export default function MuthaGroupSettingsPage() {
       <BackHeader title={t('title')} fallbackHref="/mutha/dashboard" />
 
       <div className="px-5 pt-5">
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
 
-        <div className="ip-card mb-6">
+        <div className="fy-surface-card mb-6">
           <div className="flex flex-col items-center mb-5">
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="relative w-20 h-20 rounded-full bg-ip-surface-container-high flex items-center justify-center overflow-hidden mb-2"
+              className="relative w-20 h-20 rounded-full bg-fy-well flex items-center justify-center overflow-hidden mb-2"
               aria-label={t('changePhotoAria')}
             >
               {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photoUrl} alt="" className="w-full h-full object-cover" />
               ) : (
-                <CameraIcon className="w-6 h-6 text-ip-on-surface-variant" />
+                <CameraIcon className="w-6 h-6 text-fy-ink-soft" />
               )}
             </button>
             <input ref={inputRef} type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
-            <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">{t('groupPhoto')}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft">{t('groupPhoto')}</p>
           </div>
 
           <label className="block mb-4">
-            <span className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <span className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('muthaName')}
             </span>
             <input
@@ -133,7 +133,7 @@ export default function MuthaGroupSettingsPage() {
           </label>
 
           <label className="block">
-            <span className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <span className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('operatingRegion')}
             </span>
             <input
@@ -147,32 +147,32 @@ export default function MuthaGroupSettingsPage() {
         </div>
 
         <h2 className="font-heading text-lg font-bold mb-1">{t('inviteMembers')}</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-3">{t('inviteHint')}</p>
+        <p className="text-sm text-fy-ink-soft mb-3">{t('inviteHint')}</p>
 
-        <div className="ip-card mb-6 flex flex-col items-center">
+        <div className="fy-surface-card mb-6 flex flex-col items-center">
           {data && <QRCodeDisplay value={data.mutha.inviteCode} className="mb-4" />}
           <div className="flex items-center gap-2 w-full">
-            <p className="flex-1 text-center font-heading text-lg font-bold tracking-[0.2em] text-ip-secondary">
+            <p className="flex-1 text-center font-heading text-lg font-bold tracking-[0.2em] text-fy-green">
               {data?.mutha.inviteCode ?? '········'}
             </p>
             <button
               type="button"
               onClick={copyCode}
-              className="flex-shrink-0 w-9 h-9 rounded-full bg-ip-surface-container-high flex items-center justify-center text-ip-on-surface-variant"
+              className="flex-shrink-0 w-9 h-9 rounded-full bg-fy-well flex items-center justify-center text-fy-ink-soft"
               aria-label={t('copyCodeAria')}
             >
-              {copied ? <CheckIcon className="w-4 h-4 text-ip-secondary" /> : <span className="text-xs font-bold">⧉</span>}
+              {copied ? <CheckIcon className="w-4 h-4 text-fy-green" /> : <span className="text-xs font-bold">⧉</span>}
             </button>
           </div>
         </div>
 
         {error && (
-          <div role="alert" className="mb-4 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container">
+          <div role="alert" className="mb-4 rounded-control border border-fy-error/30 bg-fy-error-bg/40 px-4 py-3 text-sm text-fy-on-error-bg">
             {error}
           </div>
         )}
         {saved && !error && (
-          <div role="status" className="mb-4 rounded-ip-input border border-ip-secondary/30 bg-ip-secondary-container/20 px-4 py-3 text-sm text-ip-secondary">
+          <div role="status" className="mb-4 rounded-control border border-fy-green/30 bg-fy-lime/20 px-4 py-3 text-sm text-fy-green">
             {t('saved')}
           </div>
         )}

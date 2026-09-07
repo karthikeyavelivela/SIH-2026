@@ -11,7 +11,7 @@ export function DatePicker({ mode = 'datetime-local', className = '', ...props }
   return (
     <input
       type={mode}
-      className={`w-full h-12 px-4 rounded-control bg-white/50 border border-fyro-ink/15 shadow-[inset_0_1px_2px_rgba(30,26,22,0.04)] font-body text-body-default text-fyro-ink focus:outline-none focus:border-fyro-ink focus:ring-1 focus:ring-fyro-ink transition-colors ${className}`}
+      className={`w-full h-12 px-4 rounded-control bg-white/50 border border-fy-ink/15 shadow-[inset_0_1px_2px_rgba(30,26,22,0.04)] font-body text-body text-fy-ink focus:outline-none focus:border-fy-ink focus:ring-1 focus:ring-fy-ink transition-colors ${className}`}
       {...props}
     />
   );

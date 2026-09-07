@@ -50,8 +50,8 @@ export function PermissionPicker({ permissions, onChange }: PermissionPickerProp
             aria-pressed={permissions.includes(p)}
             className={`px-3.5 py-2 rounded-full text-xs font-semibold border transition-all duration-fast ${
               permissions.includes(p)
-                ? 'bg-secondary-600 text-white border-secondary-600 shadow-sm'
-                : 'border-border-strong text-text-muted hover:border-secondary-600/50 hover:text-text-primary'
+                ? 'bg-fy-green text-white border-fy-green shadow-sm'
+                : 'border-fy-hairline text-fy-muted hover:border-fy-green/50 hover:text-fy-ink'
             }`}
           >
             {t(`options.${p}`)}
@@ -64,15 +64,15 @@ export function PermissionPicker({ permissions, onChange }: PermissionPickerProp
           aria-label={t('regionNameAria')}
           value={regionInput}
           onChange={(e) => setRegionInput(e.target.value)}
-          className="flex-1 min-h-[44px] px-3.5 py-2 rounded-md border border-border bg-background text-sm transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
+          className="flex-1 min-h-[44px] px-3.5 py-2 rounded-control border border-fy-hairline bg-fy-bone text-sm transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
         />
         <Button type="button" variant="ghost" onClick={addRegion}>
           {t('addRegionScope')}
         </Button>
       </div>
       {permissions.length > 0 && (
-        <div className="rounded-md border border-border bg-surface/60 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">{t('selected')}</p>
+        <div className="rounded-control border border-fy-hairline bg-fy-panel/60 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-2">{t('selected')}</p>
           <div className="flex flex-wrap gap-2">
             {permissions.map((p) => (
               <Badge key={p} tone="secondary" className="inline-flex items-center gap-1.5">

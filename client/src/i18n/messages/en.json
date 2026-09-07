@@ -9,7 +9,11 @@
     "group": "Group",
     "jobs": "Jobs",
     "members": "Members",
-    "job": "Job"
+    "job": "Job",
+    "household": "Household",
+    "hamali": "Hamali",
+    "transit": "Transit",
+    "passbook": "Passbook"
   },
   "languageSwitcher": {
     "label": "Language"

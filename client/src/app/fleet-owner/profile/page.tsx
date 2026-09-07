@@ -63,21 +63,21 @@ function CompanyProfileSection() {
   return (
     <div className="mb-6">
       <h2 className="font-heading text-lg font-bold mb-3">{t('title')}</h2>
-      <div className="ip-card space-y-3">
+      <div className="fy-surface-card space-y-3">
         {!editing ? (
           <>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">{t('companyName')}</span>
+              <span className="text-fy-ink-soft">{t('companyName')}</span>
               <span className="font-medium">{fleet.name}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ip-on-surface-variant">{t('fleetSize')}</span>
+              <span className="text-fy-ink-soft">{t('fleetSize')}</span>
               <span className="font-medium">
                 {t('fleetSizeValue', { vehicles: fleet.vehicleIds.length, drivers: fleet.driverIds.length })}
               </span>
             </div>
-            <p className="text-xs text-ip-on-surface-variant pt-2 border-t border-ip-outline/10">{t('gstinNote')}</p>
-            <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-ip-primary">
+            <p className="text-xs text-fy-ink-soft pt-2 border-t border-fy-muted/10">{t('gstinNote')}</p>
+            <button type="button" onClick={() => setEditing(true)} className="text-sm font-semibold text-fy-brown">
               {t('editName')}
             </button>
           </>
@@ -86,14 +86,14 @@ function CompanyProfileSection() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full min-h-[44px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
-            {error && <p className="text-xs text-ip-error">{error}</p>}
+            {error && <p className="text-xs text-fy-error">{error}</p>}
             <div className="flex gap-2">
-              <button type="button" disabled={saving} onClick={save} className="text-sm font-semibold text-ip-primary">
+              <button type="button" disabled={saving} onClick={save} className="text-sm font-semibold text-fy-brown">
                 {saving ? t('saving') : t('save')}
               </button>
-              <button type="button" onClick={() => setEditing(false)} className="text-sm text-ip-on-surface-variant">
+              <button type="button" onClick={() => setEditing(false)} className="text-sm text-fy-ink-soft">
                 {t('cancel')}
               </button>
             </div>
@@ -111,14 +111,14 @@ export default function FleetOwnerProfilePage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('accountEyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-6">{t('pageTitle')}</h1>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('accountEyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-6">{t('pageTitle')}</h1>
 
-      <div className="ip-card flex items-center gap-4 mb-6 max-w-2xl">
+      <div className="fy-surface-card flex items-center gap-4 mb-6 max-w-2xl">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="primary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
+          <p className="text-sm text-fy-ink-soft">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
@@ -135,15 +135,15 @@ export default function FleetOwnerProfilePage() {
         <ComplaintHistorySection />
         <Link
           href="/fleet-owner/insurance"
-          className="flex items-center justify-between p-4 rounded-ip-card bg-ip-surface-container hover:bg-ip-surface-container-high transition-colors duration-base mb-6"
+          className="flex items-center justify-between p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base mb-6"
         >
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-full bg-primary/10 text-primary-600 flex items-center justify-center">
+            <span className="w-10 h-10 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center">
               <ShieldIcon className="w-5 h-5" />
             </span>
             <p className="text-sm font-semibold">{t('insurance.title')}</p>
           </div>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <SupportSection />
         <AccountDangerZoneSection />

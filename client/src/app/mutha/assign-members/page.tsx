@@ -92,7 +92,7 @@ function AssignMembersInner() {
     return (
       <div className="max-w-lg mx-auto pb-6">
         <BackHeader title={t('title')} fallbackHref="/mutha/active-jobs" />
-        <p className="px-5 pt-6 text-sm text-ip-on-surface-variant">{t('loadingJob')}</p>
+        <p className="px-5 pt-6 text-sm text-fy-ink-soft">{t('loadingJob')}</p>
       </div>
     );
   }
@@ -102,7 +102,7 @@ function AssignMembersInner() {
       <BackHeader title={t('title')} fallbackHref="/mutha/active-jobs" />
 
       <div className="px-5 pt-5">
-        <div className="ip-card mb-6">
+        <div className="fy-surface-card mb-6">
           <div className="flex items-start justify-between gap-3 mb-3">
             <p className="font-heading text-xl font-bold capitalize">{t('jobLabel', { type: booking.type })}</p>
             <StatusChip tone={booking.status === 'in_progress' ? 'primary' : 'secondary'}>
@@ -110,16 +110,16 @@ function AssignMembersInner() {
             </StatusChip>
           </div>
           <div className="flex items-start gap-2.5 mb-4">
-            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-secondary" />
+            <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-green" />
             <p className="text-sm">{booking.pickupLocation.address}</p>
           </div>
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-fy-ink-soft">
             <span>{t('workersNeeded', { count: required })}</span>
             <span>{t('selected', { count: activeSelection.size })}</span>
           </div>
         </div>
 
-        <p className="text-xs font-semibold text-ip-on-surface-variant uppercase tracking-wide mb-2">
+        <p className="text-xs font-semibold text-fy-ink-soft uppercase tracking-wide mb-2">
           {t('availableMembers')}
         </p>
         {candidates.length === 0 ? (
@@ -129,7 +129,7 @@ function AssignMembersInner() {
             description={t('noMembersAvailableDesc')}
           />
         ) : (
-          <div className="ip-card mb-6 space-y-1">
+          <div className="fy-surface-card mb-6 space-y-1">
             {candidates.map((m) => (
               <SelectableWorkerCard
                 key={m._id}
@@ -145,7 +145,7 @@ function AssignMembersInner() {
         )}
 
         {error && (
-          <div role="alert" className="mb-4 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container">
+          <div role="alert" className="mb-4 rounded-control border border-fy-error/30 bg-fy-error-bg/40 px-4 py-3 text-sm text-fy-on-error-bg">
             {error}
           </div>
         )}

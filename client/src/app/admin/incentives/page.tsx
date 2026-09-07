@@ -17,7 +17,7 @@ interface IncentiveRule {
 }
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 // Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md's
 // payout_incentive_management row — all fetch/mutation logic identical to
@@ -71,46 +71,46 @@ export default function AdminIncentivesPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+        <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
 
         <div className="space-y-3 mb-6">
           {rules.map((r) => (
-            <div key={r._id} className="ip-card">
+            <div key={r._id} className="fy-surface-card">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-heading font-bold">{t('bonusLabel', { amount: r.bonusAmount })}</p>
                 <StatusChip tone={r.active ? 'success' : 'muted'}>{r.active ? t('active') : t('inactive')}</StatusChip>
               </div>
-              <p className="text-sm text-ip-on-surface-variant mb-2">
+              <p className="text-sm text-fy-ink-soft mb-2">
                 {t('ruleSummary', { rating: r.minRatingAvg, jobs: r.minCompletedJobs, region: r.region ? ` · ${r.region}` : '' })}
               </p>
               {r.active && (
-                <button onClick={() => deactivate(r._id)} className="text-xs font-semibold text-ip-error hover:underline">
+                <button onClick={() => deactivate(r._id)} className="text-xs font-semibold text-fy-error hover:underline">
                   {t('deactivate')}
                 </button>
               )}
             </div>
           ))}
-          {rules.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noRulesYet')}</p>}
+          {rules.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noRulesYet')}</p>}
         </div>
 
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <div className="flex items-center justify-between mb-3">
             <p className="font-semibold text-sm">{t('runAllNow')}</p>
             <Button size="md" disabled={running} onClick={runNow}>
               {running ? t('running') : t('run')}
             </Button>
           </div>
-          {runResult && <p className="text-sm text-ip-on-surface-variant">{t('grantedResult', { count: runResult.totalGranted })}</p>}
+          {runResult && <p className="text-sm text-fy-ink-soft">{t('grantedResult', { count: runResult.totalGranted })}</p>}
         </div>
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('addEyebrow')}</p>
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('newRule')}</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('newRuleSubtitle')}</p>
-        <div className="ip-card">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-green mb-2">{t('addEyebrow')}</p>
+        <h2 className="font-heading text-title font-bold mb-1">{t('newRule')}</h2>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('newRuleSubtitle')}</p>
+        <div className="fy-surface-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               type="number"
@@ -151,7 +151,7 @@ export default function AdminIncentivesPage() {
               onChange={(e) => setForm({ ...form, region: e.target.value })}
               className={inputClass}
             />
-            {error && <p className="text-sm text-ip-error">{error}</p>}
+            {error && <p className="text-sm text-fy-error">{error}</p>}
             <Button type="submit" className="w-full" size="lg" disabled={submitting}>
               {submitting ? t('saving') : t('createRule')}
             </Button>

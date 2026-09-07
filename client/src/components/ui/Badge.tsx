@@ -3,9 +3,9 @@ import { HTMLAttributes } from 'react';
 type Tone = 'primary' | 'secondary' | 'muted' | 'success' | 'danger' | 'warning';
 
 const toneClasses: Record<Tone, string> = {
-  primary: 'bg-primary/10 text-primary-600',
-  secondary: 'bg-secondary/10 text-secondary-600',
-  muted: 'bg-text-muted/10 text-text-muted',
+  primary: 'bg-fy-brown/10 text-fy-brown',
+  secondary: 'bg-fy-green/10 text-fy-green',
+  muted: 'bg-text-muted/10 text-fy-muted',
   success: 'bg-emerald-500/10 text-emerald-700',
   danger: 'bg-red-500/10 text-red-700',
   // "Expiring soon" per PRODUCT.md — warm amber, not alarming red, since

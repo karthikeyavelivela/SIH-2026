@@ -107,9 +107,9 @@ export default function AdminFraudAlertsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {STATUS_FILTERS.map((s) => (
@@ -122,7 +122,7 @@ export default function AdminFraudAlertsPage() {
       {state === 'loading' && !data && <Skeleton lines={3} className="h-16" />}
 
       {state !== 'loading' && cases.length === 0 && (
-        <div className="ip-card max-w-2xl">
+        <div className="fy-surface-card max-w-2xl">
           <EmptyState icon={<ShieldIcon className="w-7 h-7" />} title={t('noFraudCases')} description={t('noFraudCasesDesc')} />
         </div>
       )}
@@ -160,37 +160,37 @@ export default function AdminFraudAlertsPage() {
                 {selected.userId?.accountStatus}
               </StatusChip>
             </div>
-            <p className="text-sm text-ip-on-surface-variant">{selected.userId?.phone}</p>
+            <p className="text-sm text-fy-ink-soft">{selected.userId?.phone}</p>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">{t('evidence')}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">{t('evidence')}</p>
               <div className="space-y-2">
                 {signals.map((s) => (
-                  <div key={s._id} className="rounded-ip-input border border-ip-outline/15 p-3">
+                  <div key={s._id} className="rounded-control border border-fy-muted/15 p-3">
                     <p className="text-sm font-semibold capitalize">{s.detectorType.replace(/_/g, ' ')}</p>
-                    <p className="text-xs text-ip-on-surface-variant mb-1">{new Date(s.detectedAt).toLocaleString('en-IN')}</p>
-                    <pre className="text-xs text-ip-on-surface-variant whitespace-pre-wrap break-all">{JSON.stringify(s.evidence, null, 2)}</pre>
+                    <p className="text-xs text-fy-ink-soft mb-1">{new Date(s.detectedAt).toLocaleString('en-IN')}</p>
+                    <pre className="text-xs text-fy-ink-soft whitespace-pre-wrap break-all">{JSON.stringify(s.evidence, null, 2)}</pre>
                   </div>
                 ))}
-                {signals.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noEvidence')}</p>}
+                {signals.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noEvidence')}</p>}
               </div>
             </div>
 
             {!resolved && (
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
                   {t('notes')}
                 </label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
-                  className="w-full px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
                 />
               </div>
             )}
 
-            {error && <p className="text-sm text-ip-error">{error}</p>}
+            {error && <p className="text-sm text-fy-error">{error}</p>}
 
             {!resolved && !confirmSuspend && (
               <div className="flex gap-3">
@@ -204,8 +204,8 @@ export default function AdminFraudAlertsPage() {
             )}
 
             {confirmSuspend && (
-              <div className="rounded-ip-input border border-ip-error/40 bg-ip-error-container/40 p-4">
-                <p className="text-sm text-ip-on-error-container mb-3 font-medium">
+              <div className="rounded-control border border-fy-error/40 bg-fy-error-bg/40 p-4">
+                <p className="text-sm text-fy-on-error-bg mb-3 font-medium">
                   {t('suspendWarning', { name: selected.userId?.name ?? t('unknownUser') })}
                 </p>
                 <div className="flex gap-3">
@@ -219,7 +219,7 @@ export default function AdminFraudAlertsPage() {
               </div>
             )}
 
-            {resolved && <p className="text-sm text-ip-on-surface-variant">{t('alreadyResolved', { status: t(`status.${selected.status}`) })}</p>}
+            {resolved && <p className="text-sm text-fy-ink-soft">{t('alreadyResolved', { status: t(`status.${selected.status}`) })}</p>}
           </div>
         )}
       </Modal>

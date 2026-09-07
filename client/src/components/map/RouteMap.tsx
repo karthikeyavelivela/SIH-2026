@@ -43,8 +43,8 @@ function pinIcon(color: string) {
   });
 }
 
-const pickupIcon = pinIcon('#BF5020');
-const dropIcon = pinIcon('#0A6F66');
+const pickupIcon = pinIcon('var(--fy-brown)');
+const dropIcon = pinIcon('var(--fy-green)');
 
 // Phase 6.3 — a small numbered dot per intermediate stop, deliberately
 // smaller/plainer than the pickup/drop pins so the route's two real
@@ -53,7 +53,7 @@ const dropIcon = pinIcon('#0A6F66');
 function stopIcon(n: number) {
   return L.divIcon({
     className: '',
-    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:9999px;background:#4A4740;color:#fff;font:700 11px sans-serif;border:2px solid white;box-shadow:0 2px 5px rgba(15,14,12,.35);">${n}</span>`,
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:9999px;background:var(--fy-ink);color:#fff;font:700 11px sans-serif;border:2px solid white;box-shadow:0 2px 5px rgba(15,14,12,.35);">${n}</span>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
   });
@@ -71,7 +71,7 @@ function liveGlyph(kind: 'truck' | 'hamali') {
     kind === 'truck'
       ? '<path d="M2 8h9v6H2z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M11 10h3.5l2 2.5V14H11z" fill="none" stroke="#fff" stroke-width="1.4"/><circle cx="5" cy="15" r="1.3" fill="#fff"/><circle cx="13" cy="15" r="1.3" fill="#fff"/>'
       : '<circle cx="8" cy="4.5" r="1.6" fill="#fff"/><path d="M8 6.5v4.5m0 0-2.5 4M8 11l2.5 4M8 6.5l-2.8 1.6M8 6.5l2.8 1.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
-  const bg = kind === 'truck' ? '#BF5020' : '#0A6F66';
+  const bg = kind === 'truck' ? 'var(--fy-slate)' : 'var(--fy-green)';
   return L.divIcon({
     className: '',
     html: `<span style="position:relative;display:block;width:30px;height:30px;">
@@ -110,7 +110,7 @@ export default function RouteMap({ pickup, drop, stops = [], liveMarker, liveMar
   const points = [pickup, ...stops, drop, ...(liveMarker ? [liveMarker] : [])];
 
   return (
-    <div className={`overflow-hidden rounded-lg border border-border shadow-sm ${className}`}>
+    <div className={`overflow-hidden rounded-card border border-fy-hairline shadow-sm ${className}`}>
       {/* Global (not scoped) on purpose — Leaflet's marker DOM nodes live
           outside this component's React tree, styled-jsx/CSS modules can't
           reach them. Keyframes + the transition are cheap enough to ship
@@ -138,7 +138,7 @@ export default function RouteMap({ pickup, drop, stops = [], liveMarker, liveMar
         />
         <Polyline
           positions={[pickup, ...stops, drop].map((p) => [p.lat, p.lng] as [number, number])}
-          pathOptions={{ color: '#BF5020', weight: 3, opacity: 0.55, dashArray: '1 10' }}
+          pathOptions={{ color: 'var(--fy-brown)', weight: 3, opacity: 0.55, dashArray: '1 10' }}
         />
         <Marker position={[pickup.lat, pickup.lng]} icon={pickupIcon} />
         {stops.map((s, i) => (

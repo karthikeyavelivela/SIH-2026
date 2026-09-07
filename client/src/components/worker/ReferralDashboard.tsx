@@ -88,12 +88,12 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
     );
   }
 
-  const accentText = accent === 'secondary' ? 'text-secondary-600' : 'text-primary-600';
+  const accentText = accent === 'secondary' ? 'text-fy-green' : 'text-fy-brown';
 
   return (
     <div className="space-y-5">
       <Card className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">{t('yourCode')}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-2">{t('yourCode')}</p>
         <p className={`font-heading text-2xl font-extrabold tracking-wider mb-4 ${accentText}`}>{data.code}</p>
         <div className="flex justify-center mb-4">
           <QRCodeDisplay value={data.link} size={140} />
@@ -105,12 +105,12 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
 
       <div className="grid grid-cols-2 gap-3">
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">{t('totalEarned')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-1">{t('totalEarned')}</p>
           <p className={`font-heading text-xl font-extrabold ${accentText}`}>₹{data.stats.totalEarned}</p>
         </Card>
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">{t('pending')}</p>
-          <p className="font-heading text-xl font-extrabold text-text-primary">₹{data.stats.pending}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted mb-1">{t('pending')}</p>
+          <p className="font-heading text-xl font-extrabold text-fy-ink">₹{data.stats.pending}</p>
         </Card>
       </div>
 
@@ -123,14 +123,14 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
             placeholder={t('phonePlaceholder')}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="flex-1 min-h-[44px] px-3.5 py-2 rounded-md border border-border bg-background text-sm"
+            className="flex-1 min-h-[44px] px-3.5 py-2 rounded-control border border-fy-hairline bg-fy-bone text-sm"
           />
           <Button type="submit" disabled={inviting} size="md">
             {inviting ? t('saving') : t('add')}
           </Button>
         </form>
         {inviteError && <p className="text-xs text-red-600 mt-2">{inviteError}</p>}
-        <p className="text-xs text-text-muted mt-2">{t('trackHint')}</p>
+        <p className="text-xs text-fy-muted mt-2">{t('trackHint')}</p>
       </Card>
 
       <div>
@@ -145,14 +145,14 @@ export function ReferralDashboard({ accent = 'primary' }: { accent?: 'primary' |
               <Card key={r._id} className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-sm truncate">{r.referredPhone}</p>
-                  <p className="text-xs text-text-muted">{new Date(r.createdAt).toLocaleDateString('en-IN')}</p>
+                  <p className="text-xs text-fy-muted">{new Date(r.createdAt).toLocaleDateString('en-IN')}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <Badge tone={STATUS_TONE[r.status]}>
                     {r.status === 'bonus_paid' && <CheckIcon className="w-3 h-3 mr-1 inline" />}
                     {t(`status.${r.status}`)}
                   </Badge>
-                  <p className="text-xs text-text-muted mt-1">₹{r.bonusAmount}</p>
+                  <p className="text-xs text-fy-muted mt-1">₹{r.bonusAmount}</p>
                 </div>
               </Card>
             ))}

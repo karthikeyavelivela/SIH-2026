@@ -17,13 +17,13 @@ interface ManagerRow {
 }
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 function ErrorAlert({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2.5 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container animate-[fadeIn_200ms_ease-out]"
+      className="flex items-start gap-2.5 rounded-control border border-fy-error/30 bg-fy-error-bg/40 px-4 py-3 text-sm text-fy-on-error-bg animate-[fadeIn_200ms_ease-out]"
     >
       <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path
@@ -106,17 +106,17 @@ export default function AdminManagersPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('structureEyebrow')}</p>
-        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('orgTree')}</h1>
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('orgTreeSubtitle')}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('structureEyebrow')}</p>
+        <h1 className="font-heading text-heading font-extrabold mb-1">{t('orgTree')}</h1>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('orgTreeSubtitle')}</p>
         <TreeView adminName={user?.name ?? 'Admin'} managers={managers} onEditManager={openEdit} />
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('onboardEyebrow')}</p>
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('createManager')}</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('createManagerSubtitle')}</p>
-        <div className="ip-card">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-green mb-2">{t('onboardEyebrow')}</p>
+        <h2 className="font-heading text-title font-bold mb-1">{t('createManager')}</h2>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('createManagerSubtitle')}</p>
+        <div className="fy-surface-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               placeholder={t('namePlaceholder')}
@@ -147,7 +147,7 @@ export default function AdminManagersPage() {
               required
               minLength={8}
             />
-            <div className="pt-2 border-t border-ip-outline/10">
+            <div className="pt-2 border-t border-fy-muted/10">
               <PermissionPicker permissions={permissions} onChange={setPermissions} />
             </div>
             {error && <ErrorAlert message={error} />}

@@ -25,12 +25,12 @@ export function NotificationBell({ href, className = '' }: NotificationBellProps
     <Link
       href={href}
       aria-label={count > 0 ? t('bellAria', { count }) : t('bellAriaNone')}
-      className={`relative w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-ip-on-surface-variant hover:bg-ip-surface-container-high transition-colors ${className}`}
+      className={`relative w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-fy-ink-soft hover:bg-fy-well transition-colors ${className}`}
     >
       <BellIcon className="w-5 h-5" />
       {count > 0 && (
         <span
-          className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-ip-error text-white text-[10px] font-bold flex items-center justify-center leading-none"
+          className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-fy-error text-white text-[10px] font-bold flex items-center justify-center leading-none"
           aria-hidden="true"
         >
           {count > 9 ? '9+' : count}

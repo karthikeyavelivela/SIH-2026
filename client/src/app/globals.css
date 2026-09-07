@@ -4,261 +4,124 @@
 
 /* Leaflet's own stylesheet — required for tile/marker/control layout to
    render correctly. Imported once, globally, rather than per-page, since
-   every map instance (book, track, future driver/hamali screens) needs it. */
+   every map instance (booking, tracking, ops screens) needs it. */
 @import 'leaflet/dist/leaflet.css';
 
+/* ============================================================================
+   FYRO design tokens.
+
+   Every hex below was SAMPLED from the rendered design screenshots in
+   design-reference/ — see DESIGN_TOKENS.md for the measurement method, the
+   per-value provenance, and which screen each came from. Raw hex lives here
+   and nowhere else; components read tokens only.
+
+   Note: these deliberately differ from the design doc's PROSE palette, which
+   disagrees with its own rendered screens (prose lime #A5CE4C vs rendered
+   #C4EF68, prose slate #646D7E vs rendered #2A3342, prose bone #F5F1E8 vs
+   rendered #FDF9F0). The pixels win.
+   ========================================================================= */
 :root {
-  /* The product is light-only — no dark theme is built. Without this,
-     a browser under a dark OS/system theme can auto-invert an
-     undeclared page's rendering (a paint-time filter — getComputedStyle
-     still reports the correct authored light-token values even while it
-     happens), which is exactly what broke /customer/book's colors live
-     despite every token here being correct. */
+  /* Light-only product — no dark theme exists. Without this declaration a
+     browser under a dark system theme auto-inverts the rendering at paint
+     time (getComputedStyle still reports the correct light values, which is
+     what makes it so confusing to diagnose). */
   color-scheme: light;
 
-  /* ==========================================================================
-     FYRO v3 — "Cooperative Ledger" palette, from the Stitch export
-     design/stitch_export/stitch_fyro_cooperative_services_platform/
-     fyro_cooperative_platform/DESIGN.md. Source of truth for ALL visual
-     design going forward — supersedes the v2 "Ink on Warm Paper" retint
-     below. Raw hex lives ONLY here; every component/page reads a token.
-     ========================================================================== */
-  --fyro-bone: #F5F1E8;
-  --fyro-ink: #1E1A16;
-  --fyro-brown: #64402A;
-  --fyro-lime: #A5CE4C;
-  --fyro-slate: #646D7E;
-  --fyro-muted: #7A736A;
+  /* ---- Surfaces: the bone family. #FDF9F0 is 19-34% of every screen. ---- */
+  --fy-bone: #FDF9F0;
+  --fy-panel: #F7F3EA;
+  --fy-field: #F1EEE5;
+  --fy-well: #ECE8DF;
+  --fy-edge: #E6E2D9;
+  --fy-card: #FFFFFF;
+  --fy-dim: #DDDAD1;
 
-  /* Semantic domain accents — one meaning each, used consistently instead
-     of picking a color per-component. Household/governance records lean
-     Brown; labour value/earnings/active-shift state is always Lime;
-     transit/logistics/admin telemetry is always Slate. */
-  --accent-household: var(--fyro-brown);
-  --accent-labour: var(--fyro-lime);
-  --accent-transport: var(--fyro-slate);
-  --accent-worker: var(--fyro-lime);
-  --accent-console: var(--fyro-slate);
+  /* ---- Ink ---- */
+  --fy-ink: #1C1C16;
+  --fy-ink-soft: #50443E;
+  --fy-muted: #83746D;
+  --fy-hairline: #D5C3BA;
 
-  /* Hairline dividers — per DESIGN.md's tint rule: dark-on-light on Bone
-     surfaces, light-on-dark on Brown/Ink surfaces. */
-  --hairline: rgba(30, 26, 22, 0.08);
-  --hairline-on-dark: rgba(245, 241, 232, 0.15);
+  /* ---- Household accent: brown ---- */
+  --fy-brown: #4A2A16;
+  --fy-brown-soft: #64402A;
+  --fy-on-brown: #FFFFFF;
+  --fy-on-brown-soft: #DFAD91;
 
-  /* Floating/vitrine surface + blur, per DESIGN.md's elevation model
-     (tonal + glass, never a synthetic drop shadow). */
-  --vitrine-bg: rgba(245, 241, 232, 0.76);
-  --vitrine-blur: 16px;
-  --elevated-bg: rgba(255, 253, 249, 0.88);
-  --elevated-blur: 24px;
-  --elevated-shadow: 0 12px 36px -4px rgba(30, 26, 22, 0.06), 0 2px 6px -1px rgba(30, 26, 22, 0.03);
+  /* ---- Labour accent: green + lime ---- */
+  --fy-green: #4B6700;
+  --fy-lime: #C4EF68;
+  --fy-lime-dim: #ABD552;
+  --fy-on-green: #FFFFFF;
+  --fy-on-lime: #1C1C16;
+  --fy-lime-tint-1: #EBF6C6;
+  --fy-lime-tint-2: #E6F5BA;
+  --fy-lime-tint-3: #DBF3A1;
 
-  /* Card/control/chip radii per DESIGN.md's shape system. */
-  --radius-card: 1.5rem;   /* 24px — cards, primary modules */
-  --radius-control: 0.75rem; /* 12px — buttons, inputs */
-  --radius-chip: 9999px;   /* fully round — chips, pills, status */
-  --radius-cell: 0.5rem;   /* 8px — nested sub-elements inside a 24px card */
+  /* ---- Transit accent: slate ---- */
+  --fy-slate: #2A3342;
+  --fy-slate-soft: #404959;
+  --fy-slate-pale: #DAE3F7;
+  --fy-on-slate: #FFFFFF;
+  --fy-on-slate-soft: #AFB8CB;
 
-  /* Locale-aware heading font — DESIGN.md's "Multilingual Harmony" rule.
-     Default Fraunces; overridden per <html lang> below so every `font-
-     heading` callsite (there is exactly one Tailwind token for it) swaps
-     scripts with zero per-component changes, same indirection pattern as
-     the rest of this file. */
-  --font-heading: var(--font-fraunces), 'Noto Serif', serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
+  /* ---- Status ---- */
+  --fy-error: #BA1A1A;
+  --fy-error-bg: #FFDAD6;
+  --fy-on-error-bg: #93000A;
+  --fy-on-error: #FFFFFF;
+  --fy-peach: #FFDBC8;
+  --fy-inverse: #31302B;
+  --fy-on-inverse: #F4F0E7;
+
+  /* ---- Shape (measured off the rendered cards) ---- */
+  --fy-radius-card: 16px;
+  --fy-radius-sheet: 24px;
+  --fy-radius-control: 12px;
+  --fy-radius-cell: 8px;
+  --fy-radius-tag: 4px;
+
+  /* ---- Type: measured on login.png, ~1:1 with CSS px ---- */
+  --fy-text-display: 44px;
+  --fy-text-heading: 32px;
+  --fy-text-title: 22px;
+  --fy-text-metric: 56px;
+  --fy-text-body-lg: 17px;
+  --fy-text-body: 15px;
+  --fy-text-label: 13px;
+  --fy-text-eyebrow: 11px;
+
+  /* Locale-aware heading font — Indic scripts share the Latin serif scale
+     rather than falling back to a mismatched sans. One token, three
+     scripts, so no callsite changes when the locale does. */
+  --fy-font-heading: var(--font-fraunces), 'Noto Serif', Georgia, serif;
+  --fy-font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* ---- Motion ---- */
+  --fy-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --fy-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --fy-duration-fast: 150ms;
+  --fy-duration-base: 250ms;
+  --fy-duration-slow: 500ms;
+
+  /* ---- Elevation: the designs use colour steps, not drop shadows.
+     These two are the only real shadows, both barely-there. ---- */
+  --fy-shadow-card: 0 1px 2px rgba(28, 28, 22, 0.04);
+  --fy-shadow-float: 0 8px 24px -8px rgba(28, 28, 22, 0.14);
 }
 
 html[lang='te'] {
-  --font-heading: var(--font-noto-serif-telugu), 'Noto Serif', serif;
+  --fy-font-heading: var(--font-noto-serif-telugu), 'Noto Serif', serif;
 }
 html[lang='hi'] {
-  --font-heading: var(--font-noto-serif-devanagari), 'Noto Serif', serif;
-
-  /* ---- Legacy brand colors — RETINTED to the v3 palette above, same
-     variable names as before on purpose: every existing component
-     (Button, Card, Badge, BottomTabNav, Avatar, Modal...) and every
-     existing page picks up v3 for free, no per-file changes required. This
-     is the same "repoint the variable, not the callsite" move the v2
-     retint already used — see the ip-* block further down, repointed the
-     same way. ---- */
-  --color-background: var(--fyro-bone);
-  --color-surface: #EFEAE0;
-  --color-primary: var(--fyro-brown);
-  --color-secondary: var(--fyro-slate);
-  --color-text-primary: var(--fyro-ink);
-  --color-text-muted: var(--fyro-muted);
-
-  /* ---- Interactive "-600" shades: same hue family, deepened for use as a
-     FILL under white text or as link/text color on a light background.
-     The base --color-primary/--color-secondary (bright) stay reserved for
-     large decorative fills, icons, and illustration — never for button
-     backgrounds or body-size text, where they'd fail WCAG AA. ---- */
-  --color-primary-600: #4A2F1E;
-  --color-secondary-600: #4E5766;
-
-  /* ---- Surface elevation — the v2 system is TONAL (color-layer), not
-     shadow-based; see .ip-card / Button / Card for the flat, no-shadow
-     press states this drives. ---- */
-  --color-surface-raised: #FFFFFF;
-  --color-border: rgba(29, 27, 25, 0.08);
-  --color-border-strong: rgba(29, 27, 25, 0.14);
-
-  /* ---- Typography: fluid scale, real hierarchy (Phase 3 of the design
-     system — hero/h1/h2/h3/body/caption/label are visually distinct
-     weights AND sizes, not just font-size bumps). ---- */
-  --text-xs: clamp(0.72rem, 0.68rem + 0.2vw, 0.8rem);
-  --text-sm: clamp(0.85rem, 0.8rem + 0.25vw, 0.95rem);
-  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
-  --text-lg: clamp(1.15rem, 1.05rem + 0.5vw, 1.35rem);
-  --text-xl: clamp(1.5rem, 1.3rem + 1vw, 1.9rem);
-  --text-2xl: clamp(2rem, 1.6rem + 2vw, 2.75rem);
-  --text-hero: clamp(2.75rem, 2rem + 4vw, 4.75rem);
-
-  /* ---- Spacing rhythm (8pt grid) ---- */
-  --space-1: 0.5rem;
-  --space-2: 1rem;
-  --space-3: 1.5rem;
-  --space-4: 2rem;
-  --space-6: 3rem;
-  --space-8: 4rem;
-  --space-12: 6rem;
-  --space-16: 8rem;
-
-  /* ---- Motion ---- */
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 500ms;
-
-  /* ---- Shadows: warm-tinted, layered (ambient + contact), not the
-     generic `0 2px 4px rgba(0,0,0,0.1)` that reads as "no shadow at all". ---- */
-  --shadow-sm: 0 1px 2px rgba(15, 14, 12, 0.06), 0 1px 1px rgba(15, 14, 12, 0.04);
-  --shadow-md: 0 8px 24px -4px rgba(15, 14, 12, 0.10), 0 2px 8px -2px rgba(15, 14, 12, 0.06);
-  --shadow-lg: 0 24px 48px -12px rgba(15, 14, 12, 0.16), 0 8px 16px -4px rgba(15, 14, 12, 0.08);
-  --shadow-glow-primary: 0 8px 24px -6px rgba(255, 107, 43, 0.35);
-  --shadow-glow-secondary: 0 8px 24px -6px rgba(13, 148, 136, 0.30);
-
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-xl: 32px;
-
-  /* ==========================================================================
-     "ip-*" tokens — RETINTED to the v3 Cooperative Ledger palette (was a
-     retint of a different, earlier Stitch export — "Ink on Warm Paper";
-     see DESIGN_MAP.md's "Superseded" note). Same variable names, same
-     "repoint don't rewrite" move as the legacy block above: the ~40 files
-     already using ip-* classes (admin, customer, driver pages) pick up v3
-     for free. New v3-native components should prefer the fyro- and
-     accent- tokens above directly; ip- stays live as an alias layer
-     during the migration, not a second design system.
-     ========================================================================== */
-  --ip-surface: var(--fyro-bone);
-  --ip-surface-dim: #DDDAD1;
-  --ip-surface-bright: var(--fyro-bone);
-  --ip-surface-container-lowest: #FFFFFF;
-  --ip-surface-container-low: #F7F3EA;
-  --ip-surface-container: #F1EEE5;
-  --ip-surface-container-high: #ECE8DF;
-  --ip-surface-container-highest: #E6E2D9;
-  --ip-on-surface: var(--fyro-ink);
-  --ip-on-surface-variant: #50443E;
-  --ip-inverse-surface: #31302B;
-  --ip-inverse-on-surface: #F4F0E7;
-  --ip-outline: #83746D;
-  --ip-outline-variant: #D5C3BA;
-
-  --ip-primary: var(--fyro-brown);
-  --ip-primary-container: #7D5A42;
-  --ip-on-primary: #FFFFFF;
-  --ip-on-primary-container: #DFAD91;
-
-  --ip-secondary: #4B6700;
-  --ip-secondary-container: var(--fyro-lime);
-  --ip-on-secondary: #FFFFFF;
-  --ip-on-secondary-container: var(--fyro-ink);
-
-  --ip-tertiary: var(--fyro-slate);
-  --ip-tertiary-container: #AFB8CB;
-  --ip-on-tertiary: #FFFFFF;
-  --ip-on-tertiary-container: #131C2A;
-
-  --ip-error: #BA1A1A;
-  --ip-error-container: #FFDAD6;
-  --ip-on-error: #FFFFFF;
-  --ip-on-error-container: #93000A;
-
-  /* Typography named aliases onto the existing fluid clamp() scale — keeps
-     one responsive scale instead of two competing fixed-px scales. */
-  --ip-text-display-lg: var(--text-2xl);   /* ~44-48px */
-  --ip-text-display-md: var(--text-xl);    /* ~32px */
-  --ip-text-headline-sm: var(--text-lg);   /* ~24px, 20px mobile via clamp */
-  --ip-text-body-lg: var(--text-base);
-  --ip-text-body-md: var(--text-sm);
-  --ip-text-body-sm: var(--text-xs);
-  --ip-text-data-mono: var(--text-lg);     /* Syne bold, tabular numbers */
-
-  /* Spacing aliases matching the industrial system's named scale */
-  --ip-space-base: 4px;
-  --ip-space-xs: 8px;
-  --ip-space-sm: 16px;
-  --ip-space-md: 24px;
-  --ip-space-lg: 32px;
-  --ip-space-xl: 48px;
-  --ip-edge-margin: 20px;
-  --ip-gutter: 12px;
-
-  /* Component radii — aliased onto the v3 --radius-* tokens above (cards
-     24px, controls 12px, pills fully round). */
-  --ip-radius-input: var(--radius-control);
-  --ip-radius-card: var(--radius-card);
-  --ip-radius-sheet: 24px; /* bottom-sheet top corners */
-  --ip-radius-pill: var(--radius-chip);
+  --fy-font-heading: var(--font-noto-serif-devanagari), 'Noto Serif', serif;
 }
 
-/* Ultra-fine paper-grain overlay — DESIGN.md's "Substrate" surface strata.
-   Fixed, full-viewport, non-interactive; drop onto any Bone-background
-   screen root for the tactile-paper effect. Verbatim from the Stitch
-   export so it matches the reference screens exactly. */
-.fyro-grain {
-  background-image: radial-gradient(rgba(30, 26, 22, 0.065) 1px, transparent 0);
+/* Paper-grain overlay — the fine dot texture visible on the design's
+   substrate. Drop onto any page root. */
+.fy-grain {
+  background-image: radial-gradient(rgba(28, 28, 22, 0.065) 1px, transparent 0);
   background-size: 12px 12px;
-}
-
-/* Vitrine / elevated glass surfaces — DESIGN.md's "Sheet" and "Elevated
-   Floating Plates" strata. Use instead of shadow-md/lg on any v3-native
-   card, menu, or sticky drawer. */
-.fyro-vitrine {
-  background: var(--vitrine-bg);
-  backdrop-filter: blur(var(--vitrine-blur));
-  -webkit-backdrop-filter: blur(var(--vitrine-blur));
-  border: 1px solid var(--hairline);
-}
-.fyro-elevated {
-  background: var(--elevated-bg);
-  backdrop-filter: blur(var(--elevated-blur));
-  -webkit-backdrop-filter: blur(var(--elevated-blur));
-  box-shadow: var(--elevated-shadow);
-}
-
-/* Elevation note: the industrial system deliberately avoids shadows —
-   depth comes from tonal layering (surface → surface-container →
-   surface-container-high) and, on press, a 1px solid var(--ip-on-surface)
-   border — never a shadow. New components use `.ip-card`/`.ip-card--pressed`
-   below rather than the `shadow-*` utilities used by existing screens. */
-.ip-card {
-  background: var(--ip-surface-container);
-  border-radius: var(--ip-radius-card);
-  padding: var(--ip-space-md);
-}
-.ip-card--pressed {
-  background: var(--ip-surface-container-high);
-  border: 1px solid var(--ip-on-surface);
-}
-
-* {
-  border-color: var(--color-border);
 }
 
 html {
@@ -278,37 +141,27 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  line-height: 1.6;
+  background-color: var(--fy-bone);
+  color: var(--fy-ink);
+  font-family: var(--fy-font-body);
+  font-size: var(--fy-text-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Global focus treatment — never remove, always style deliberately. */
-:focus-visible {
-  outline: 2px solid var(--color-primary-600);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* Type hierarchy defaults for bare elements (Tailwind classes still win
-   when applied, this just keeps unstyled markup from looking flat). */
-h1 {
-  font-size: var(--text-2xl);
-  font-weight: 700;
+/* Bare-element defaults, so unstyled markup still lands in the system.
+   Tailwind utilities still win wherever they are applied. */
+h1, h2, h3, h4 {
+  font-family: var(--fy-font-heading);
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
-h2 {
-  font-size: var(--text-xl);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.15;
-}
-h3 {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  line-height: 1.25;
+
+:focus-visible {
+  outline: 2px solid var(--fy-brown);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 @keyframes fadeIn {
@@ -324,16 +177,16 @@ h3 {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Skip-to-content link — visually hidden until focused. */
+/* Skip-to-content — visually hidden until focused. */
 .skip-link {
   position: absolute;
   left: -9999px;
   top: 0;
   z-index: 100;
-  background: var(--color-text-primary);
-  color: white;
-  padding: var(--space-1) var(--space-2);
-  border-radius: 0 0 var(--radius-sm) 0;
+  background: var(--fy-ink);
+  color: var(--fy-bone);
+  padding: 8px 16px;
+  border-radius: 0 0 var(--fy-radius-cell) 0;
 }
 .skip-link:focus {
   left: 0;

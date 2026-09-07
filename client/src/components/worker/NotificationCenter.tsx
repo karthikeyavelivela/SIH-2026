@@ -49,7 +49,7 @@ export function NotificationCenter({ accent = 'primary' }: { accent?: 'primary' 
   }
 
   const notifications = data?.notifications ?? [];
-  const tone = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
+  const tone = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-6 pb-10">
@@ -71,7 +71,7 @@ export function NotificationCenter({ accent = 'primary' }: { accent?: 'primary' 
       )}
 
       {state === 'error' && (
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <EmptyState
             icon={<AlertIcon className="w-7 h-7" />}
             title={t('loadError')}
@@ -85,7 +85,7 @@ export function NotificationCenter({ accent = 'primary' }: { accent?: 'primary' 
       )}
 
       {state !== 'loading' && state !== 'error' && notifications.length === 0 && (
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <EmptyState icon={<BellIcon className="w-7 h-7" />} title={t('empty')} description={t('emptyDesc')} />
         </div>
       )}
@@ -96,17 +96,17 @@ export function NotificationCenter({ accent = 'primary' }: { accent?: 'primary' 
             key={n._id}
             type="button"
             onClick={() => open(n)}
-            className={`w-full text-left ip-card flex items-start gap-3 transition-colors ${
+            className={`w-full text-left fy-surface-card flex items-start gap-3 transition-colors ${
               n.read ? '' : 'border-l-4 ' + (accent === 'primary' ? 'border-l-primary-600' : 'border-l-secondary-600')
             }`}
           >
             {!n.read && (
-              <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${accent === 'primary' ? 'bg-primary-600' : 'bg-secondary-600'}`} aria-hidden="true" />
+              <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${accent === 'primary' ? 'bg-fy-brown' : 'bg-fy-green'}`} aria-hidden="true" />
             )}
             <div className="min-w-0 flex-1">
-              <p className={`text-sm font-semibold ${n.read ? 'text-ip-on-surface-variant' : 'text-ip-on-surface'}`}>{n.title}</p>
-              <p className="text-sm text-ip-on-surface-variant">{n.body}</p>
-              <p className="text-xs text-ip-outline mt-1">{new Date(n.createdAt).toLocaleString('en-IN')}</p>
+              <p className={`text-sm font-semibold ${n.read ? 'text-fy-ink-soft' : 'text-fy-ink'}`}>{n.title}</p>
+              <p className="text-sm text-fy-ink-soft">{n.body}</p>
+              <p className="text-xs text-fy-muted mt-1">{new Date(n.createdAt).toLocaleString('en-IN')}</p>
             </div>
           </button>
         ))}

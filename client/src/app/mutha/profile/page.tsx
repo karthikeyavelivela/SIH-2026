@@ -40,7 +40,7 @@ export default function MuthaLeaderProfilePage() {
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-text-muted">{user.phone}</p>
+          <p className="text-sm text-fy-muted">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>
@@ -53,13 +53,13 @@ export default function MuthaLeaderProfilePage() {
 
       <Link
         href="/mutha/create-group"
-        className="flex items-center justify-between p-4 rounded-lg bg-surface-raised border border-border shadow-sm hover:shadow-md transition-all duration-base mb-6"
+        className="flex items-center justify-between p-4 rounded-card bg-fy-card border border-fy-hairline shadow-sm hover:shadow-md transition-all duration-base mb-6"
       >
         <span className="flex items-center gap-2.5 text-sm font-semibold">
-          <UsersIcon className="w-4 h-4 text-text-muted" />
+          <UsersIcon className="w-4 h-4 text-fy-muted" />
           {t('groupSettingsLink')}
         </span>
-        <ChevronRightIcon className="w-4 h-4 text-text-muted" />
+        <ChevronRightIcon className="w-4 h-4 text-fy-muted" />
       </Link>
 
       <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.mutha_leader} />

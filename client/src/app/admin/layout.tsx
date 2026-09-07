@@ -116,9 +116,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading || !user || (user.role !== 'admin' && user.role !== 'manager')) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-ip-on-surface-variant bg-ip-surface">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-fy-ink-soft bg-fy-bone">
         <div
-          className="w-8 h-8 rounded-full border-2 border-ip-outline-variant border-t-ip-primary animate-spin"
+          className="w-8 h-8 rounded-full border-2 border-fy-hairline border-t-fy-brown animate-spin"
           aria-hidden="true"
         />
         <p className="text-sm">{tLayout('loading')}</p>
@@ -127,26 +127,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen flex bg-ip-surface text-ip-on-surface">
-      <aside className="w-64 shrink-0 border-r border-ip-outline/10 bg-ip-surface-container-lowest p-6 hidden md:flex md:flex-col overflow-y-auto">
+    <div className="min-h-screen flex bg-fy-bone text-fy-ink">
+      <aside className="w-64 shrink-0 border-r border-fy-muted/10 bg-fy-card p-6 hidden md:flex md:flex-col overflow-y-auto">
         <div className="mb-8 flex items-start justify-between gap-2">
           <div>
-            <p className="font-heading font-bold text-lg text-ip-primary tracking-tight">FYRO</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ip-on-surface-variant mt-0.5">
+            <p className="font-heading font-bold text-lg text-fy-brown tracking-tight">FYRO</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-fy-ink-soft mt-0.5">
               {user.role === 'admin' ? t('adminConsole') : t('managerConsole')}
             </p>
           </div>
           <NotificationBell href="/admin/notifications" />
         </div>
         <SidebarNav items={items} />
-        <div className="mt-auto pt-6 border-t border-ip-outline/10">
-          <p className="text-xs text-ip-on-surface-variant truncate mb-3">
-            {tLayout('signedInAs')} <span className="font-semibold text-ip-on-surface">{user.name}</span>
+        <div className="mt-auto pt-6 border-t border-fy-muted/10">
+          <p className="text-xs text-fy-ink-soft truncate mb-3">
+            {tLayout('signedInAs')} <span className="font-semibold text-fy-ink">{user.name}</span>
           </p>
           <button
             type="button"
             onClick={() => logout()}
-            className="w-full text-left px-3.5 py-2.5 rounded-ip-input text-sm font-medium text-ip-error hover:bg-ip-error-container/40 transition-colors"
+            className="w-full text-left px-3.5 py-2.5 rounded-control text-sm font-medium text-fy-error hover:bg-fy-error-bg/40 transition-colors"
           >
             {tLayout('logout')}
           </button>
@@ -154,8 +154,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile top bar + drawer */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 py-3 bg-ip-surface-container-lowest border-b border-ip-outline/10 shadow-sm">
-        <p className="font-heading font-bold text-ip-primary">
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 py-3 bg-fy-card border-b border-fy-muted/10 shadow-sm">
+        <p className="font-heading font-bold text-fy-brown">
           FYRO {user.role === 'admin' ? t('admin') : t('manager')}
         </p>
         <div className="flex items-center gap-1">
@@ -165,7 +165,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           onClick={() => setMobileNavOpen((o) => !o)}
           aria-label={mobileNavOpen ? tLayout('closeMenu') : tLayout('openMenu')}
           aria-expanded={mobileNavOpen}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-ip-surface-container transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-fy-field transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             {mobileNavOpen ? (
@@ -178,12 +178,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </div>
       {mobileNavOpen && (
-        <div className="md:hidden fixed top-[57px] inset-x-0 z-30 bg-ip-surface-container-lowest border-b border-ip-outline/10 shadow-lg px-4 py-4 max-h-[75vh] overflow-y-auto animate-[fadeIn_200ms_ease-out]">
+        <div className="md:hidden fixed top-[57px] inset-x-0 z-30 bg-fy-card border-b border-fy-muted/10 shadow-lg px-4 py-4 max-h-[75vh] overflow-y-auto animate-[fadeIn_200ms_ease-out]">
           <SidebarNav items={items} />
           <button
             type="button"
             onClick={() => logout()}
-            className="w-full text-left px-3.5 py-2.5 mt-2 rounded-ip-input text-sm font-medium text-ip-error hover:bg-ip-error-container/40 transition-colors border-t border-ip-outline/10 pt-4"
+            className="w-full text-left px-3.5 py-2.5 mt-2 rounded-control text-sm font-medium text-fy-error hover:bg-fy-error-bg/40 transition-colors border-t border-fy-muted/10 pt-4"
           >
             {tLayout('logout')}
           </button>

@@ -40,7 +40,7 @@ interface FleetDoc {
 }
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 function availabilityTone(status: FleetVehicleSummary['availabilityStatus']): 'success' | 'primary' | 'muted' {
   if (status === 'on_job') return 'primary';
@@ -130,7 +130,7 @@ export default function FleetOwnerDashboardPage() {
   if (state === 'error' || !fleet) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <EmptyState
             icon={<AlertIcon className="w-7 h-7" />}
             title={t('couldNotLoad')}
@@ -154,9 +154,9 @@ export default function FleetOwnerDashboardPage() {
     <div className="max-w-6xl mx-auto animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{fleet.name}</h1>
-          <p className="text-sm text-ip-on-surface-variant">{t('subtitle')}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+          <h1 className="font-heading text-heading font-extrabold mb-1">{fleet.name}</h1>
+          <p className="text-sm text-fy-ink-soft">{t('subtitle')}</p>
         </div>
         <div className="flex gap-2.5">
           <Button variant="ghost" onClick={() => { setFormError(null); setRegisterOpen(true); }}>
@@ -194,7 +194,7 @@ export default function FleetOwnerDashboardPage() {
               key: 'driver',
               header: t('assignedDriverCol'),
               render: (v) =>
-                v.assignedDriverId ? v.assignedDriverId.name : <span className="italic text-ip-on-surface-variant">{t('unassigned')}</span>,
+                v.assignedDriverId ? v.assignedDriverId.name : <span className="italic text-fy-ink-soft">{t('unassigned')}</span>,
             },
             {
               key: 'status',
@@ -208,7 +208,7 @@ export default function FleetOwnerDashboardPage() {
             {
               key: 'health',
               header: t('healthCol'),
-              render: () => <span className="text-ip-on-surface-variant text-xs italic">{t('notYetTracked')}</span>,
+              render: () => <span className="text-fy-ink-soft text-xs italic">{t('notYetTracked')}</span>,
             },
             {
               key: 'action',
@@ -218,7 +218,7 @@ export default function FleetOwnerDashboardPage() {
                 <button
                   type="button"
                   onClick={() => openAssignFor(v._id)}
-                  className="text-ip-primary text-xs font-semibold uppercase tracking-wide hover:underline"
+                  className="text-fy-brown text-xs font-semibold uppercase tracking-wide hover:underline"
                 >
                   {v.assignedDriverId ? t('reassign') : t('assignDriver')}
                 </button>
@@ -231,7 +231,7 @@ export default function FleetOwnerDashboardPage() {
       <BottomSheet open={registerOpen} onClose={() => setRegisterOpen(false)} title={t('registerVehicle')}>
         <form onSubmit={handleRegisterVehicle} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('vehicleType')}
             </label>
             <select
@@ -247,7 +247,7 @@ export default function FleetOwnerDashboardPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('capacityKg')}
             </label>
             <input
@@ -260,7 +260,7 @@ export default function FleetOwnerDashboardPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('registrationNumber')}
             </label>
             <input
@@ -270,7 +270,7 @@ export default function FleetOwnerDashboardPage() {
               className={inputClass}
             />
           </div>
-          {formError && <p className="text-sm text-ip-error">{formError}</p>}
+          {formError && <p className="text-sm text-fy-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? t('registering') : t('registerVehicle')}
           </Button>
@@ -280,7 +280,7 @@ export default function FleetOwnerDashboardPage() {
       <BottomSheet open={assignOpen} onClose={() => setAssignOpen(false)} title={t('assignDriver')}>
         <form onSubmit={handleAssignDriver} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('vehicle')}
             </label>
             <select
@@ -300,7 +300,7 @@ export default function FleetOwnerDashboardPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('driverUserId')}
             </label>
             <input
@@ -310,9 +310,9 @@ export default function FleetOwnerDashboardPage() {
               onChange={(e) => setAssignForm({ ...assignForm, driverId: e.target.value })}
               className={inputClass}
             />
-            <p className="text-xs text-ip-on-surface-variant mt-1.5">{t('driverIdHint')}</p>
+            <p className="text-xs text-fy-ink-soft mt-1.5">{t('driverIdHint')}</p>
           </div>
-          {formError && <p className="text-sm text-ip-error">{formError}</p>}
+          {formError && <p className="text-sm text-fy-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? t('assigning') : t('assignDriver')}
           </Button>

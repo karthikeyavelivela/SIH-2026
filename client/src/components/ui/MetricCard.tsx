@@ -15,14 +15,14 @@ interface MetricCardProps {
 // Anchors... at least 16px of clear space"), tonal card, no shadow.
 export function MetricCard({ label, value, delta, deltaTone = 'neutral', icon, className = '' }: MetricCardProps) {
   const deltaColor =
-    deltaTone === 'positive' ? 'text-emerald-700' : deltaTone === 'negative' ? 'text-ip-error' : 'text-ip-outline';
+    deltaTone === 'positive' ? 'text-emerald-700' : deltaTone === 'negative' ? 'text-fy-error' : 'text-fy-muted';
   return (
-    <div className={`ip-card flex flex-col gap-3 ${className}`}>
+    <div className={`fy-surface-card flex flex-col gap-3 ${className}`}>
       <div className="flex items-center justify-between">
-        <p className="text-ip-body-sm font-semibold uppercase tracking-wide text-ip-on-surface-variant">{label}</p>
-        {icon && <span className="text-ip-outline" aria-hidden="true">{icon}</span>}
+        <p className="text-label font-semibold uppercase tracking-wide text-fy-ink-soft">{label}</p>
+        {icon && <span className="text-fy-muted" aria-hidden="true">{icon}</span>}
       </div>
-      <p className="font-heading font-bold text-ip-display-md text-ip-on-surface tabular-nums">{value}</p>
+      <p className="font-heading font-bold text-heading text-fy-ink tabular-nums">{value}</p>
       {delta && <p className={`text-sm font-semibold ${deltaColor}`}>{delta}</p>}
     </div>
   );

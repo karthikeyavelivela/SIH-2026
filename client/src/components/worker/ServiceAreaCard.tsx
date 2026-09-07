@@ -76,15 +76,15 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
     );
   }
 
-  const tint = accent === 'primary' ? 'text-primary-600 bg-primary/10' : 'text-secondary-600 bg-secondary/10';
+  const tint = accent === 'primary' ? 'text-fy-brown bg-fy-brown/10' : 'text-fy-green bg-fy-green/10';
 
   return (
-    <div className="rounded-lg bg-surface-raised border border-border shadow-sm p-4 mb-6">
+    <div className="rounded-card bg-fy-card border border-fy-hairline shadow-sm p-4 mb-6">
       <div className="flex items-center justify-between mb-1">
         <p className="text-sm font-semibold">{t('serviceArea')}</p>
         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${tint}`}>{t('radiusKm', { radius: radiusKm })}</span>
       </div>
-      <p className="text-xs text-text-muted mb-3">{t('setHint')}</p>
+      <p className="text-xs text-fy-muted mb-3">{t('setHint')}</p>
 
       {!editing ? (
         <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{label ?? t('notSet')}</p>
           </div>
-          <button type="button" onClick={() => setEditing(true)} className={`text-xs font-semibold flex-shrink-0 ${accent === 'primary' ? 'text-primary-600' : 'text-secondary-600'}`}>
+          <button type="button" onClick={() => setEditing(true)} className={`text-xs font-semibold flex-shrink-0 ${accent === 'primary' ? 'text-fy-brown' : 'text-fy-green'}`}>
             {label ? t('change') : t('set')}
           </button>
         </div>
@@ -105,7 +105,7 @@ export function ServiceAreaCard({ initial, radiusKm, accent = 'primary' }: Servi
             placeholder={t('searchAddressPlaceholder')}
             value={point}
             onChange={setPoint}
-            markerColorClass={accent === 'primary' ? 'text-primary-600' : 'text-secondary-600'}
+            markerColorClass={accent === 'primary' ? 'text-fy-brown' : 'text-fy-green'}
           />
           <Button
             type="button"

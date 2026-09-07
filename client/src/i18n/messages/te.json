@@ -9,7 +9,11 @@
     "group": "గ్రూప్",
     "jobs": "ఉద్యోగాలు",
     "members": "సభ్యులు",
-    "job": "ఉద్యోగం"
+    "job": "ఉద్యోగం",
+    "household": "గృహ సేవలు",
+    "hamali": "హమాలీ",
+    "transit": "రవాణా",
+    "passbook": "పాస్‌బుక్"
   },
   "languageSwitcher": {
     "label": "భాష"

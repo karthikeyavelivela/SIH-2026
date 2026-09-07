@@ -39,34 +39,34 @@ export default function MuthaMembersPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <div className="flex items-start justify-between gap-3 mb-1">
         <h1 className="font-heading text-2xl font-bold">{t('title')}</h1>
-        <Link href="/mutha/create-group" className="inline-flex items-center gap-1 text-xs font-semibold text-ip-secondary hover:underline flex-shrink-0 mt-1.5">
+        <Link href="/mutha/create-group" className="inline-flex items-center gap-1 text-xs font-semibold text-fy-green hover:underline flex-shrink-0 mt-1.5">
           {t('groupSettings')}
           <ChevronRightIcon className="w-3.5 h-3.5" />
         </Link>
       </div>
-      <p className="text-sm text-ip-on-surface-variant mb-4">{t('selfJoinHint')}</p>
+      <p className="text-sm text-fy-ink-soft mb-4">{t('selfJoinHint')}</p>
 
       {data && (
-        <div className="ip-card mb-6 text-center">
-          <p className="text-xs text-ip-on-surface-variant mb-1">{t('yourInviteCode')}</p>
-          <p className="font-heading text-2xl font-bold tracking-[0.2em] text-ip-secondary">{data.mutha.inviteCode}</p>
+        <div className="fy-surface-card mb-6 text-center">
+          <p className="text-xs text-fy-ink-soft mb-1">{t('yourInviteCode')}</p>
+          <p className="font-heading text-2xl font-bold tracking-[0.2em] text-fy-green">{data.mutha.inviteCode}</p>
         </div>
       )}
 
       {data?.members.length === 0 && (
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <EmptyState icon={<UsersIcon className="w-6 h-6" />} title={t('noMembersYet')} description={t('noMembersYetDesc')} />
         </div>
       )}
 
       <div className="space-y-3">
         {data?.members.map((m) => (
-          <div key={m._id} className="ip-card flex items-center justify-between gap-3">
+          <div key={m._id} className="fy-surface-card flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <Avatar name={m.name} photoUrl={m.profilePhoto} accent="secondary" status={m.availabilityStatus} />
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{m.name}</p>
-                <p className="text-xs text-ip-on-surface-variant">{m.phone}</p>
+                <p className="text-xs text-fy-ink-soft">{m.phone}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -76,7 +76,7 @@ export default function MuthaMembersPage() {
               <button
                 type="button"
                 onClick={() => setToRemove({ _id: m._id, name: m.name })}
-                className="text-xs font-semibold text-ip-error hover:underline"
+                className="text-xs font-semibold text-fy-error hover:underline"
               >
                 {t('remove')}
               </button>
@@ -86,9 +86,9 @@ export default function MuthaMembersPage() {
       </div>
 
       <Modal open={!!toRemove} onClose={() => setToRemove(null)} title={t('removeMemberTitle')}>
-        <p className="text-sm text-text-muted mb-5">{t('removeMemberBody', { name: toRemove?.name ?? '' })}</p>
+        <p className="text-sm text-fy-muted mb-5">{t('removeMemberBody', { name: toRemove?.name ?? '' })}</p>
         {error && (
-          <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div role="alert" className="mb-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}

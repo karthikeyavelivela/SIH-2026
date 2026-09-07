@@ -16,13 +16,13 @@ export function CircularGauge({ value, size = 88, label, accent = 'primary', chi
   const pct = Math.max(0, Math.min(100, value));
   const offset = circumference * (1 - pct / 100);
   const stroke =
-    accent === 'primary' ? 'var(--ip-primary)' : accent === 'secondary' ? 'var(--ip-secondary)' : 'var(--ip-error)';
+    accent === 'primary' ? 'var(--fy-brown)' : accent === 'secondary' ? 'var(--fy-green)' : 'var(--fy-error)';
 
   return (
     <div className="inline-flex flex-col items-center gap-1.5">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--ip-surface-container-high)" strokeWidth={6} fill="none" />
+          <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--fy-well)" strokeWidth={6} fill="none" />
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -35,11 +35,11 @@ export function CircularGauge({ value, size = 88, label, accent = 'primary', chi
             strokeDashoffset={offset}
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-ip-on-surface tabular-nums">
+        <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-fy-ink tabular-nums">
           {children ?? `${Math.round(pct)}%`}
         </div>
       </div>
-      {label && <p className="text-xs text-ip-on-surface-variant text-center">{label}</p>}
+      {label && <p className="text-xs text-fy-ink-soft text-center">{label}</p>}
     </div>
   );
 }

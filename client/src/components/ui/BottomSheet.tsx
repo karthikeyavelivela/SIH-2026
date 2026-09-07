@@ -33,18 +33,18 @@ export function BottomSheet({ open, onClose, title, children, footer }: BottomSh
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-ip-inverse-surface/40 backdrop-blur-[10px] animate-[fadeIn_150ms_ease-out]"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-fy-inverse/40 backdrop-blur-[10px] animate-[fadeIn_150ms_ease-out]"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-lg bg-ip-surface-container-lowest rounded-t-ip-sheet px-ip-edge pt-3 pb-8 max-h-[85vh] overflow-y-auto animate-[fadeUp_250ms_ease-out]"
+        className="w-full max-w-lg bg-fy-card rounded-t-ip-sheet px-gutter pt-3 pb-8 max-h-[85vh] overflow-y-auto animate-[fadeUp_250ms_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-ip-outline-variant" aria-hidden="true" />
-        {title && <h2 className="font-heading font-bold text-ip-headline-sm mb-4">{title}</h2>}
+        <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-fy-hairline" aria-hidden="true" />
+        {title && <h2 className="font-heading font-bold text-title mb-4">{title}</h2>}
         {children}
         {footer && <div className="mt-6">{footer}</div>}
       </div>

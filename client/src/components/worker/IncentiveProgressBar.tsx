@@ -26,19 +26,19 @@ export function IncentiveProgressBar({ accent = 'primary' }: IncentiveProgressBa
   if (!progress) return null;
 
   const fillPct = Math.min(100, Math.round((progress.completedJobs / Math.max(1, progress.requiredJobs)) * 100));
-  const bar = accent === 'primary' ? 'bg-primary-600' : 'bg-secondary-600';
+  const bar = accent === 'primary' ? 'bg-fy-brown' : 'bg-fy-green';
 
   return (
-    <div className="rounded-lg border border-border bg-surface-raised p-4 mb-6">
+    <div className="rounded-card border border-fy-hairline bg-fy-card p-4 mb-6">
       <p className="text-sm font-semibold mb-2">
         {progress.remainingJobs > 0
           ? `${progress.remainingJobs} more trip${progress.remainingJobs === 1 ? '' : 's'} for ₹${progress.bonusAmount} bonus`
           : `₹${progress.bonusAmount} bonus unlocked — keep going`}
       </p>
-      <div className="h-2 rounded-full bg-surface overflow-hidden">
+      <div className="h-2 rounded-full bg-fy-panel overflow-hidden">
         <div className={`h-full rounded-full ${bar} transition-all duration-base`} style={{ width: `${fillPct}%` }} />
       </div>
-      <p className="text-xs text-text-muted mt-1.5">
+      <p className="text-xs text-fy-muted mt-1.5">
         {progress.completedJobs} / {progress.requiredJobs} trips
       </p>
     </div>

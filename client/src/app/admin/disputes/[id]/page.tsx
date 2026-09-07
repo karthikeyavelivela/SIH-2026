@@ -131,16 +131,16 @@ export default function AdminDisputeDetailPage() {
     <div className="max-w-4xl animate-[fadeUp_400ms_ease-out]">
       <button
         onClick={() => router.push('/admin/disputes')}
-        className="flex items-center gap-1 text-sm text-ip-on-surface-variant hover:text-ip-on-surface mb-4"
+        className="flex items-center gap-1 text-sm text-fy-ink-soft hover:text-fy-ink mb-4"
       >
         <ChevronLeftIcon className="w-4 h-4" /> Back to queue
       </button>
 
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">Dispute #{dispute._id.slice(-6)}</p>
-          <h1 className="font-heading text-ip-headline-sm font-bold mb-1">{dispute.claim}</h1>
-          <p className="text-sm text-ip-on-surface-variant">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">Dispute #{dispute._id.slice(-6)}</p>
+          <h1 className="font-heading text-title font-bold mb-1">{dispute.claim}</h1>
+          <p className="text-sm text-fy-ink-soft">
             Raised by {dispute.raisedBy?.name ?? 'Unknown'} ({dispute.raisedBy?.role}) ·{' '}
             {new Date(dispute.createdAt).toLocaleString('en-IN')}
           </p>
@@ -149,18 +149,18 @@ export default function AdminDisputeDetailPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 mb-8">
-        <div className="ip-card">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">Customer claim</p>
-          <p className="text-sm text-ip-on-surface">{dispute.claim}</p>
+        <div className="fy-surface-card">
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">Customer claim</p>
+          <p className="text-sm text-fy-ink">{dispute.claim}</p>
         </div>
-        <div className="ip-card">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">System record</p>
+        <div className="fy-surface-card">
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">System record</p>
           <dl className="text-sm space-y-1.5">
-            <div className="flex justify-between"><dt className="text-ip-on-surface-variant">Booking status</dt><dd className="font-medium capitalize">{dispute.systemRecord.status}</dd></div>
-            <div className="flex justify-between"><dt className="text-ip-on-surface-variant">Fare total</dt><dd className="font-medium">₹{dispute.systemRecord.fareTotal}</dd></div>
-            <div className="flex justify-between"><dt className="text-ip-on-surface-variant">Distance</dt><dd className="font-medium">{dispute.systemRecord.distanceKm} km</dd></div>
-            <div className="flex justify-between gap-2"><dt className="text-ip-on-surface-variant flex-shrink-0">Pickup</dt><dd className="font-medium text-right truncate">{dispute.systemRecord.pickupAddress}</dd></div>
-            <div className="flex justify-between gap-2"><dt className="text-ip-on-surface-variant flex-shrink-0">Drop</dt><dd className="font-medium text-right truncate">{dispute.systemRecord.dropAddress}</dd></div>
+            <div className="flex justify-between"><dt className="text-fy-ink-soft">Booking status</dt><dd className="font-medium capitalize">{dispute.systemRecord.status}</dd></div>
+            <div className="flex justify-between"><dt className="text-fy-ink-soft">Fare total</dt><dd className="font-medium">₹{dispute.systemRecord.fareTotal}</dd></div>
+            <div className="flex justify-between"><dt className="text-fy-ink-soft">Distance</dt><dd className="font-medium">{dispute.systemRecord.distanceKm} km</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-fy-ink-soft flex-shrink-0">Pickup</dt><dd className="font-medium text-right truncate">{dispute.systemRecord.pickupAddress}</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-fy-ink-soft flex-shrink-0">Drop</dt><dd className="font-medium text-right truncate">{dispute.systemRecord.dropAddress}</dd></div>
           </dl>
         </div>
       </div>
@@ -169,25 +169,25 @@ export default function AdminDisputeDetailPage() {
         {triage ? (
           <AgentResultCard result={triage} />
         ) : (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-ip-on-surface">{t('title')}</p>
-                <p className="text-xs text-ip-on-surface-variant mt-0.5">{t('subtitle')}</p>
+                <p className="text-sm font-semibold text-fy-ink">{t('title')}</p>
+                <p className="text-xs text-fy-ink-soft mt-0.5">{t('subtitle')}</p>
               </div>
               <Button variant="ghost" disabled={triageLoading} onClick={runTriage}>
                 {triageLoading ? t('analysing') : t('run')}
               </Button>
             </div>
-            {triageError && <p className="text-sm text-ip-error mt-2">{triageError}</p>}
+            {triageError && <p className="text-sm text-fy-error mt-2">{triageError}</p>}
           </div>
         )}
       </div>
 
-      <div className="ip-card mb-8">
-        <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">Communication log</p>
+      <div className="fy-surface-card mb-8">
+        <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-3">Communication log</p>
         {dispute.communicationLog.length === 0 ? (
-          <p className="text-sm text-ip-on-surface-variant">No messages yet.</p>
+          <p className="text-sm text-fy-ink-soft">No messages yet.</p>
         ) : (
           <Timeline
             events={dispute.communicationLog.map((m, i) => ({
@@ -198,12 +198,12 @@ export default function AdminDisputeDetailPage() {
           />
         )}
         {!resolved && (
-          <div className="flex gap-2 mt-4 pt-4 border-t border-ip-outline/10">
+          <div className="flex gap-2 mt-4 pt-4 border-t border-fy-muted/10">
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Add a note to the log…"
-              className="flex-1 min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
+              className="flex-1 min-h-[44px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
             />
             <Button variant="ghost" disabled={saving || !message.trim()} onClick={sendMessage}>
               Add
@@ -213,22 +213,22 @@ export default function AdminDisputeDetailPage() {
       </div>
 
       {resolved && dispute.resolution ? (
-        <div className="ip-card">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-2">Resolution</p>
-          <p className="text-sm text-ip-on-surface capitalize">{dispute.resolution.action.replace('_', ' ')}</p>
-          <p className="text-sm text-ip-on-surface-variant mt-1">{dispute.resolution.note}</p>
+        <div className="fy-surface-card">
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">Resolution</p>
+          <p className="text-sm text-fy-ink capitalize">{dispute.resolution.action.replace('_', ' ')}</p>
+          <p className="text-sm text-fy-ink-soft mt-1">{dispute.resolution.note}</p>
           {dispute.resolution.amount !== undefined && (
             <p className="text-sm font-semibold mt-1">Amount: ₹{dispute.resolution.amount}</p>
           )}
         </div>
       ) : (
-        <div className="ip-card">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-3">Resolve</p>
+        <div className="fy-surface-card">
+          <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-3">Resolve</p>
           <div className="space-y-3">
             <select
               value={action}
               onChange={(e) => setAction(e.target.value as typeof action)}
-              className="w-full min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full min-h-[44px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             >
               {ACTIONS.map((a) => (
                 <option key={a.value} value={a.value}>
@@ -243,7 +243,7 @@ export default function AdminDisputeDetailPage() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Amount (₹)"
-                className="w-full min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+                className="w-full min-h-[44px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
               />
             )}
             <textarea
@@ -251,13 +251,13 @@ export default function AdminDisputeDetailPage() {
               onChange={(e) => setNote(e.target.value)}
               rows={3}
               placeholder="Resolution note (required)"
-              className="w-full px-3.5 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm"
+              className="w-full px-3.5 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
-            {error && <p className="text-sm text-ip-error">{error}</p>}
+            {error && <p className="text-sm text-fy-error">{error}</p>}
             <Button disabled={saving || !note.trim()} onClick={resolve} className="w-full">
               {saving ? 'Saving…' : 'Record resolution'}
             </Button>
-            <p className="text-xs text-ip-on-surface-variant">
+            <p className="text-xs text-fy-ink-soft">
               This records the decision and writes an audit-log entry. It does not trigger a real payment refund.
             </p>
           </div>

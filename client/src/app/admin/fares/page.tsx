@@ -23,11 +23,11 @@ interface FareRule {
 const CATEGORY_VALUES: FareRule['category'][] = ['vehicle_small', 'vehicle_medium', 'vehicle_large', 'hamali'];
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 function ErrorAlert({ message }: { message: string }) {
   return (
-    <div role="alert" className="rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container">
+    <div role="alert" className="rounded-control border border-fy-error/30 bg-fy-error-bg/40 px-4 py-3 text-sm text-fy-on-error-bg">
       {message}
     </div>
   );
@@ -91,14 +91,14 @@ export default function AdminFaresPage() {
   return (
     <div className="grid lg:grid-cols-2 gap-10 animate-[fadeUp_400ms_ease-out]">
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-        <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+        <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
 
         {loading && <Skeleton className="h-40" />}
 
         {!loading && rules.length === 0 && (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <EmptyState
               icon={<LayersIcon className="w-7 h-7" />}
               title={t('noRulesYet')}
@@ -109,30 +109,30 @@ export default function AdminFaresPage() {
 
         <div className="space-y-3">
           {rules.map((r) => (
-            <div key={r._id} className="ip-card">
+            <div key={r._id} className="fy-surface-card">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-heading font-bold">{r.region}</p>
                 <StatusChip tone={r.active ? 'success' : 'muted'}>{r.active ? t('active') : t('inactive')}</StatusChip>
               </div>
-              <p className="text-sm text-ip-on-surface-variant mb-3 capitalize">{t(`categories.${r.category}`)}</p>
+              <p className="text-sm text-fy-ink-soft mb-3 capitalize">{t(`categories.${r.category}`)}</p>
               <div className="grid grid-cols-3 gap-2 text-sm mb-3">
                 <div>
-                  <p className="text-xs text-ip-on-surface-variant">{t('base')}</p>
+                  <p className="text-xs text-fy-ink-soft">{t('base')}</p>
                   <p className="font-semibold">₹{r.baseFare}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-ip-on-surface-variant">{t('perKm')}</p>
+                  <p className="text-xs text-fy-ink-soft">{t('perKm')}</p>
                   <p className="font-semibold">₹{r.perKmRate}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-ip-on-surface-variant">{t('minimum')}</p>
+                  <p className="text-xs text-fy-ink-soft">{t('minimum')}</p>
                   <p className="font-semibold">₹{r.minimumFare}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => toggleActive(r)}
-                className="text-xs font-semibold text-ip-primary hover:underline"
+                className="text-xs font-semibold text-fy-brown hover:underline"
               >
                 {r.active ? t('deactivate') : t('reactivate')}
               </button>
@@ -142,10 +142,10 @@ export default function AdminFaresPage() {
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-secondary mb-2">{t('addEyebrow')}</p>
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-1">{t('newRule')}</h2>
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('newRuleSubtitle')}</p>
-        <div className="ip-card">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-green mb-2">{t('addEyebrow')}</p>
+        <h2 className="font-heading text-title font-bold mb-1">{t('newRule')}</h2>
+        <p className="text-sm text-fy-ink-soft mb-6">{t('newRuleSubtitle')}</p>
+        <div className="fy-surface-card">
           <form onSubmit={handleCreate} className="space-y-4">
             <input
               placeholder={t('regionPlaceholder')}

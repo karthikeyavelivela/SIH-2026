@@ -9,7 +9,11 @@
     "group": "समूह",
     "jobs": "नौकरियां",
     "members": "सदस्य",
-    "job": "नौकरी"
+    "job": "नौकरी",
+    "household": "घरेलू सेवाएं",
+    "hamali": "हमाली",
+    "transit": "परिवहन",
+    "passbook": "पासबुक"
   },
   "languageSwitcher": {
     "label": "भाषा"

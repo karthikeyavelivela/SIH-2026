@@ -8,7 +8,7 @@ import { BoxIcon } from '@/components/ui/icons';
 const SOURCE_VALUES = ['ledger', 'bookings'] as const;
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 // New page — DESIGN_INVENTORY.md advanced_reporting_exports. CSV is the
 // substitute for "Excel" per the build spec (no xlsx dependency in the
@@ -35,13 +35,13 @@ export default function AdminReportsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out] max-w-xl">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
-      <div className="ip-card">
+      <div className="fy-surface-card">
         <div className="flex items-center gap-3 mb-5">
-          <span className="w-11 h-11 rounded-full bg-ip-primary-container/20 text-ip-primary flex items-center justify-center flex-shrink-0">
+          <span className="w-11 h-11 rounded-full bg-fy-brown-soft/20 text-fy-brown flex items-center justify-center flex-shrink-0">
             <BoxIcon className="w-5 h-5" />
           </span>
           <p className="font-heading font-semibold">{t('exportBuilder')}</p>
@@ -49,7 +49,7 @@ export default function AdminReportsPage() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('dataSource')}
             </label>
             <select value={source} onChange={(e) => setSource(e.target.value as typeof source)} className={inputClass}>
@@ -62,20 +62,20 @@ export default function AdminReportsPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
                 {t('from')}
               </label>
               <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
                 {t('to')}
               </label>
               <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputClass} />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('regionOptional')}
             </label>
             <input
@@ -86,15 +86,15 @@ export default function AdminReportsPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('format')}
             </label>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setFormat('csv')}
-                className={`px-3.5 py-2 rounded-ip-pill text-xs font-semibold transition-colors ${
-                  format === 'csv' ? 'bg-ip-primary-container/20 text-ip-primary' : 'bg-ip-surface-container text-ip-on-surface-variant'
+                className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-colors ${
+                  format === 'csv' ? 'bg-fy-brown-soft/20 text-fy-brown' : 'bg-fy-field text-fy-ink-soft'
                 }`}
               >
                 CSV
@@ -102,14 +102,14 @@ export default function AdminReportsPage() {
               <button
                 type="button"
                 onClick={() => setFormat('pdf')}
-                className={`px-3.5 py-2 rounded-ip-pill text-xs font-semibold transition-colors ${
-                  format === 'pdf' ? 'bg-ip-primary-container/20 text-ip-primary' : 'bg-ip-surface-container text-ip-on-surface-variant'
+                className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-colors ${
+                  format === 'pdf' ? 'bg-fy-brown-soft/20 text-fy-brown' : 'bg-fy-field text-fy-ink-soft'
                 }`}
               >
                 PDF
               </button>
             </div>
-            {format === 'pdf' && <p className="text-xs text-ip-on-surface-variant mt-2">{t('pdfNote')}</p>}
+            {format === 'pdf' && <p className="text-xs text-fy-ink-soft mt-2">{t('pdfNote')}</p>}
           </div>
           <Button className="w-full" size="lg" onClick={download}>
             {format === 'pdf' ? t('downloadPdf') : t('downloadCsv')}

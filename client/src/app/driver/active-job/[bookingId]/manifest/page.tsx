@@ -70,20 +70,20 @@ export default function LoadManifestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-10">
+    <div className="min-h-screen bg-fy-bone pb-10">
       <TopBar title={t('title')} onBack={() => router.push(`/driver/active-job/${bookingId}`)} />
 
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-md">
-        {loading && <p className="text-sm text-ip-on-surface-variant">{t('loading')}</p>}
+      <div className="max-w-lg mx-auto px-gutter pt-6">
+        {loading && <p className="text-sm text-fy-ink-soft">{t('loading')}</p>}
 
         {!loading && manifest && (
           <>
-            <div className="flex items-center gap-2 mb-ip-md">
+            <div className="flex items-center gap-2 mb-6">
               <StatusChip tone={manifest.status === 'signed' ? 'success' : 'muted'} dot>
                 {manifest.status === 'signed' ? t('signed') : t('pendingPickup')}
               </StatusChip>
               {manifest.signedAt && (
-                <span className="text-xs text-ip-on-surface-variant">
+                <span className="text-xs text-fy-ink-soft">
                   {new Date(manifest.signedAt).toLocaleString('en-IN')}
                 </span>
               )}
@@ -91,18 +91,18 @@ export default function LoadManifestPage() {
                 href={`${API_BASE}/api/load-manifests/${bookingId}/pdf`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-auto text-xs font-semibold text-ip-secondary hover:underline"
+                className="ml-auto text-xs font-semibold text-fy-green hover:underline"
               >
                 {t('downloadPdf')}
               </a>
             </div>
 
-            <section className="mb-ip-lg">
-              <h2 className="font-heading font-bold text-ip-headline-sm mb-1">{t('cargoManifest')}</h2>
-              <p className="text-sm text-ip-on-surface-variant mb-ip-sm">
+            <section className="mb-8">
+              <h2 className="font-heading font-bold text-title mb-1">{t('cargoManifest')}</h2>
+              <p className="text-sm text-fy-ink-soft mb-4">
                 {manifest.consignorDetails.address || t('pickupLocation')}
               </p>
-              <div className="ip-card">
+              <div className="fy-surface-card">
                 {manifest.lineItems.map((item, i) => (
                   <div key={item.sku}>
                     {i > 0 && <ListDivider />}
@@ -112,40 +112,40 @@ export default function LoadManifestPage() {
                       value={
                         <div className="text-right">
                           <p>{item.weightKg} kg</p>
-                          <p className="text-xs font-normal text-ip-on-surface-variant">{t('qty', { count: item.quantity })}</p>
+                          <p className="text-xs font-normal text-fy-ink-soft">{t('qty', { count: item.quantity })}</p>
                         </div>
                       }
                     />
                   </div>
                 ))}
                 {manifest.lineItems.length === 0 && (
-                  <p className="text-sm text-ip-on-surface-variant py-3">{t('noLineItems')}</p>
+                  <p className="text-sm text-fy-ink-soft py-3">{t('noLineItems')}</p>
                 )}
               </div>
             </section>
 
             {error && (
-              <div role="alert" className="flex items-start gap-2 mb-ip-md rounded-ip-card bg-ip-error-container px-4 py-3 text-sm text-ip-on-error-container">
+              <div role="alert" className="flex items-start gap-2 mb-6 rounded-card bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg">
                 <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <p>{error}</p>
               </div>
             )}
 
             {manifest.status === 'signed' ? (
-              <div className="ip-card flex items-center gap-3">
+              <div className="fy-surface-card flex items-center gap-3">
                 <span className="w-10 h-10 rounded-full bg-emerald-500/15 text-emerald-800 flex items-center justify-center flex-shrink-0">
                   <CheckIcon className="w-5 h-5" />
                 </span>
                 <div>
-                  <p className="font-heading font-semibold text-ip-on-surface">{t('loadConfirmed')}</p>
-                  <p className="text-xs text-ip-on-surface-variant">{t('signedImmutableNote')}</p>
+                  <p className="font-heading font-semibold text-fy-ink">{t('loadConfirmed')}</p>
+                  <p className="text-xs text-fy-ink-soft">{t('signedImmutableNote')}</p>
                 </div>
               </div>
             ) : (
               <section>
                 <h3 className="font-heading font-bold text-lg mb-1">{t('driverSignOff')}</h3>
-                <p className="text-sm text-ip-on-surface-variant mb-ip-sm">{t('signOffConfirmation')}</p>
-                <SignatureCanvas ref={sigRef} className="mb-ip-md" />
+                <p className="text-sm text-fy-ink-soft mb-4">{t('signOffConfirmation')}</p>
+                <SignatureCanvas ref={sigRef} className="mb-6" />
                 <Button variant="secondary" size="lg" className="w-full" disabled={signing} onClick={confirmAndAccept}>
                   {signing ? t('submitting') : t('confirmAndAccept')}
                 </Button>
@@ -155,7 +155,7 @@ export default function LoadManifestPage() {
         )}
 
         {!loading && !manifest && error && (
-          <div role="alert" className="flex items-start gap-2 rounded-ip-card bg-ip-error-container px-4 py-3 text-sm text-ip-on-error-container">
+          <div role="alert" className="flex items-start gap-2 rounded-card bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg">
             <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <p>{error}</p>
           </div>

@@ -51,9 +51,9 @@ export default function AdminComplaintsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {(['', 'open', 'in_review', 'resolved'] as const).map((s) => (
@@ -65,12 +65,12 @@ export default function AdminComplaintsPage() {
 
       <div className="grid md:grid-cols-2 gap-4 max-w-4xl">
         {complaints.map((c) => (
-          <div key={c._id} className="ip-card">
+          <div key={c._id} className="fy-surface-card">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold capitalize">{t(`category.${c.category}`)}</p>
               <StatusChip tone={statusTone[c.status]}>{t(`status.${c.status}`)}</StatusChip>
             </div>
-            <p className="text-sm text-ip-on-surface-variant mb-3">{c.description}</p>
+            <p className="text-sm text-fy-ink-soft mb-3">{c.description}</p>
             {c.status !== 'resolved' && (
               <Button
                 size="md"
@@ -85,26 +85,26 @@ export default function AdminComplaintsPage() {
               </Button>
             )}
             {c.resolutionNote && (
-              <p className="text-xs text-ip-on-surface-variant mt-2 pt-2 border-t border-ip-outline/10">
+              <p className="text-xs text-fy-ink-soft mt-2 pt-2 border-t border-fy-muted/10">
                 {c.resolutionNote}
               </p>
             )}
           </div>
         ))}
-        {complaints.length === 0 && <p className="text-sm text-ip-on-surface-variant">{t('noComplaints')}</p>}
+        {complaints.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noComplaints')}</p>}
       </div>
 
       <Modal open={!!resolving} onClose={() => setResolving(null)} title={t('resolveTitle')}>
-        <p className="text-sm text-ip-on-surface-variant mb-4">{resolving?.description}</p>
+        <p className="text-sm text-fy-ink-soft mb-4">{resolving?.description}</p>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder={t('notePlaceholder')}
           rows={4}
           aria-label={t('noteAria')}
-          className="w-full px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm mb-4 focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
+          className="w-full px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm mb-4 focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
         />
-        {error && <p className="text-sm text-ip-error mb-4">{error}</p>}
+        {error && <p className="text-sm text-fy-error mb-4">{error}</p>}
         <div className="flex gap-3">
           <Button variant="ghost" className="flex-1" disabled={saving || !note.trim()} onClick={() => submitResolution('in_review')}>
             {t('markInReview')}

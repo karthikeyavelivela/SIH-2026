@@ -47,7 +47,7 @@ interface HubResponse {
 const DOCK_STATUS_OPTIONS: DockSlotStatus[] = ['available', 'occupied', 'reserved', 'closed'];
 
 const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-ip-on-surface placeholder:text-ip-on-surface-variant/70 transition-colors focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20';
+  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-bone text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
 
 function dockStatusTone(status: DockSlotStatus): 'success' | 'primary' | 'warning' | 'muted' {
   if (status === 'available') return 'success';
@@ -131,7 +131,7 @@ export default function WarehouseHubDashboardPage() {
   if (state === 'error' || !hub) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <EmptyState
             icon={<AlertIcon className="w-7 h-7" />}
             title={t('couldNotLoad')}
@@ -153,10 +153,10 @@ export default function WarehouseHubDashboardPage() {
     <div className="max-w-6xl mx-auto animate-[fadeUp_400ms_ease-out]">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-          <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{hub.name}</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+          <h1 className="font-heading text-heading font-extrabold mb-1">{hub.name}</h1>
           {hub.address && (
-            <p className="text-sm text-ip-on-surface-variant flex items-center gap-1.5">
+            <p className="text-sm text-fy-ink-soft flex items-center gap-1.5">
               <MapPinIcon className="w-4 h-4" /> {hub.address}
             </p>
           )}
@@ -171,7 +171,7 @@ export default function WarehouseHubDashboardPage() {
         <MetricCard label={t('occupied')} value={occupiedCount} icon={<BoxIcon className="w-5 h-5" />} />
         <MetricCard
           label={t('onSiteCrew')}
-          value={<span className="text-base font-semibold text-ip-on-surface-variant italic">{t('notYetTracked')}</span>}
+          value={<span className="text-base font-semibold text-fy-ink-soft italic">{t('notYetTracked')}</span>}
           icon={<UsersIcon className="w-5 h-5" />}
         />
       </div>
@@ -179,7 +179,7 @@ export default function WarehouseHubDashboardPage() {
       <div className="mb-10">
         <h2 className="font-heading text-xl font-bold mb-4">{t('dockSpaces')}</h2>
         {dockSlots.length === 0 ? (
-          <div className="ip-card">
+          <div className="fy-surface-card">
             <EmptyState
               icon={<BoxIcon className="w-7 h-7" />}
               title={t('noDockSlotsYet')}
@@ -194,7 +194,7 @@ export default function WarehouseHubDashboardPage() {
                 key={slot._id}
                 type="button"
                 onClick={() => { setFormError(null); setEditSlot(slot); }}
-                className="ip-card text-left hover:bg-ip-surface-container-high transition-colors"
+                className="fy-surface-card text-left hover:bg-fy-well transition-colors"
               >
                 <p className="font-heading font-bold text-lg mb-2">{slot.label}</p>
                 <StatusChip tone={dockStatusTone(slot.status)} dot>
@@ -208,7 +208,7 @@ export default function WarehouseHubDashboardPage() {
 
       <div>
         <h2 className="font-heading text-xl font-bold mb-4">{t('liveGateFeed')}</h2>
-        <div className="ip-card">
+        <div className="fy-surface-card">
           {gateEvents.length === 0 ? (
             <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('noGateActivity')} />
           ) : (
@@ -225,7 +225,7 @@ export default function WarehouseHubDashboardPage() {
       <BottomSheet open={addSlotOpen} onClose={() => setAddSlotOpen(false)} title={t('addDockSlot')}>
         <form onSubmit={handleAddSlot} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-ip-on-surface-variant mb-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-1.5">
               {t('dockLabel')}
             </label>
             <input
@@ -236,7 +236,7 @@ export default function WarehouseHubDashboardPage() {
               className={inputClass}
             />
           </div>
-          {formError && <p className="text-sm text-ip-error">{formError}</p>}
+          {formError && <p className="text-sm text-fy-error">{formError}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? t('adding') : t('addDockSlot')}
           </Button>
@@ -246,7 +246,7 @@ export default function WarehouseHubDashboardPage() {
       <BottomSheet open={!!editSlot} onClose={() => setEditSlot(null)} title={editSlot ? t('updateSlot', { label: editSlot.label }) : undefined}>
         {editSlot && (
           <div className="space-y-3">
-            <p className="text-sm text-ip-on-surface-variant mb-2">{t('setStatusHint')}</p>
+            <p className="text-sm text-fy-ink-soft mb-2">{t('setStatusHint')}</p>
             <div className="grid grid-cols-2 gap-2.5">
               {DOCK_STATUS_OPTIONS.map((status) => (
                 <button
@@ -254,17 +254,17 @@ export default function WarehouseHubDashboardPage() {
                   type="button"
                   disabled={submitting}
                   onClick={() => handleStatusChange(status)}
-                  className={`flex items-center justify-center gap-2 px-4 py-3 rounded-ip-input border text-sm font-semibold transition-colors disabled:opacity-50 ${
+                  className={`flex items-center justify-center gap-2 px-4 py-3 rounded-control border text-sm font-semibold transition-colors disabled:opacity-50 ${
                     editSlot.status === status
-                      ? 'border-ip-primary bg-ip-primary-container/20 text-ip-primary'
-                      : 'border-ip-outline/20 hover:bg-ip-surface-container'
+                      ? 'border-fy-brown bg-fy-brown-soft/20 text-fy-brown'
+                      : 'border-fy-muted/20 hover:bg-fy-field'
                   }`}
                 >
                   {dockStatusLabel(status)}
                 </button>
               ))}
             </div>
-            {formError && <p className="text-sm text-ip-error">{formError}</p>}
+            {formError && <p className="text-sm text-fy-error">{formError}</p>}
           </div>
         )}
       </BottomSheet>

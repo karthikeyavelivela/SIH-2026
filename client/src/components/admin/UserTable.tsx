@@ -59,23 +59,23 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface-raised shadow-md">
+      <div className="overflow-x-auto rounded-card border border-fy-hairline bg-fy-card shadow-md">
         <table className="w-full text-sm">
-          <thead className="bg-surface text-left">
+          <thead className="bg-fy-panel text-left">
             <tr>
-              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-fy-muted">
                 {t('name')}
               </th>
-              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-fy-muted">
                 {t('phone')}
               </th>
-              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-fy-muted">
                 {t('role')}
               </th>
-              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-fy-muted">
                 {t('status')}
               </th>
-              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-text-muted">
+              <th scope="col" className="px-5 py-3.5 font-semibold text-xs uppercase tracking-wide text-fy-muted">
                 {t('actions')}
               </th>
             </tr>
@@ -83,15 +83,15 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
           <tbody>
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-5 py-10 text-center text-text-muted text-sm">
+                <td colSpan={5} className="px-5 py-10 text-center text-fy-muted text-sm">
                   {t('noUsers')}
                 </td>
               </tr>
             )}
             {users.map((u) => (
-              <tr key={u._id} className="border-t border-border transition-colors hover:bg-surface/60">
+              <tr key={u._id} className="border-t border-fy-hairline transition-colors hover:bg-fy-panel/60">
                 <td className="px-5 py-3.5 font-medium">{u.name}</td>
-                <td className="px-5 py-3.5 text-text-muted">{u.phone}</td>
+                <td className="px-5 py-3.5 text-fy-muted">{u.phone}</td>
                 <td className="px-5 py-3.5">
                   <select
                     aria-label={t('roleAria', { name: u.name })}
@@ -106,7 +106,7 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
                         : u.role
                     }
                     onChange={(e) => setPendingAction({ userId: u._id, kind: 'role', value: e.target.value })}
-                    className="border border-border rounded-md px-3 py-2 bg-background text-sm cursor-pointer transition-colors duration-fast focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
+                    className="border border-fy-hairline rounded-control px-3 py-2 bg-fy-bone text-sm cursor-pointer transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
                   >
                     {ROLE_OPTIONS.map((r) => (
                       <option key={r} value={r}>
@@ -157,7 +157,7 @@ export function UserTable({ users, onRoleChange, onStatusChange }: UserTableProp
           </>
         }
       >
-        <p className="text-sm text-text-muted">
+        <p className="text-sm text-fy-muted">
           {pendingAction?.kind === 'role' && t('changeRoleTo', { role: pendingAction.value ?? '' })}
           {pendingAction?.kind === 'suspend' && t('suspendConfirm')}
           {pendingAction?.kind === 'delete' && t('deleteConfirm')}

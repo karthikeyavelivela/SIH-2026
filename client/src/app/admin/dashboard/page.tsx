@@ -30,7 +30,7 @@ interface AdminStats {
 
 // Same data source as before this restyle (GET /api/admin/stats,
 // unchanged) — only the presentation moved onto the ip-* tonal system
-// (MetricCard/ip-card) to match the Stitch admin_dashboard/
+// (MetricCard/fy-surface-card) to match the Stitch admin_dashboard/
 // admin_dashboard_overview screens in DESIGN_INVENTORY.md, following
 // client/src/app/fleet-owner/dashboard/page.tsx as the structural
 // reference for a dense SidebarNav + MetricCard console screen.
@@ -69,9 +69,9 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('welcome', { name: user?.name?.split(' ')[0] ?? '' })}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-8">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('welcome', { name: user?.name?.split(' ')[0] ?? '' })}</h1>
+      <p className="text-sm text-fy-ink-soft mb-8">{t('subtitle')}</p>
 
       <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mb-10">
         <MetricCard label={t('activeBookings')} value={stats?.activeBookings ?? '—'} icon={<TruckIcon className="w-5 h-5" />} />
@@ -82,17 +82,17 @@ export default function AdminDashboardPage() {
       <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 max-w-5xl">
         {links.map((l) => (
           <Link key={l.href} href={l.href} className="min-w-0">
-            <div className="ip-card flex items-center justify-between gap-3 h-full hover:bg-ip-surface-container-high transition-colors">
+            <div className="fy-surface-card flex items-center justify-between gap-3 h-full hover:bg-fy-well transition-colors">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="w-10 h-10 rounded-full bg-ip-primary-container/20 text-ip-primary flex items-center justify-center flex-shrink-0">
+                <span className="w-10 h-10 rounded-full bg-fy-brown-soft/20 text-fy-brown flex items-center justify-center flex-shrink-0">
                   <l.icon className="w-5 h-5" />
                 </span>
                 <div className="min-w-0">
                   <p className="font-semibold text-sm">{l.label}</p>
-                  <p className="text-xs text-ip-on-surface-variant truncate">{l.hint}</p>
+                  <p className="text-xs text-fy-ink-soft truncate">{l.hint}</p>
                 </div>
               </div>
-              <ChevronRightIcon className="w-4 h-4 text-ip-outline flex-shrink-0" />
+              <ChevronRightIcon className="w-4 h-4 text-fy-muted flex-shrink-0" />
             </div>
           </Link>
         ))}

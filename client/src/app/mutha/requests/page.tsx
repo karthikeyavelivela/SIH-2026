@@ -58,15 +58,15 @@ function MemberPicker({
   }
 
   return (
-    <div className="ip-card animate-[scaleIn_250ms_ease-out]">
+    <div className="fy-surface-card animate-[scaleIn_250ms_ease-out]">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="w-11 h-11 rounded-full bg-ip-secondary-container/30 text-ip-secondary flex items-center justify-center flex-shrink-0">
+          <span className="w-11 h-11 rounded-full bg-fy-lime/30 text-fy-green flex items-center justify-center flex-shrink-0">
             <LayersIcon className="w-5 h-5" />
           </span>
           <div className="min-w-0">
             <p className="font-heading font-bold text-base capitalize">{t('jobLabel', { type: booking.type })}</p>
-            <p className="text-xs text-ip-on-surface-variant">
+            <p className="text-xs text-fy-ink-soft">
               {t('needsMore', { count: remaining, plural: remaining === 1 ? '' : 's' })}
             </p>
           </div>
@@ -76,20 +76,20 @@ function MemberPicker({
 
       <div className="space-y-2 mb-4">
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-secondary" />
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-green" />
           <p className="text-sm truncate">{booking.pickupLocation.address}</p>
         </div>
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-ip-on-surface-variant" />
-          <p className="text-sm text-ip-on-surface-variant truncate">{booking.dropLocation.address}</p>
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-ink-soft" />
+          <p className="text-sm text-fy-ink-soft truncate">{booking.dropLocation.address}</p>
         </div>
       </div>
 
-      <p className="text-xs font-semibold text-ip-on-surface-variant uppercase tracking-wide mb-2">
+      <p className="text-xs font-semibold text-fy-ink-soft uppercase tracking-wide mb-2">
         {t('assignOnline', { selected: selected.length, remaining })}
       </p>
       {onlineMembers.length === 0 ? (
-        <p className="text-sm text-ip-on-surface-variant mb-4">{t('noneOnline')}</p>
+        <p className="text-sm text-fy-ink-soft mb-4">{t('noneOnline')}</p>
       ) : (
         <div className="space-y-1 mb-4">
           {onlineMembers.map((m) => {
@@ -110,7 +110,7 @@ function MemberPicker({
       )}
 
       {error && (
-        <div role="alert" className="mb-4 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-4 py-3 text-sm text-ip-on-error-container">
+        <div role="alert" className="mb-4 rounded-control border border-fy-error/30 bg-fy-error-bg/40 px-4 py-3 text-sm text-fy-on-error-bg">
           {error}
         </div>
       )}
@@ -159,7 +159,7 @@ export default function MuthaRequestsPage() {
   return (
     <div className="max-w-lg mx-auto px-5 pt-6">
       <h1 className="font-heading text-2xl font-bold mb-1">{t('pageTitle')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">{t('pageSubtitle')}</p>
+      <p className="text-sm text-fy-ink-soft mb-6">{t('pageSubtitle')}</p>
 
       {offer && (
         <div className="mb-6">
@@ -171,9 +171,9 @@ export default function MuthaRequestsPage() {
             onAccept={() => respondToOffer(true)}
             onReject={() => respondToOffer(false)}
           />
-          <p className="text-xs text-ip-on-surface-variant mt-2">{t('holdNotice')}</p>
+          <p className="text-xs text-fy-ink-soft mt-2">{t('holdNotice')}</p>
           {offerError && (
-            <div role="alert" className="flex items-start gap-2 mt-2 rounded-ip-input border border-ip-error/30 bg-ip-error-container/40 px-3.5 py-2.5 text-xs text-ip-on-error-container">
+            <div role="alert" className="flex items-start gap-2 mt-2 rounded-control border border-fy-error/30 bg-fy-error-bg/40 px-3.5 py-2.5 text-xs text-fy-on-error-bg">
               <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
               <p>{offerError}</p>
             </div>
@@ -184,7 +184,7 @@ export default function MuthaRequestsPage() {
       {state === 'loading' && (
         <div className="space-y-3">
           {[0, 1].map((i) => (
-            <div key={i} className="h-56 rounded-ip-card bg-ip-surface-container animate-pulse" />
+            <div key={i} className="h-56 rounded-card bg-fy-field animate-pulse" />
           ))}
         </div>
       )}

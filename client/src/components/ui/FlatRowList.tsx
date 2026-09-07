@@ -19,17 +19,17 @@ interface FlatRowProps {
 // the inventory found a plain list (booking history, notifications,
 // complaint history, member rosters).
 export function FlatRowList({ children, className = '' }: FlatRowListProps) {
-  return <div className={`flex flex-col divide-y divide-[color:var(--hairline)] ${className}`}>{children}</div>;
+  return <div className={`flex flex-col divide-y divide-[color:var(--fy-hairline)] ${className}`}>{children}</div>;
 }
 
 export function FlatRow({ left, right, onClick, href, className = '' }: FlatRowProps) {
   const rowClassName = `w-full flex items-center justify-between gap-4 py-3.5 text-left transition-colors ${
-    onClick || href ? 'hover:bg-fyro-ink/[0.02] cursor-pointer' : ''
+    onClick || href ? 'hover:bg-fy-ink/[0.02] cursor-pointer' : ''
   } ${className}`;
   const content = (
     <>
-      <div className="flex-1 min-w-0 font-body text-body-strong text-fyro-ink">{left}</div>
-      {right && <div className="shrink-0 font-heading text-body-default tabular-nums text-ip-on-surface-variant">{right}</div>}
+      <div className="flex-1 min-w-0 font-body text-body text-fy-ink">{left}</div>
+      {right && <div className="shrink-0 font-heading text-body tabular-nums text-fy-ink-soft">{right}</div>}
     </>
   );
 

@@ -34,8 +34,8 @@ interface LoadBoardCardProps {
 export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }: LoadBoardCardProps) {
   const t = useTranslations('loadBoard');
   const Icon = typeIcon[booking.type as 'truck' | 'hamali'] ?? TruckIcon;
-  const accentText = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
-  const accentBg = accent === 'primary' ? 'bg-primary/10' : 'bg-secondary/10';
+  const accentText = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
+  const accentBg = accent === 'primary' ? 'bg-fy-brown/10' : 'bg-fy-green/10';
 
   const [amount, setAmount] = useState(booking.myBid ? String(booking.myBid.amount) : '');
   const [message, setMessage] = useState(booking.myBid?.message ?? '');
@@ -70,7 +70,7 @@ export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }
   }
 
   return (
-    <div className="rounded-lg bg-surface-raised border border-border shadow-md p-5 animate-[scaleIn_250ms_ease-out]">
+    <div className="rounded-card bg-fy-card border border-fy-hairline shadow-md p-5 animate-[scaleIn_250ms_ease-out]">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <span className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${accentBg} ${accentText}`}>
@@ -78,11 +78,11 @@ export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }
           </span>
           <div className="min-w-0">
             <p className="font-heading font-bold text-base capitalize">{booking.type} {t('load')}</p>
-            {booking.distanceKm > 0 && <p className="text-xs text-text-muted">{t('distanceTrip', { km: booking.distanceKm.toFixed(1) })}</p>}
+            {booking.distanceKm > 0 && <p className="text-xs text-fy-muted">{t('distanceTrip', { km: booking.distanceKm.toFixed(1) })}</p>}
           </div>
         </div>
         <div className="text-right whitespace-nowrap">
-          <p className="text-xs text-text-muted">{t('referenceFare')}</p>
+          <p className="text-xs text-fy-muted">{t('referenceFare')}</p>
           <p className="font-heading font-bold text-lg">₹{booking.fareBreakdown.total}</p>
         </div>
       </div>
@@ -93,13 +93,13 @@ export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }
           <p className="text-sm truncate">{booking.pickupLocation.address}</p>
         </div>
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
-          <p className="text-sm text-text-muted truncate">{booking.dropLocation.address}</p>
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-muted" />
+          <p className="text-sm text-fy-muted truncate">{booking.dropLocation.address}</p>
         </div>
       </div>
 
       {error && (
-        <div role="alert" className="flex items-start gap-2 mb-4 rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+        <div role="alert" className="flex items-start gap-2 mb-4 rounded-control border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
           <AlertIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
           <p>{error}</p>
         </div>
@@ -112,7 +112,7 @@ export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder={t('yourBidPlaceholder')}
-          className="flex-1 min-h-[44px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20"
+          className="flex-1 min-h-[44px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
         />
         <Button
           variant={accent === 'primary' ? 'primary' : 'secondary'}
@@ -127,12 +127,12 @@ export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }
         onChange={(e) => setMessage(e.target.value)}
         placeholder={t('messagePlaceholder')}
         maxLength={300}
-        className="w-full min-h-[40px] px-3.5 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-xs mb-2"
+        className="w-full min-h-[40px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-xs mb-2"
       />
 
       {booking.myBid && (
         <div className="flex items-center justify-between">
-          <p className="text-xs text-text-muted">{t('yourCurrentBid', { amount: booking.myBid.amount })}</p>
+          <p className="text-xs text-fy-muted">{t('yourCurrentBid', { amount: booking.myBid.amount })}</p>
           <button type="button" onClick={withdraw} disabled={pending} className="text-xs font-semibold text-red-600 underline disabled:opacity-50">
             {t('withdraw')}
           </button>

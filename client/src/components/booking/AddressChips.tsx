@@ -45,7 +45,7 @@ export function AddressChips({ saved, onPick, extraChip, currentValue, onSave }:
         <button
           type="button"
           onClick={extraChip.onClick}
-          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary/10 text-secondary-600 hover:bg-secondary/20 transition-colors duration-fast"
+          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-fy-green/10 text-fy-green hover:bg-fy-green/20 transition-colors duration-fast"
         >
           {extraChip.label}
         </button>
@@ -55,7 +55,7 @@ export function AddressChips({ saved, onPick, extraChip, currentValue, onSave }:
           key={s._id}
           type="button"
           onClick={() => onPick({ lat: s.coordinates[1], lng: s.coordinates[0], address: s.address })}
-          className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-surface border border-border text-text-primary hover:bg-surface-raised transition-colors duration-fast"
+          className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-fy-panel border border-fy-hairline text-fy-ink hover:bg-fy-card transition-colors duration-fast"
         >
           <MapPinIcon className="w-3 h-3" />
           {s.label}
@@ -65,7 +65,7 @@ export function AddressChips({ saved, onPick, extraChip, currentValue, onSave }:
         <button
           type="button"
           onClick={() => setSaving(true)}
-          className="text-xs font-semibold text-text-muted underline"
+          className="text-xs font-semibold text-fy-muted underline"
         >
           Save this address
         </button>
@@ -78,17 +78,17 @@ export function AddressChips({ saved, onPick, extraChip, currentValue, onSave }:
             onChange={(e) => setLabel(e.target.value)}
             placeholder="e.g. Home"
             maxLength={40}
-            className="w-24 min-h-[28px] px-2 py-1 rounded-full border border-border bg-background text-xs"
+            className="w-24 min-h-[28px] px-2 py-1 rounded-full border border-fy-hairline bg-fy-bone text-xs"
           />
           <button
             type="button"
             disabled={!label.trim() || busy}
             onClick={confirmSave}
-            className="text-xs font-semibold text-primary-600 disabled:opacity-40"
+            className="text-xs font-semibold text-fy-brown disabled:opacity-40"
           >
             {busy ? '…' : 'Save'}
           </button>
-          <button type="button" onClick={() => setSaving(false)} className="text-xs text-text-muted">
+          <button type="button" onClick={() => setSaving(false)} className="text-xs text-fy-muted">
             Cancel
           </button>
         </span>

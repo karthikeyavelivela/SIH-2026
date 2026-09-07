@@ -33,13 +33,13 @@ export default function OnboardingWalkthroughPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background px-6 py-8">
+    <div className="min-h-screen flex flex-col bg-fy-bone px-6 py-8">
       <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-10">
-          <span className="font-heading text-lg font-extrabold text-primary-600 tracking-tight">FYRO</span>
+          <span className="font-heading text-lg font-extrabold text-fy-brown tracking-tight">FYRO</span>
           <Link
             href="/role-selection"
-            className="text-xs font-bold uppercase tracking-[0.15em] text-text-muted hover:text-text-primary transition-colors duration-fast"
+            className="text-xs font-bold uppercase tracking-[0.15em] text-fy-muted hover:text-fy-ink transition-colors duration-fast"
           >
             {t('skip')}
           </Link>
@@ -47,16 +47,16 @@ export default function OnboardingWalkthroughPage() {
 
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <div key={slideKey} className="animate-[fadeUp_400ms_ease-out]">
-            <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-              <Icon className="w-10 h-10 text-primary-600" />
+            <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-fy-brown/10">
+              <Icon className="w-10 h-10 text-fy-brown" />
             </div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-3">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-3">
               {t(`slides.${slideKey}.eyebrow`)}
             </p>
-            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-text-primary mb-3">
+            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-3">
               {t(`slides.${slideKey}.title`)}
             </h1>
-            <p className="text-text-muted leading-relaxed">{t(`slides.${slideKey}.body`)}</p>
+            <p className="text-fy-muted leading-relaxed">{t(`slides.${slideKey}.body`)}</p>
           </div>
         </div>
 
@@ -64,8 +64,8 @@ export default function OnboardingWalkthroughPage() {
           {SLIDE_KEYS.map((k, i) => (
             <span
               key={k}
-              className={`h-1.5 rounded-full transition-all duration-base ease-out-expo ${
-                i === step ? 'w-6 bg-primary-600' : 'w-1.5 bg-border-strong'
+              className={`h-1.5 rounded-full transition-all duration-base ease-out ${
+                i === step ? 'w-6 bg-fy-brown' : 'w-1.5 bg-border-strong'
               }`}
             />
           ))}

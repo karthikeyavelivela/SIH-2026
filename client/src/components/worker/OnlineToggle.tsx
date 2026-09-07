@@ -14,8 +14,8 @@ interface OnlineToggleProps {
 }
 
 const accentClasses: Record<Accent, string> = {
-  primary: 'bg-primary-600 shadow-glow-primary',
-  secondary: 'bg-secondary-600 shadow-glow-secondary',
+  primary: 'bg-fy-brown shadow-float',
+  secondary: 'bg-fy-green shadow-float',
 };
 
 // Shared by driver / hamali_solo / mutha_leader dashboards. Requests
@@ -82,7 +82,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
         aria-checked={isOnline}
         disabled={pending || onJob}
         onClick={() => (isOnline ? goOffline() : goOnline())}
-        className="w-full flex items-center justify-between gap-3 rounded-lg bg-surface-raised border border-border shadow-md px-5 py-4 transition-all duration-base disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-between gap-3 rounded-card bg-fy-card border border-fy-hairline shadow-md px-5 py-4 transition-all duration-base disabled:cursor-not-allowed"
       >
         <div className="flex items-center gap-3">
           <span
@@ -96,18 +96,18 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
             <p className="font-heading font-bold text-base leading-tight">
               {onJob ? t('onJob') : isOnline ? t('online') : t('offline')}
             </p>
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-fy-muted">
               {onJob ? t('onJobHint') : isOnline ? t('onlineHint') : t('offlineHint')}
             </p>
           </div>
         </div>
         <span
           className={`relative w-12 h-7 rounded-full transition-colors duration-base flex-shrink-0 ${
-            isOnline ? (accent === 'primary' ? 'bg-primary-600' : 'bg-secondary-600') : 'bg-border-strong'
+            isOnline ? (accent === 'primary' ? 'bg-fy-brown' : 'bg-fy-green') : 'bg-border-strong'
           }`}
         >
           <span
-            className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-base ease-out-expo ${
+            className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-base ease-out ${
               isOnline ? 'translate-x-6' : 'translate-x-1'
             }`}
           />
@@ -115,7 +115,7 @@ export function OnlineToggle({ status, onStatusChange, accent = 'primary' }: Onl
       </button>
 
       {locationError && (
-        <div role="alert" className="mt-3 flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="mt-3 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <p>{locationError}</p>
         </div>

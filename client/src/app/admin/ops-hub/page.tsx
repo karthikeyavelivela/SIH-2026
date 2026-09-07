@@ -51,9 +51,9 @@ export default function AdminOpsHubPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       {state === 'loading' && !data ? (
         <Skeleton className="h-24 mb-8" />
@@ -66,9 +66,9 @@ export default function AdminOpsHubPage() {
         </div>
       )}
 
-      <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('criticalAlerts')}</h2>
+      <h2 className="font-heading text-title font-bold mb-3">{t('criticalAlerts')}</h2>
       {latePickups.length === 0 ? (
-        <div className="ip-card mb-10">
+        <div className="fy-surface-card mb-10">
           <EmptyState icon={<ClockIcon className="w-7 h-7" />} title={t('noLatePickups')} description={t('noLatePickupsDesc')} />
         </div>
       ) : (
@@ -83,13 +83,13 @@ export default function AdminOpsHubPage() {
         </div>
       )}
 
-      <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('actionRequired')}</h2>
+      <h2 className="font-heading text-title font-bold mb-3">{t('actionRequired')}</h2>
       {actionQueue.length === 0 ? (
-        <div className="ip-card">
+        <div className="fy-surface-card">
           <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('allClear')} description={t('allClearDesc')} />
         </div>
       ) : (
-        <div className="ip-card max-w-3xl divide-y divide-ip-outline/10">
+        <div className="fy-surface-card max-w-3xl divide-y divide-fy-muted/10">
           {actionQueue.map((item) => (
             <Link
               key={`${item.kind}-${item.id}`}
@@ -98,7 +98,7 @@ export default function AdminOpsHubPage() {
             >
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{item.title}</p>
-                <p className="text-xs text-ip-on-surface-variant capitalize">{t(`kind.${item.kind}`)} · {item.priority} · {new Date(item.createdAt).toLocaleDateString('en-IN')}</p>
+                <p className="text-xs text-fy-ink-soft capitalize">{t(`kind.${item.kind}`)} · {item.priority} · {new Date(item.createdAt).toLocaleDateString('en-IN')}</p>
               </div>
             </Link>
           ))}

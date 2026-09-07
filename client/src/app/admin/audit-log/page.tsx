@@ -19,7 +19,7 @@ interface AuditEntry {
 }
 
 const inputClass =
-  'min-h-[40px] px-3.5 py-2 rounded-ip-input border border-ip-outline/20 bg-ip-surface text-sm placeholder:text-ip-on-surface-variant/70 focus:border-ip-primary focus:ring-2 focus:ring-ip-primary/20 transition-colors';
+  'min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm placeholder:text-fy-ink-soft/70 focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20 transition-colors';
 
 // Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md's
 // system_audit_trail row, moved onto the shared DataTable component. Same
@@ -51,9 +51,9 @@ export default function AdminAuditLogPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
 
       <div className="flex flex-wrap gap-3 mb-6">
         <input
@@ -85,14 +85,14 @@ export default function AdminAuditLogPage() {
           loading={state === 'loading' && entries.length === 0}
           emptyTitle={t('noMatching')}
           columns={[
-            { key: 'time', header: t('time'), render: (e) => <span className="whitespace-nowrap text-ip-on-surface-variant">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
+            { key: 'time', header: t('time'), render: (e) => <span className="whitespace-nowrap text-fy-ink-soft">{new Date(e.timestamp).toLocaleString('en-IN')}</span> },
             { key: 'actor', header: t('actor'), render: (e) => <StatusChip tone="secondary">{e.actorRole}</StatusChip> },
             { key: 'action', header: t('action'), render: (e) => <span className="font-medium">{e.action}</span> },
             {
               key: 'target',
               header: t('target'),
               render: (e) => (
-                <span className="text-ip-on-surface-variant whitespace-nowrap">
+                <span className="text-fy-ink-soft whitespace-nowrap">
                   {e.targetType} · {e.targetId.slice(-6)}
                 </span>
               ),
@@ -101,7 +101,7 @@ export default function AdminAuditLogPage() {
               key: 'details',
               header: t('details'),
               className: 'max-w-xs truncate',
-              render: (e) => <span className="text-ip-on-surface-variant">{JSON.stringify(e.details)}</span>,
+              render: (e) => <span className="text-fy-ink-soft">{JSON.stringify(e.details)}</span>,
             },
           ]}
         />
@@ -112,15 +112,15 @@ export default function AdminAuditLogPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
+            className="text-sm font-medium text-fy-brown disabled:text-fy-ink-soft disabled:cursor-not-allowed"
           >
             {t('previous')}
           </button>
-          <span className="text-sm text-ip-on-surface-variant">{t('pageOf', { page, totalPages })}</span>
+          <span className="text-sm text-fy-ink-soft">{t('pageOf', { page, totalPages })}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="text-sm font-medium text-ip-primary disabled:text-ip-on-surface-variant disabled:cursor-not-allowed"
+            className="text-sm font-medium text-fy-brown disabled:text-fy-ink-soft disabled:cursor-not-allowed"
           >
             {t('next')}
           </button>

@@ -43,9 +43,9 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-ip-primary mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-ip-display-md font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-ip-on-surface-variant mb-7">{t('subtitle')}</p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
+      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
+      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
       {state === 'loading' && !data ? (
         <Skeleton className="h-28 mb-8" />
@@ -61,9 +61,9 @@ export default function AdminAnalyticsPage() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div>
-          <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('demandHotspots')}</h2>
+          <h2 className="font-heading text-title font-bold mb-3">{t('demandHotspots')}</h2>
           {heatmap.length === 0 ? (
-            <div className="ip-card">
+            <div className="fy-surface-card">
               <EmptyState title={t('noPickupData')} description={t('noPickupDataDesc')} />
             </div>
           ) : (
@@ -71,8 +71,8 @@ export default function AdminAnalyticsPage() {
           )}
         </div>
         <div>
-          <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('revenueTrend')}</h2>
-          <div className="ip-card">
+          <h2 className="font-heading text-title font-bold mb-3">{t('revenueTrend')}</h2>
+          <div className="fy-surface-card">
             {trend.length < 2 ? (
               <EmptyState title={t('notEnoughData')} description={t('notEnoughDataDesc')} />
             ) : (
@@ -87,7 +87,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="mt-10">
-        <h2 className="font-heading text-ip-headline-sm font-bold mb-3">{t('marketInsights')}</h2>
+        <h2 className="font-heading text-title font-bold mb-3">{t('marketInsights')}</h2>
         <MarketInsightsWidget />
       </div>
     </div>

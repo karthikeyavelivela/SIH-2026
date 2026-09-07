@@ -14,12 +14,12 @@ export function Skeleton({ className = '', lines }: SkeletonProps) {
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
-            className={`animate-pulse rounded-md bg-ip-surface-container-high ${className}`}
+            className={`animate-pulse rounded-control bg-fy-well ${className}`}
             style={{ width: i === lines - 1 ? '60%' : '100%' }}
           />
         ))}
       </div>
     );
   }
-  return <div className={`animate-pulse rounded-md bg-ip-surface-container-high ${className}`} />;
+  return <div className={`animate-pulse rounded-control bg-fy-well ${className}`} />;
 }

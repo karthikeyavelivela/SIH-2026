@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { readToken } from '@/lib/token';
 
 export interface SignatureCanvasHandle {
   /** Returns a PNG data URL, or null if nothing was drawn. */
@@ -52,7 +53,7 @@ export const SignatureCanvas = forwardRef<SignatureCanvasHandle, SignatureCanvas
     const { x, y } = point(e);
     ctx.lineWidth = 2.5;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = '#1D1B19';
+    ctx.strokeStyle = readToken('--fy-ink', '#1C1C16');
     ctx.lineTo(x, y);
     ctx.stroke();
     hasInk.current = true;
@@ -79,7 +80,7 @@ export const SignatureCanvas = forwardRef<SignatureCanvasHandle, SignatureCanvas
         ref={canvasRef}
         width={width}
         height={height}
-        className="w-full rounded-ip-input bg-ip-surface-container-lowest border border-ip-outline/25 touch-none"
+        className="w-full rounded-control bg-fy-card border border-fy-muted/25 touch-none"
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={end}
@@ -88,7 +89,7 @@ export const SignatureCanvas = forwardRef<SignatureCanvasHandle, SignatureCanvas
         aria-label="Signature pad"
       />
       <div className="flex items-center justify-between mt-1.5">
-        <p className="text-xs text-ip-on-surface-variant">{empty ? 'Sign above' : 'Signed'}</p>
+        <p className="text-xs text-fy-ink-soft">{empty ? 'Sign above' : 'Signed'}</p>
         <button
           type="button"
           onClick={() => {
@@ -97,7 +98,7 @@ export const SignatureCanvas = forwardRef<SignatureCanvasHandle, SignatureCanvas
             hasInk.current = false;
             setEmpty(true);
           }}
-          className="text-xs font-semibold text-ip-primary hover:underline"
+          className="text-xs font-semibold text-fy-brown hover:underline"
         >
           Clear
         </button>

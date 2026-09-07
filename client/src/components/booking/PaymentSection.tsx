@@ -61,14 +61,14 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
     }
   }
 
-  if (payment === undefined) return <div className="h-16 rounded-lg bg-surface animate-pulse mb-4" />;
+  if (payment === undefined) return <div className="h-16 rounded-card bg-fy-panel animate-pulse mb-4" />;
 
   const codAwaitingWorker = payment?.method === 'cod' && payment.status === 'pending';
 
   return (
     <Card elevation="raised" className="mb-4">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{t('payment')}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-fy-muted">{t('payment')}</p>
         {payment && (
           <Badge tone={payment.status === 'success' ? 'success' : payment.status === 'failed' ? 'danger' : 'muted'}>
             {payment.status}
@@ -77,18 +77,18 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
       </div>
       {payment?.status === 'success' ? (
         <>
-          <p className="text-sm text-text-muted mb-2">{t('paidAmount', { amount: payment.amount })}</p>
+          <p className="text-sm text-fy-muted mb-2">{t('paidAmount', { amount: payment.amount })}</p>
           <a
             href={`${API_BASE}/api/bookings/${bookingId}/tax-invoice`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-semibold text-primary-600 underline"
+            className="text-sm font-semibold text-fy-brown underline"
           >
             {t('downloadTaxInvoice')}
           </a>
         </>
       ) : codAwaitingWorker ? (
-        <p className="text-sm text-text-muted">{t('codAwaitingWorker', { amount: payment.amount })}</p>
+        <p className="text-sm text-fy-muted">{t('codAwaitingWorker', { amount: payment.amount })}</p>
       ) : (
         <>
           {error && <p className="text-sm text-red-700 mb-2">{error}</p>}

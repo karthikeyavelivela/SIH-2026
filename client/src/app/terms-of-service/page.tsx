@@ -15,37 +15,37 @@ export default async function TermsOfServicePage() {
   const t = await getTranslations('shared.terms');
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-md border-b border-border">
+    <div className="min-h-screen bg-fy-bone">
+      <div className="sticky top-0 z-10 bg-fy-bone/90 backdrop-blur-md border-b border-fy-hairline">
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-3">
           <Link
             href="/"
             aria-label={t('back')}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface transition-colors duration-fast flex-shrink-0"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-fy-panel transition-colors duration-fast flex-shrink-0"
           >
             <ChevronLeftIcon className="w-5 h-5" />
           </Link>
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-text-muted">{t('eyebrow')}</span>
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-fy-muted">{t('eyebrow')}</span>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-surface border border-border px-3 py-1 text-xs font-medium text-text-muted mb-6">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-fy-panel border border-fy-hairline px-3 py-1 text-xs font-medium text-fy-muted mb-6">
           {t('lastUpdated')}
         </span>
-        <h1 className="font-heading text-2xl font-extrabold tracking-tight text-text-primary mb-4">{t('title')}</h1>
-        <p className="text-text-muted leading-relaxed mb-10">{t('subtitle')}</p>
+        <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-4">{t('title')}</h1>
+        <p className="text-fy-muted leading-relaxed mb-10">{t('subtitle')}</p>
 
         <div className="space-y-10">
           {SECTION_KEYS.map((key) => (
             <section key={key}>
-              <h2 className="font-heading text-lg font-bold text-primary-600 mb-3">{t(`sections.${key}.heading`)}</h2>
-              <p className="text-text-muted leading-relaxed mb-3">{t(`sections.${key}.body1`)}</p>
-              <p className="text-text-muted leading-relaxed">{t(`sections.${key}.body2`)}</p>
+              <h2 className="font-heading text-lg font-bold text-fy-brown mb-3">{t(`sections.${key}.heading`)}</h2>
+              <p className="text-fy-muted leading-relaxed mb-3">{t(`sections.${key}.body1`)}</p>
+              <p className="text-fy-muted leading-relaxed">{t(`sections.${key}.body2`)}</p>
               {key === 'dataPrivacy' && (
                 <Card
                   elevation="flat"
-                  className="mt-4 border-l-4 border-primary-600 rounded-md italic text-sm text-text-muted"
+                  className="mt-4 border-l-4 border-fy-brown rounded-control italic text-sm text-fy-muted"
                 >
                   {t('sections.dataPrivacy.note')}
                 </Card>
@@ -54,9 +54,9 @@ export default async function TermsOfServicePage() {
           ))}
         </div>
 
-        <div className="mt-14 pt-8 border-t border-border text-center">
-          <ShieldIcon className="w-6 h-6 text-primary-600 mx-auto mb-4" />
-          <p className="text-sm text-text-muted max-w-sm mx-auto">{t('acknowledgment')}</p>
+        <div className="mt-14 pt-8 border-t border-fy-hairline text-center">
+          <ShieldIcon className="w-6 h-6 text-fy-brown mx-auto mb-4" />
+          <p className="text-sm text-fy-muted max-w-sm mx-auto">{t('acknowledgment')}</p>
         </div>
       </div>
     </div>

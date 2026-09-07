@@ -48,7 +48,7 @@ export default function MuthaDashboardPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <div className="flex items-start justify-between gap-3 mb-6">
         <div>
-          <p className="text-xs text-ip-on-surface-variant">{t('hello')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('hello')}</p>
           <h1 className="font-heading text-2xl font-bold">{firstName} 👋</h1>
         </div>
         <NotificationBell href="/mutha/notifications" />
@@ -56,14 +56,14 @@ export default function MuthaDashboardPage() {
 
       <NotificationPrompt accent="secondary" copy={t('notifyPrompt')} />
 
-      {state === 'loading' && <div className="h-40 rounded-ip-card bg-ip-surface-container animate-pulse mb-6" />}
+      {state === 'loading' && <div className="h-40 rounded-card bg-fy-field animate-pulse mb-6" />}
 
       {data && (
-        <div className="ip-card mb-6">
+        <div className="fy-surface-card mb-6">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="min-w-0">
               <p className="font-heading text-xl font-bold truncate">{data.mutha.name}</p>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-ip-secondary mt-1">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-fy-green mt-1">
                 <StarIcon className="w-3.5 h-3.5" />
                 {data.mutha.ratingCount > 0 ? `${data.mutha.ratingAvg.toFixed(1)} (${data.mutha.ratingCount})` : t('newGroup')}
               </span>
@@ -73,12 +73,12 @@ export default function MuthaDashboardPage() {
           <ListDivider className="my-3" />
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs text-ip-on-surface-variant mb-0.5">{t('inviteCode')}</p>
+              <p className="text-xs text-fy-ink-soft mb-0.5">{t('inviteCode')}</p>
               <p className="font-heading text-base font-bold tracking-[0.15em]">{data.mutha.inviteCode}</p>
             </div>
             <Link
               href="/mutha/create-group"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-ip-secondary hover:underline flex-shrink-0"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-fy-green hover:underline flex-shrink-0"
             >
               {t('groupSettings')}
               <ChevronRightIcon className="w-3.5 h-3.5" />
@@ -95,21 +95,21 @@ export default function MuthaDashboardPage() {
 
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-heading text-lg font-bold">{t('activeJobs')}</h2>
-        <Link href="/mutha/active-jobs" className="text-xs font-semibold text-ip-secondary hover:underline">
+        <Link href="/mutha/active-jobs" className="text-xs font-semibold text-fy-green hover:underline">
           {t('viewAll')}
         </Link>
       </div>
       {activeJobs.length === 0 ? (
-        <div className="ip-card mb-6">
+        <div className="fy-surface-card mb-6">
           <EmptyState icon={<TruckIcon className="w-6 h-6" />} title={t('noActiveJobsTitle')} description={t('noActiveJobsDescription')} />
         </div>
       ) : (
-        <div className="ip-card mb-6 divide-y divide-ip-outline/10">
+        <div className="fy-surface-card mb-6 divide-y divide-fy-muted/10">
           {activeJobs.slice(0, 3).map((b) => (
             <div key={b._id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate capitalize">{b.type} {t('job')}</p>
-                <p className="text-xs text-ip-on-surface-variant truncate">{b.pickupLocation.address}</p>
+                <p className="text-xs text-fy-ink-soft truncate">{b.pickupLocation.address}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <StatusChip tone={b.status === 'in_progress' ? 'primary' : 'secondary'}>
@@ -117,7 +117,7 @@ export default function MuthaDashboardPage() {
                 </StatusChip>
                 <Link
                   href={`/mutha/assign-members?bookingId=${b._id}`}
-                  className="text-xs font-semibold text-ip-secondary hover:underline whitespace-nowrap"
+                  className="text-xs font-semibold text-fy-green hover:underline whitespace-nowrap"
                 >
                   {t('crew')}
                 </Link>
@@ -128,7 +128,7 @@ export default function MuthaDashboardPage() {
       )}
 
       <h2 className="font-heading text-lg font-bold mb-3">{t('roster')}</h2>
-      <div className="ip-card mb-6">
+      <div className="fy-surface-card mb-6">
         {data?.members.length === 0 && (
           <EmptyState icon={<UsersIcon className="w-6 h-6" />} title={t('noMembersTitle')} description={t('noMembersDescription')} />
         )}
@@ -140,41 +140,41 @@ export default function MuthaDashboardPage() {
         ))}
       </div>
 
-      <div className="ip-card mb-6 divide-y divide-ip-outline/10">
+      <div className="fy-surface-card mb-6 divide-y divide-fy-muted/10">
         <Link href="/mutha/requests" className="flex items-center justify-between py-3 first:pt-0">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
-            <LayersIcon className="w-4 h-4 text-ip-outline" />
+            <LayersIcon className="w-4 h-4 text-fy-muted" />
             {t('viewOpenRequests')}
           </span>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <Link href="/mutha/operations" className="flex items-center justify-between py-3">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
-            <CompassIcon className="w-4 h-4 text-ip-outline" />
+            <CompassIcon className="w-4 h-4 text-fy-muted" />
             {t('crewOperations')}
           </span>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <Link href="/mutha/earnings" className="flex items-center justify-between py-3">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
-            <WalletIcon className="w-4 h-4 text-ip-outline" />
+            <WalletIcon className="w-4 h-4 text-fy-muted" />
             {t('groupEarningsToDate', { amount: earningsData?.total ?? 0 })}
           </span>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <Link href="/mutha/governance" className="flex items-center justify-between py-3">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
-            <ShieldIcon className="w-4 h-4 text-ip-outline" />
+            <ShieldIcon className="w-4 h-4 text-fy-muted" />
             {t('cooperativeGovernance')}
           </span>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <Link href="/mutha/insurance" className="flex items-center justify-between py-3 last:pb-0">
           <span className="flex items-center gap-2.5 text-sm font-semibold">
-            <ShieldIcon className="w-4 h-4 text-ip-outline" />
+            <ShieldIcon className="w-4 h-4 text-fy-muted" />
             {t('insuranceProtection')}
           </span>
-          <ChevronRightIcon className="w-4 h-4 text-ip-on-surface-variant" />
+          <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
       </div>
 

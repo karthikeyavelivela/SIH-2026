@@ -4,14 +4,14 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'md' | 'lg';
 
 // -600 shades used for solid fills — the base brand tokens (bright orange
-// #FF6B2B / teal #0D9488) fail WCAG AA as a background under white text;
+// the old bright brand hues) failed WCAG AA as a background under white text;
 // the deepened shades stay in the same hue family and pass comfortably.
 // Per the "Ink on Warm Paper" component rule: solid fill, no shadow/glow —
 // depth on press comes from darkening the fill, not a drop shadow.
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-primary-600 text-white hover:brightness-110 active:brightness-90',
-  secondary: 'bg-secondary-600 text-white hover:brightness-110 active:brightness-90',
-  ghost: 'bg-transparent text-text-primary border border-border-strong hover:bg-surface active:bg-surface-raised',
+  primary: 'bg-fy-brown text-white hover:brightness-110 active:brightness-90',
+  secondary: 'bg-fy-green text-white hover:brightness-110 active:brightness-90',
+  ghost: 'bg-transparent text-fy-ink border border-fy-hairline hover:bg-fy-panel active:bg-fy-card',
   danger: 'bg-red-700 text-white hover:brightness-110 active:brightness-90',
 };
 

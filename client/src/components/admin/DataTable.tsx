@@ -35,7 +35,7 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (loading) {
     return (
-      <div className="rounded-ip-card border border-ip-outline/10 bg-ip-surface-container-lowest p-5">
+      <div className="rounded-card border border-fy-muted/10 bg-fy-card p-5">
         <Skeleton lines={5} className="h-5" />
       </div>
     );
@@ -43,14 +43,14 @@ export function DataTable<T>({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-ip-card border border-ip-outline/10 bg-ip-surface-container-lowest">
+      <div className="rounded-card border border-fy-muted/10 bg-fy-card">
         <EmptyState title={emptyTitle} description={emptyDescription} />
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-ip-card border border-ip-outline/10 bg-ip-surface-container-lowest">
+    <div className="overflow-x-auto rounded-card border border-fy-muted/10 bg-fy-card">
       <table className="w-full text-sm">
         <thead>
           <tr>
@@ -58,7 +58,7 @@ export function DataTable<T>({
               <th
                 key={col.key}
                 scope="col"
-                className="px-5 py-3.5 text-left font-semibold text-xs uppercase tracking-wide text-ip-on-surface-variant"
+                className="px-5 py-3.5 text-left font-semibold text-xs uppercase tracking-wide text-fy-ink-soft"
               >
                 {col.header}
               </th>
@@ -70,10 +70,10 @@ export function DataTable<T>({
             <tr
               key={rowKey(row)}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={`border-t border-ip-outline/10 ${onRowClick ? 'cursor-pointer hover:bg-ip-surface-container' : ''}`}
+              className={`border-t border-fy-muted/10 ${onRowClick ? 'cursor-pointer hover:bg-fy-field' : ''}`}
             >
               {columns.map((col) => (
-                <td key={col.key} className={`px-5 py-3.5 text-ip-on-surface ${col.className ?? ''}`}>
+                <td key={col.key} className={`px-5 py-3.5 text-fy-ink ${col.className ?? ''}`}>
                   {col.render(row)}
                 </td>
               ))}

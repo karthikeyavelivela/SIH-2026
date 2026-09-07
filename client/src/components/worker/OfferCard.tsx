@@ -36,13 +36,13 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
   const secondsLeft = Math.ceil(msLeft / 1000);
   const totalSeconds = 20; // matches server's OFFER_TIMEOUT_MS default; purely visual, server is authoritative on the real expiry
   const Icon = typeIcon[offer.type as keyof typeof typeIcon] ?? TruckIcon;
-  const ringColor = accent === 'primary' ? 'var(--color-primary-600)' : 'var(--color-secondary-600)';
-  const accentText = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
-  const accentBg = accent === 'primary' ? 'bg-primary/10' : 'bg-secondary/10';
+  const ringColor = accent === 'primary' ? 'var(--fy-brown)' : 'var(--fy-green)';
+  const accentText = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
+  const accentBg = accent === 'primary' ? 'bg-fy-brown/10' : 'bg-fy-green/10';
 
   return (
     <div
-      className="relative rounded-lg bg-surface-raised border-2 p-5 shadow-lg animate-[scaleIn_250ms_ease-out]"
+      className="relative rounded-card bg-fy-card border-2 p-5 shadow-lg animate-[scaleIn_250ms_ease-out]"
       style={{ borderColor: ringColor }}
     >
       <div className="flex items-start justify-between gap-3 mb-4">
@@ -52,7 +52,7 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
           </span>
           <div className="min-w-0">
             <p className="font-heading font-bold text-base">{t('newJobTitle')}</p>
-            {offer.distanceKm > 0 && <p className="text-xs text-text-muted">{offer.distanceKm.toFixed(1)} km</p>}
+            {offer.distanceKm > 0 && <p className="text-xs text-fy-muted">{offer.distanceKm.toFixed(1)} km</p>}
           </div>
         </div>
         <CountdownRing secondsLeft={secondsLeft} totalSeconds={totalSeconds} size={44} accent={accent}>
@@ -66,13 +66,13 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
           <p className="text-sm truncate">{offer.pickupAddress}</p>
         </div>
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
-          <p className="text-sm text-text-muted truncate">{offer.dropAddress}</p>
+          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-muted" />
+          <p className="text-sm text-fy-muted truncate">{offer.dropAddress}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs text-text-muted">{t('fare')}</span>
+        <span className="text-xs text-fy-muted">{t('fare')}</span>
         <p className="font-heading font-bold text-lg">₹{offer.total}</p>
       </div>
 

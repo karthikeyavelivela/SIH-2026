@@ -43,8 +43,8 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <div className="mb-6">
       <h2 className="font-heading text-lg font-bold mb-1">{title}</h2>
-      {subtitle && <p className="text-xs text-text-muted mb-3">{subtitle}</p>}
-      <div className="ip-card space-y-3">{children}</div>
+      {subtitle && <p className="text-xs text-fy-muted mb-3">{subtitle}</p>}
+      <div className="fy-surface-card space-y-3">{children}</div>
     </div>
   );
 }
@@ -122,19 +122,19 @@ export default function MuthaMemberGovernancePage() {
       <BackHeader title={t('title')} fallbackHref="/mutha-member/profile" />
       <div className="px-5 pt-6">
         {error && (
-          <div role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div role="alert" className="mb-4 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
 
         <Section title={t('myDeductionsTitle')} subtitle={t('myDeductionsSubtitle')}>
           {!records || records.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noDeductions')}</p>
+            <p className="text-sm text-fy-muted">{t('noDeductions')}</p>
           ) : (
             <div className="space-y-2">
               {records.map((r) => (
                 <div key={r._id} className="flex justify-between text-sm">
-                  <span className="text-text-muted">
+                  <span className="text-fy-muted">
                     ₹{r.grossAmount} − ₹{r.commissionAmount} − ₹{r.welfareAmount}
                   </span>
                   <span className="font-semibold tabular-nums">₹{r.netAmount}</span>
@@ -146,7 +146,7 @@ export default function MuthaMemberGovernancePage() {
 
         <Section title={t('sharesTitle')} subtitle={t('sharesSubtitle')}>
           {!shares || shares.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noShares')}</p>
+            <p className="text-sm text-fy-muted">{t('noShares')}</p>
           ) : (
             shares.map((s) => (
               <div key={s._id} className="flex justify-between text-sm">
@@ -161,7 +161,7 @@ export default function MuthaMemberGovernancePage() {
 
         <Section title={t('surplusTitle')} subtitle={t('surplusSubtitle')}>
           {!distributions || distributions.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noSurplus')}</p>
+            <p className="text-sm text-fy-muted">{t('noSurplus')}</p>
           ) : (
             <div className="space-y-2">
               {distributions.map((d) => (
@@ -178,13 +178,13 @@ export default function MuthaMemberGovernancePage() {
 
         <Section title={t('pollsTitle')} subtitle={t('pollsSubtitle')}>
           {!polls || polls.length === 0 ? (
-            <p className="text-sm text-text-muted">{t('noPolls')}</p>
+            <p className="text-sm text-fy-muted">{t('noPolls')}</p>
           ) : (
             <div className="space-y-3">
               {polls.map((p) => (
-                <div key={p._id} className="rounded-ip-input bg-ip-surface-container p-3">
+                <div key={p._id} className="rounded-control bg-fy-field p-3">
                   <p className="text-sm font-semibold">{p.question}</p>
-                  <p className="text-xs text-text-muted mb-2">
+                  <p className="text-xs text-fy-muted mb-2">
                     {t(`pollType.${p.type}`)} · {t(`pollStatus.${p.status}`)}
                     {p.status === 'closed' && p.winningOptionIndex !== undefined && (
                       <> · {t('winner')}: {p.options[p.winningOptionIndex]?.label}</>
@@ -198,14 +198,14 @@ export default function MuthaMemberGovernancePage() {
                           type="button"
                           disabled={busyId === p._id}
                           onClick={() => vote(p._id, i)}
-                          className="text-xs font-semibold px-3 py-1.5 rounded-full border border-ip-secondary/40 text-ip-secondary disabled:opacity-50"
+                          className="text-xs font-semibold px-3 py-1.5 rounded-full border border-fy-green/40 text-fy-green disabled:opacity-50"
                         >
                           {o.label}
                         </button>
                       ))}
                     </div>
                   )}
-                  {p.status === 'open' && p.hasVoted && <p className="text-xs text-ip-secondary">{t('youVoted')}</p>}
+                  {p.status === 'open' && p.hasVoted && <p className="text-xs text-fy-green">{t('youVoted')}</p>}
                 </div>
               ))}
             </div>

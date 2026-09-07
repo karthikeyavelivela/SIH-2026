@@ -32,29 +32,29 @@ export default function LanguageSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-background relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-fy-bone relative overflow-hidden">
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -right-24 w-80 h-80 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -top-32 -right-24 w-80 h-80 rounded-full bg-fy-brown/10 blur-3xl"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-24 w-80 h-80 rounded-full bg-secondary/10 blur-3xl"
+        className="pointer-events-none absolute -bottom-32 -left-24 w-80 h-80 rounded-full bg-fy-green/10 blur-3xl"
       />
 
       <div className="w-full max-w-sm relative z-10 text-center animate-[fadeUp_500ms_ease-out]">
-        <span className="font-heading text-xl font-extrabold text-primary-600 tracking-tight">FYRO</span>
+        <span className="font-heading text-xl font-extrabold text-fy-brown tracking-tight">FYRO</span>
 
-        <h1 className="font-heading text-2xl font-extrabold tracking-tight text-text-primary mt-10 mb-3">
+        <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mt-10 mb-3">
           {t('title')}
         </h1>
-        <p className="text-text-muted mb-10">{t('subtitle')}</p>
+        <p className="text-fy-muted mb-10">{t('subtitle')}</p>
 
         <div className="flex justify-center">
           <LanguagePill
             value={selected}
             onChange={setSelected}
-            className="flex-col items-stretch w-full [&>button]:w-full [&>button]:py-3.5 [&>button]:text-base [&>button]:justify-start [&>button]:rounded-md"
+            className="flex-col items-stretch w-full [&>button]:w-full [&>button]:py-3.5 [&>button]:text-base [&>button]:justify-start [&>button]:rounded-control"
           />
         </div>
 

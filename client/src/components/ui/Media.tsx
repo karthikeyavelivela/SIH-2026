@@ -14,14 +14,14 @@ interface MediaProps {
 }
 
 const TINT_BG: Record<Tint, string> = {
-  household: 'bg-accent-household/14',
-  labour: 'bg-accent-labour/22',
-  transport: 'bg-accent-transport/14',
+  household: 'bg-fy-brown/14',
+  labour: 'bg-fy-lime/22',
+  transport: 'bg-fy-slate/14',
 };
 const TINT_TEXT: Record<Tint, string> = {
-  household: 'text-accent-household',
-  labour: 'text-fyro-ink',
-  transport: 'text-accent-transport',
+  household: 'text-fy-brown',
+  labour: 'text-fy-ink',
+  transport: 'text-fy-slate',
 };
 
 const treatmentShape: Record<Treatment, string> = {
@@ -73,7 +73,7 @@ export function Media({ id, kind, aspect, treatment = 'duotone', tint = 'househo
           <circle cx="8.5" cy="8.5" r="1.5" />
           <path d="m21 15-5-5L5 21" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className="font-label-caps text-label-caps uppercase tracking-wider opacity-70">{resolvedKind}</span>
+        <span className="font-body text-eyebrow uppercase tracking-wider opacity-70">{resolvedKind}</span>
         <span className="text-[10px] font-mono opacity-60 break-all leading-tight">{id}</span>
       </div>
     </div>

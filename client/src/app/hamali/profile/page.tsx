@@ -31,15 +31,15 @@ export default function HamaliProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-24">
+    <div className="min-h-screen bg-fy-bone pb-24">
       <TopBar title={t('pageTitle')} showBack={false} />
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
+      <div className="max-w-lg mx-auto px-gutter pt-4">
 
-      <div className="ip-card flex items-center gap-4 mb-6">
+      <div className="fy-surface-card flex items-center gap-4 mb-6">
         <AvatarUpload name={user.name} photoUrl={user.profilePhoto} accent="secondary" onUploaded={refetch} />
         <div>
           <p className="font-heading font-bold text-lg">{user.name}</p>
-          <p className="text-sm text-ip-on-surface-variant">{user.phone}</p>
+          <p className="text-sm text-fy-ink-soft">{user.phone}</p>
           <Badge tone="secondary" className="mt-1.5">
             {t(`account.statusLabels.${user.accountStatus}`)}
           </Badge>

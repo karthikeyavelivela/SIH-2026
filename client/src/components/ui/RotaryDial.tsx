@@ -143,7 +143,7 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
           per the brief. Never unmounted: this is the cross-fade target
           for all three sector subtrees, owned by the caller. */}
       <div
-        className={`transition-[filter,opacity] duration-base ease-out-expo ${
+        className={`transition-[filter,opacity] duration-base ease-out ${
           isExpanded ? 'blur-[2px] opacity-70 pointer-events-none' : ''
         }`}
       >
@@ -169,11 +169,11 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
           type="button"
           aria-label={`Expand mode dial — currently ${activeSector?.label}`}
           onClick={expand}
-          className="fixed top-16 right-0 z-40 flex items-center gap-1.5 pl-4 pr-2.5 py-2 bg-ip-primary-container/90 backdrop-blur-md rounded-l-full shadow-md text-ip-on-primary transition-transform active:scale-95"
+          className="fixed top-16 right-0 z-40 flex items-center gap-1.5 pl-4 pr-2.5 py-2 bg-fy-brown-soft/90 backdrop-blur-md rounded-l-full shadow-md text-fy-on-brown transition-transform active:scale-95"
         >
-          <span className="absolute inset-y-0 left-0 w-1 bg-accent-labour rounded-r-full" aria-hidden="true" />
-          <Icon name={activeSector?.glyph ?? 'tune'} size={18} className="text-accent-labour" />
-          <span className="font-label-caps text-label-caps tracking-widest text-ip-on-primary-container uppercase">
+          <span className="absolute inset-y-0 left-0 w-1 bg-fy-lime rounded-r-full" aria-hidden="true" />
+          <Icon name={activeSector?.glyph ?? 'tune'} size={18} className="text-fy-lime" />
+          <span className="font-body text-eyebrow tracking-widest text-fy-on-brown-soft uppercase">
             {activeSector?.label}
           </span>
         </button>
@@ -197,19 +197,19 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
           // falls above y=0 or right of x=100vw is simply off-viewport,
           // which is what makes only the bottom-left quarter visible; no
           // manual clipping needed.
-          background: 'radial-gradient(circle at 50% 50%, var(--fyro-brown) 0%, #311c0e 65%, var(--fyro-ink) 100%)',
+          background: 'radial-gradient(circle at 50% 50%, var(--fy-brown-soft) 0%, var(--fy-brown) 55%, var(--fy-ink) 100%)',
         }}
       >
           {/* Tactile milled-ring markings */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 256 256" aria-hidden="true">
-            <circle cx="128" cy="128" r="120" fill="none" stroke="var(--fyro-bone)" strokeOpacity="0.3" strokeWidth="0.75" strokeDasharray="2 6" />
-            <circle cx="128" cy="128" r="95" fill="none" stroke="var(--fyro-bone)" strokeOpacity="0.25" strokeWidth="1.25" />
+            <circle cx="128" cy="128" r="120" fill="none" stroke="var(--fy-bone)" strokeOpacity="0.3" strokeWidth="0.75" strokeDasharray="2 6" />
+            <circle cx="128" cy="128" r="95" fill="none" stroke="var(--fy-bone)" strokeOpacity="0.25" strokeWidth="1.25" />
           </svg>
 
           {/* Fixed indicator notch — bisector of the visible quarter (135deg, i.e. 45deg in from either edge of the 90-180 sweep). */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 256 256" aria-hidden="true">
-            <line x1="128" y1="128" x2="71" y2="185" stroke="var(--fyro-bone)" strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx="71" cy="185" r="5" fill="var(--accent-labour)" />
+            <line x1="128" y1="128" x2="71" y2="185" stroke="var(--fy-bone)" strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="71" cy="185" r="5" fill="var(--fy-lime)" />
           </svg>
 
           {/* Sector buttons */}
@@ -238,7 +238,7 @@ export function RotaryDial({ sectors, activeKey, onChange, children }: RotaryDia
                 onFocus={expand}
                 style={{ left: `${cxPct}%`, top: `${cyPct}%`, transform: `translate(-50%, -50%) rotate(${tilt}deg)` }}
                 className={`absolute w-12 h-12 rounded-full flex items-center justify-center transition-all duration-base ${
-                  isActive ? 'bg-accent-labour text-fyro-ink scale-110' : 'text-fyro-bone/70 hover:text-fyro-bone hover:scale-105'
+                  isActive ? 'bg-fy-lime text-fy-ink scale-110' : 'text-fy-bone/70 hover:text-fy-bone hover:scale-105'
                 }`}
               >
                 <Icon name={sector.glyph} size={22} />

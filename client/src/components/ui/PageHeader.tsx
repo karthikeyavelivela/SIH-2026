@@ -15,8 +15,8 @@ export function PageHeader({ title, subline, right, className = '' }: PageHeader
   return (
     <div className={`flex items-start justify-between gap-4 ${className}`}>
       <div className="flex flex-col gap-1.5">
-        <h1 className="font-heading text-headline-lg-mobile md:text-headline-lg text-fyro-ink tracking-tight">{title}</h1>
-        {subline && <p className="font-body text-body-lg text-ip-on-surface-variant max-w-xl">{subline}</p>}
+        <h1 className="font-heading text-heading md:text-heading text-fy-ink tracking-tight">{title}</h1>
+        {subline && <p className="font-body text-body-lg text-fy-ink-soft max-w-xl">{subline}</p>}
       </div>
       {right && <div className="shrink-0 pt-1">{right}</div>}
     </div>

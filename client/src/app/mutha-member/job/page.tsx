@@ -54,7 +54,7 @@ export default function MuthaMemberJobPage() {
     <div className="max-w-lg mx-auto px-5 pt-6">
       <div className="flex items-start justify-between gap-3 mb-6">
         <div>
-          <p className="text-xs text-text-muted">{t('hello')}</p>
+          <p className="text-xs text-fy-muted">{t('hello')}</p>
           <h1 className="font-heading text-2xl font-bold">{firstName} 👋</h1>
         </div>
         <NotificationBell href="/mutha-member/notifications" />
@@ -67,20 +67,20 @@ export default function MuthaMemberJobPage() {
       )}
 
       {groupInfo && (
-        <div className="ip-card flex items-center gap-3 mb-6">
+        <div className="fy-surface-card flex items-center gap-3 mb-6">
           <Avatar name={groupInfo.leader.name} photoUrl={groupInfo.leader.profilePhoto} accent="secondary" />
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-ip-on-surface-variant">{groupInfo.mutha.name} · {t('teamLeader')}</p>
+            <p className="text-xs text-fy-ink-soft">{groupInfo.mutha.name} · {t('teamLeader')}</p>
             <p className="text-sm font-semibold truncate">{groupInfo.leader.name}</p>
           </div>
-          <UsersIcon className="w-4 h-4 text-ip-on-surface-variant flex-shrink-0" />
+          <UsersIcon className="w-4 h-4 text-fy-ink-soft flex-shrink-0" />
         </div>
       )}
 
       {!activeJob ? (
         <div className="text-center py-16">
-          <TruckIcon className="w-10 h-10 text-text-muted/50 mx-auto mb-3" />
-          <p className="text-sm text-text-muted">{t('noJobTitle')}</p>
+          <TruckIcon className="w-10 h-10 text-fy-muted/50 mx-auto mb-3" />
+          <p className="text-sm text-fy-muted">{t('noJobTitle')}</p>
         </div>
       ) : (
         <>
@@ -95,15 +95,15 @@ export default function MuthaMemberJobPage() {
           </div>
           <div className="space-y-2">
             <div className="flex items-start gap-2.5">
-              <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-secondary-600" />
+              <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-green" />
               <p className="text-sm">{activeJob.pickupLocation.address}</p>
             </div>
             <div className="flex items-start gap-2.5">
-              <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-muted" />
-              <p className="text-sm text-text-muted">{activeJob.dropLocation.address}</p>
+              <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-muted" />
+              <p className="text-sm text-fy-muted">{activeJob.dropLocation.address}</p>
             </div>
           </div>
-          <p className="text-xs text-text-muted mt-4 mb-4">{t('leaderControlsNote')}</p>
+          <p className="text-xs text-fy-muted mt-4 mb-4">{t('leaderControlsNote')}</p>
           <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
         </>
       )}

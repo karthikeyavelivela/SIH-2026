@@ -26,12 +26,12 @@ export function BackHeader({ title, fallbackHref }: BackHeaderProps) {
   }
 
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-2 px-5 py-4 bg-background/90 backdrop-blur-md border-b border-border">
+    <div className="sticky top-0 z-10 flex items-center gap-2 px-5 py-4 bg-fy-bone/90 backdrop-blur-md border-b border-fy-hairline">
       <button
         type="button"
         onClick={handleBack}
         aria-label="Go back"
-        className="w-9 h-9 -ml-1.5 flex items-center justify-center rounded-full text-text-primary hover:bg-surface transition-colors duration-fast"
+        className="w-9 h-9 -ml-1.5 flex items-center justify-center rounded-full text-fy-ink hover:bg-fy-panel transition-colors duration-fast"
       >
         <ChevronLeftIcon className="w-5 h-5" />
       </button>

@@ -41,7 +41,7 @@ export function CodCollectionSection({ accent = 'primary' }: { accent?: 'primary
     }
   }
 
-  const tone = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
+  const tone = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
 
   return (
     <div className="mb-6">
@@ -56,7 +56,7 @@ export function CodCollectionSection({ accent = 'primary' }: { accent?: 'primary
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-heading font-bold text-lg">₹{payment.amount}</p>
-                <p className="text-xs text-ip-on-surface-variant truncate">{booking.dropLocation.address}</p>
+                <p className="text-xs text-fy-ink-soft truncate">{booking.dropLocation.address}</p>
               </div>
               <Button
                 className="!px-4 !py-2 !text-xs !min-h-0 flex-shrink-0"

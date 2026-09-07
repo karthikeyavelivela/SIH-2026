@@ -8,12 +8,12 @@ import { HTMLAttributes } from 'react';
 type Tone = 'household' | 'labour' | 'transport' | 'neutral' | 'success' | 'danger' | 'warning';
 
 const toneClasses: Record<Tone, string> = {
-  household: 'bg-accent-household/10 text-accent-household border border-accent-household/25',
-  labour: 'bg-accent-labour/20 text-fyro-ink border border-accent-labour/40',
-  transport: 'bg-accent-transport/12 text-accent-transport border border-accent-transport/25',
-  neutral: 'bg-ip-surface-container-high text-ip-on-surface-variant border border-ip-outline/15',
+  household: 'bg-fy-brown/10 text-fy-brown border border-fy-brown/25',
+  labour: 'bg-fy-lime/20 text-fy-ink border border-fy-lime/40',
+  transport: 'bg-fy-slate/12 text-fy-slate border border-fy-slate/25',
+  neutral: 'bg-fy-well text-fy-ink-soft border border-fy-muted/15',
   success: 'bg-emerald-500/12 text-emerald-800 border border-emerald-500/25',
-  danger: 'bg-ip-error-container text-ip-on-error-container border border-ip-error/25',
+  danger: 'bg-fy-error-bg text-fy-on-error-bg border border-fy-error/25',
   warning: 'bg-amber-500/12 text-amber-800 border border-amber-500/25',
 };
 
@@ -25,7 +25,7 @@ interface StatusPillProps extends HTMLAttributes<HTMLSpanElement> {
 export function StatusPill({ children, tone = 'neutral', dot = false, className = '', ...props }: StatusPillProps) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-chip text-xs font-semibold tracking-wide font-body ${toneClasses[tone]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide font-body ${toneClasses[tone]} ${className}`}
       {...props}
     >
       {dot && <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />}

@@ -48,33 +48,33 @@ const DIAL_SECTORS = [
 ];
 
 const PALETTE = [
-  { name: 'bone', varName: '--fyro-bone' },
-  { name: 'ink', varName: '--fyro-ink' },
-  { name: 'brown', varName: '--fyro-brown' },
-  { name: 'lime', varName: '--fyro-lime' },
-  { name: 'slate', varName: '--fyro-slate' },
-  { name: 'muted', varName: '--fyro-muted' },
+  { name: 'bone', varName: '--fy-bone' },
+  { name: 'ink', varName: '--fy-ink' },
+  { name: 'brown', varName: '--fy-brown' },
+  { name: 'lime', varName: '--fy-lime' },
+  { name: 'slate', varName: '--fy-slate' },
+  { name: 'muted', varName: '--fy-muted' },
 ];
 const ACCENTS = [
-  { name: 'household', varName: '--accent-household' },
-  { name: 'labour', varName: '--accent-labour' },
-  { name: 'transport', varName: '--accent-transport' },
+  { name: 'household', varName: '--fy-brown' },
+  { name: 'labour', varName: '--fy-lime' },
+  { name: 'transport', varName: '--fy-slate' },
 ];
 const TYPE_SCALE = [
-  { cls: 'text-display-hero-mobile md:text-display-hero', label: 'display-hero' },
-  { cls: 'text-headline-lg-mobile md:text-headline-lg', label: 'headline-lg' },
-  { cls: 'text-headline-md', label: 'headline-md' },
-  { cls: 'text-headline-sm', label: 'headline-sm' },
+  { cls: 'text-display md:text-display', label: 'display-hero' },
+  { cls: 'text-heading md:text-heading', label: 'headline-lg' },
+  { cls: 'text-heading', label: 'headline-md' },
+  { cls: 'text-title', label: 'headline-sm' },
   { cls: 'text-body-lg font-body', label: 'body-lg' },
-  { cls: 'text-body-default font-body', label: 'body-default' },
-  { cls: 'text-label-caps font-body uppercase tracking-widest', label: 'label-caps' },
+  { cls: 'text-body font-body', label: 'body-default' },
+  { cls: 'text-eyebrow font-body uppercase tracking-widest', label: 'label-caps' },
 ];
 
 function StyleSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
     <section className="mb-16">
-      <h2 className="font-heading font-bold text-headline-md text-fyro-ink mb-1">{title}</h2>
-      {description && <p className="text-ip-on-surface-variant mb-6 max-w-2xl font-body">{description}</p>}
+      <h2 className="font-heading font-bold text-heading text-fy-ink mb-1">{title}</h2>
+      {description && <p className="text-fy-ink-soft mb-6 max-w-2xl font-body">{description}</p>}
       <div className={description ? '' : 'mt-6'}>{children}</div>
     </section>
   );
@@ -94,11 +94,11 @@ export default function StyleguidePage() {
 
   return (
     <RotaryDial sectors={DIAL_SECTORS} activeKey={dialMode} onChange={setDialMode}>
-    <div className="min-h-screen bg-fyro-bone text-fyro-ink pb-32 relative">
+    <div className="min-h-screen bg-fy-bone text-fy-ink pb-32 relative">
       <div className="fixed inset-0 pointer-events-none fyro-grain z-0 opacity-40" />
       <TopBar title="FYRO Styleguide v3" showBack={false} right={<StatusPill tone="labour">v3 · live</StatusPill>} />
 
-      <div className="max-w-5xl mx-auto px-ip-edge pt-10 relative z-10">
+      <div className="max-w-5xl mx-auto px-gutter pt-10 relative z-10">
         <PageHeader
           title="Cooperative Ledger design system"
           subline="Living reference for DESIGN_MAP.md — the v3 palette, Fraunces/Inter type, and every shared component new pages are built from. Compare against the Stitch screen.png files while building."
@@ -108,18 +108,18 @@ export default function StyleguidePage() {
         <StyleSection title="Palette" description="The six raw hues from DESIGN.md, plus the three semantic domain accents built on top of them.">
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mb-6">
             {PALETTE.map((t) => (
-              <div key={t.varName} className="rounded-card overflow-hidden border border-[color:var(--hairline)]">
+              <div key={t.varName} className="rounded-card overflow-hidden border border-[color:var(--fy-hairline)]">
                 <div className="h-20" style={{ background: `var(${t.varName})` }} />
                 <div className="p-3 bg-white">
                   <p className="text-xs font-semibold font-body">{t.name}</p>
-                  <p className="text-xs text-ip-outline font-mono">{t.varName}</p>
+                  <p className="text-xs text-fy-muted font-mono">{t.varName}</p>
                 </div>
               </div>
             ))}
           </div>
           <div className="grid grid-cols-3 gap-4">
             {ACCENTS.map((t) => (
-              <div key={t.varName} className="rounded-card overflow-hidden border border-[color:var(--hairline)]">
+              <div key={t.varName} className="rounded-card overflow-hidden border border-[color:var(--fy-hairline)]">
                 <div className="h-14" style={{ background: `var(${t.varName})` }} />
                 <div className="p-3 bg-white">
                   <p className="text-xs font-semibold font-body">accent-{t.name}</p>
@@ -132,14 +132,14 @@ export default function StyleguidePage() {
         <StyleSection title="Typography" description="Fraunces (headings, display numbers) + Inter (body, UI). Headings swap script automatically per <html lang> — see LanguagePill below.">
           <div className="flex flex-col gap-4">
             {TYPE_SCALE.map((t) => (
-              <div key={t.label} className="flex items-baseline gap-4 border-b border-[color:var(--hairline)] pb-3">
-                <span className="w-32 shrink-0 font-mono text-xs text-ip-outline">{t.label}</span>
-                <span className={`font-heading ${t.cls} text-fyro-ink truncate`}>Cooperative dignity, made visible</span>
+              <div key={t.label} className="flex items-baseline gap-4 border-b border-[color:var(--fy-hairline)] pb-3">
+                <span className="w-32 shrink-0 font-mono text-xs text-fy-muted">{t.label}</span>
+                <span className={`font-heading ${t.cls} text-fy-ink truncate`}>Cooperative dignity, made visible</span>
               </div>
             ))}
             <div className="flex items-baseline gap-4">
-              <span className="w-32 shrink-0 font-mono text-xs text-ip-outline">data-metric</span>
-              <span className="font-heading text-data-metric tabular-nums text-fyro-ink">₹8,42,300</span>
+              <span className="w-32 shrink-0 font-mono text-xs text-fy-muted">data-metric</span>
+              <span className="font-heading text-metric tabular-nums text-fy-ink">₹8,42,300</span>
             </div>
           </div>
         </StyleSection>
@@ -156,7 +156,7 @@ export default function StyleguidePage() {
 
         <StyleSection title="Tabs">
           <Tabs tabs={[{ key: 'one', label: 'Status' }, { key: 'two', label: 'Chat' }, { key: 'three', label: 'Payment' }]} active={tab} onChange={setTab} />
-          <p className="mt-4 text-sm text-ip-on-surface-variant font-body">Active: {tab}</p>
+          <p className="mt-4 text-sm text-fy-ink-soft font-body">Active: {tab}</p>
         </StyleSection>
 
         <StyleSection title="Controls">
@@ -235,15 +235,15 @@ export default function StyleguidePage() {
 
         <StyleSection title="LanguagePill">
           <LanguagePill value={lang} onChange={setLang} />
-          <p className="mt-3 text-sm text-ip-on-surface-variant font-body">Selected: {lang} — headings above should be switching serif script.</p>
+          <p className="mt-3 text-sm text-fy-ink-soft font-body">Selected: {lang} — headings above should be switching serif script.</p>
         </StyleSection>
 
         <StyleSection title="Universal states" description="Every list/dashboard fetch on a redesigned page goes through useApiState, which can only ever land on ONE of these five — never a 403 disguised as empty.">
           <div className="grid sm:grid-cols-2 gap-4">
-            <div className="border border-[color:var(--hairline)] rounded-card"><EmptyState title="No drivers available" description="We're widening the search radius." /></div>
-            <div className="border border-[color:var(--hairline)] rounded-card"><ErrorState onRetry={() => toast.show('Retrying…')} /></div>
-            <div className="border border-[color:var(--hairline)] rounded-card"><PermissionDeniedState /></div>
-            <div className="border border-[color:var(--hairline)] rounded-card p-6 flex flex-col gap-3"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
+            <div className="border border-[color:var(--fy-hairline)] rounded-card"><EmptyState title="No drivers available" description="We're widening the search radius." /></div>
+            <div className="border border-[color:var(--fy-hairline)] rounded-card"><ErrorState onRetry={() => toast.show('Retrying…')} /></div>
+            <div className="border border-[color:var(--fy-hairline)] rounded-card"><PermissionDeniedState /></div>
+            <div className="border border-[color:var(--fy-hairline)] rounded-card p-6 flex flex-col gap-3"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
           </div>
         </StyleSection>
 
@@ -269,7 +269,7 @@ export default function StyleguidePage() {
         </StyleSection>
 
         <StyleSection title="Admin: SidebarNav + DataTable">
-          <div className="flex gap-6 border border-[color:var(--hairline)] rounded-card overflow-hidden">
+          <div className="flex gap-6 border border-[color:var(--fy-hairline)] rounded-card overflow-hidden">
             <SidebarNav items={[{ label: 'Overview', href: '#overview' }, { label: 'Dashboard', href: '#dashboard' }, { label: 'Users', href: '#users' }]} />
             <div className="flex-1 p-4">
               <DataTable
@@ -286,18 +286,18 @@ export default function StyleguidePage() {
         </StyleSection>
 
         <StyleSection title="Icon" description="Material Symbols Outlined — the actual icon system every Stitch screen.code.html uses (a ligature glyph name, not a custom SVG). Loaded once in layout.tsx.">
-          <div className="flex gap-4 text-fyro-brown">
+          <div className="flex gap-4 text-fy-brown">
             {['home_repair_service', 'engineering', 'local_shipping', 'verified_user', 'account_balance_wallet', 'diversity_3'].map((g) => (
               <div key={g} className="flex flex-col items-center gap-1">
                 <Icon name={g} size={26} />
-                <span className="text-[10px] font-mono text-ip-outline">{g}</span>
+                <span className="text-[10px] font-mono text-fy-muted">{g}</span>
               </div>
             ))}
           </div>
         </StyleSection>
 
         <StyleSection title="RotaryDial" description="Phase 1.1 — the corner-anchored mode switch. It's genuinely viewport-anchored (fixed top-right), so it's rendered live on THIS page, not boxed in a demo frame — look at the actual top-right corner of your browser. All three sectors' content stays mounted; switching is a cross-fade only. Drag along the arc, tap a wedge, Tab to it and use arrow keys.">
-          <p className="font-body text-sm text-ip-on-surface-variant">Active sector: <span className="font-heading text-fyro-ink capitalize">{dialMode}</span></p>
+          <p className="font-body text-sm text-fy-ink-soft">Active sector: <span className="font-heading text-fy-ink capitalize">{dialMode}</span></p>
         </StyleSection>
 
         <StyleSection title="DataRow / ListDivider" description="Manifest lines, fare breakdowns — dense tabular content that isn't a full FlatRowList.">
@@ -310,10 +310,10 @@ export default function StyleguidePage() {
       </div>
 
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="BottomSheet">
-        <p className="font-body text-sm text-ip-on-surface-variant p-4">Content goes here.</p>
+        <p className="font-body text-sm text-fy-ink-soft p-4">Content goes here.</p>
       </BottomSheet>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Modal">
-        <p className="font-body text-sm text-ip-on-surface-variant p-4">Content goes here.</p>
+        <p className="font-body text-sm text-fy-ink-soft p-4">Content goes here.</p>
       </Modal>
     </div>
     </RotaryDial>

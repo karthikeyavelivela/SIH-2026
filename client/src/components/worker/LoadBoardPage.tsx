@@ -37,23 +37,23 @@ export function LoadBoardPage({ accent = 'primary' }: { accent?: 'primary' | 'se
   const loads = data?.loads ?? [];
 
   return (
-    <div className="min-h-screen bg-ip-surface pb-24">
+    <div className="min-h-screen bg-fy-bone pb-24">
       <TopBar title={t('pageTitle')} showBack={false} />
-      <div className="max-w-lg mx-auto px-ip-edge pt-ip-sm">
-        <p className="text-sm text-ip-on-surface-variant mb-6">{t('subtitle')}</p>
+      <div className="max-w-lg mx-auto px-gutter pt-4">
+        <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
 
         {state === 'loading' && (
           <div className="space-y-3">
             {[0, 1].map((i) => (
-              <div key={i} className="h-40 rounded-lg bg-surface animate-pulse" />
+              <div key={i} className="h-40 rounded-card bg-fy-panel animate-pulse" />
             ))}
           </div>
         )}
 
         {state !== 'loading' && loads.length === 0 && (
           <div className="text-center py-16">
-            <LayersIcon className="w-10 h-10 text-text-muted/50 mx-auto mb-3" />
-            <p className="text-sm text-text-muted">{t('noLoads')}</p>
+            <LayersIcon className="w-10 h-10 text-fy-muted/50 mx-auto mb-3" />
+            <p className="text-sm text-fy-muted">{t('noLoads')}</p>
           </div>
         )}
 
