@@ -34,11 +34,28 @@ const CONFIDENCE_FILLED: Record<AgentResult['confidence'], number> = { low: 1, m
  * action control this card sits next to (resolveDispute, updateKycStatus,
  * etc.), never through this component.
  */
-export function AgentResultCard({ result, accent = 'primary' }: { result: AgentResult; accent?: 'primary' | 'secondary' }) {
+type AgentAccent = 'primary' | 'secondary' | 'household' | 'labour' | 'transport';
+
+const ACCENT_BORDER: Record<AgentAccent, string> = {
+  primary: 'border-l-ip-primary',
+  secondary: 'border-l-ip-secondary',
+  household: 'border-l-accent-household',
+  labour: 'border-l-accent-labour',
+  transport: 'border-l-accent-transport',
+};
+const ACCENT_CHIP: Record<AgentAccent, string> = {
+  primary: 'bg-ip-primary text-white',
+  secondary: 'bg-ip-secondary text-white',
+  household: 'bg-accent-household text-white',
+  labour: 'bg-accent-labour text-fyro-ink',
+  transport: 'bg-accent-transport text-white',
+};
+
+export function AgentResultCard({ result, accent = 'primary' }: { result: AgentResult; accent?: AgentAccent }) {
   const t = useTranslations('agents');
   const [evidenceOpen, setEvidenceOpen] = useState(true);
-  const borderColor = accent === 'primary' ? 'border-l-ip-primary' : 'border-l-ip-secondary';
-  const chipColor = accent === 'primary' ? 'bg-ip-primary text-white' : 'bg-ip-secondary text-white';
+  const borderColor = ACCENT_BORDER[accent];
+  const chipColor = ACCENT_CHIP[accent];
 
   return (
     <div className={`ip-card border-l-[3px] ${borderColor}`}>
@@ -93,3 +110,7 @@ export function AgentResultCard({ result, accent = 'primary' }: { result: AgentR
     </div>
   );
 }
+
+// v3 alias — DESIGN_MAP.md's component list calls this AgentCard. Same
+// component, same guardrails; new pages should import this name.
+export const AgentCard = AgentResultCard;

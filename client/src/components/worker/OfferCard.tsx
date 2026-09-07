@@ -36,7 +36,7 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
   const secondsLeft = Math.ceil(msLeft / 1000);
   const totalSeconds = 20; // matches server's OFFER_TIMEOUT_MS default; purely visual, server is authoritative on the real expiry
   const Icon = typeIcon[offer.type as keyof typeof typeIcon] ?? TruckIcon;
-  const ringColor = accent === 'primary' ? '#BF5020' : '#0A6F66';
+  const ringColor = accent === 'primary' ? 'var(--color-primary-600)' : 'var(--color-secondary-600)';
   const accentText = accent === 'primary' ? 'text-primary-600' : 'text-secondary-600';
   const accentBg = accent === 'primary' ? 'bg-primary/10' : 'bg-secondary/10';
 
