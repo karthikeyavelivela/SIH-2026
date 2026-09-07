@@ -9,12 +9,35 @@ import { usePolling } from '@/lib/usePolling';
 import { useBookingSocket } from '@/lib/useBookingSocket';
 import { Booking, MuthaMemberGroupInfo } from '@/lib/types';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
-import { StatusPill } from '@/components/worker/StatusPill';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { Avatar } from '@/components/ui/Avatar';
-import { MapPinIcon, TruckIcon, UsersIcon } from '@/components/ui/icons';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Icon } from '@/components/ui/Icon';
 import { NotificationBell } from '@/components/ui/NotificationBell';
+import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { StatRow } from '@/components/fy/Data';
+import { TopBar } from '@/components/fy/Navigation';
+
+/* Built against client/public/design/crew_job_assignment.html.
+
+   Section order there, top to bottom: 64px brand bar -> "Active crew
+   assignment" with a shift badge -> the consignment task card -> the work
+   site with its report-by time -> the payout -> the crew leader card with
+   a call action -> the job chat.
+
+   Largest element: the site name, then the payout. Dark surfaces: the
+   assignment header plate. Green is the crew accent.
+
+   A member does not control their own job state — the leader starts and
+   completes it (bookingAssignment.service.ts) — so this screen has no
+   stage buttons, and says so rather than showing controls that would 403.
+
+   The design's "Report by 06:30 · in 25 mins" needs a per-member reporting
+   time; a booking has a schedule, not a per-crew call time, so the card
+   shows the booking's own scheduled time when one exists. */
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
@@ -22,12 +45,10 @@ export default function MuthaMemberJobPage() {
   const t = useTranslations('muthaMemberJob');
   const { user } = useAuth();
   const [status, setStatus] = useState<'online' | 'offline' | 'on_job' | null>(null);
-  // The mandatory rating gate actually blocks the *leader* from re-assigning
-  // this member to a new job (see bookingAssignment.service.ts), not
-  // anything the member does directly — so without this, a member has no
-  // way to discover they owe a rating at all until their leader hits a
-  // cryptic 403 trying to assign them. Mirrors driver/hamali/mutha-leader
-  // dashboards, which already prompt proactively on mount.
+  // The mandatory rating gate actually blocks the LEADER from re-assigning
+  // this member to a new job, not anything the member does directly — so
+  // without this prompt a member cannot discover they owe a rating until
+  // their leader hits a cryptic 403 trying to assign them.
   const [pendingRatingId, setPendingRatingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,75 +69,146 @@ export default function MuthaMemberJobPage() {
   const { messages, sendChat } = useBookingSocket(activeJob?._id);
   const { data: groupInfo } = usePolling(() => api.get<MuthaMemberGroupInfo>('/api/mutha/my-group'), 30000);
 
-  const firstName = user?.name?.split(' ')[0] ?? 'there';
+  const firstName = user?.name?.split(' ')[0] ?? '';
+  const weightKg = activeJob?.cargoDetails?.weightKg ?? 0;
+  // The member's own share of the crew pool for this job.
+  const share =
+    activeJob && activeJob.requiredHamaliCount
+      ? Math.round((activeJob.fareBreakdown.hamaliFare || activeJob.fareBreakdown.total) / activeJob.requiredHamaliCount)
+      : null;
 
   return (
-    <div className="max-w-lg mx-auto px-5 pt-6">
-      <div className="flex items-start justify-between gap-3 mb-6">
-        <div>
-          <p className="text-xs text-fy-muted">{t('hello')}</p>
-          <h1 className="font-heading text-2xl font-bold">{firstName} 👋</h1>
-        </div>
-        <NotificationBell href="/mutha-member/notifications" />
-      </div>
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
-      {status !== null && (
-        <div className="mb-6">
-          <OnlineToggle status={status} onStatusChange={(s) => setStatus(s)} accent="secondary" />
-        </div>
-      )}
+      <TopBar
+        eyebrow="FYRO Crew"
+        title={t('pageTitle')}
+        actions={<NotificationBell href="/mutha-member/notifications" />}
+      />
 
-      {groupInfo && (
-        <div className="fy-surface-card flex items-center gap-3 mb-6">
-          <Avatar name={groupInfo.leader.name} photoUrl={groupInfo.leader.profilePhoto} accent="secondary" />
-          <div className="min-w-0 flex-1">
-            <p className="text-xs text-fy-ink-soft">{groupInfo.mutha.name} · {t('teamLeader')}</p>
-            <p className="text-sm font-semibold truncate">{groupInfo.leader.name}</p>
-          </div>
-          <UsersIcon className="w-4 h-4 text-fy-ink-soft flex-shrink-0" />
+      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <div className="pt-2">
+          <EyebrowLabel tone="green">{t('assignmentEyebrow')}</EyebrowLabel>
+          <h2 className="font-heading text-heading text-fy-ink leading-[1.05]">
+            {firstName ? t('greeting', { name: firstName }) : t('greetingNoName')}
+          </h2>
         </div>
-      )}
 
-      {!activeJob ? (
-        <div className="text-center py-16">
-          <TruckIcon className="w-10 h-10 text-fy-muted/50 mx-auto mb-3" />
-          <p className="text-sm text-fy-muted">{t('noJobTitle')}</p>
-        </div>
-      ) : (
-        <>
-          <RouteMap
-            pickup={{ lat: activeJob.pickupLocation.coordinates[1], lng: activeJob.pickupLocation.coordinates[0] }}
-            drop={{ lat: activeJob.dropLocation.coordinates[1], lng: activeJob.dropLocation.coordinates[0] }}
-            className="h-48 mb-5"
+        {status !== null && <OnlineToggle status={status} onStatusChange={(s) => setStatus(s)} accent="secondary" />}
+
+        {groupInfo && (
+          <Panel className="flex items-center gap-3">
+            <Avatar name={groupInfo.leader.name} photoUrl={groupInfo.leader.profilePhoto} accent="secondary" />
+            <div className="min-w-0 flex-1">
+              <EyebrowLabel tone="green">{t('crewLeader')}</EyebrowLabel>
+              <p className="font-body text-body font-semibold text-fy-ink truncate">{groupInfo.leader.name}</p>
+              <Body size="label" className="truncate">
+                {groupInfo.mutha.name}
+              </Body>
+            </div>
+            {/* The leader's number IS shared with their own crew — my-group
+                returns it deliberately, unlike a customer's. */}
+            {groupInfo.leader.phone && (
+              <a
+                href={`tel:${groupInfo.leader.phone}`}
+                aria-label={t('callLeader')}
+                className="w-11 h-11 rounded-full bg-fy-green text-fy-on-green flex items-center justify-center shrink-0"
+              >
+                <Icon name="call" size={18} />
+              </a>
+            )}
+          </Panel>
+        )}
+
+        {!activeJob ? (
+          <LightCard>
+            <EmptyState title={t('noJobTitle')} description={t('noJobDesc')} />
+          </LightCard>
+        ) : (
+          <>
+            {/* Assignment plate — the screen's anchor. */}
+            <div className="bg-fy-green text-fy-on-green rounded-sheet p-5 shadow-card flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <EyebrowLabel tone="on-dark" className="opacity-80">
+                    {t('consignmentTask')}
+                  </EyebrowLabel>
+                  <p className="font-heading text-title text-fy-bone truncate">
+                    {activeJob.pickupLocation.address.split(',')[0]}
+                  </p>
+                </div>
+                <StatusPill tone="lime" className="shrink-0">
+                  {t(`status.${activeJob.status}` as never) ?? activeJob.status}
+                </StatusPill>
+              </div>
+              <Divider className="border-fy-bone/20" />
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <EyebrowLabel tone="on-dark" className="opacity-80">
+                    {t('yourShare')}
+                  </EyebrowLabel>
+                  <p className="font-heading text-metric text-fy-lime leading-none">
+                    {share != null ? `₹${share}` : '—'}
+                  </p>
+                </div>
+                {weightKg > 0 && (
+                  <div className="text-right">
+                    <EyebrowLabel tone="on-dark" className="opacity-80">
+                      {t('load')}
+                    </EyebrowLabel>
+                    <p className="font-body text-body font-semibold text-fy-bone">
+                      {(weightKg / 1000).toFixed(weightKg < 1000 ? 2 : 1)} T
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <RouteMap
+              pickup={{ lat: activeJob.pickupLocation.coordinates[1], lng: activeJob.pickupLocation.coordinates[0] }}
+              drop={{ lat: activeJob.dropLocation.coordinates[1], lng: activeJob.dropLocation.coordinates[0] }}
+              className="h-48 rounded-card overflow-hidden"
+            />
+
+            <Panel className="flex flex-col gap-2">
+              <EyebrowLabel>{t('workSite')}</EyebrowLabel>
+              <StatRow stacked label={t('reportTo')} value={activeJob.pickupLocation.address} />
+              <StatRow stacked label={t('destination')} value={activeJob.dropLocation.address} />
+              {activeJob.scheduledFor && (
+                <StatRow
+                  label={t('scheduledFor')}
+                  value={new Date(activeJob.scheduledFor).toLocaleString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}
+                />
+              )}
+            </Panel>
+
+            <LightCard className="flex items-start gap-2.5">
+              <Icon name="info" size={18} className="text-fy-green shrink-0 mt-px" />
+              <Body size="label">{t('leaderControlsNote')}</Body>
+            </LightCard>
+
+            <Section title={<SectionHeading>{t('chatHeading')}</SectionHeading>}>
+              <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
+            </Section>
+          </>
+        )}
+
+        {pendingRatingId && (
+          <RatingModal
+            bookingId={pendingRatingId}
+            open
+            accent="secondary"
+            title={t('rateLastCustomer')}
+            onDone={() => setPendingRatingId(null)}
           />
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading text-lg font-bold">{t('yourJob')}</h2>
-            <StatusPill status={activeJob.status} />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-start gap-2.5">
-              <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-green" />
-              <p className="text-sm">{activeJob.pickupLocation.address}</p>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-muted" />
-              <p className="text-sm text-fy-muted">{activeJob.dropLocation.address}</p>
-            </div>
-          </div>
-          <p className="text-xs text-fy-muted mt-4 mb-4">{t('leaderControlsNote')}</p>
-          <ChatPanel messages={messages} currentUserId={user?._id} onSend={sendChat} accent="secondary" />
-        </>
-      )}
-
-      {pendingRatingId && (
-        <RatingModal
-          bookingId={pendingRatingId}
-          open
-          accent="secondary"
-          title={t('rateLastCustomer')}
-          onDone={() => setPendingRatingId(null)}
-        />
-      )}
+        )}
+      </main>
     </div>
   );
 }

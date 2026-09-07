@@ -888,7 +888,26 @@
     "noJobTitle": "ప్రస్తుతం ఏ పనీ కేటాయించలేదు. మీ ముఠా లీడర్ మీకు పనులు కేటాయిస్తారు.",
     "yourJob": "మీ పని",
     "leaderControlsNote": "ఈ పనిని మొదలుపెట్టడం/పూర్తి చేయడం మీ ముఠా లీడర్ చేతిలో ఉంటుంది.",
-    "rateLastCustomer": "మీ చివరి కస్టమర్‌ను రేట్ చేయండి"
+    "rateLastCustomer": "మీ చివరి కస్టమర్‌ను రేట్ చేయండి",
+    "pageTitle": "పని",
+    "assignmentEyebrow": "ప్రస్తుత బృంద కేటాయింపు",
+    "greeting": "నమస్కారం, {name}",
+    "greetingNoName": "నమస్కారం",
+    "crewLeader": "బృంద నాయకుడు",
+    "callLeader": "బృంద నాయకుడికి కాల్ చేయండి",
+    "consignmentTask": "సరుకు పని",
+    "yourShare": "మీ వాటా",
+    "load": "బరువు",
+    "workSite": "పని ప్రదేశం",
+    "reportTo": "ఎక్కడికి రావాలి",
+    "destination": "గమ్యం",
+    "scheduledFor": "నిర్ణీత సమయం",
+    "chatHeading": "పని చాట్",
+    "noJobDesc": "మీ నాయకుడు మిమ్మల్ని సంఘ పనులకు కేటాయిస్తారు. కేటాయించినప్పుడు ఇక్కడ కనిపిస్తుంది.",
+    "status": {
+      "accepted": "కేటాయించారు",
+      "in_progress": "జరుగుతోంది"
+    }
   },
   "muthaDashboard": {
     "hello": "నమస్కారం,",

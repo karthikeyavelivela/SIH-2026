@@ -888,7 +888,26 @@
     "noJobTitle": "अभी कोई काम नहीं मिला। आपका मुठा लीडर आपको काम देगा।",
     "yourJob": "आपका काम",
     "leaderControlsNote": "इस काम को शुरू/पूरा करना आपके मुठा लीडर के हाथ में है।",
-    "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें"
+    "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें",
+    "pageTitle": "काम",
+    "assignmentEyebrow": "मौजूदा टोली आवंटन",
+    "greeting": "नमस्ते, {name}",
+    "greetingNoName": "नमस्ते",
+    "crewLeader": "टोली नेता",
+    "callLeader": "टोली नेता को कॉल करें",
+    "consignmentTask": "खेप का काम",
+    "yourShare": "आपका हिस्सा",
+    "load": "भार",
+    "workSite": "कार्य स्थल",
+    "reportTo": "कहाँ पहुँचें",
+    "destination": "गंतव्य",
+    "scheduledFor": "निर्धारित समय",
+    "chatHeading": "काम की चैट",
+    "noJobDesc": "आपके नेता आपको समिति के कामों पर लगाते हैं। तब यहाँ दिखेगा।",
+    "status": {
+      "accepted": "सौंपा गया",
+      "in_progress": "चल रहा है"
+    }
   },
   "muthaDashboard": {
     "hello": "नमस्ते,",

@@ -888,7 +888,26 @@
     "noJobTitle": "No job assigned right now. Your Mutha leader assigns jobs to you.",
     "yourJob": "Your job",
     "leaderControlsNote": "Your Mutha leader controls start/complete for this job.",
-    "rateLastCustomer": "Rate your last customer"
+    "rateLastCustomer": "Rate your last customer",
+    "pageTitle": "Job",
+    "assignmentEyebrow": "Active crew assignment",
+    "greeting": "Hello, {name}",
+    "greetingNoName": "Hello",
+    "crewLeader": "Crew leader",
+    "callLeader": "Call your crew leader",
+    "consignmentTask": "Consignment task",
+    "yourShare": "Your share",
+    "load": "Load",
+    "workSite": "Work site",
+    "reportTo": "Report to",
+    "destination": "Destination",
+    "scheduledFor": "Scheduled for",
+    "chatHeading": "Job chat",
+    "noJobDesc": "Your leader assigns you to society jobs. One will appear here when they do.",
+    "status": {
+      "accepted": "Assigned",
+      "in_progress": "Underway"
+    }
   },
   "muthaDashboard": {
     "hello": "Hello,",

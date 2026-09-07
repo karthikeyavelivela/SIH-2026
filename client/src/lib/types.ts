@@ -50,6 +50,8 @@ export interface Booking {
   // Phase 6.2 — load board with bidding. See server's Booking.openForBidding
   // doc comment for the full scoping (truck/hamali only, never combo).
   openForBidding?: boolean;
+  /** Phase 6 — set when the customer booked for a future time slot. */
+  scheduledFor?: string;
   createdAt: string;
   // Only present on /api/requests/mine (a worker's own assigned-bookings
   // view) — who they're actually meeting, mirroring the AssignedRow the
