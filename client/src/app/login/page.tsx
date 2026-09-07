@@ -7,12 +7,21 @@ import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth, AuthUser } from '@/lib/auth-context';
 import { roleHome } from '@/lib/roleHome';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { ChevronLeftIcon } from '@/components/ui/icons';
+import { Icon } from '@/components/ui/Icon';
+import { LightCard, Panel, Divider } from '@/components/fy/Surfaces';
+import { EyebrowLabel, DisplayHeading, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { Button } from '@/components/fy/Controls';
+import { PhotoCard } from '@/components/fy/Media';
+import { BottomTabBar } from '@/components/fy/Navigation';
 
-const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
+/* Built against design-reference/login.png.
+   Section order there, top to bottom: brand header -> photo card with a
+   floating "passbook dispatch ready" pill -> display heading -> body ->
+   WHITE form panel (protocol row, contact field, passkey field, retain
+   row, brown CTA, "alternative access" hairline divider, two light
+   buttons, light sub-card with the green charter CTA) -> light footer
+   card -> 5-item bottom bar. The display heading is the largest element. */
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +29,10 @@ export default function LoginPage() {
   const t = useTranslations('auth.login');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPasskey, setShowPasskey] = useState(false);
+  const [retain, setRetain] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,78 +50,219 @@ export default function LoginPage() {
     }
   }
 
+  // The design shows biometric, SMS-OTP and passkey-reset entry points.
+  // None of the three exists server-side, so rather than fake a flow they
+  // say so plainly — see the report for the list of gaps this surfaces.
+  const unavailable = () => setNotice(t('notAvailable'));
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-fy-bone">
-      <Link
-        href="/"
-        aria-label={t('backToHome')}
-        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-fy-card border border-fy-hairline shadow-sm hover:bg-fy-panel transition-colors duration-fast"
-      >
-        <ChevronLeftIcon className="w-5 h-5" />
-      </Link>
-      <div
-        className="pointer-events-none absolute -top-32 -left-24 w-80 h-80 rounded-full bg-fy-brown/10 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-32 -right-24 w-80 h-80 rounded-full bg-fy-green/10 blur-3xl"
-        aria-hidden="true"
-      />
+    <div className="min-h-screen bg-fy-bone relative">
+      <div className="fixed inset-0 pointer-events-none fy-grain opacity-40 z-0" />
 
-      <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
-        <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">
-          {t('eyebrow')}
-        </p>
-        <h1 className="font-heading text-2xl font-bold mb-1">{t('title')}</h1>
-        <p className="text-sm text-fy-muted mb-7">{t('subtitle')}</p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="tel"
-            placeholder={t('phonePlaceholder')}
-            aria-label={t('phonePlaceholder')}
-            autoComplete="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className={inputClass}
-            required
-          />
-          <input
-            type="password"
-            placeholder={t('passwordPlaceholder')}
-            aria-label={t('passwordPlaceholder')}
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
-            required
-          />
-          {error && (
-            <div
-              role="alert"
-              className="flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-[fadeIn_200ms_ease-out]"
-            >
-              <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-4a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <p>{error}</p>
-            </div>
-          )}
-          <Button type="submit" disabled={loading} className="w-full" size="lg">
-            {loading ? t('submitLoading') : t('submit')}
-          </Button>
-        </form>
-        <p className="text-sm text-fy-muted mt-7 pt-6 border-t border-fy-hairline">
-          {t('signupPrompt')}{' '}
-          <Link href="/signup/customer" className="text-fy-brown font-semibold hover:underline">
-            {t('signupLink')}
+      <header className="sticky top-0 z-30 bg-fy-bone/88 backdrop-blur-xl border-b border-fy-hairline/40">
+        <div className="h-16 max-w-2xl mx-auto px-gutter flex items-center justify-between gap-3">
+          <Link href="/" className="flex flex-col leading-none min-w-0" aria-label={t('backToHome')}>
+            <span className="font-heading text-title text-fy-brown">FYRO</span>
+            <EyebrowLabel className="mt-0.5">{t('brandSub')}</EyebrowLabel>
           </Link>
-        </p>
-      </Card>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="px-3 py-1.5 rounded-full bg-fy-field font-body text-label text-fy-ink-soft">
+              EN <span className="text-fy-hairline">/</span> తె <span className="text-fy-hairline">/</span> हि
+            </span>
+            <span className="w-9 h-9 rounded-full bg-fy-brown-soft text-fy-on-brown flex items-center justify-center">
+              <Icon name="person" size={18} />
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main className="relative z-10 max-w-2xl mx-auto px-gutter pt-4 pb-28 flex flex-col gap-4">
+        <LightCard className="p-0 overflow-hidden">
+          <PhotoCard
+            id="login.hero"
+            alt="Cooperative members at a mandi counter"
+            height="banner"
+            scrim="none"
+            className="rounded-none"
+            topLeft={
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-fy-bone/92 backdrop-blur-sm font-body text-eyebrow uppercase text-fy-ink">
+                <span className="w-1.5 h-1.5 rounded-full bg-fy-green" aria-hidden="true" />
+                {t('heroBadge')}
+              </span>
+            }
+          />
+          <div className="p-4">
+            <DisplayHeading>{t('title')}</DisplayHeading>
+            <Body size="body-lg" className="mt-2">
+              {t('subtitle')}
+            </Body>
+          </div>
+        </LightCard>
+
+        <Panel className="p-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="flex items-center gap-2 min-w-0 flex-1">
+              <Icon name="badge" size={20} className="text-fy-ink shrink-0" />
+              <EyebrowLabel tone="ink" className="truncate">{t('protocol')}</EyebrowLabel>
+            </span>
+            <StatusPill tone="lime" className="shrink-0">{t('secureGate')}</StatusPill>
+          </div>
+
+          <Divider className="my-3" />
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div>
+              <div className="flex items-baseline justify-between gap-2 mb-1.5">
+                <label htmlFor="phone" className="font-body text-body font-semibold text-fy-ink min-w-0">
+                  {t('contactLabel')}
+                </label>
+                <span className="font-body text-label text-fy-muted whitespace-nowrap shrink-0">{t('contactHint')}</span>
+              </div>
+              <div className="flex items-center h-14 rounded-control bg-fy-field px-4 gap-3">
+                <span className="font-body text-body font-semibold text-fy-ink shrink-0">
+                  IND <span className="text-fy-brown">+91</span>
+                </span>
+                <span className="w-px h-6 bg-fy-hairline shrink-0" aria-hidden="true" />
+                <input
+                  id="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder={t('phonePlaceholder')}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  className="flex-1 min-w-0 bg-transparent border-0 outline-none font-body text-body text-fy-ink placeholder:text-fy-muted/70"
+                />
+                <Icon name="contact_page" size={20} className="text-fy-ink-soft shrink-0" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-baseline justify-between gap-2 mb-1.5">
+                <label htmlFor="passkey" className="font-body text-body font-semibold text-fy-ink">
+                  {t('passkeyLabel')}
+                </label>
+                <button
+                  type="button"
+                  onClick={unavailable}
+                  className="font-body text-label font-semibold text-fy-brown hover:underline"
+                >
+                  {t('forgotPasskey')}
+                </button>
+              </div>
+              <div className="flex items-center h-14 rounded-control bg-fy-field px-4 gap-3">
+                <Icon name="lock" size={20} className="text-fy-ink-soft shrink-0" />
+                <input
+                  id="passkey"
+                  type={showPasskey ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder={t('passkeyPlaceholder')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="flex-1 min-w-0 bg-transparent border-0 outline-none font-body text-body text-fy-ink placeholder:text-fy-muted/70"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasskey((v) => !v)}
+                  aria-label={showPasskey ? 'Hide passkey' : 'Show passkey'}
+                  className="shrink-0 text-fy-ink-soft hover:text-fy-ink"
+                >
+                  <Icon name={showPasskey ? 'visibility_off' : 'visibility'} size={20} />
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setRetain((v) => !v)}
+              aria-pressed={retain}
+              className="flex items-center gap-3 h-14 rounded-control bg-fy-field px-4 text-left"
+            >
+              <span
+                className={`w-6 h-6 rounded-cell flex items-center justify-center shrink-0 ${
+                  retain ? 'bg-fy-ink text-fy-bone' : 'border border-fy-hairline'
+                }`}
+              >
+                {retain && <Icon name="check" size={16} />}
+              </span>
+              <span className="flex-1 font-body text-body text-fy-ink">{t('retain')}</span>
+              <Icon name="encrypted" size={20} className="text-fy-green shrink-0" />
+            </button>
+
+            {error && (
+              <div
+                role="alert"
+                className="flex items-start gap-2.5 rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg"
+              >
+                <Icon name="error" size={18} className="shrink-0 mt-px" />
+                <p>{error}</p>
+              </div>
+            )}
+            {notice && (
+              <div
+                role="status"
+                className="flex items-start gap-2.5 rounded-control bg-fy-well px-4 py-3 font-body text-label text-fy-ink-soft"
+              >
+                <Icon name="info" size={18} className="shrink-0 mt-px" />
+                <p>{notice}</p>
+              </div>
+            )}
+
+            <Button type="submit" disabled={loading} glyph="key" className="w-full">
+              {loading ? t('submitLoading') : t('submit')}
+            </Button>
+          </form>
+
+          <div className="flex items-center gap-3 my-4">
+            <span className="h-px flex-1 bg-fy-hairline/60" />
+            <EyebrowLabel>{t('altAccess')}</EyebrowLabel>
+            <span className="h-px flex-1 bg-fy-hairline/60" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="light" size="md" glyph="fingerprint" onClick={unavailable}>
+              {t('biometric')}
+            </Button>
+            <Button variant="light" size="md" glyph="sms" onClick={unavailable}>
+              {t('smsOtp')}
+            </Button>
+          </div>
+
+          <div className="mt-3 rounded-card bg-fy-panel p-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-heading text-title text-fy-ink leading-tight">{t('firstTime')}</p>
+              <p className="font-body text-label text-fy-ink-soft mt-0.5">{t('firstTimeSub')}</p>
+            </div>
+            <Link href="/signup/customer" className="shrink-0">
+              <Button variant="green" size="md" trailingGlyph="arrow_forward">
+                {t('requestCharter')}
+              </Button>
+            </Link>
+          </div>
+        </Panel>
+
+        <LightCard className="flex items-start gap-3">
+          <Icon name="verified_user" size={22} className="text-fy-brown shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="font-body text-body font-semibold text-fy-ink">{t('ledgerTitle')}</p>
+            <Body size="label" className="mt-1">
+              {t('ledgerBody')}
+            </Body>
+          </div>
+        </LightCard>
+      </main>
+
+      <BottomTabBar
+        items={[
+          { href: '/', label: 'Platform', glyph: 'grid_view' },
+          { href: '/how-it-works', label: 'How It Works', glyph: 'account_tree' },
+          { href: '/pricing', label: 'Pricing', glyph: 'payments' },
+          { href: '/about', label: 'About', glyph: 'groups' },
+          { href: '/safety', label: 'Safety', glyph: 'verified_user' },
+        ]}
+      />
     </div>
   );
 }

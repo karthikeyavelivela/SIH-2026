@@ -27,24 +27,28 @@ export function PhotoCard({
   height = 'hero',
   scrim = 'brown',
   overlay,
+  topLeft,
   topRight,
   tint = 'household',
   className = '',
 }: {
   id: string;
   alt: string;
-  height?: 'hero' | 'strip' | 'tile';
+  height?: 'hero' | 'banner' | 'strip' | 'tile';
   scrim?: Scrim;
   overlay?: ReactNode;
+  /** Floating badge, top-left — e.g. login's "passbook dispatch ready". */
+  topLeft?: ReactNode;
   topRight?: ReactNode;
   tint?: 'household' | 'labour' | 'transport';
   className?: string;
 }) {
-  const h = { hero: 'h-60', strip: 'h-28', tile: 'h-24' }[height];
+  const h = { hero: 'h-60', banner: 'h-40', strip: 'h-28', tile: 'h-24' }[height];
   return (
     <div className={`relative w-full ${h} rounded-card overflow-hidden ${className}`}>
       <Media id={id} kind="photo" treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
       {scrim !== 'none' && <div className={`absolute inset-0 ${scrimClass[scrim]}`} />}
+      {topLeft && <div className="absolute top-3 left-3 z-10">{topLeft}</div>}
       {topRight && <div className="absolute top-3 right-3 z-10">{topRight}</div>}
       {overlay && <div className="absolute inset-x-0 bottom-0 p-4 z-10">{overlay}</div>}
     </div>

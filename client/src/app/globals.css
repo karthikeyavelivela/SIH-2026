@@ -94,7 +94,7 @@
   /* Locale-aware heading font — Indic scripts share the Latin serif scale
      rather than falling back to a mismatched sans. One token, three
      scripts, so no callsite changes when the locale does. */
-  --fy-font-heading: var(--font-fraunces), 'Noto Serif', Georgia, serif;
+  --fy-font-heading: var(--font-serif), 'Noto Serif', Georgia, serif;
   --fy-font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
 
   /* ---- Motion ---- */

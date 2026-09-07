@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Fraunces, Inter, Noto_Serif_Telugu, Noto_Serif_Devanagari } from 'next/font/google';
+import { Noto_Serif, Inter, Noto_Serif_Telugu, Noto_Serif_Devanagari } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
@@ -7,22 +7,16 @@ import { AuthProvider } from '@/lib/auth-context';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { ToastProvider } from '@/components/ui/Toast';
 
-// v3 type system (DESIGN_MAP.md / stitch DESIGN.md): Fraunces carries every
-// headline, display number, and metric readout; Inter carries body/UI/table
-// numerals. Fraunces is a real variable font with a genuine italic — used
-// for the rare accent-italic role too, so we don't carry a third serif
-// family just for one word in the marketing hero. Syne/Outfit/Playfair are
-// gone entirely, not just unused — every screen now renders through these.
-const fraunces = Fraunces({
+// The designs' serif is Noto Serif — named in the export and confirmed by
+// comparing letterforms against design-reference/login.png (Fraunces is
+// narrower, which made headings that wrap to two lines in the design fit on
+// one). Using the same family for Telugu and Devanagari also makes the
+// Indic weight-match exact rather than approximate.
+const notoSerif = Noto_Serif({
   subsets: ['latin'],
-  variable: '--font-fraunces',
-  // Loaded as the actual variable font (not a fixed-weight subset) so
-  // every weight from 300-900 is real, including the font-extrabold hero
-  // numbers and font-bold headlines existing components already use — no
-  // browser-synthesized bold on a thin cut.
-  weight: 'variable',
+  variable: '--font-serif',
+  weight: ['400', '500', '600', '700'],
   style: ['normal', 'italic'],
-  axes: ['opsz', 'SOFT', 'WONK'],
 });
 const inter = Inter({
   subsets: ['latin'],
@@ -31,7 +25,7 @@ const inter = Inter({
 });
 // Weight-matched serif companions for Telugu/Hindi headings — DESIGN.md's
 // "Multilingual Harmony" rule: Indic scripts share the Latin serif scale,
-// not a mismatched sans fallback next to Fraunces.
+// not a mismatched sans fallback next to the Latin serif.
 const notoSerifTelugu = Noto_Serif_Telugu({
   subsets: ['telugu'],
   variable: '--font-noto-serif-telugu',
@@ -58,7 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${fraunces.variable} ${inter.variable} ${notoSerifTelugu.variable} ${notoSerifDevanagari.variable}`}
+      className={`${notoSerif.variable} ${inter.variable} ${notoSerifTelugu.variable} ${notoSerifDevanagari.variable}`}
     >
       <head>
         {/* Material Symbols Outlined — the icon system every Stitch screen
