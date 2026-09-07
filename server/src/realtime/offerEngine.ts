@@ -92,6 +92,9 @@ async function advanceVehicleOffer(state: OfferState): Promise<void> {
     distanceKm: booking.distanceKm,
     total: booking.fareBreakdown.total,
     expiresAt: Date.now() + OFFER_TIMEOUT_MS,
+    weightKg: booking.cargoDetails?.weightKg,
+    goodsType: booking.cargoDetails?.goodsType,
+    hamaliCount: booking.requiredHamaliCount,
   });
 
   state.timer = setTimeout(() => {
@@ -213,6 +216,9 @@ async function advanceHamaliOffer(state: OfferState): Promise<void> {
     distanceKm: booking.distanceKm,
     total: booking.fareBreakdown.total,
     expiresAt: Date.now() + OFFER_TIMEOUT_MS,
+    weightKg: booking.cargoDetails?.weightKg,
+    goodsType: booking.cargoDetails?.goodsType,
+    hamaliCount: booking.requiredHamaliCount,
   });
 
   state.timer = setTimeout(() => {

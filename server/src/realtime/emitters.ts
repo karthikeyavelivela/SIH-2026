@@ -113,7 +113,22 @@ export async function emitBookingStatus(booking: IBooking): Promise<void> {
 /** Pushed to a single candidate — Phase 3's exclusive timed offer. */
 export function emitBookingOffer(
   candidateUserId: string,
-  payload: { bookingId: string; type: string; pickupAddress: string; dropAddress: string; distanceKm: number; total: number; expiresAt: number }
+  payload: {
+    bookingId: string;
+    type: string;
+    pickupAddress: string;
+    dropAddress: string;
+    distanceKm: number;
+    total: number;
+    expiresAt: number;
+    // What the job actually is. All three are real Booking fields that a
+    // worker needs to judge an offer in the ~20s they have — a 3.8T
+    // machinery haul and a 200kg parcel run are not the same decision —
+    // and they were simply never included in the push.
+    weightKg?: number;
+    goodsType?: string;
+    hamaliCount?: number;
+  }
 ): void {
   const io = tryGetIo();
   if (!io) return;

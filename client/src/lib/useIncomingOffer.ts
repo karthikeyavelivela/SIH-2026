@@ -12,6 +12,14 @@ export interface IncomingOffer {
   distanceKm: number;
   total: number;
   expiresAt: number;
+  /**
+   * What the job actually is. Real Booking fields, pushed with the offer so
+   * a worker can judge it inside the ~20 seconds they get — a 3.8T
+   * machinery haul and a 200kg parcel run are not the same decision.
+   */
+  weightKg?: number;
+  goodsType?: string;
+  hamaliCount?: number;
 }
 
 /**

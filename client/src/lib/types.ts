@@ -29,7 +29,10 @@ export interface Booking {
   _id: string;
   customerId: string;
   type: BookingType;
-  cargoDetails: { weightKg: number; description?: string };
+  // goodsType is the customer's own declaration (server GOODS_TYPES enum).
+  // It reaches the worker on the request feed and the pushed offer, so a
+  // 3.8T machinery haul reads differently from a parcel run.
+  cargoDetails: { weightKg: number; description?: string; goodsType?: string; estimatedValueRupees?: number; ewayBillNumber?: string };
   pickupLocation: GeoPoint;
   dropLocation: GeoPoint;
   // Phase 6.3 — multi-stop routing. Ordered intermediate waypoints.

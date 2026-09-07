@@ -3,11 +3,34 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { IncomingOffer } from '@/lib/useIncomingOffer';
-import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
 import { CountdownRing } from '@/components/ui/CountdownRing';
-import { TruckIcon, BoxIcon, LayersIcon, MapPinIcon } from '@/components/ui/icons';
+import { Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { Button } from '@/components/fy/Controls';
 
-const typeIcon = { truck: TruckIcon, hamali: BoxIcon, combo: LayersIcon };
+/* Built against client/public/design/worker_incoming_offer.html and the
+   LIVE MANDATE card at the top of worker_requests_queue.html.
+
+   Anatomy there: a dark accent plate with a "LIVE MANDATE" eyebrow and a
+   live countdown, the guaranteed payout as the largest figure, the payload
+   line, pickup and destination with distances, a note that the exact
+   facility stays hidden until the offer is secured, and a two-button row —
+   pass, or claim.
+
+   The design also prints a "Match 98.4%" score and a fixed 94%
+   net-to-passbook figure. The matching engine ranks candidates but exposes
+   no score, and a worker's deduction comes from their society's own
+   commission and welfare rates rather than a platform-wide 94%, so neither
+   is invented here — the payout shown is the real fare, labelled as the
+   job's fare rather than as take-home. */
+
+const typeGlyph: Record<string, string> = {
+  truck: 'local_shipping',
+  hamali: 'engineering',
+  combo: 'inventory',
+};
 
 interface OfferCardProps {
   offer: IncomingOffer;
@@ -15,78 +38,102 @@ interface OfferCardProps {
   responding: boolean;
   onAccept: () => void;
   onReject: () => void;
-  /** Overrides the accept button label — used by the Mutha leader flow ("Accept & assign" opens the member picker instead of settling instantly). */
+  /** Overrides the accept label — the society leader flow opens a member picker instead of settling instantly. */
   acceptLabel?: string;
 }
 
-// The pushed, exclusive, timed offer — visually distinct from a plain
-// RequestCard (glowing accent border + live countdown ring) since only
-// THIS worker can act on it right now, unlike the browse list below it.
+/** Matches the server's OFFER_TIMEOUT_MS. Visual only; the server is authoritative on the real expiry. */
+const TOTAL_SECONDS = 20;
+
 export function OfferCard({ offer, accent = 'primary', responding, onAccept, onReject, acceptLabel }: OfferCardProps) {
   const t = useTranslations('offerCard');
   const [msLeft, setMsLeft] = useState(() => Math.max(0, offer.expiresAt - Date.now()));
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setMsLeft(Math.max(0, offer.expiresAt - Date.now()));
-    }, 250);
+    const id = setInterval(() => setMsLeft(Math.max(0, offer.expiresAt - Date.now())), 250);
     return () => clearInterval(id);
   }, [offer.expiresAt]);
 
   const secondsLeft = Math.ceil(msLeft / 1000);
-  const totalSeconds = 20; // matches server's OFFER_TIMEOUT_MS default; purely visual, server is authoritative on the real expiry
-  const Icon = typeIcon[offer.type as keyof typeof typeIcon] ?? TruckIcon;
-  const ringColor = accent === 'primary' ? 'var(--fy-brown)' : 'var(--fy-green)';
-  const accentText = accent === 'primary' ? 'text-fy-brown' : 'text-fy-green';
-  const accentBg = accent === 'primary' ? 'bg-fy-brown/10' : 'bg-fy-green/10';
+  const glyph = typeGlyph[offer.type] ?? 'local_shipping';
+  const dark = accent === 'primary' ? 'bg-fy-brown' : 'bg-fy-green';
+
+  // The payload line, built only from fields the booking really carries.
+  const payloadBits: string[] = [];
+  if (offer.weightKg) payloadBits.push(t('tonnes', { t: (offer.weightKg / 1000).toFixed(offer.weightKg < 1000 ? 2 : 1) }));
+  if (offer.goodsType) payloadBits.push(t(`goodsTypes.${offer.goodsType}` as never) ?? offer.goodsType);
+  if (offer.hamaliCount) payloadBits.push(t('crew', { count: offer.hamaliCount }));
 
   return (
     <div
-      className="relative rounded-card bg-fy-card border-2 p-5 shadow-lg animate-[scaleIn_250ms_ease-out]"
-      style={{ borderColor: ringColor }}
+      className={`${dark} text-fy-bone rounded-sheet p-5 shadow-float flex flex-col gap-3 animate-[scaleIn_250ms_ease-out]`}
+      role="region"
+      aria-label={t('newJobTitle')}
     >
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${accentBg} ${accentText}`}>
-            <Icon className="w-5 h-5" />
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex items-center gap-2 min-w-0">
+          <IconTile tone={accent === 'primary' ? 'peach' : 'lime'} size="sm">
+            <Icon name={glyph} size={18} />
+          </IconTile>
+          <span className="min-w-0">
+            <EyebrowLabel tone="lime">{t('liveMandate')}</EyebrowLabel>
+            <p className="font-body text-label text-fy-bone/80">{t('secondsToDecide', { seconds: secondsLeft })}</p>
           </span>
-          <div className="min-w-0">
-            <p className="font-heading font-bold text-base">{t('newJobTitle')}</p>
-            {offer.distanceKm > 0 && <p className="text-xs text-fy-muted">{offer.distanceKm.toFixed(1)} km</p>}
-          </div>
-        </div>
-        <CountdownRing secondsLeft={secondsLeft} totalSeconds={totalSeconds} size={44} accent={accent}>
-          <span className="text-xs font-bold">{secondsLeft}</span>
+        </span>
+        <CountdownRing secondsLeft={secondsLeft} totalSeconds={TOTAL_SECONDS} size={44} accent={accent}>
+          <span className="font-body text-label font-bold text-fy-bone">{secondsLeft}</span>
         </CountdownRing>
       </div>
 
-      <div className="space-y-2 mb-4">
+      <div>
+        <EyebrowLabel tone="on-dark" className="opacity-70">
+          {t('guaranteedFare')}
+        </EyebrowLabel>
+        <div className="flex items-baseline gap-2">
+          <span className="font-heading text-metric text-fy-lime leading-none">₹{offer.total}</span>
+          <StatusPill tone="lime">{t('coopProtected')}</StatusPill>
+        </div>
+        {payloadBits.length > 0 && (
+          <Body tone="on-dark" size="label" className="mt-1 opacity-85">
+            {payloadBits.join(' · ')}
+          </Body>
+        )}
+      </div>
+
+      <Divider className="border-fy-bone/15" />
+
+      <div className="flex flex-col gap-2">
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${accentText}`} />
-          <p className="text-sm truncate">{offer.pickupAddress}</p>
+          <Icon name="trip_origin" size={16} className="text-fy-lime shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <EyebrowLabel tone="on-dark" className="opacity-70">
+              {t('pickup')}
+            </EyebrowLabel>
+            <p className="font-body text-label text-fy-bone truncate">{offer.pickupAddress}</p>
+          </div>
         </div>
         <div className="flex items-start gap-2.5">
-          <MapPinIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-fy-muted" />
-          <p className="text-sm text-fy-muted truncate">{offer.dropAddress}</p>
+          <Icon name="location_on" size={16} className="text-fy-bone/70 shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <EyebrowLabel tone="on-dark" className="opacity-70">
+              {offer.distanceKm > 0 ? t('destinationWithKm', { km: offer.distanceKm.toFixed(1) }) : t('destination')}
+            </EyebrowLabel>
+            <p className="font-body text-label text-fy-bone truncate">{offer.dropAddress}</p>
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs text-fy-muted">{t('fare')}</span>
-        <p className="font-heading font-bold text-lg">₹{offer.total}</p>
-      </div>
+      <span className="flex items-center gap-1.5 text-fy-bone/70">
+        <Icon name="lock" size={14} />
+        <span className="font-body text-eyebrow uppercase">{t('facilityHidden')}</span>
+      </span>
 
-      <div className="flex gap-3">
-        <Button variant="ghost" className="flex-1" disabled={responding} onClick={onReject}>
+      <div className="flex gap-3 pt-1">
+        <Button variant="light" className="flex-1" disabled={responding} onClick={onReject}>
           {t('decline')}
         </Button>
-        <Button
-          variant={accent === 'primary' ? 'primary' : 'secondary'}
-          className="flex-1"
-          disabled={responding}
-          onClick={onAccept}
-        >
-          {responding ? t('sending') : acceptLabel ?? t('accept')}
+        <Button variant="lime" className="flex-1" disabled={responding} onClick={onAccept}>
+          {responding ? t('sending') : (acceptLabel ?? t('accept'))}
         </Button>
       </div>
     </div>
