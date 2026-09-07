@@ -901,7 +901,30 @@
     "viewJob": "View job",
     "noActiveJob": "No active job. Go online and check Requests for new jobs nearby.",
     "insuranceProtection": "Insurance & protection",
-    "rateLastCustomer": "Rate your last customer"
+    "rateLastCustomer": "Rate your last customer",
+    "homeTitle": "Home",
+    "memberPill": "Member",
+    "shiftActive": "Co-op shift active",
+    "shiftOnJob": "On a dispatch",
+    "shiftOffline": "Shift not started",
+    "greeting": "Hello, {name}",
+    "greetingNoName": "Hello",
+    "ratingCount": "{count} rated jobs",
+    "todaysLedger": "Today's certified ledger",
+    "instantAudit": "Instant audit",
+    "tripsToday": "{count, plural, =0 {No jobs completed today} one {# job completed today} other {# jobs completed today}}",
+    "settledNote": "Settled to your society account. No commission held back.",
+    "standbyTitle": "Queue dispatch standby",
+    "standbyOnline": "No active dispatch. You are in the queue for the next matching job.",
+    "standbyOffline": "Go online to start receiving dispatch offers.",
+    "perimeterHeading": "Operational perimeter",
+    "radius": "{km} km radius",
+    "openRequests": "Open job offers",
+    "training": "Training academy",
+    "status": {
+      "accepted": "Accepted",
+      "in_progress": "Underway"
+    }
   },
   "profile": {
     "language": {
@@ -2787,5 +2810,18 @@
       "per_km": "per km",
       "per_worker": "per worker"
     }
+  },
+  "roleNav": {
+    "home": "Home",
+    "jobs": "Jobs",
+    "job": "Job",
+    "earnings": "Earnings",
+    "training": "Training",
+    "profile": "Profile",
+    "members": "Members",
+    "governance": "Governance",
+    "vehicles": "Vehicles",
+    "maintenance": "Maintenance",
+    "docks": "Docks"
   }
 }

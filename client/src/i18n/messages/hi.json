@@ -901,7 +901,30 @@
     "viewJob": "काम देखें",
     "noActiveJob": "कोई चालू काम नहीं। पास के नए काम देखने के लिए ऑनलाइन जाएं और रिक्वेस्ट देखें।",
     "insuranceProtection": "बीमा और सुरक्षा",
-    "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें"
+    "rateLastCustomer": "अपने पिछले ग्राहक को रेट करें",
+    "homeTitle": "होम",
+    "memberPill": "सदस्य",
+    "shiftActive": "सहकारी शिफ्ट चालू",
+    "shiftOnJob": "डिस्पैच पर",
+    "shiftOffline": "शिफ्ट शुरू नहीं हुई",
+    "greeting": "नमस्ते, {name}",
+    "greetingNoName": "नमस्ते",
+    "ratingCount": "{count} रेटेड काम",
+    "todaysLedger": "आज की प्रमाणित बही",
+    "instantAudit": "तत्काल ऑडिट",
+    "tripsToday": "{count, plural, =0 {आज कोई काम पूरा नहीं} one {आज # काम पूरा} other {आज # काम पूरे}}",
+    "settledNote": "आपकी समिति के खाते में जमा। कोई कमीशन नहीं काटा गया।",
+    "standbyTitle": "क्यू डिस्पैच स्टैंडबाय",
+    "standbyOnline": "अभी कोई डिस्पैच नहीं। अगले मेल खाते काम के लिए आप क्यू में हैं।",
+    "standbyOffline": "डिस्पैच ऑफ़र पाने के लिए ऑनलाइन हों।",
+    "perimeterHeading": "कार्य परिधि",
+    "radius": "{km} कि.मी. परिधि",
+    "openRequests": "उपलब्ध काम के ऑफ़र",
+    "training": "प्रशिक्षण अकादमी",
+    "status": {
+      "accepted": "स्वीकृत",
+      "in_progress": "चल रहा है"
+    }
   },
   "profile": {
     "language": {
@@ -2787,5 +2810,18 @@
       "per_km": "प्रति कि.मी.",
       "per_worker": "प्रति कामगार"
     }
+  },
+  "roleNav": {
+    "home": "होम",
+    "jobs": "काम",
+    "job": "काम",
+    "earnings": "कमाई",
+    "training": "प्रशिक्षण",
+    "profile": "प्रोफ़ाइल",
+    "members": "सदस्य",
+    "governance": "शासन",
+    "vehicles": "वाहन",
+    "maintenance": "रखरखाव",
+    "docks": "डॉक"
   }
 }

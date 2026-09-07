@@ -21,7 +21,6 @@ import { MetricBlock } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, Stepper, SelectCard, Field } from '@/components/fy/Controls';
 import { PhotoStrip } from '@/components/fy/Media';
 import { TopBar } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 /* Built against client/public/design/hamali_labour_standard.html.
 
@@ -408,7 +407,6 @@ export default function LabourBookingPage() {
           </div>
         </form>
 
-        <CustomerTabBar />
       </div>
     </RotaryDial>
   );

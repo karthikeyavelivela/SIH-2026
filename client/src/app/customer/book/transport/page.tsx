@@ -22,7 +22,6 @@ import { StatRow, MetricBlock } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, Slider, SelectCard, Field, Stepper } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 /* Built against client/public/design/goods_transport.html.
 
@@ -466,7 +465,6 @@ export default function TransportBookingPage() {
           </Body>
         </form>
 
-        <CustomerTabBar />
       </div>
     </RotaryDial>
   );

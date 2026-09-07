@@ -21,7 +21,6 @@ import { StatusPill } from '@/components/fy/Status';
 import { Button, Chip, ChipRow, SelectCard, Field } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 /* Built against client/public/design/service_detail_booking_1.html.
 
@@ -154,7 +153,6 @@ export default function ServiceDetailPage() {
             }
           />
         </main>
-        <CustomerTabBar />
       </div>
     );
   }
@@ -317,7 +315,6 @@ export default function ServiceDetailPage() {
         </div>
       </form>
 
-      <CustomerTabBar />
     </div>
   );
 }

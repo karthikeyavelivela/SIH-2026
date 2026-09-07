@@ -4,22 +4,12 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
-import { BottomTabNav, TabItem } from '@/components/ui/BottomTabNav';
-import { HomeIcon, LayersIcon, UsersIcon, WalletIcon, TruckIcon, UserIcon } from '@/components/ui/icons';
+import { SocietyTabBar } from '@/components/fy/RoleNav';
 
 export default function MuthaLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const t = useTranslations('nav');
-
-  const tabs: TabItem[] = [
-    { href: '/mutha/dashboard', label: t('group'), icon: HomeIcon },
-    { href: '/mutha/requests', label: t('requests'), icon: LayersIcon },
-    { href: '/mutha/active-jobs', label: t('jobs'), icon: TruckIcon },
-    { href: '/mutha/members', label: t('members'), icon: UsersIcon },
-    { href: '/mutha/earnings', label: t('earnings'), icon: WalletIcon },
-    { href: '/mutha/profile', label: t('profile'), icon: UserIcon },
-  ];
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'mutha_leader')) {
@@ -34,7 +24,7 @@ export default function MuthaLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-fy-bone pb-24">
       {children}
-      <BottomTabNav items={tabs} />
+      <SocietyTabBar />
     </div>
   );
 }

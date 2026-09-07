@@ -26,7 +26,6 @@ import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, StatRow } from '@/components/fy/Data';
 import { Button as FyButton } from '@/components/fy/Controls';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -265,7 +264,6 @@ export default function TrackBookingPage() {
             <Body size="label">{error}</Body>
           </LightCard>
         </main>
-        <CustomerTabBar />
       </div>
     );
   }
@@ -278,7 +276,6 @@ export default function TrackBookingPage() {
           <div className="h-8 w-1/2 rounded bg-fy-panel animate-pulse" />
           <div className="h-40 rounded-card bg-fy-panel animate-pulse" />
         </main>
-        <CustomerTabBar />
       </div>
     );
   }
@@ -630,7 +627,6 @@ export default function TrackBookingPage() {
         <RatingModal bookingId={bookingId} open accent="primary" onDone={() => setPendingRatingId(null)} />
       )}
 
-      <CustomerTabBar />
     </div>
   );
 }

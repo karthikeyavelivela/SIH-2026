@@ -901,7 +901,30 @@
     "viewJob": "పని చూడండి",
     "noActiveJob": "ప్రస్తుతం పని లేదు. సమీపంలోని కొత్త పనుల కోసం ఆన్‌లైన్‌లోకి వెళ్లి రిక్వెస్ట్‌లు చూడండి.",
     "insuranceProtection": "బీమా & రక్షణ",
-    "rateLastCustomer": "మీ చివరి కస్టమర్‌ను రేట్ చేయండి"
+    "rateLastCustomer": "మీ చివరి కస్టమర్‌ను రేట్ చేయండి",
+    "homeTitle": "హోమ్",
+    "memberPill": "సభ్యుడు",
+    "shiftActive": "సహకార షిఫ్ట్ నడుస్తోంది",
+    "shiftOnJob": "డిస్పాచ్‌లో ఉన్నారు",
+    "shiftOffline": "షిఫ్ట్ మొదలవలేదు",
+    "greeting": "నమస్కారం, {name}",
+    "greetingNoName": "నమస్కారం",
+    "ratingCount": "{count} రేటింగ్ పొందిన పనులు",
+    "todaysLedger": "నేటి ధృవీకృత ఖాతా",
+    "instantAudit": "తక్షణ ఆడిట్",
+    "tripsToday": "{count, plural, =0 {ఈ రోజు పనులు పూర్తి కాలేదు} one {ఈ రోజు # పని పూర్తయింది} other {ఈ రోజు # పనులు పూర్తయ్యాయి}}",
+    "settledNote": "మీ సంఘ ఖాతాకు జమ. ఎటువంటి కమీషన్ తీసుకోలేదు.",
+    "standbyTitle": "క్యూ డిస్పాచ్ స్టాండ్‌బై",
+    "standbyOnline": "ప్రస్తుతం డిస్పాచ్ లేదు. తదుపరి సరిపోలే పని కోసం మీరు క్యూలో ఉన్నారు.",
+    "standbyOffline": "డిస్పాచ్ ఆఫర్లు రావాలంటే ఆన్‌లైన్‌లోకి వెళ్లండి.",
+    "perimeterHeading": "పని పరిధి",
+    "radius": "{km} కి.మీ. పరిధి",
+    "openRequests": "అందుబాటులో ఉన్న పని ఆఫర్లు",
+    "training": "శిక్షణ అకాడమీ",
+    "status": {
+      "accepted": "అంగీకరించారు",
+      "in_progress": "జరుగుతోంది"
+    }
   },
   "profile": {
     "language": {
@@ -2787,5 +2810,18 @@
       "per_km": "కి.మీ.కు",
       "per_worker": "ఒక్కో కార్మికుడికి"
     }
+  },
+  "roleNav": {
+    "home": "హోమ్",
+    "jobs": "పనులు",
+    "job": "పని",
+    "earnings": "ఆదాయం",
+    "training": "శిక్షణ",
+    "profile": "ప్రొఫైల్",
+    "members": "సభ్యులు",
+    "governance": "పాలన",
+    "vehicles": "వాహనాలు",
+    "maintenance": "నిర్వహణ",
+    "docks": "డాక్‌లు"
   }
 }

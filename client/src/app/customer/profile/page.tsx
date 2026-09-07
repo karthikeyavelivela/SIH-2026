@@ -12,7 +12,6 @@ import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill, VerifiedBadge } from '@/components/fy/Status';
 import { DataList, DataRow } from '@/components/fy/Data';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -258,7 +257,6 @@ export default function CustomerProfilePage() {
         )}
       </main>
 
-      <CustomerTabBar />
     </div>
   );
 }

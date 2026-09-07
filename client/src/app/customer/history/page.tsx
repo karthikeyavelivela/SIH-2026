@@ -16,7 +16,6 @@ import { StatusPill } from '@/components/fy/Status';
 import { StatRow } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, SearchField } from '@/components/fy/Controls';
 import { TopBar } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 /* Built against client/public/design/booking_history_1.html.
 
@@ -302,7 +301,6 @@ export default function CustomerHistoryPage() {
         )}
       </main>
 
-      <CustomerTabBar />
     </div>
   );
 }

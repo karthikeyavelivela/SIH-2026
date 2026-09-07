@@ -19,7 +19,6 @@ import { StatusPill } from '@/components/fy/Status';
 import { StatRow, MetricBlock } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, Slider, Toggle, Stepper, Field } from '@/components/fy/Controls';
 import { TopBar } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 
 /* Built against client/public/design/hamali_labour_bulk.html.
 
@@ -341,7 +340,6 @@ export default function LabourBulkPage() {
         </Body>
       </form>
 
-      <CustomerTabBar />
     </div>
   );
 }

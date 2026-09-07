@@ -26,7 +26,6 @@ import { StatusPill } from '@/components/fy/Status';
 import { DataList, DataRow, ProgressBar } from '@/components/fy/Data';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar } from '@/components/fy/Navigation';
-import { CustomerTabBar } from '@/components/fy/CustomerTabBar';
 import { bookingStatusTone } from '@/components/ui/StatusPill';
 
 /* Built against client/public/design/household_home.html.
@@ -430,7 +429,6 @@ export default function CustomerDashboardPage() {
           <SupportAgentWidget accent="primary" />
         </main>
 
-        <CustomerTabBar />
       </div>
     </RotaryDial>
   );
