@@ -1778,7 +1778,21 @@
     "bonusEarned": "₹{amount} గ్రూప్ రేటింగ్ ఆధారిత బోనస్‌లు సంపాదించారు",
     "perMember": "ఒక్కో మెంబర్‌కు",
     "noCompletedJobs": "ఇంకా పూర్తయిన జాబ్‌లు లేవు",
-    "orderHistory": "ఆర్డర్ చరిత్ర"
+    "orderHistory": "ఆర్డర్ చరిత్ర",
+    "ledgerEyebrow": "స్వయంపాలిత సంఘ ఖాతా",
+    "rangeWeek": "వారం",
+    "rangeMonth": "నెల",
+    "rangeAll": "మొత్తం",
+    "grossValue": "ధృవీకృత మొత్తం శ్రమ విలువ",
+    "aggregatedAcross": "{count, plural, =0 {ఈ కాలంలో పనులు లేవు} one {# పని ఆధారంగా} other {# పనుల ఆధారంగా}}",
+    "netCrew": "బృందానికి నికరం ({pct}%)",
+    "reservePool": "సంఘం నిల్వ ({pct}%)",
+    "splitTitle": "సమాన పంపిణీ పాలన",
+    "splitNote": "నిల్వ శాతం సంఘం సొంత నిర్ణయం, ప్లాట్‌ఫారం కోత కాదు.",
+    "memberCount": "{count, plural, =0 {ఇంకా ఎవరూ లేరు} one {# సభ్యుడు} other {# సభ్యులు}}",
+    "settledCount": "{count, plural, =0 {ఏదీ లేదు} one {# పని} other {# పనులు}}",
+    "noCompletedJobsHint": "సభ్యుడు సంఘ పని పూర్తి చేసిన తర్వాత వారి వాటా ఇక్కడ కనిపిస్తుంది.",
+    "noRunsInRange": "ఈ కాలంలో పూర్తయిన పనులు లేవు."
   },
   "muthaRequests": {
     "pageTitle": "జాబ్ రిక్వెస్ట్‌లు",
@@ -1833,7 +1847,16 @@
     "startJob": "జాబ్ మొదలుపెట్టండి",
     "markComplete": "పూర్తయినట్లు మార్క్ చేయండి",
     "noActiveJobs": "యాక్టివ్ జాబ్‌లు లేవు",
-    "noActiveJobsDesc": "మీ గ్రూప్ పనిచేస్తున్న అంగీకరించిన జాబ్‌లు ఇక్కడ కనిపిస్తాయి."
+    "noActiveJobsDesc": "మీ గ్రూప్ పనిచేస్తున్న అంగీకరించిన జాబ్‌లు ఇక్కడ కనిపిస్తాయి.",
+    "ledgerEyebrow": "సహకార ఖాతా",
+    "passbookVerified": "పాస్‌బుక్ ధృవీకృతం",
+    "todayYield": "నేటి బృంద కార్యకలాపాల ఆదాయం",
+    "settledToday": "ఈ రోజు సంఘానికి జమ అయ్యింది.",
+    "membersAcrossRuns": "{runs, plural, =0 {నడుస్తున్న పనులు లేవు} one {# పనిలో} other {# పనుల్లో}} {members, plural, =0 {ఎవరూ కేటాయించలేదు} one {# సభ్యుడు} other {# సభ్యులు}}",
+    "liveOperations": "నడుస్తున్న బృంద పనులు",
+    "runsLive": "{count, plural, =0 {ఏదీ నడవడం లేదు} one {# పని నడుస్తోంది} other {# పనులు నడుస్తున్నాయి}}",
+    "runId": "పని #{id}",
+    "stageOf": "{total}లో {step}వ దశ"
   },
   "muthaAssignMembers": {
     "title": "క్రూను కేటాయించండి",
@@ -3199,5 +3222,24 @@
     },
     "registeredAsset": "నమోదిత వాహనం",
     "maxPayload": "గరిష్ఠ బరువు"
+  },
+  "muthaProfile": {
+    "pageTitle": "సంఘ ప్రొఫైల్",
+    "memberPill": "నాయకుడు",
+    "credentialId": "నాయకుడి ID {id}",
+    "leaderOf": "నాయకుడు · {society}",
+    "societySection": "సంఘ నిర్వహణ",
+    "inviteCode": "సంఘం ఇన్వైట్ కోడ్",
+    "manageMembers": "సభ్యులను నిర్వహించండి",
+    "governanceLink": "పాలన & నియమాలు",
+    "insuranceLink": "బీమా రక్షణ",
+    "operationsLink": "కార్యకలాపాలు",
+    "tabs": {
+      "society": "సంఘం",
+      "documents": "పత్రాలు",
+      "reputation": "ప్రతిష్ఠ",
+      "payouts": "చెల్లింపులు",
+      "settings": "సెట్టింగ్‌లు"
+    }
   }
 }

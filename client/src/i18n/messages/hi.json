@@ -1778,7 +1778,21 @@
     "bonusEarned": "₹{amount} ग्रुप रेटिंग-आधारित बोनस कमाया",
     "perMember": "हर सदस्य के अनुसार",
     "noCompletedJobs": "अभी तक कोई काम पूरा नहीं हुआ",
-    "orderHistory": "ऑर्डर इतिहास"
+    "orderHistory": "ऑर्डर इतिहास",
+    "ledgerEyebrow": "स्वायत्त संघ बही",
+    "rangeWeek": "सप्ताह",
+    "rangeMonth": "महीना",
+    "rangeAll": "कुल",
+    "grossValue": "सत्यापित कुल श्रम मूल्य",
+    "aggregatedAcross": "{count, plural, =0 {इस अवधि में कोई काम नहीं} one {# काम के आधार पर} other {# कामों के आधार पर}}",
+    "netCrew": "टोली को शुद्ध ({pct}%)",
+    "reservePool": "समिति आरक्षित ({pct}%)",
+    "splitTitle": "समान बँटवारा शासन",
+    "splitNote": "आरक्षित दर समिति की अपनी सेटिंग है, प्लेटफ़ॉर्म की कटौती नहीं।",
+    "memberCount": "{count, plural, =0 {अभी कोई नहीं} one {# सदस्य} other {# सदस्य}}",
+    "settledCount": "{count, plural, =0 {कोई नहीं} one {# काम} other {# काम}}",
+    "noCompletedJobsHint": "सदस्य के समिति काम पूरा करते ही उनका हिस्सा यहाँ दिखेगा।",
+    "noRunsInRange": "इस अवधि में कोई निपटा काम नहीं।"
   },
   "muthaRequests": {
     "pageTitle": "काम के अनुरोध",
@@ -1833,7 +1847,16 @@
     "startJob": "काम शुरू करें",
     "markComplete": "पूरा हुआ चिह्नित करें",
     "noActiveJobs": "कोई सक्रिय काम नहीं",
-    "noActiveJobsDesc": "आपके ग्रुप द्वारा किए जा रहे स्वीकृत काम यहां दिखेंगे।"
+    "noActiveJobsDesc": "आपके ग्रुप द्वारा किए जा रहे स्वीकृत काम यहां दिखेंगे।",
+    "ledgerEyebrow": "सहकारी बही",
+    "passbookVerified": "पासबुक सत्यापित",
+    "todayYield": "आज की टोली संचालन आय",
+    "settledToday": "आज समिति के खाते में जमा।",
+    "membersAcrossRuns": "{runs, plural, =0 {कोई चालू काम नहीं} one {# चालू काम} other {# चालू कामों}} में {members, plural, =0 {कोई सदस्य नहीं} one {# सदस्य} other {# सदस्य}}",
+    "liveOperations": "चालू टोली संचालन",
+    "runsLive": "{count, plural, =0 {कोई चालू नहीं} one {# चालू} other {# चालू}}",
+    "runId": "काम #{id}",
+    "stageOf": "{total} में से चरण {step}"
   },
   "muthaAssignMembers": {
     "title": "टीम असाइन करें",
@@ -3199,5 +3222,24 @@
     },
     "registeredAsset": "पंजीकृत वाहन",
     "maxPayload": "अधिकतम भार"
+  },
+  "muthaProfile": {
+    "pageTitle": "समिति प्रोफ़ाइल",
+    "memberPill": "नेता",
+    "credentialId": "नेता ID {id}",
+    "leaderOf": "नेता · {society}",
+    "societySection": "समिति प्रबंधन",
+    "inviteCode": "समिति इनवाइट कोड",
+    "manageMembers": "सदस्य प्रबंधित करें",
+    "governanceLink": "शासन और उपनियम",
+    "insuranceLink": "बीमा कवर",
+    "operationsLink": "संचालन",
+    "tabs": {
+      "society": "समिति",
+      "documents": "दस्तावेज़",
+      "reputation": "प्रतिष्ठा",
+      "payouts": "भुगतान",
+      "settings": "सेटिंग्स"
+    }
   }
 }

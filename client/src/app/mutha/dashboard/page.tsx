@@ -145,12 +145,12 @@ export default function MuthaDashboardPage() {
               <Divider className="border-fy-bone/20" />
               <div className="flex flex-col gap-2">
                 <StatRow
-                  className="[&>span:last-child]:text-fy-bone"
+                  className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
                   label={t('societyReserve', { pct: reservePct })}
                   value={`₹${retained.toLocaleString('en-IN')}`}
                 />
                 <StatRow
-                  className="[&>span:last-child]:text-fy-lime"
+                  className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-lime"
                   label={t('distributable')}
                   value={`₹${distributable.toLocaleString('en-IN')}`}
                 />
@@ -158,7 +158,7 @@ export default function MuthaDashboardPage() {
                     it anywhere in the product; crew readiness is real, and
                     is what a leader actually needs to see here. */}
                 <StatRow
-                  className="[&>span:last-child]:text-fy-bone"
+                  className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
                   label={t('crewReady')}
                   value={t('crewReadyValue', { online: onlineCount, total: members.length })}
                 />

@@ -1778,7 +1778,21 @@
     "bonusEarned": "₹{amount} in group rating-based bonuses earned",
     "perMember": "Per member",
     "noCompletedJobs": "No completed jobs yet",
-    "orderHistory": "Order history"
+    "orderHistory": "Order history",
+    "ledgerEyebrow": "Autonomous union ledger",
+    "rangeWeek": "Week",
+    "rangeMonth": "Month",
+    "rangeAll": "All time",
+    "grossValue": "Gross verified labour value",
+    "aggregatedAcross": "{count, plural, =0 {No settled runs in this range} one {Across # settled run} other {Across # settled runs}}",
+    "netCrew": "Net to crew ({pct}%)",
+    "reservePool": "Society reserve ({pct}%)",
+    "splitTitle": "Equal split governance",
+    "splitNote": "The reserve rate is the society’s own setting, not a platform cut.",
+    "memberCount": "{count, plural, =0 {None yet} one {# member} other {# members}}",
+    "settledCount": "{count, plural, =0 {None} one {# run} other {# runs}}",
+    "noCompletedJobsHint": "Once a member completes a society job, their share appears here.",
+    "noRunsInRange": "No settled runs in this range."
   },
   "muthaRequests": {
     "pageTitle": "Job requests",
@@ -1833,7 +1847,16 @@
     "startJob": "Start job",
     "markComplete": "Mark complete",
     "noActiveJobs": "No active jobs",
-    "noActiveJobsDesc": "Accepted jobs your group is working will show up here."
+    "noActiveJobsDesc": "Accepted jobs your group is working will show up here.",
+    "ledgerEyebrow": "Cooperative ledger",
+    "passbookVerified": "Passbook verified",
+    "todayYield": "Live crew operations yield (today)",
+    "settledToday": "Settled to the society today.",
+    "membersAcrossRuns": "{members, plural, =0 {No members assigned} one {# member assigned} other {# members assigned}} across {runs, plural, =0 {no live runs} one {# live run} other {# live runs}}",
+    "liveOperations": "Live crew operations",
+    "runsLive": "{count, plural, =0 {None live} one {# run live} other {# runs live}}",
+    "runId": "Run #{id}",
+    "stageOf": "Stage {step} of {total}"
   },
   "muthaAssignMembers": {
     "title": "Assign crew",
@@ -3199,5 +3222,24 @@
     },
     "registeredAsset": "Registered asset",
     "maxPayload": "Max payload"
+  },
+  "muthaProfile": {
+    "pageTitle": "Society profile",
+    "memberPill": "Leader",
+    "credentialId": "Leader ID {id}",
+    "leaderOf": "Leader · {society}",
+    "societySection": "Society management",
+    "inviteCode": "Society invite code",
+    "manageMembers": "Manage members",
+    "governanceLink": "Governance & bye-laws",
+    "insuranceLink": "Insurance cover",
+    "operationsLink": "Operations",
+    "tabs": {
+      "society": "Society",
+      "documents": "Documents",
+      "reputation": "Reputation",
+      "payouts": "Payouts",
+      "settings": "Settings"
+    }
   }
 }
