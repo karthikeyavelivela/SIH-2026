@@ -1,321 +1,465 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { StatusPill } from '@/components/ui/StatusPill';
-import { Avatar } from '@/components/ui/Avatar';
-import { AvatarStack } from '@/components/ui/AvatarStack';
-import { DataRow } from '@/components/ui/DataRow';
-import { ListDivider } from '@/components/ui/ListDivider';
-import { TopBar } from '@/components/ui/TopBar';
-import { BottomSheet } from '@/components/ui/BottomSheet';
-import { Modal } from '@/components/ui/Modal';
-import { MetricCard } from '@/components/ui/MetricCard';
-import { CountdownRing } from '@/components/ui/CountdownRing';
+import { DarkCard, LightCard, Panel, Divider } from '@/components/fy/Surfaces';
+import { EyebrowLabel, DisplayHeading, SectionHeading, Body, MutedText } from '@/components/fy/Text';
+import { StatusPill, VerifiedBadge, TierBadge } from '@/components/fy/Status';
+import { MetricBlock, StatRow, DataList, DataRow, ProgressBar } from '@/components/fy/Data';
+import {
+  Button, Chip, ChipRow, ScrollRow, Stepper, Toggle, Slider, SearchField, Field, SelectCard,
+} from '@/components/fy/Controls';
+import { PhotoCard, CircularPortrait, PhotoStrip } from '@/components/fy/Media';
+import { TopBar, TabRow, BottomTabBar } from '@/components/fy/Navigation';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PermissionDeniedState } from '@/components/ui/PermissionDeniedState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
-import { SidebarNav } from '@/components/admin/SidebarNav';
-import { DataTable } from '@/components/admin/DataTable';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { Section } from '@/components/ui/Section';
-import { FlatRowList, FlatRow } from '@/components/ui/FlatRowList';
-import { Tabs } from '@/components/ui/Tabs';
-import { IconButton } from '@/components/ui/IconButton';
-import { ChipRow } from '@/components/ui/ChipRow';
-import { FilterChip } from '@/components/ui/FilterChip';
-import { Toggle } from '@/components/ui/Toggle';
-import { SearchField } from '@/components/ui/SearchField';
-import { Select } from '@/components/ui/Select';
-import { NumberStepper } from '@/components/ui/NumberStepper';
-import { Slider } from '@/components/ui/Slider';
-import { DatePicker } from '@/components/ui/DatePicker';
-import { RatingHistogram } from '@/components/ui/RatingHistogram';
-import { ProgressBar } from '@/components/ui/ProgressBar';
-import { Media } from '@/components/ui/Media';
-import { AgentCard } from '@/components/ui/AgentResultCard';
-import { useToast } from '@/components/ui/Toast';
-import { RotaryDial } from '@/components/ui/RotaryDial';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 
-const DIAL_SECTORS = [
-  { key: 'household', label: 'Household', glyph: 'home_repair_service' },
-  { key: 'labour', label: 'Labour', glyph: 'engineering' },
-  { key: 'transport', label: 'Transport', glyph: 'local_shipping' },
+const SWATCHES: { group: string; items: { name: string; varName: string }[] }[] = [
+  {
+    group: 'Surfaces',
+    items: [
+      { name: 'bone', varName: '--fy-bone' },
+      { name: 'panel', varName: '--fy-panel' },
+      { name: 'field', varName: '--fy-field' },
+      { name: 'well', varName: '--fy-well' },
+      { name: 'edge', varName: '--fy-edge' },
+      { name: 'card', varName: '--fy-card' },
+      { name: 'dim', varName: '--fy-dim' },
+    ],
+  },
+  {
+    group: 'Ink',
+    items: [
+      { name: 'ink', varName: '--fy-ink' },
+      { name: 'ink-soft', varName: '--fy-ink-soft' },
+      { name: 'muted', varName: '--fy-muted' },
+      { name: 'hairline', varName: '--fy-hairline' },
+    ],
+  },
+  {
+    group: 'Household — brown',
+    items: [
+      { name: 'brown', varName: '--fy-brown' },
+      { name: 'brown-soft', varName: '--fy-brown-soft' },
+      { name: 'on-brown-soft', varName: '--fy-on-brown-soft' },
+    ],
+  },
+  {
+    group: 'Labour — green + lime',
+    items: [
+      { name: 'green', varName: '--fy-green' },
+      { name: 'lime', varName: '--fy-lime' },
+      { name: 'lime-dim', varName: '--fy-lime-dim' },
+      { name: 'lime-tint-1', varName: '--fy-lime-tint-1' },
+      { name: 'lime-tint-2', varName: '--fy-lime-tint-2' },
+      { name: 'lime-tint-3', varName: '--fy-lime-tint-3' },
+    ],
+  },
+  {
+    group: 'Transit — slate',
+    items: [
+      { name: 'slate', varName: '--fy-slate' },
+      { name: 'slate-soft', varName: '--fy-slate-soft' },
+      { name: 'slate-pale', varName: '--fy-slate-pale' },
+    ],
+  },
+  {
+    group: 'Status',
+    items: [
+      { name: 'error', varName: '--fy-error' },
+      { name: 'error-bg', varName: '--fy-error-bg' },
+      { name: 'peach', varName: '--fy-peach' },
+      { name: 'inverse', varName: '--fy-inverse' },
+    ],
+  },
 ];
 
-const PALETTE = [
-  { name: 'bone', varName: '--fy-bone' },
-  { name: 'ink', varName: '--fy-ink' },
-  { name: 'brown', varName: '--fy-brown' },
-  { name: 'lime', varName: '--fy-lime' },
-  { name: 'slate', varName: '--fy-slate' },
-  { name: 'muted', varName: '--fy-muted' },
-];
-const ACCENTS = [
-  { name: 'household', varName: '--fy-brown' },
-  { name: 'labour', varName: '--fy-lime' },
-  { name: 'transport', varName: '--fy-slate' },
-];
-const TYPE_SCALE = [
-  { cls: 'text-display md:text-display', label: 'display-hero' },
-  { cls: 'text-heading md:text-heading', label: 'headline-lg' },
-  { cls: 'text-heading', label: 'headline-md' },
-  { cls: 'text-title', label: 'headline-sm' },
-  { cls: 'text-body-lg font-body', label: 'body-lg' },
-  { cls: 'text-body font-body', label: 'body-default' },
-  { cls: 'text-eyebrow font-body uppercase tracking-widest', label: 'label-caps' },
-];
-
-function StyleSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+/** Each block names the screenshot its anatomy was read from. */
+function Block({ title, from, children }: { title: string; from: string; children: React.ReactNode }) {
   return (
-    <section className="mb-16">
-      <h2 className="font-heading font-bold text-heading text-fy-ink mb-1">{title}</h2>
-      {description && <p className="text-fy-ink-soft mb-6 max-w-2xl font-body">{description}</p>}
-      <div className={description ? '' : 'mt-6'}>{children}</div>
+    <section className="mb-12">
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <SectionHeading>{title}</SectionHeading>
+        <MutedText className="font-mono">{from}</MutedText>
+      </div>
+      {children}
     </section>
   );
 }
 
 export default function StyleguidePage() {
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [lang, setLang] = useState<LanguageCode>('en');
-  const [tab, setTab] = useState('one');
-  const [toggleOn, setToggleOn] = useState(true);
-  const [count, setCount] = useState(2);
-  const [tonnage, setTonnage] = useState(45);
-  const [search, setSearch] = useState('');
-  const [dialMode, setDialMode] = useState('household');
+  const [tab, setTab] = useState('status');
+  const [pillTab, setPillTab] = useState('affiliation');
+  const [crew, setCrew] = useState(4);
+  const [tonnes, setTonnes] = useState(340);
+  const [on, setOn] = useState(true);
+  const [chips, setChips] = useState<string[]>(['cement']);
+  const [scale, setScale] = useState('standard');
+  const [q, setQ] = useState('');
   const toast = useToast();
 
+  const toggleChip = (k: string) =>
+    setChips((c) => (c.includes(k) ? c.filter((x) => x !== k) : [...c, k]));
+
   return (
-    <RotaryDial sectors={DIAL_SECTORS} activeKey={dialMode} onChange={setDialMode}>
-    <div className="min-h-screen bg-fy-bone text-fy-ink pb-32 relative">
-      <div className="fixed inset-0 pointer-events-none fyro-grain z-0 opacity-40" />
-      <TopBar title="FYRO Styleguide v3" showBack={false} right={<StatusPill tone="labour">v3 · live</StatusPill>} />
+    <div className="min-h-screen bg-fy-bone relative">
+      <div className="fixed inset-0 pointer-events-none fy-grain opacity-40 z-0" />
+      <TopBar
+        eyebrow="FYRO Cooperative"
+        title="Styleguide"
+        actions={<StatusPill tone="lime">measured</StatusPill>}
+      />
 
-      <div className="max-w-5xl mx-auto px-gutter pt-10 relative z-10">
-        <PageHeader
-          title="Cooperative Ledger design system"
-          subline="Living reference for DESIGN_MAP.md — the v3 palette, Fraunces/Inter type, and every shared component new pages are built from. Compare against the Stitch screen.png files while building."
-          className="mb-14"
-        />
+      <main className="relative z-10 pt-16 pb-28 px-gutter max-w-2xl mx-auto">
+        <div className="py-6">
+          <EyebrowLabel>Design system</EyebrowLabel>
+          <DisplayHeading className="mt-1">
+            Components,
+            <br />
+            read from pixels
+          </DisplayHeading>
+          <Body size="body-lg" className="mt-2">
+            Every value below is sampled from the screenshots in design-reference/. Each block
+            names the screen its anatomy came from.
+          </Body>
+        </div>
 
-        <StyleSection title="Palette" description="The six raw hues from DESIGN.md, plus the three semantic domain accents built on top of them.">
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mb-6">
-            {PALETTE.map((t) => (
-              <div key={t.varName} className="rounded-card overflow-hidden border border-[color:var(--fy-hairline)]">
-                <div className="h-20" style={{ background: `var(${t.varName})` }} />
-                <div className="p-3 bg-white">
-                  <p className="text-xs font-semibold font-body">{t.name}</p>
-                  <p className="text-xs text-fy-muted font-mono">{t.varName}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            {ACCENTS.map((t) => (
-              <div key={t.varName} className="rounded-card overflow-hidden border border-[color:var(--fy-hairline)]">
-                <div className="h-14" style={{ background: `var(${t.varName})` }} />
-                <div className="p-3 bg-white">
-                  <p className="text-xs font-semibold font-body">accent-{t.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </StyleSection>
-
-        <StyleSection title="Typography" description="Fraunces (headings, display numbers) + Inter (body, UI). Headings swap script automatically per <html lang> — see LanguagePill below.">
+        <Block title="Colour" from="all 10 screens">
           <div className="flex flex-col gap-4">
-            {TYPE_SCALE.map((t) => (
-              <div key={t.label} className="flex items-baseline gap-4 border-b border-[color:var(--fy-hairline)] pb-3">
-                <span className="w-32 shrink-0 font-mono text-xs text-fy-muted">{t.label}</span>
-                <span className={`font-heading ${t.cls} text-fy-ink truncate`}>Cooperative dignity, made visible</span>
+            {SWATCHES.map((g) => (
+              <div key={g.group}>
+                <EyebrowLabel>{g.group}</EyebrowLabel>
+                <div className="grid grid-cols-4 gap-2 mt-1.5">
+                  {g.items.map((s) => (
+                    <div key={s.varName} className="rounded-cell overflow-hidden border border-fy-hairline/50">
+                      <div className="h-12" style={{ background: `var(${s.varName})` }} />
+                      <div className="bg-fy-card px-2 py-1.5">
+                        <div className="font-body text-[10px] font-semibold text-fy-ink">{s.name}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
-            <div className="flex items-baseline gap-4">
-              <span className="w-32 shrink-0 font-mono text-xs text-fy-muted">data-metric</span>
-              <span className="font-heading text-metric tabular-nums text-fy-ink">₹8,42,300</span>
-            </div>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="PageHeader / Section / FlatRowList" description="The v3 page-structure primitives — every rebuilt page is a PageHeader followed by a stack of Sections, and lists are hairline-separated rows, not boxed cards.">
-          <Section title="Recent bookings" description="FlatRowList in action — ledger-style, tabular figures right-aligned.">
-            <FlatRowList>
-              <FlatRow left="Visakhapatnam → Guntur" right="₹2,330" onClick={() => toast.show('Row clicked', 'neutral')} />
-              <FlatRow left="Household — Electrician" right="₹450" />
-              <FlatRow left="Bulk labour — 120t" right="₹18,400" />
-            </FlatRowList>
-          </Section>
-        </StyleSection>
-
-        <StyleSection title="Tabs">
-          <Tabs tabs={[{ key: 'one', label: 'Status' }, { key: 'two', label: 'Chat' }, { key: 'three', label: 'Payment' }]} active={tab} onChange={setTab} />
-          <p className="mt-4 text-sm text-fy-ink-soft font-body">Active: {tab}</p>
-        </StyleSection>
-
-        <StyleSection title="Controls">
-          <div className="grid sm:grid-cols-2 gap-8">
-            <div className="flex flex-col gap-4">
-              <Button onClick={() => toast.show('Saved', 'success')}>Primary Button</Button>
-              <Button variant="secondary">Secondary Button</Button>
-              <Button variant="ghost">Ghost Button</Button>
-              <div className="flex items-center gap-3">
-                <IconButton icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" strokeLinecap="round" /></svg>} label="Add" />
-                <Toggle checked={toggleOn} onChange={setToggleOn} label="Online" />
-                <NumberStepper value={count} onChange={setCount} label="Workers" />
+        <Block title="Type" from="login, worker_dashboard_online">
+          <div className="flex flex-col gap-4">
+            <div>
+              <MutedText className="font-mono">display · 44px · serif</MutedText>
+              <DisplayHeading>Member Ledger Access</DisplayHeading>
+            </div>
+            <div>
+              <MutedText className="font-mono">heading · 32px · serif</MutedText>
+              <h2 className="font-heading text-heading text-fy-ink">Society Governance</h2>
+            </div>
+            <div>
+              <MutedText className="font-mono">title · 22px · serif</MutedText>
+              <SectionHeading>Queue Dispatch Standby</SectionHeading>
+            </div>
+            <div>
+              <MutedText className="font-mono">metric · 56px · serif</MutedText>
+              <div className="font-heading text-metric text-fy-green tabular-nums">₹2,840</div>
+            </div>
+            <div>
+              <MutedText className="font-mono">body-lg / body / label · sans</MutedText>
+              <Body size="body-lg">Direct access to member passbook, mandis, and dispatch allocations.</Body>
+              <Body>Active agricultural transit corridor covering inter-hub vegetable freight.</Body>
+              <Body size="label">4.98 shift rating · 6 trips completed</Body>
+            </div>
+            <div>
+              <MutedText className="font-mono">eyebrow · 11px · 600 · +0.08em</MutedText>
+              <div>
+                <EyebrowLabel>Authentication Protocol</EyebrowLabel>
               </div>
-              <ChipRow>
-                <FilterChip active>All</FilterChip>
-                <FilterChip>Household</FilterChip>
-                <FilterChip>Labour</FilterChip>
-                <FilterChip>Transport</FilterChip>
-              </ChipRow>
-            </div>
-            <div className="flex flex-col gap-4">
-              <SearchField placeholder="Search bookings…" value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} />
-              <Select placeholder="Goods type" options={[{ value: 'furniture', label: 'Furniture' }, { value: 'electronics', label: 'Electronics' }]} />
-              <DatePicker />
-              <Slider min={1} max={200} value={tonnage} valueLabel={`${tonnage} tonnes`} onChange={(e) => setTonnage(Number(e.target.value))} />
             </div>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="StatusPill" description="Consolidates the old StatusChip + Badge + admin ad-hoc spans into one semantic-tone primitive.">
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="labour" dot>Active shift</StatusPill>
-            <StatusPill tone="transport">In transit</StatusPill>
-            <StatusPill tone="household">Governance</StatusPill>
-            <StatusPill tone="success">Completed</StatusPill>
-            <StatusPill tone="warning">Due soon</StatusPill>
-            <StatusPill tone="danger">Cancelled</StatusPill>
-            <StatusPill tone="neutral">Idle</StatusPill>
+        <Block title="Surfaces" from="household_home, society_governance, worker_dashboard_online">
+          <div className="flex flex-col gap-3">
+            <LightCard>
+              <EyebrowLabel>Light card</EyebrowLabel>
+              <Body className="mt-1">The default content surface — #F7F3EA, 16px radius, no border.</Body>
+            </LightCard>
+            <Panel>
+              <EyebrowLabel>Panel (white)</EyebrowLabel>
+              <Body className="mt-1">Record and form cards — login, registration, profile rows.</Body>
+            </Panel>
+            <DarkCard>
+              <EyebrowLabel tone="lime">Union Co-pilot · 24/7 AI Desk</EyebrowLabel>
+              <SectionHeading tone="on-dark" className="mt-1">Ask Union Co-pilot</SectionHeading>
+              <p className="font-body text-label text-fy-on-brown-soft mt-1">
+                Instant fare rules, diesel indices and rest-stop guidance.
+              </p>
+            </DarkCard>
+            <DarkCard accent="slate">
+              <EyebrowLabel tone="lime">Transit dispatch</EyebrowLabel>
+              <SectionHeading tone="on-dark" className="mt-1">Multiple coordinated vehicles</SectionHeading>
+            </DarkCard>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="Cards & elevation" description="DESIGN.md's tonal/glass strata — no synthetic drop shadows. .fyro-vitrine for cards, .fyro-elevated for menus/sheets.">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Card className="p-6"><p className="font-body text-sm">Existing Card component (shadow-md, unchanged)</p></Card>
-            <div className="fyro-vitrine rounded-card p-6"><p className="font-body text-sm">.fyro-vitrine — translucent, blurred, hairline edge</p></div>
+        <Block title="Status" from="login, household_home, admin_overview, society_governance">
+          <ChipRow>
+            <StatusPill tone="lime">Secure gate</StatusPill>
+            <StatusPill tone="lime" dot>Chartered active</StatusPill>
+            <StatusPill tone="neutral">Tier 1</StatusPill>
+            <StatusPill tone="critical">4 SLA breaches</StatusPill>
+            <StatusPill tone="brown">Most booked</StatusPill>
+            <StatusPill tone="slate">Heavy log</StatusPill>
+            <StatusPill tone="outline">Domestic</StatusPill>
+          </ChipRow>
+          <div className="flex items-center gap-3 mt-3">
+            <VerifiedBadge />
+            <TierBadge>Audit Grade AAA</TierBadge>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="MetricCard / ProgressBar / RatingHistogram">
-          <div className="grid sm:grid-cols-3 gap-4 mb-6">
-            <MetricCard label="REVENUE (MTD)" value="₹8,42,300" delta="+12.4%" />
-            <MetricCard label="ACTIVE TRIPS" value="214" delta="-3.1%" />
-            <MetricCard label="FLEET UTILISATION" value="78%" delta="+0.0%" />
+        <Block title="Data" from="worker_dashboard_online, live_tracking_1, admin_overview">
+          <div className="flex flex-col gap-3">
+            <LightCard>
+              <MetricBlock
+                label="Today's certified ledger"
+                value="₹2,840"
+                tone="lime"
+                note="6 trips completed · 100% direct passbook credit"
+                aside={<StatusPill tone="brown">Instant audit</StatusPill>}
+              />
+            </LightCard>
+            <Panel>
+              <MetricBlock
+                label="Estimated travel duration"
+                value="14"
+                unit="mins"
+                note="Estimated arrival at 02:45 PM"
+                aside={
+                  <div className="bg-fy-lime rounded-cell px-3 py-2 text-center">
+                    <div className="font-heading text-title text-fy-on-lime leading-none">2.8</div>
+                    <div className="font-body text-eyebrow uppercase text-fy-green">km left</div>
+                  </div>
+                }
+              />
+            </Panel>
+            <LightCard>
+              <div className="grid grid-cols-2 gap-3">
+                <StatRow label="Federation status" value="Chartered Active" valueTone="green" />
+                <StatRow label="State Reg. No." value="AP-GNT-2021-0482" />
+              </div>
+              <Divider className="my-3" />
+              <DataList>
+                <DataRow
+                  lead={
+                    <span className="w-9 h-9 rounded-full bg-fy-brown-soft text-fy-on-brown flex items-center justify-center font-body text-label font-semibold">
+                      RD
+                    </span>
+                  }
+                  title="Rameshwar Dash"
+                  meta="President & Chief Custodian"
+                  trailing={<span className="font-body text-label text-fy-green">Term &rsquo;26</span>}
+                />
+                <DataRow
+                  lead={
+                    <span className="w-9 h-9 rounded-full bg-fy-slate text-fy-on-slate flex items-center justify-center font-body text-label font-semibold">
+                      PK
+                    </span>
+                  }
+                  title="Pooja Kalyani"
+                  meta="Welfare Auditor"
+                  trailing={<span className="font-body text-label text-fy-green">Term &rsquo;25</span>}
+                />
+              </DataList>
+              <ProgressBar value={64} className="mt-3" />
+            </LightCard>
           </div>
-          <div className="grid sm:grid-cols-2 gap-8">
-            <ProgressBar value={62} tone="labour" label="Training completion" />
-            <RatingHistogram counts={{ 5: 24, 4: 6, 3: 1, 2: 0, 1: 0 }} />
+        </Block>
+
+        <Block title="Controls" from="login, hamali_labour_standard, goods_transport">
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Button glyph="key" onClick={() => toast.show('Primary')}>Authorize</Button>
+              <Button variant="green" glyph="group_add">Continue</Button>
+              <Button variant="slate" glyph="fact_check">Review fleet</Button>
+              <Button variant="lime" glyph="call">Call directly</Button>
+              <Button variant="light" glyph="fingerprint">Biometric</Button>
+              <Button variant="ghost" glyph="sms">SMS OTP</Button>
+            </div>
+
+            <SearchField
+              placeholder="Search by artisan, trade, or booking ref..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              trailingGlyph="tune"
+            />
+            <Field placeholder="98765 43210" />
+
+            <ChipRow>
+              {[
+                ['cement', 'Cement bags', 'inventory_2'],
+                ['steel', 'Steel rods', 'reorder'],
+                ['produce', 'Agricultural produce', 'agriculture'],
+                ['fragile', 'Fragile goods', 'wine_bar'],
+              ].map(([k, label, glyph]) => (
+                <Chip key={k} glyph={glyph} active={chips.includes(k)} onClick={() => toggleChip(k)}>
+                  {label}
+                </Chip>
+              ))}
+            </ChipRow>
+
+            <ScrollRow>
+              <Chip shape="round" glyph="history" active>Mandi Yard 3</Chip>
+              <Chip shape="round" glyph="warehouse">Kankipadu Cold Storage</Chip>
+              <Chip shape="round" glyph="domain">Bhavanipuram Hub</Chip>
+            </ScrollRow>
+
+            <SelectCard
+              selected={scale === 'standard'}
+              onClick={() => setScale('standard')}
+              glyph="swap_driving_apps_wheel"
+              title="Standard load"
+              description="Under 100 tonnes · book a crew directly"
+              badge={<StatusPill tone="lime">Active</StatusPill>}
+            />
+            <SelectCard
+              selected={scale === 'bulk'}
+              onClick={() => setScale('bulk')}
+              glyph="forklift"
+              title="Bulk consignment"
+              description="Over 100 tonnes · multiple societies dispatched"
+            />
+
+            <LightCard>
+              <div className="text-center">
+                <EyebrowLabel>Crew size</EyebrowLabel>
+              </div>
+              <Stepper value={crew} onChange={setCrew} label="Certified porters" className="mt-2" />
+            </LightCard>
+
+            <LightCard>
+              <div className="flex items-center justify-between mb-2">
+                <EyebrowLabel>Consignment volume</EyebrowLabel>
+                <span className="font-heading text-title text-fy-brown tabular-nums">{tonnes} t</span>
+              </div>
+              <Slider min={100} max={2000} step={10} value={tonnes} onChange={(e) => setTonnes(Number(e.target.value))} />
+            </LightCard>
+
+            <div className="flex items-center justify-between bg-fy-lime rounded-card p-4">
+              <div className="min-w-0">
+                <div className="font-body text-body font-semibold text-fy-on-lime">Add loading workers?</div>
+                <div className="font-body text-label text-fy-green">4-person crew at origin &amp; destination</div>
+              </div>
+              <Toggle checked={on} onChange={setOn} label="Add loading workers" />
+            </div>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="Avatar / AvatarStack / CountdownRing">
-          <div className="flex items-center gap-8">
-            <div className="flex gap-2"><Avatar name="Ravi Kumar" /><Avatar name="Lakshmi P" /><Avatar name="Suresh N" /></div>
-            <AvatarStack people={[{ name: 'Ravi' }, { name: 'Lakshmi' }, { name: 'Suresh' }, { name: 'Anand' }]} max={3} />
-            <CountdownRing secondsLeft={18} totalSeconds={30} />
+        <Block title="Media" from="household_home, hamali_labour_standard, live_tracking_1">
+          <div className="flex flex-col gap-3">
+            <PhotoCard
+              id="household.category.electrician"
+              alt="Electrician wiring a switchboard"
+              height="hero"
+              topRight={<StatusPill tone="lime">Most booked</StatusPill>}
+              overlay={
+                <>
+                  <EyebrowLabel tone="lime">Electrician Union #04</EyebrowLabel>
+                  <div className="font-heading text-title text-fy-bone mt-0.5">Switchboard &amp; Power Wiring</div>
+                  <div className="font-body text-label text-fy-on-brown-soft">Standard &amp; heavy load inspection</div>
+                </>
+              }
+            />
+            <PhotoStrip
+              id="labour.crew.loading"
+              alt="Loading crew at a mandi yard"
+              caption={
+                <>
+                  <span className="font-body text-label flex items-center gap-1.5">
+                    <Icon name="verified" size={16} className="text-fy-lime" />
+                    Cooperative verified union labor · Insured
+                  </span>
+                  <span className="font-heading text-label text-fy-lime">4.9 ★</span>
+                </>
+              }
+            />
+            <div className="flex gap-4">
+              {['G. Anand Rao', 'Kavitha Reddy'].map((n) => (
+                <div key={n} className="flex flex-col items-center gap-1.5">
+                  <CircularPortrait id={`worker.portrait.${n}`} alt={n} size={64} badge={<VerifiedBadge size={18} />} />
+                  <span className="font-body text-label font-semibold text-fy-ink">{n}</span>
+                  <EyebrowLabel tone="brown">Master Plumber</EyebrowLabel>
+                </div>
+              ))}
+            </div>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="Media" description="Designed placeholder — matches final crop/aspect, prints the asset id, never a grey box. See MEDIA_MANIFEST.ts.">
-          <div className="grid grid-cols-3 gap-4 max-w-lg">
-            <Media id="worker.portrait.demo" kind="photo" aspect={1} treatment="circular" tint="labour" alt="Worker portrait placeholder" />
-            <Media id="household.category.electrician" kind="render" aspect={1} treatment="duotone" tint="household" alt="Electrician category" />
-            <Media id="landing.hero" kind="photo" aspect={1} treatment="inline" tint="transport" alt="Landing hero placeholder" />
-          </div>
-        </StyleSection>
-
-        <StyleSection title="LanguagePill">
-          <LanguagePill value={lang} onChange={setLang} />
-          <p className="mt-3 text-sm text-fy-ink-soft font-body">Selected: {lang} — headings above should be switching serif script.</p>
-        </StyleSection>
-
-        <StyleSection title="Universal states" description="Every list/dashboard fetch on a redesigned page goes through useApiState, which can only ever land on ONE of these five — never a 403 disguised as empty.">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="border border-[color:var(--fy-hairline)] rounded-card"><EmptyState title="No drivers available" description="We're widening the search radius." /></div>
-            <div className="border border-[color:var(--fy-hairline)] rounded-card"><ErrorState onRetry={() => toast.show('Retrying…')} /></div>
-            <div className="border border-[color:var(--fy-hairline)] rounded-card"><PermissionDeniedState /></div>
-            <div className="border border-[color:var(--fy-hairline)] rounded-card p-6 flex flex-col gap-3"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
-          </div>
-        </StyleSection>
-
-        <StyleSection title="AgentCard" description="Unchanged guardrails (AI chip, word-not-percent confidence, evidence open by default, 'Recommended, not applied'), now with domain accents.">
-          <AgentCard
-            accent="labour"
-            result={{
-              agentName: 'demandForecast',
-              summary: 'Demand in Visakhapatnam is trending up 18% this week versus the trailing 4-week average.',
-              confidence: 'moderate',
-              evidence: [{ label: 'Bookings this week', value: '142' }, { label: '4-week average', value: '120' }],
-              mock: true,
-              generatedAt: new Date().toISOString(),
-            }}
-          />
-        </StyleSection>
-
-        <StyleSection title="Sheets & Modals">
-          <div className="flex gap-3">
-            <Button onClick={() => setSheetOpen(true)}>Open BottomSheet</Button>
-            <Button variant="secondary" onClick={() => setModalOpen(true)}>Open Modal</Button>
-          </div>
-        </StyleSection>
-
-        <StyleSection title="Admin: SidebarNav + DataTable">
-          <div className="flex gap-6 border border-[color:var(--fy-hairline)] rounded-card overflow-hidden">
-            <SidebarNav items={[{ label: 'Overview', href: '#overview' }, { label: 'Dashboard', href: '#dashboard' }, { label: 'Users', href: '#users' }]} />
-            <div className="flex-1 p-4">
-              <DataTable
-                columns={[
-                  { key: 'id', header: 'ID', render: (r) => r.id },
-                  { key: 'type', header: 'Type', render: (r) => r.type },
-                  { key: 'amount', header: 'Amount', render: (r) => r.amount },
+        <Block title="Navigation" from="live_tracking_1, society_governance, household_home">
+          <div className="flex flex-col gap-3">
+            <div>
+              <MutedText className="font-mono">TabRow · inset (live_tracking_1)</MutedText>
+              <TabRow
+                className="mt-1.5"
+                variant="inset"
+                active={tab}
+                onChange={setTab}
+                tabs={[
+                  { key: 'status', label: 'Status' },
+                  { key: 'chat', label: 'Chat' },
+                  { key: 'payment', label: 'Payment' },
+                  { key: 'custody', label: 'Custody' },
                 ]}
-                rows={[{ id: 'LDG-001', type: 'Payout', amount: '₹4,200' }, { id: 'LDG-002', type: 'Fee', amount: '₹120' }]}
-                rowKey={(r) => r.id}
               />
             </div>
+            <div>
+              <MutedText className="font-mono">TabRow · pill (society_governance)</MutedText>
+              <TabRow
+                className="mt-1.5"
+                active={pillTab}
+                onChange={setPillTab}
+                tabs={[
+                  { key: 'affiliation', label: 'Affiliation', glyph: 'apartment' },
+                  { key: 'byelaws', label: 'Bye-laws', glyph: 'gavel' },
+                  { key: 'equity', label: 'Equity', glyph: 'pie_chart' },
+                ]}
+              />
+            </div>
+            <MutedText className="font-mono">BottomTabBar is fixed at the foot of this page.</MutedText>
           </div>
-        </StyleSection>
+        </Block>
 
-        <StyleSection title="Icon" description="Material Symbols Outlined — the actual icon system every Stitch screen.code.html uses (a ligature glyph name, not a custom SVG). Loaded once in layout.tsx.">
-          <div className="flex gap-4 text-fy-brown">
-            {['home_repair_service', 'engineering', 'local_shipping', 'verified_user', 'account_balance_wallet', 'diversity_3'].map((g) => (
-              <div key={g} className="flex flex-col items-center gap-1">
-                <Icon name={g} size={26} />
-                <span className="text-[10px] font-mono text-fy-muted">{g}</span>
-              </div>
-            ))}
+        <Block title="Feedback" from="carried forward — states the designs do not draw">
+          <div className="grid gap-3">
+            <LightCard>
+              <EmptyState title="No drivers available" description="We're widening the search radius." />
+            </LightCard>
+            <LightCard>
+              <ErrorState onRetry={() => toast.show('Retrying…')} />
+            </LightCard>
+            <LightCard>
+              <PermissionDeniedState />
+            </LightCard>
+            <LightCard className="flex flex-col gap-2">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </LightCard>
+            <Button variant="ghost" onClick={() => toast.show('Saved', 'success')}>Fire a toast</Button>
           </div>
-        </StyleSection>
+        </Block>
+      </main>
 
-        <StyleSection title="RotaryDial" description="Phase 1.1 — the corner-anchored mode switch. It's genuinely viewport-anchored (fixed top-right), so it's rendered live on THIS page, not boxed in a demo frame — look at the actual top-right corner of your browser. All three sectors' content stays mounted; switching is a cross-fade only. Drag along the arc, tap a wedge, Tab to it and use arrow keys.">
-          <p className="font-body text-sm text-fy-ink-soft">Active sector: <span className="font-heading text-fy-ink capitalize">{dialMode}</span></p>
-        </StyleSection>
-
-        <StyleSection title="DataRow / ListDivider" description="Manifest lines, fare breakdowns — dense tabular content that isn't a full FlatRowList.">
-          <DataRow label="Base fare" value="₹1,200" />
-          <DataRow label="Distance (42 km)" value="₹630" />
-          <DataRow label="Hamali (2 workers)" value="₹500" hint="Loading + unloading" />
-          <ListDivider />
-          <DataRow label="Total" value="₹2,330" />
-        </StyleSection>
-      </div>
-
-      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="BottomSheet">
-        <p className="font-body text-sm text-fy-ink-soft p-4">Content goes here.</p>
-      </BottomSheet>
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Modal">
-        <p className="font-body text-sm text-fy-ink-soft p-4">Content goes here.</p>
-      </Modal>
+      <BottomTabBar
+        items={[
+          { href: '/styleguide', label: 'Services', glyph: 'local_convenience_store' },
+          { href: '/styleguide#transit', label: 'Transit', glyph: 'local_shipping' },
+          { href: '/styleguide#passbook', label: 'Passbook', glyph: 'account_balance_wallet' },
+          { href: '/styleguide#union', label: 'Union', glyph: 'diversity_3' },
+        ]}
+      />
     </div>
-    </RotaryDial>
   );
 }
