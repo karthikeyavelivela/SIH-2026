@@ -19,9 +19,10 @@ import {
 // Maps ServiceCategory.icon (a component-name string, seedServiceCategories.ts)
 // to the real icon component — the server never imports React components,
 // this is the one place that string gets resolved back into one.
-const ICONS: Record<string, typeof TruckIcon> = {
+export const CATEGORY_ICONS: Record<string, typeof TruckIcon> = {
   TruckIcon, BoxIcon, PowerIcon, WrenchIcon, PaintBrushIcon, HomeIcon, UsersIcon, LeafIcon, BroomIcon, ShieldIcon,
 };
+const ICONS = CATEGORY_ICONS;
 
 export interface ServiceCategory {
   _id: string;
