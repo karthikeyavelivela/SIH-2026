@@ -26,7 +26,7 @@ import {
   SupportSection,
   AccountDangerZoneSection,
 } from '@/components/worker/ProfileSections';
-import { AlertIcon } from '@/components/ui/icons';
+import { AlertIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 interface MyGroup {
   mutha: { _id: string; name: string; ratingAvg: number; ratingCount: number };
@@ -193,6 +193,21 @@ export default function MuthaMemberProfilePage() {
       <RatingsReceivedSection />
       <ComplaintHistorySection />
       <ReferralSection />
+      {/* A worker should find their cover without being told it exists.
+          Same visual weight as the sections around it. */}
+      <Link
+        href="/mutha-member/insurance"
+        className="flex items-center justify-between p-4 mb-6 rounded-card bg-fy-card shadow-card hover:bg-fy-panel transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-fy-peach text-fy-brown flex items-center justify-center">
+            <ShieldIcon className="w-5 h-5" />
+          </span>
+          <p className="font-body text-label font-semibold text-fy-ink">{t('insurance.title')}</p>
+        </div>
+        <ChevronRightIcon className="w-4 h-4 text-fy-muted" />
+      </Link>
+
       <SupportSection />
       <AccountDangerZoneSection />
     </div>

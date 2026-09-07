@@ -1416,7 +1416,18 @@
       "parametricTag": "పారామెట్రిక్ — ఆటోమేటిక్ చెల్లింపు",
       "standardTag": "స్టాండర్డ్ — క్లెయిమ్ దాఖలు చేయండి",
       "errorEnroll": "నమోదు చేయలేకపోయాము — మళ్లీ ప్రయత్నించండి."
-    }
+    },
+    "memberPill": "సభ్యుడు",
+    "guaranteeEyebrow": "సహకార భద్రతా హామీ",
+    "yourCover": "మీ బీమా",
+    "solvencyGauge": "స్వయంచాలక భద్రతా సూచిక",
+    "cycleActive": "చక్రం నడుస్తోంది",
+    "cyclePaid": "ఈ చక్రంలో చెల్లించారు",
+    "currentAccrual": "ఈ కాలంలో సంపాదన",
+    "thresholdNote": "భద్రతా పరిమితి ₹{threshold}",
+    "coversActive": "{count, plural, =0 {ఏదీ లేదు} one {# బీమా అమలులో} other {# బీమాలు అమలులో}}",
+    "claimCount": "{count, plural, =0 {ఏదీ దాఖలు కాలేదు} one {# క్లెయిమ్} other {# క్లెయిమ్లు}}",
+    "ledgerEyebrow": "సహకార ఖాతా"
   },
   "referrals": {
     "loadError": "మీ రెఫరల్‌లు లోడ్ కాలేదు",

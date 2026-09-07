@@ -55,6 +55,21 @@ const PLANS = [
     premium: 29,
   },
   {
+    // The society-level design (society_insurance) shows a group cover the
+    // leader holds on behalf of the whole crew, distinct from the personal
+    // earnings protection each member enrols in individually. Without this a
+    // society leader could only ever see their own cover on a screen that is
+    // about the society's.
+    name: 'Society Group Crew Cover',
+    type: 'standard' as const,
+    category: 'work_compensation' as const,
+    coverageAmount: 500000,
+    description:
+      'Group cover held by the society for its crew: accident and injury protection for members while working a society-dispatched job.',
+    forRoles: ['mutha_leader'] as const,
+    premium: 399,
+  },
+  {
     name: 'Warehouse Goods-in-Custody Cover',
     type: 'standard' as const,
     category: 'cargo_transit' as const,

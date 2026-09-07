@@ -1416,7 +1416,18 @@
       "parametricTag": "पैरामेट्रिक — स्वचालित भुगतान",
       "standardTag": "स्टैंडर्ड — दावा दर्ज करें",
       "errorEnroll": "नामांकन नहीं हो सका — फिर से कोशिश करें।"
-    }
+    },
+    "memberPill": "सदस्य",
+    "guaranteeEyebrow": "सहकारी सुरक्षा गारंटी",
+    "yourCover": "आपका कवर",
+    "solvencyGauge": "स्वचालित सुरक्षा सूचक",
+    "cycleActive": "चक्र चालू",
+    "cyclePaid": "इस चक्र में भुगतान",
+    "currentAccrual": "इस अवधि की कमाई",
+    "thresholdNote": "सुरक्षा सीमा ₹{threshold}",
+    "coversActive": "{count, plural, =0 {कोई सक्रिय नहीं} one {# कवर सक्रिय} other {# कवर सक्रिय}}",
+    "claimCount": "{count, plural, =0 {कोई दावा नहीं} one {# दावा} other {# दावे}}",
+    "ledgerEyebrow": "सहकारी बही"
   },
   "referrals": {
     "loadError": "आपके रेफरल लोड नहीं हो सके",

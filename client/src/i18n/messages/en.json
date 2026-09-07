@@ -1416,7 +1416,18 @@
       "parametricTag": "Parametric — automatic payout",
       "standardTag": "Standard — file a claim",
       "errorEnroll": "Could not enrol — try again."
-    }
+    },
+    "memberPill": "Member",
+    "guaranteeEyebrow": "Cooperative safety guarantee",
+    "yourCover": "Your cover",
+    "solvencyGauge": "Automated solvency gauge",
+    "cycleActive": "Cycle active",
+    "cyclePaid": "Paid this cycle",
+    "currentAccrual": "Earned this period",
+    "thresholdNote": "Safety threshold ₹{threshold}",
+    "coversActive": "{count, plural, =0 {None active} one {# cover active} other {# covers active}}",
+    "claimCount": "{count, plural, =0 {None filed} one {# claim} other {# claims}}",
+    "ledgerEyebrow": "Cooperative ledger"
   },
   "referrals": {
     "loadError": "Couldn't load your referrals",

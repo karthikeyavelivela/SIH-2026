@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import type {
@@ -11,7 +12,13 @@ import type {
   InsuranceClaimStatus,
   InsurancePlanCategory,
 } from '@/lib/types';
-import { BackHeader } from '@/components/ui/BackHeader';
+import { TopBar } from '@/components/fy/Navigation';
+import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { MetricBlock, ProgressBar } from '@/components/fy/Data';
+import { Icon } from '@/components/ui/Icon';
+import { useAuth } from '@/lib/auth-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusChip } from '@/components/ui/StatusChip';
@@ -19,9 +26,7 @@ import { DataRow } from '@/components/ui/DataRow';
 import { ListDivider } from '@/components/ui/ListDivider';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { AlertBanner } from '@/components/ui/AlertBanner';
 import { TicketCard } from '@/components/ui/TicketCard';
-import { ThresholdMeter } from '@/components/ui/ThresholdMeter';
 import { Modal } from '@/components/ui/Modal';
 import { ShieldIcon, TruckIcon, BoxIcon, AlertIcon, CameraIcon, XIcon } from '@/components/ui/icons';
 
@@ -64,35 +69,35 @@ function formatMoney(n: number): string {
 function PolicyCard({ policy }: { policy: InsurancePolicyWithPlan }) {
   const t = useTranslations('insurance');
   const plan = policy.plan;
-  const Icon = plan ? CATEGORY_ICON[plan.category] : ShieldIcon;
+  const CategoryGlyph = plan ? CATEGORY_ICON[plan.category] : ShieldIcon;
 
   return (
-    <div className="fy-surface-card">
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="text-fy-brown flex-shrink-0" aria-hidden="true">
-            <Icon className="w-5 h-5" />
-          </span>
+    <Panel className="flex flex-col gap-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 min-w-0">
+          <IconTile tone={plan?.type === 'parametric' ? 'lime' : 'peach'} size="md">
+            <CategoryGlyph className="w-5 h-5" />
+          </IconTile>
           <div className="min-w-0">
-            <p className="font-heading font-bold text-fy-ink truncate">
+            <p className="font-body text-body font-semibold text-fy-ink truncate">
               {plan?.name ?? t('genericPolicyName')}
             </p>
             {plan && (
-              <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft">
+              <EyebrowLabel>
                 {t(`category.${plan.category}`)} · {plan.type === 'parametric' ? t('parametric') : t('standard')}
-              </p>
+              </EyebrowLabel>
             )}
           </div>
         </div>
-        <StatusChip tone={POLICY_STATUS_TONE[policy.status]} className="flex-shrink-0">
+        <StatusChip tone={POLICY_STATUS_TONE[policy.status]} className="shrink-0">
           {t(`policyStatus.${policy.status}`)}
         </StatusChip>
       </div>
-      {plan?.description && <p className="text-sm text-fy-ink-soft mb-1">{plan.description}</p>}
-      <ListDivider className="my-1" />
+      {plan?.description && <Body size="label">{plan.description}</Body>}
+      <Divider />
       <DataRow label={t('coverageAmount')} value={plan ? formatMoney(plan.coverageAmount) : '—'} />
       <DataRow label={t('validUntil')} value={formatDate(policy.endDate)} />
-    </div>
+    </Panel>
   );
 }
 
@@ -273,6 +278,7 @@ function ReportIncidentModal({ open, onClose, policies, onFiled }: ReportInciden
 }
 
 export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
+  const router = useRouter();
   const t = useTranslations('insurance');
   const { data, state, reload } = usePolling(() => api.get<InsuranceMeResponse>('/api/insurance/me'), 30000);
   const [reportOpen, setReportOpen] = useState(false);
@@ -311,146 +317,194 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
+  const { user } = useAuth();
+
+  // The design's solvency gauge. Real numbers only: the accrual is what the
+  // parametric trigger has actually measured this period, the threshold is
+  // the trigger's own, and the payout is what would be paid if the period
+  // closes under it. Shown only for 'earnings_below_threshold', the one
+  // condition anything actually computes.
+  const gauge = (data?.parametricTriggers ?? []).find((tr) => tr.condition === 'earnings_below_threshold');
+
   return (
-    <div className="max-w-lg mx-auto pb-10">
-      <BackHeader title={t('headerTitle')} fallbackHref={dashboardHref} />
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
-      <div className="px-5 pt-5">
-        <p className="text-sm text-fy-muted mb-6">{t('subtitle')}</p>
+      <TopBar
+        eyebrow="FYRO Cooperative"
+        title={t('headerTitle')}
+        showBack
+        onBack={() => router.push(dashboardHref)}
+        actions={user?.accountStatus === 'active' ? <StatusPill tone="lime">{t('memberPill')}</StatusPill> : undefined}
+      />
 
-        <div className="flex gap-3 mb-8">
+      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <div className="pt-2">
+          <EyebrowLabel tone="brown">{t('guaranteeEyebrow')}</EyebrowLabel>
+          <h2 className="font-heading text-heading text-fy-ink leading-[1.05]">{t('yourCover')}</h2>
+          <Body className="mt-1.5">{t('subtitle')}</Body>
+        </div>
+
+        <div className="flex gap-3">
           <Button size="lg" className="flex-1" onClick={() => setEnrollOpen(true)}>
             {t('explorePlans')}
           </Button>
-          <Button variant="danger" size="lg" className="flex-1" onClick={() => setReportOpen(true)}>
+          <Button variant="ghost" size="lg" className="flex-1" onClick={() => setReportOpen(true)}>
             {t('reportIncident')}
           </Button>
         </div>
 
         {state === 'loading' && (
-          <div className="space-y-4 mb-8">
+          <div className="flex flex-col gap-4">
             <Skeleton className="h-36" />
             <Skeleton className="h-36" />
           </div>
         )}
 
         {state === 'error' && (
-          <AlertBanner tone="danger" icon={<AlertIcon className="w-5 h-5" />} className="mb-6">
+          <div role="alert" className="rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
             {t('loadError')}
-          </AlertBanner>
+          </div>
         )}
 
         {state !== 'loading' && (
           <>
-            <h2 className="font-heading text-lg font-bold mb-3">{t('activeCoverage')}</h2>
-            {activePolicies.length === 0 ? (
-              <EmptyState
-                icon={<ShieldIcon className="w-7 h-7" />}
-                title={t('noCoverageTitle')}
-                description={t('noCoverageDescription')}
-                className="mb-8"
-              />
-            ) : (
-              <div className="space-y-4 mb-8">
-                {activePolicies.map((policy) => (
-                  <PolicyCard key={policy._id} policy={policy} />
-                ))}
-              </div>
+            {/* Solvency gauge — the design's headline card. */}
+            {gauge && (
+              <Panel className="p-5 flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <IconTile tone="lime" size="sm">
+                      <Icon name="shield_with_heart" size={18} />
+                    </IconTile>
+                    <EyebrowLabel tone="green">{t('solvencyGauge')}</EyebrowLabel>
+                  </span>
+                  <StatusPill tone={gauge.triggered ? 'lime' : 'outline'} className="shrink-0">
+                    {gauge.triggered ? t('cyclePaid') : t('cycleActive')}
+                  </StatusPill>
+                </div>
+
+                <MetricBlock
+                  tone="green"
+                  label={t('currentAccrual')}
+                  value={formatMoney(gauge.actualValue)}
+                  note={t('thresholdNote', { threshold: gauge.thresholdValue.toLocaleString('en-IN') })}
+                />
+
+                <ProgressBar
+                  value={
+                    gauge.thresholdValue > 0
+                      ? Math.min(100, Math.round((gauge.actualValue / gauge.thresholdValue) * 100))
+                      : 0
+                  }
+                  tone="green"
+                />
+
+                <Divider />
+
+                <div className="flex items-start gap-2.5">
+                  <Icon name="auto_mode" size={18} className="text-fy-green shrink-0 mt-px" />
+                  <Body size="label">
+                    {t('parametricExplainer', {
+                      threshold: gauge.thresholdValue.toLocaleString('en-IN'),
+                      days: gauge.periodDays,
+                      amount: gauge.payoutAmount.toLocaleString('en-IN'),
+                    })}
+                  </Body>
+                </div>
+              </Panel>
             )}
 
+            <Section
+              title={<SectionHeading>{t('activeCoverage')}</SectionHeading>}
+              aside={<EyebrowLabel>{t('coversActive', { count: activePolicies.length })}</EyebrowLabel>}
+            >
+              {activePolicies.length === 0 ? (
+                <LightCard>
+                  <EmptyState title={t('noCoverageTitle')} description={t('noCoverageDescription')} />
+                </LightCard>
+              ) : (
+                activePolicies.map((policy) => <PolicyCard key={policy._id} policy={policy} />)
+              )}
+            </Section>
+
             {(() => {
-              // 'days_unable_to_work' has no real backing data source
-              // anywhere in this codebase (see parametricInsurance.service.ts's
-              // doc comment) — it always evaluates actualValue:0,
-              // triggered:false. Showing a meter for it would present a
-              // condition as "being tracked" when nothing is actually
-              // computing it. Only 'earnings_below_threshold' — the one
-              // condition that's real — gets a meter.
-              const realTriggers = (data?.parametricTriggers ?? []).filter((t) => t.condition === 'earnings_below_threshold');
-              const comingSoonCount = (data?.parametricTriggers.length ?? 0) - realTriggers.length;
-              if (realTriggers.length === 0 && comingSoonCount === 0) return null;
+              // 'days_unable_to_work' has no real backing data source anywhere
+              // in this codebase (see parametricInsurance.service.ts) — it
+              // always evaluates actualValue:0, triggered:false. A meter for it
+              // would present a condition as "being tracked" when nothing
+              // computes it, so only the real condition gets one, and the rest
+              // are named as not yet live.
+              const comingSoonCount = (data?.parametricTriggers ?? []).filter(
+                (tr) => tr.condition !== 'earnings_below_threshold'
+              ).length;
+              if (comingSoonCount === 0) return null;
               return (
-                <>
-                  <h2 className="font-heading text-lg font-bold mb-3">{t('parametricProtection')}</h2>
-                  <div className="space-y-4 mb-8">
-                    {realTriggers.map((trigger) => (
-                      <ThresholdMeter
-                        key={trigger.triggerId}
-                        currentValue={trigger.actualValue}
-                        thresholdValue={trigger.thresholdValue}
-                        triggered={trigger.triggered}
-                        payoutFailureReason={trigger.payoutFailureReason}
-                        explainer={
-                          t('parametricExplainer', {
-                            threshold: trigger.thresholdValue.toLocaleString('en-IN'),
-                            days: trigger.periodDays,
-                            amount: trigger.payoutAmount.toLocaleString('en-IN'),
-                          }) + (trigger.triggered && trigger.paidAt ? t('parametricPaidOn', { date: formatDate(trigger.paidAt) }) : '')
-                        }
-                      />
-                    ))}
-                    {comingSoonCount > 0 && (
-                      <div className="fy-surface-card text-sm text-fy-muted">{t('comingSoonNotice')}</div>
-                    )}
-                  </div>
-                </>
+                <LightCard>
+                  <Body size="label">{t('comingSoonNotice')}</Body>
+                </LightCard>
               );
             })()}
 
-            <h2 className="font-heading text-lg font-bold mb-3">{t('claimStatus')}</h2>
-            {(data?.claims.length ?? 0) === 0 ? (
-              <EmptyState
-                icon={<AlertIcon className="w-7 h-7" />}
-                title={t('noClaimsTitle')}
-                description={t('noClaimsDescription')}
-                className="mb-8"
-              />
-            ) : (
-              <Card elevation="raised" className="mb-8">
-                {data!.claims.map((claim, i) => (
-                  <div key={claim._id}>
-                    {i > 0 && <ListDivider />}
-                    <TicketCard
-                      ticketId={claim._id.slice(-6).toUpperCase()}
-                      title={claim.incidentDescription}
-                      status={t(`claim.${claim.status}`)}
-                      statusTone={CLAIM_STATUS_TONE[claim.status]}
-                      updatedAt={formatDate(claim.updatedAt)}
-                      trailing={
-                        claim.payoutAmount > 0 ? (
-                          <span className="text-sm font-bold text-fy-green">+{formatMoney(claim.payoutAmount)}</span>
-                        ) : undefined
-                      }
-                    />
-                  </div>
-                ))}
-              </Card>
-            )}
+            <Section
+              title={<SectionHeading>{t('claimStatus')}</SectionHeading>}
+              aside={<EyebrowLabel>{t('claimCount', { count: data?.claims.length ?? 0 })}</EyebrowLabel>}
+            >
+              {(data?.claims.length ?? 0) === 0 ? (
+                <LightCard>
+                  <EmptyState title={t('noClaimsTitle')} description={t('noClaimsDescription')} />
+                </LightCard>
+              ) : (
+                <Panel className="py-0">
+                  {data!.claims.map((claim, i) => (
+                    <div key={claim._id}>
+                      {i > 0 && <ListDivider />}
+                      <TicketCard
+                        ticketId={claim._id.slice(-6).toUpperCase()}
+                        title={claim.incidentDescription}
+                        status={t(`claim.${claim.status}`)}
+                        statusTone={CLAIM_STATUS_TONE[claim.status]}
+                        updatedAt={formatDate(claim.updatedAt)}
+                        trailing={
+                          claim.payoutAmount > 0 ? (
+                            <span className="font-body text-label font-bold text-fy-green">
+                              +{formatMoney(claim.payoutAmount)}
+                            </span>
+                          ) : undefined
+                        }
+                      />
+                    </div>
+                  ))}
+                </Panel>
+              )}
+            </Section>
 
-            <h2 className="font-heading text-lg font-bold mb-3">{t('payoutHistory')}</h2>
-            {payoutHistory.length === 0 ? (
-              <EmptyState
-                icon={<ShieldIcon className="w-7 h-7" />}
-                title={t('noPayoutsTitle')}
-                description={t('noPayoutsDescription')}
-              />
-            ) : (
-              <Card elevation="raised">
-                {payoutHistory.map((entry, i) => (
-                  <div key={entry.id}>
-                    {i > 0 && <ListDivider />}
-                    <DataRow
-                      label={entry.label}
-                      hint={entry.hint}
-                      value={<span className="text-fy-green">+{formatMoney(entry.amount)}</span>}
-                    />
-                  </div>
-                ))}
-              </Card>
-            )}
+            <Section
+              title={<SectionHeading>{t('payoutHistory')}</SectionHeading>}
+              aside={<EyebrowLabel>{t('ledgerEyebrow')}</EyebrowLabel>}
+            >
+              {payoutHistory.length === 0 ? (
+                <LightCard>
+                  <EmptyState title={t('noPayoutsTitle')} description={t('noPayoutsDescription')} />
+                </LightCard>
+              ) : (
+                <Panel className="py-0">
+                  {payoutHistory.map((entry, i) => (
+                    <div key={entry.id}>
+                      {i > 0 && <ListDivider />}
+                      <DataRow
+                        label={entry.label}
+                        hint={entry.hint}
+                        value={<span className="text-fy-green">+{formatMoney(entry.amount)}</span>}
+                      />
+                    </div>
+                  ))}
+                </Panel>
+              )}
+            </Section>
           </>
         )}
-      </div>
+      </main>
 
       <ReportIncidentModal
         open={reportOpen}
@@ -458,7 +512,12 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
         policies={activePolicies}
         onFiled={reload}
       />
-      <EnrollModal open={enrollOpen} onClose={() => setEnrollOpen(false)} enrolledPlanIds={activePolicies.map((p) => p.planId)} onEnrolled={reload} />
+      <EnrollModal
+        open={enrollOpen}
+        onClose={() => setEnrollOpen(false)}
+        enrolledPlanIds={activePolicies.map((p) => p.planId)}
+        onEnrolled={reload}
+      />
     </div>
   );
 }
