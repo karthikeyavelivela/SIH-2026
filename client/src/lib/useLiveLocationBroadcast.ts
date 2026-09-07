@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getSocket } from './socket';
 
 const PING_INTERVAL_MS = 7000; // spec: "every 5-10 seconds while status=in_progress, not continuously"
@@ -16,13 +16,18 @@ const PING_INTERVAL_MS = 7000; // spec: "every 5-10 seconds while status=in_prog
  */
 export function useLiveLocationBroadcast(bookingId: string | undefined, active: boolean) {
   const latestPos = useRef<{ lat: number; lng: number } | null>(null);
+  // Also surfaced to the caller, so the worker's own screen can show how far
+  // is left without a second geolocation watch competing with this one.
+  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     if (!active || !bookingId || !('geolocation' in navigator)) return;
 
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
-        latestPos.current = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        latestPos.current = next;
+        setPosition(next);
       },
       () => {
         // Permission revoked mid-job or a transient GPS error — silently
@@ -44,4 +49,6 @@ export function useLiveLocationBroadcast(bookingId: string | undefined, active: 
       clearInterval(interval);
     };
   }, [bookingId, active]);
+
+  return position;
 }

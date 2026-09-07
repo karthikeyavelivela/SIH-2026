@@ -1458,7 +1458,39 @@
       "stagePickup": "pickup",
       "stageDelivery": "delivery",
       "errorUpdate": "Could not update this job.",
-      "rateCustomer": "Rate the customer"
+      "rateCustomer": "Rate the customer",
+      "liveTelemetry": "Live telemetry",
+      "awaitingFix": "Awaiting GPS fix",
+      "remaining": "Remaining to destination",
+      "remainingNote": "Straight-line distance from your current position.",
+      "mandate": "Mandate #{id}",
+      "destinationBay": "Destination bay",
+      "manifestCargo": "Manifest cargo",
+      "ewayBill": "e-Way bill",
+      "consignor": "Consignor",
+      "complianceAudit": "Compliance audit",
+      "photosFiled": "{filed} of {total} proof photos filed",
+      "complete": "Complete",
+      "pending": "Pending",
+      "chatHeading": "Job chat",
+      "stepOf": "Stage {step} of {total}",
+      "status": {
+        "accepted": "Assigned",
+        "in_progress": "In transit",
+        "completed": "Delivered"
+      },
+      "goodsTypes": {
+        "general_goods": "General goods",
+        "electronics": "Electronics",
+        "furniture": "Furniture",
+        "household_shifting": "Household shifting",
+        "perishables": "Perishables",
+        "construction_material": "Construction material",
+        "industrial_machinery": "Machinery",
+        "documents_parcels": "Parcels",
+        "other": "Other"
+      },
+      "pickupLabel": "Pickup point"
     },
     "driver": {
       "stepInTransit": "In transit",
@@ -1471,7 +1503,8 @@
       "manifestOpen": "Open",
       "deliveryPhotoBanner": "Take a delivery photo once you've reached the drop-off point, then mark this job delivered.",
       "startTrip": "Start trip",
-      "markDelivered": "Mark delivered"
+      "markDelivered": "Mark delivered",
+      "agreedFreight": "Agreed freight"
     },
     "hamali": {
       "stepWorking": "Working",
@@ -1481,7 +1514,12 @@
       "loadingPhotoCaptured": "Loading photo captured",
       "unloadingPhotoBanner": "Take an unloading photo once the job is done, then mark it complete.",
       "startJob": "Start job",
-      "markDone": "Mark done"
+      "markDone": "Mark done",
+      "agreedFreight": "Agreed freight",
+      "stepInTransit": "Working",
+      "stepDelivered": "Done",
+      "startTrip": "Start job",
+      "markDelivered": "Mark done"
     },
     "halt": {
       "title": "Transit checkpoint",

@@ -98,14 +98,17 @@ export function Section({
   aside,
   children,
   className = '',
+  id,
 }: {
   title?: ReactNode;
   aside?: ReactNode;
   children: ReactNode;
   className?: string;
+  /** So a section can be an in-page scroll target. */
+  id?: string;
 }) {
   return (
-    <section className={`flex flex-col gap-3 ${className}`}>
+    <section id={id} className={`flex flex-col gap-3 ${className}`}>
       {(title || aside) && (
         <div className="flex items-baseline justify-between gap-3 px-0.5">
           {typeof title === 'string' ? (

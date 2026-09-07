@@ -1458,7 +1458,39 @@
       "stagePickup": "పికప్",
       "stageDelivery": "డెలివరీ",
       "errorUpdate": "ఈ జాబ్‌ని అప్‌డేట్ చేయలేకపోయాం.",
-      "rateCustomer": "కస్టమర్‌కి రేటింగ్ ఇవ్వండి"
+      "rateCustomer": "కస్టమర్‌కి రేటింగ్ ఇవ్వండి",
+      "liveTelemetry": "ప్రత్యక్ష టెలిమెట్రీ",
+      "awaitingFix": "GPS కోసం వేచి ఉంది",
+      "remaining": "గమ్యానికి మిగిలినది",
+      "remainingNote": "మీ ప్రస్తుత స్థానం నుండి నేరు దూరం.",
+      "mandate": "పని #{id}",
+      "destinationBay": "గమ్య ప్రదేశం",
+      "manifestCargo": "సరుకు వివరాలు",
+      "ewayBill": "e-వే బిల్లు",
+      "consignor": "పంపినవారు",
+      "complianceAudit": "నిబంధనల తనిఖీ",
+      "photosFiled": "{total}లో {filed} రుజువు ఫోటోలు ఇచ్చారు",
+      "complete": "పూర్తి",
+      "pending": "పెండింగ్",
+      "chatHeading": "పని చాట్",
+      "stepOf": "{total}లో {step}వ దశ",
+      "status": {
+        "accepted": "కేటాయించారు",
+        "in_progress": "రవాణాలో",
+        "completed": "డెలివరీ అయ్యింది"
+      },
+      "goodsTypes": {
+        "general_goods": "సాధారణ సరుకు",
+        "electronics": "ఎలక్ట్రానిక్స్",
+        "furniture": "ఫర్నిచర్",
+        "household_shifting": "ఇంటి సామాను",
+        "perishables": "పాడైపోయేవి",
+        "construction_material": "నిర్మాణ సామగ్రి",
+        "industrial_machinery": "యంత్రాలు",
+        "documents_parcels": "పార్సెల్స్",
+        "other": "ఇతరం"
+      },
+      "pickupLabel": "పికప్ ప్రదేశం"
     },
     "driver": {
       "stepInTransit": "రవాణాలో ఉంది",
@@ -1471,7 +1503,8 @@
       "manifestOpen": "తెరవండి",
       "deliveryPhotoBanner": "డ్రాప్-ఆఫ్ పాయింట్‌కు చేరుకున్న తర్వాత డెలివరీ ఫోటో తీసి, ఈ జాబ్‌ను డెలివర్డ్‌గా మార్క్ చేయండి.",
       "startTrip": "ట్రిప్ మొదలుపెట్టండి",
-      "markDelivered": "డెలివర్డ్‌గా మార్క్ చేయండి"
+      "markDelivered": "డెలివర్డ్‌గా మార్క్ చేయండి",
+      "agreedFreight": "ఖరారైన చార్జీ"
     },
     "hamali": {
       "stepWorking": "పని జరుగుతోంది",
@@ -1481,7 +1514,12 @@
       "loadingPhotoCaptured": "లోడింగ్ ఫోటో తీశారు",
       "unloadingPhotoBanner": "జాబ్ పూర్తయ్యాక అన్‌లోడింగ్ ఫోటో తీసి, పూర్తయినట్లు మార్క్ చేయండి.",
       "startJob": "జాబ్ మొదలుపెట్టండి",
-      "markDone": "పూర్తయినట్లు మార్క్ చేయండి"
+      "markDone": "పూర్తయినట్లు మార్క్ చేయండి",
+      "agreedFreight": "ఖరారైన చార్జీ",
+      "stepInTransit": "పని జరుగుతోంది",
+      "stepDelivered": "పూర్తయింది",
+      "startTrip": "జాబ్ మొదలుపెట్టండి",
+      "markDelivered": "పూర్తయినట్లు మార్క్ చేయండి"
     },
     "halt": {
       "title": "రవాణా చెక్‌పాయింట్",

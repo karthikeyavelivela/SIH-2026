@@ -1458,7 +1458,39 @@
       "stagePickup": "पिकअप",
       "stageDelivery": "डिलीवरी",
       "errorUpdate": "यह काम अपडेट नहीं हो पाया।",
-      "rateCustomer": "ग्राहक को रेट करें"
+      "rateCustomer": "ग्राहक को रेट करें",
+      "liveTelemetry": "लाइव टेलीमेट्री",
+      "awaitingFix": "GPS का इंतज़ार",
+      "remaining": "गंतव्य तक शेष",
+      "remainingNote": "आपकी मौजूदा स्थिति से सीधी दूरी।",
+      "mandate": "काम #{id}",
+      "destinationBay": "गंतव्य स्थान",
+      "manifestCargo": "माल विवरण",
+      "ewayBill": "e-वे बिल",
+      "consignor": "भेजने वाला",
+      "complianceAudit": "अनुपालन जाँच",
+      "photosFiled": "{total} में से {filed} प्रमाण फ़ोटो दर्ज",
+      "complete": "पूर्ण",
+      "pending": "बाकी",
+      "chatHeading": "काम की चैट",
+      "stepOf": "{total} में से चरण {step}",
+      "status": {
+        "accepted": "सौंपा गया",
+        "in_progress": "रास्ते में",
+        "completed": "पहुँचा दिया"
+      },
+      "goodsTypes": {
+        "general_goods": "सामान्य माल",
+        "electronics": "इलेक्ट्रॉनिक्स",
+        "furniture": "फ़र्नीचर",
+        "household_shifting": "घरेलू सामान",
+        "perishables": "जल्दी खराब होने वाला",
+        "construction_material": "निर्माण सामग्री",
+        "industrial_machinery": "मशीनरी",
+        "documents_parcels": "पार्सल",
+        "other": "अन्य"
+      },
+      "pickupLabel": "पिकअप स्थान"
     },
     "driver": {
       "stepInTransit": "रास्ते में",
@@ -1471,7 +1503,8 @@
       "manifestOpen": "खोलें",
       "deliveryPhotoBanner": "ड्रॉप-ऑफ पॉइंट पर पहुँचने के बाद डिलीवरी फ़ोटो लें, फिर इस काम को डिलीवर के रूप में चिह्नित करें।",
       "startTrip": "यात्रा शुरू करें",
-      "markDelivered": "डिलीवर के रूप में चिह्नित करें"
+      "markDelivered": "डिलीवर के रूप में चिह्नित करें",
+      "agreedFreight": "तय भाड़ा"
     },
     "hamali": {
       "stepWorking": "काम जारी है",
@@ -1481,7 +1514,12 @@
       "loadingPhotoCaptured": "लोडिंग फ़ोटो ली गई",
       "unloadingPhotoBanner": "काम पूरा होने पर अनलोडिंग फ़ोटो लें, फिर इसे पूरा हुआ चिह्नित करें।",
       "startJob": "काम शुरू करें",
-      "markDone": "पूरा हुआ चिह्नित करें"
+      "markDone": "पूरा हुआ चिह्नित करें",
+      "agreedFreight": "तय भाड़ा",
+      "stepInTransit": "काम जारी है",
+      "stepDelivered": "पूरा हुआ",
+      "startTrip": "काम शुरू करें",
+      "markDelivered": "पूरा हुआ चिह्नित करें"
     },
     "halt": {
       "title": "ट्रांज़िट चेकपॉइंट",
