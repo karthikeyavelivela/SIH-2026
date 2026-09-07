@@ -22,6 +22,7 @@ import { notifyMuthaOfferSettled } from '../realtime/offerEngine';
 import { uploadImage } from '../services/cloudinary.service';
 import { detectZeroDistanceFullFare } from '../services/fraudDetection.service';
 import { recordSocietyDeductionsForBooking } from '../services/governance.service';
+import { recordPlatformCommissionForBooking } from '../services/platformCommission.service';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
@@ -309,6 +310,13 @@ export const completeJob = asyncHandler(async (req: Request, res: Response) => {
   recordSocietyDeductionsForBooking(booking).catch((err) => {
     // eslint-disable-next-line no-console
     console.error('recordSocietyDeductionsForBooking failed:', err);
+  });
+  // The platform's own commission, posted to the append-only ledger at the
+  // same moment and with the same posture: recorded once, at completion,
+  // never recomputed at read time.
+  recordPlatformCommissionForBooking(booking).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('recordPlatformCommissionForBooking failed:', err);
   });
 
   emitBookingStatus(booking);

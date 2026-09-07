@@ -6,6 +6,10 @@ import { Mutha } from '../models/Mutha';
 import { User } from '../models/User';
 import { Incentive } from '../models/Incentive';
 import { CommissionRecord } from '../models/CommissionRecord';
+import {
+  getPlatformCommissionPct,
+  applyPlatformCommission,
+} from '../services/platformCommission.service';
 import { netShareForBookings } from '../services/governance.service';
 
 /**
@@ -17,14 +21,21 @@ import { netShareForBookings } from '../services/governance.service';
  * any caller needing a post-surge component, so this isn't a new
  * convention, just its first real consumer.
  *
- * No commission/platform-cut model exists at the platform level — driver
- * and hamali_solo (independent, non-cooperative workers) still keep 100%
- * pass-through, unchanged since Phase 2. A Society-affiliated worker
- * (mutha_member/mutha_leader) is different as of SIH26089 Phase B.2: their
- * own Society's real bye-law commission/welfare rates apply — see the
- * mutha_member/mutha_leader branches below, which read the actual
- * governance.service.ts-recorded net amount rather than this raw gross
- * share directly.
+ * TWO deductions can apply to what a role earns, and they are taken on the
+ * gross job share rather than compounded on each other:
+ *
+ *   1. The PLATFORM commission — ₹10 per ₹100 by default, the single rate
+ *      defined in platformCommission.service.ts. It applies to every
+ *      earning role: driver, hamali_solo, mutha_member, mutha_leader,
+ *      fleet_owner and warehouse_hub.
+ *   2. A SOCIETY's own bye-law commission and welfare rates, which apply
+ *      only to a society-affiliated worker on a society-assigned job
+ *      (governance.service.ts).
+ *
+ * So a society member in a 6% + 2% society keeps 100 − 10 − 6 − 2 = 82% of
+ * gross. Every response below therefore reports `gross`, `platformFee` and
+ * the society's `retained` separately — a worker is shown each deduction on
+ * its own line rather than one unexplained smaller number.
  */
 function vehicleShare(booking: IBooking): number {
   const { baseFare, distanceFare, hamaliFare, total } = booking.fareBreakdown;
@@ -56,7 +67,12 @@ interface EarningLine {
   completedAt: Date | undefined;
   pickupAddress: string;
   dropAddress: string;
+  /** What the worker actually keeps, after every deduction. */
   amount: number;
+  /** Before deductions, so a worker can see what was taken and why. */
+  grossAmount?: number;
+  platformFee?: number;
+  societyFee?: number;
 }
 
 function statusHistoryCompletedAt(booking: IBooking): Date | undefined {
@@ -78,16 +94,30 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
   const role = req.user!.role;
 
   if (role === 'driver') {
+    const platformRatePct = await getPlatformCommissionPct();
     const bookings = await Booking.find({ status: 'completed', assignedDriverIds: userId });
-    const lines: EarningLine[] = bookings.map((b) => ({
-      bookingId: b._id.toString(),
-      completedAt: statusHistoryCompletedAt(b),
-      pickupAddress: b.pickupLocation.address,
-      dropAddress: b.dropLocation.address,
-      amount: round2(vehicleShare(b)),
-    }));
+    let gross = 0;
+    let platformFee = 0;
+    const lines: EarningLine[] = bookings.map((b) => {
+      const cut = applyPlatformCommission(vehicleShare(b), platformRatePct);
+      gross += cut.grossAmount;
+      platformFee += cut.platformAmount;
+      return {
+        bookingId: b._id.toString(),
+        completedAt: statusHistoryCompletedAt(b),
+        pickupAddress: b.pickupLocation.address,
+        dropAddress: b.dropLocation.address,
+        // `amount` is always what the worker actually keeps.
+        amount: cut.netAmount,
+        grossAmount: cut.grossAmount,
+        platformFee: cut.platformAmount,
+      };
+    });
     res.status(200).json({
       total: round2(lines.reduce((s, l) => s + l.amount, 0)),
+      gross: round2(gross),
+      platformFee: round2(platformFee),
+      platformRatePct,
       jobCount: lines.length,
       lines,
       incentiveTotal: await incentiveTotalForUser(userId),
@@ -96,19 +126,32 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
   }
 
   if (role === 'hamali_solo') {
-    // Independent worker, not a Society member — no cooperative
-    // commission/welfare deduction applies, same 100% pass-through as
-    // always.
+    // Independent worker, not a Society member — no society bye-law
+    // deduction applies, but the platform commission does, same as every
+    // other earning role.
+    const platformRatePct = await getPlatformCommissionPct();
     const bookings = await Booking.find({ status: 'completed', assignedHamaliIds: userId });
-    const lines: EarningLine[] = bookings.map((b) => ({
-      bookingId: b._id.toString(),
-      completedAt: statusHistoryCompletedAt(b),
-      pickupAddress: b.pickupLocation.address,
-      dropAddress: b.dropLocation.address,
-      amount: round2(perHamaliShare(b)),
-    }));
+    let gross = 0;
+    let platformFee = 0;
+    const lines: EarningLine[] = bookings.map((b) => {
+      const cut = applyPlatformCommission(perHamaliShare(b), platformRatePct);
+      gross += cut.grossAmount;
+      platformFee += cut.platformAmount;
+      return {
+        bookingId: b._id.toString(),
+        completedAt: statusHistoryCompletedAt(b),
+        pickupAddress: b.pickupLocation.address,
+        dropAddress: b.dropLocation.address,
+        amount: cut.netAmount,
+        grossAmount: cut.grossAmount,
+        platformFee: cut.platformAmount,
+      };
+    });
     res.status(200).json({
       total: round2(lines.reduce((s, l) => s + l.amount, 0)),
+      gross: round2(gross),
+      platformFee: round2(platformFee),
+      platformRatePct,
       jobCount: lines.length,
       lines,
       incentiveTotal: await incentiveTotalForUser(userId),
@@ -121,17 +164,40 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     // (governance.service.ts's recorded CommissionRecord for each booking,
     // or the plain gross share for any booking with no deduction ever
     // applied — see netShareForBookings's own doc comment).
+    const platformRatePct = await getPlatformCommissionPct();
     const bookings = await Booking.find({ status: 'completed', assignedHamaliIds: userId });
     const netByBooking = await netShareForBookings(bookings, userId);
-    const lines: EarningLine[] = bookings.map((b) => ({
-      bookingId: b._id.toString(),
-      completedAt: statusHistoryCompletedAt(b),
-      pickupAddress: b.pickupLocation.address,
-      dropAddress: b.dropLocation.address,
-      amount: round2(netByBooking.get(b._id.toString()) ?? perHamaliShare(b)),
-    }));
+    let gross = 0;
+    let platformFee = 0;
+    let societyFee = 0;
+    const lines: EarningLine[] = bookings.map((b) => {
+      const grossShare = perHamaliShare(b);
+      // The society's own bye-law deduction, already applied and recorded.
+      const afterSociety = netByBooking.get(b._id.toString()) ?? grossShare;
+      const societyCut = round2(grossShare - afterSociety);
+      // The platform's cut is taken on the same gross, not compounded on
+      // what the society already took.
+      const cut = applyPlatformCommission(grossShare, platformRatePct);
+      gross += cut.grossAmount;
+      platformFee += cut.platformAmount;
+      societyFee += societyCut;
+      return {
+        bookingId: b._id.toString(),
+        completedAt: statusHistoryCompletedAt(b),
+        pickupAddress: b.pickupLocation.address,
+        dropAddress: b.dropLocation.address,
+        amount: round2(Math.max(0, grossShare - cut.platformAmount - societyCut)),
+        grossAmount: cut.grossAmount,
+        platformFee: cut.platformAmount,
+        societyFee: societyCut,
+      };
+    });
     res.status(200).json({
       total: round2(lines.reduce((s, l) => s + l.amount, 0)),
+      gross: round2(gross),
+      platformFee: round2(platformFee),
+      platformRatePct,
+      retained: round2(societyFee),
       jobCount: lines.length,
       lines,
       incentiveTotal: await incentiveTotalForUser(userId),
@@ -184,14 +250,21 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       total: round2(memberTotals.get(u._id.toString()) ?? 0),
     }));
 
+    const platformRatePct = await getPlatformCommissionPct();
+    const groupGross = round2(groupLines.reduce((s, l) => s + l.amount, 0));
+    const groupPlatformFee = applyPlatformCommission(groupGross, platformRatePct).platformAmount;
+
     res.status(200).json({
       // Group total stays the gross pool the Society's hamali arm actually
-      // generated (unchanged meaning from before this phase); `retained`
-      // is the new, separately-surfaced figure — real commission+welfare
-      // kept by the Society across every member on every booking, the
-      // society-side mirror of each member's own CommissionRecord.
-      total: round2(groupLines.reduce((s, l) => s + l.amount, 0)),
+      // generated; `retained` is the Society's own commission+welfare kept
+      // across every member on every booking, and `platformFee` is the
+      // platform's cut on the same pool — all three separately surfaced so
+      // the split on screen adds up to what a leader can verify.
+      total: groupGross,
+      gross: groupGross,
       retained: round2(retainedTotal),
+      platformFee: groupPlatformFee,
+      platformRatePct,
       jobCount: groupLines.length,
       lines: groupLines,
       perMember,

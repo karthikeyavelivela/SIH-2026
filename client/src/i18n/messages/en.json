@@ -131,7 +131,7 @@
         "transport": {
           "tag": "Guild 03 · Slate fleet",
           "title": "Goods Transport & Fleet",
-          "body": "Owner-operators with mini trucks, three-wheel tippers and multi-axle haulage — no aggregator commission between you and the driver."
+          "body": "Owner-operators with mini trucks, three-wheel tippers and multi-axle haulage — booked direct, with one published platform rate and no broker in between."
         }
       },
       "stepsEyebrow": "How direct trade works",
@@ -175,7 +175,7 @@
       "trustEyebrow": "Shipped, not promised",
       "ctaPassbook": "Explore member passbook",
       "liveSettlement": "Live cooperative settlement",
-      "directEscrow": "Direct to members",
+      "directEscrow": "Published rate",
       "settledNote": "Total paid out on completed jobs. Never counts a job still in progress.",
       "jobsSettled": "Jobs settled",
       "societiesLabel": "Societies",
@@ -396,7 +396,7 @@
       "genericError": "Signup failed",
       "brandSub": "Cooperative",
       "oneStep": "One step",
-      "noSurgePromise": "Commission verified skilled trades, freight transit and loading crews — with no surge markup on top of the published rate.",
+      "noSurgePromise": "Commission verified skilled trades, freight transit and loading crews — one published rate, with no surge markup added on top.",
       "nameLabel": "Full legal name",
       "phoneLabel": "Mobile number",
       "phoneHint": "Used to sign in",
@@ -998,7 +998,12 @@
     "weekTrips": "{count, plural, =0 {No jobs this week} one {# job this week} other {# jobs this week}}",
     "weekTotal": "₹{amount} this week",
     "settledCount": "{count, plural, =0 {None} one {# settled} other {# settled}}",
-    "noCompletedJobsHint": "Completed jobs and what they paid appear here."
+    "noCompletedJobsHint": "Completed jobs and what they paid appear here.",
+    "grossLabel": "Gross earned",
+    "platformFee": "Platform commission ({pct}%)",
+    "societyFee": "Society deduction",
+    "netLabel": "Net to you",
+    "deductionNote": "Every deduction on every job, itemised."
   },
   "workerRequests": {
     "pageTitle": "Job requests",
@@ -1090,7 +1095,7 @@
     "todaysLedger": "Today's certified ledger",
     "instantAudit": "Instant audit",
     "tripsToday": "{count, plural, =0 {No jobs completed today} one {# job completed today} other {# jobs completed today}}",
-    "settledNote": "Settled to your society account. No commission held back.",
+    "settledNote": "Settled to your society account. A {pct}% platform commission is deducted and itemised on every job.",
     "standbyTitle": "Queue dispatch standby",
     "standbyOnline": "No active dispatch. You are in the queue for the next matching job.",
     "standbyOffline": "Go online to start receiving dispatch offers.",
@@ -1713,7 +1718,7 @@
     "fixedFairRate": "Fixed fair rate",
     "noCategoriesTitle": "Nothing available here yet",
     "guaranteeTitle": "Cooperative Guarantee",
-    "guaranteeHint": "Fair member wages. No middleman cuts.",
+    "guaranteeHint": "Fair member wages. One published rate, no broker in between.",
     "pricingUnit": {
       "per_hour": "Priced per hour",
       "per_job": "Priced per job",
@@ -1811,7 +1816,8 @@
     "memberCount": "{count, plural, =0 {None yet} one {# member} other {# members}}",
     "settledCount": "{count, plural, =0 {None} one {# run} other {# runs}}",
     "noCompletedJobsHint": "Once a member completes a society job, their share appears here.",
-    "noRunsInRange": "No settled runs in this range."
+    "noRunsInRange": "No settled runs in this range.",
+    "platformFee": "Platform commission ({pct}%)"
   },
   "muthaRequests": {
     "pageTitle": "Job requests",
@@ -3132,7 +3138,7 @@
     "guildVerified": "Guild verified",
     "standardRate": "Standard guild rate",
     "from": "From",
-    "directToPassbook": "The fare goes straight to the worker’s passbook. No commission is taken in between.",
+    "directToPassbook": "The fare goes to the worker’s passbook, less a published {pct}% platform commission that is itemised on their earnings.",
     "issuesHeading": "What needs attention?",
     "multipleChoices": "Choose any",
     "issues": {

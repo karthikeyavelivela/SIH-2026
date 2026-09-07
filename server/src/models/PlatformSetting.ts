@@ -9,6 +9,12 @@ import { Schema, model } from 'mongoose';
 export interface IPlatformSetting {
   _id: string;
   parametricPayoutsEnabled: boolean;
+  /**
+   * The platform's commission, as a percentage of what a role earns on a
+   * completed job. Read only through platformCommission.service.ts, which
+   * clamps it and supplies the default when this has never been written.
+   */
+  platformCommissionPct?: number;
   updatedAt: Date;
 }
 
@@ -18,6 +24,7 @@ const platformSettingSchema = new Schema<IPlatformSetting>(
   {
     _id: { type: String, required: true },
     parametricPayoutsEnabled: { type: Boolean, default: true },
+    platformCommissionPct: { type: Number, min: 0, max: 100, default: 10 },
   },
   { timestamps: { createdAt: false, updatedAt: true } }
 );

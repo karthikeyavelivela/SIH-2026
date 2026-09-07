@@ -8,6 +8,7 @@ import { useApiState } from '@/lib/useApiState';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { useBookingFlow } from '@/lib/useBookingFlow';
 import { usePublishedRates } from '@/lib/usePublishedRates';
+import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { AddressField } from '@/components/booking/AddressField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
@@ -216,7 +217,7 @@ export default function ServiceDetailPage() {
 
         <LightCard className="flex items-start gap-2.5">
           <Icon name="verified" size={18} className="text-fy-green shrink-0 mt-px" />
-          <Body size="label">{t('directToPassbook')}</Body>
+          <Body size="label">{t('directToPassbook', { pct: DEFAULT_PLATFORM_COMMISSION_PCT })}</Body>
         </LightCard>
 
         <Section

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
+import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { Booking, EarningsResponse } from '@/lib/types';
 import { OnlineToggle } from '@/components/worker/OnlineToggle';
 import { RatingModal } from '@/components/worker/RatingModal';
@@ -154,7 +155,7 @@ export function WorkerDashboard({
           <Divider className="border-fy-bone/15" />
           <div className="flex items-center justify-between gap-3">
             <EyebrowLabel tone="on-dark" className="opacity-70">
-              {t('settledNote')}
+              {t('settledNote', { pct: earnings?.platformRatePct ?? DEFAULT_PLATFORM_COMMISSION_PCT })}
             </EyebrowLabel>
             <Link
               href={`${base}/earnings`}

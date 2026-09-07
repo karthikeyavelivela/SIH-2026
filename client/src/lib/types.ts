@@ -99,7 +99,12 @@ export interface EarningLine {
   completedAt?: string;
   pickupAddress: string;
   dropAddress: string;
+  /** What the worker actually keeps, after every deduction. */
   amount: number;
+  /** Disclosed per line so a worker sees what was taken and by whom. */
+  grossAmount?: number;
+  platformFee?: number;
+  societyFee?: number;
 }
 
 export interface MuthaMember {
@@ -153,6 +158,14 @@ export interface EarningsResponse {
   retained?: number;
   commissionRatePct?: number;
   welfareDeductionRatePct?: number;
+  /**
+   * The platform's own commission across the range, and the rate it was
+   * taken at. Present for every earning role — see the server's
+   * platformCommission.service.ts for the ordering rules.
+   */
+  gross?: number;
+  platformFee?: number;
+  platformRatePct?: number;
 }
 
 export interface Payment {

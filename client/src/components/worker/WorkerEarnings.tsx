@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
 import { EarningsResponse, EarningLine } from '@/lib/types';
+import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { EarningLineCard } from '@/components/worker/EarningLineCard';
 import { IncentiveProgressBar } from '@/components/worker/IncentiveProgressBar';
 import { CodCollectionSection } from '@/components/worker/CodCollectionSection';
@@ -14,7 +15,7 @@ import { Icon } from '@/components/ui/Icon';
 import { LightCard, Section, Divider, IconTile } from '@/components/fy/Surfaces';
 import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill } from '@/components/fy/Status';
-import { MetricBlock } from '@/components/fy/Data';
+import { MetricBlock, StatRow } from '@/components/fy/Data';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 
 /* Built against client/public/design/worker_earnings.html.
@@ -62,6 +63,11 @@ export function WorkerEarnings({ accent = 'primary' }: { accent?: 'primary' | 's
   }, [lines, range]);
 
   const rangeTotal = inRange.reduce((s, l) => s + l.amount, 0);
+  // Summed from the per-line disclosures the server sends, so the split on
+  // screen always adds up to the net beside it.
+  const rangeGross = inRange.reduce((s, l) => s + (l.grossAmount ?? l.amount), 0);
+  const rangePlatformFee = inRange.reduce((s, l) => s + (l.platformFee ?? 0), 0);
+  const rangeSocietyFee = inRange.reduce((s, l) => s + (l.societyFee ?? 0), 0);
 
   /** Monday-first buckets for the current week, from the real completedAt stamps. */
   const week = useMemo(() => {
@@ -126,11 +132,46 @@ export function WorkerEarnings({ accent = 'primary' }: { accent?: 'primary' | 's
             value={`₹${rangeTotal.toLocaleString('en-IN')}`}
             note={t('completedJobs', { count: inRange.length })}
           />
+
+          {/* Every deduction, itemised. A worker should never have to work
+              out why the number is smaller than the fare they saw. */}
+          {rangeGross > 0 && (
+            <>
+              <Divider className="border-fy-bone/15" />
+              <div className="flex flex-col gap-2">
+                <StatRow
+                  className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
+                  label={t('grossLabel')}
+                  value={`₹${rangeGross.toLocaleString('en-IN')}`}
+                />
+                {rangePlatformFee > 0 && (
+                  <StatRow
+                    className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
+                    label={t('platformFee', { pct: data?.platformRatePct ?? DEFAULT_PLATFORM_COMMISSION_PCT })}
+                    value={`−₹${rangePlatformFee.toLocaleString('en-IN')}`}
+                  />
+                )}
+                {rangeSocietyFee > 0 && (
+                  <StatRow
+                    className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
+                    label={t('societyFee')}
+                    value={`−₹${rangeSocietyFee.toLocaleString('en-IN')}`}
+                  />
+                )}
+                <StatRow
+                  className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-lime"
+                  label={t('netLabel')}
+                  value={`₹${rangeTotal.toLocaleString('en-IN')}`}
+                />
+              </div>
+            </>
+          )}
+
           <Divider className="border-fy-bone/15" />
           <span className="flex items-center gap-1.5">
             <Icon name="sync_alt" size={14} className="text-fy-lime" />
             <EyebrowLabel tone="on-dark" className="opacity-80">
-              {t('settlementNote')}
+              {t('deductionNote')}
             </EyebrowLabel>
           </span>
         </div>
