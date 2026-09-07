@@ -6,6 +6,7 @@ import { env } from './config/env';
 import { authRouter } from './routes/auth.routes';
 import { adminRouter } from './routes/admin.routes';
 import { fareRuleRouter, publishedRatesRouter } from './routes/fareRule.routes';
+import { publicRouter } from './routes/publicStats.routes';
 import { geocodeRouter } from './routes/geocode.routes';
 import { bookingRouter } from './routes/booking.routes';
 import { availabilityRouter } from './routes/availability.routes';
@@ -128,6 +129,8 @@ app.use('/api/auth', authRouter);
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
 app.use('/api/fare-rules', publishedRatesRouter);
+// Unauthenticated, aggregate-only — the public landing page's counters.
+app.use('/api/public', publicRouter);
 app.use('/api/admin/complaints', adminComplaintRouter);
 app.use('/api/admin/incentives', incentiveRouter);
 app.use('/api/incentives', workerIncentiveRouter);

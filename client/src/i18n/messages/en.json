@@ -33,12 +33,16 @@
       "copyright": "© 2026 FYRO. Andhra Pradesh.",
       "backToHome": "Back to home",
       "brandSub": "Cooperative",
-      "platform": "Platform"
+      "platform": "Platform",
+      "federationName": "Cooperative Federation",
+      "footerPlatform": "Platform",
+      "footerCooperative": "Cooperative",
+      "federationBlurb": "A federation of registered labour cooperative societies, working across household services, loading crews and goods transport."
     },
     "home": {
       "liveBadge": "Live across India — cooperative-owned services",
-      "heroTitleLine1": "Trusted help,",
-      "heroTitleAccent": "from your own cooperative.",
+      "heroTitleLine1": "The sovereign",
+      "heroTitleAccent": "labour & logistics guild of India.",
       "heroSubtitle": "Verified members of registered Labour Cooperative Societies — not gig strangers. Fixed fares agreed upfront, fair wages guaranteed.",
       "searchPlaceholder": "What service do you need?",
       "searchCta": "Find help",
@@ -159,7 +163,7 @@
         "largeVehicle": "Large",
         "hamali": "Hamali"
       },
-      "charterEyebrow": "Cooperative charter",
+      "charterEyebrow": "Not algorithmic gig workers",
       "charterHeading": "What every member signs up to",
       "charterSource": "The FYRO cooperative charter",
       "charterSourceMeta": "Binding on every affiliated society",
@@ -168,7 +172,49 @@
       "charterMetaRight": "Auditable society ledger",
       "coverageEyebrow": "Coverage",
       "trustHeading": "What makes this different",
-      "trustEyebrow": "Shipped, not promised"
+      "trustEyebrow": "Shipped, not promised",
+      "ctaPassbook": "Explore member passbook",
+      "liveSettlement": "Live cooperative settlement",
+      "directEscrow": "Direct to members",
+      "settledNote": "Total paid out on completed jobs. Never counts a job still in progress.",
+      "jobsSettled": "Jobs settled",
+      "societiesLabel": "Societies",
+      "statWorkersLabel": "Cooperative members",
+      "statFederationsLabel": "District federations",
+      "architectureHeading": "The tripartite cooperative architecture",
+      "architectureBlurb": "Three guilds under one federation, each with its own dispatch, its own rate card and its own crews.",
+      "dialEyebrow": "Built for tactile agency",
+      "dialHeading": "The corner rotary dial",
+      "dialBlurb": "One thumb-reach control switches between the three booking modes. It sits in the corner so it never covers what you are reading, and it springs to the nearest mode rather than demanding precision.",
+      "dialSector": {
+        "household": "Repairs, cleaning, care and domestic help",
+        "hamali": "Loading crews, priced per worker",
+        "transport": "Vehicles, priced per kilometre"
+      },
+      "ledgerEyebrow": "The passbook ledger",
+      "ledgerHeading": "Rates in the open",
+      "ledgerBlurb": "The whole schedule, published. What a customer pays and what a member is dispatched against is the same number.",
+      "ledgerFootnote": "These are the active fare rules the server actually charges against, not an indicative range.",
+      "charterHeadline": "Sovereign shareholding members.",
+      "charterBlurb": "What every affiliated society signs up to, and what a member can hold the cooperative to.",
+      "charterCards": {
+        "rotation": {
+          "title": "Work turns rotate",
+          "body": "Jobs are offered to nearby verified members in turn, so income does not concentrate on whoever opens the app fastest."
+        },
+        "fixedFare": {
+          "title": "The fare is fixed first",
+          "body": "The price is agreed before the job starts. No surge on top, and no renegotiation at the door."
+        },
+        "surplus": {
+          "title": "Surplus returns to members",
+          "body": "What is left at the end of a distribution window is split among the society, not retained by the platform."
+        }
+      },
+      "closingAccent": "Own your infrastructure.",
+      "joinEyebrow": "Start here",
+      "joinHeading": "Open a member passbook",
+      "joinBlurb": "One account books household work, loading crews and transport, and keeps every receipt in one ledger."
     },
     "about": {
       "title": "About FYRO",
