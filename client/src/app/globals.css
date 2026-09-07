@@ -8,6 +8,14 @@
 @import 'leaflet/dist/leaflet.css';
 
 :root {
+  /* The product is light-only — no dark theme is built. Without this,
+     a browser under a dark OS/system theme can auto-invert an
+     undeclared page's rendering (a paint-time filter — getComputedStyle
+     still reports the correct authored light-token values even while it
+     happens), which is exactly what broke /customer/book's colors live
+     despite every token here being correct. */
+  color-scheme: light;
+
   /* ==========================================================================
      FYRO v3 — "Cooperative Ledger" palette, from the Stitch export
      design/stitch_export/stitch_fyro_cooperative_services_platform/

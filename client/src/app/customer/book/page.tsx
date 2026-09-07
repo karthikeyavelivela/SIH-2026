@@ -10,11 +10,12 @@ import { distanceKm } from '@/lib/geo';
 import { Button } from '@/components/ui/Button';
 import { AddressField, GeoPoint } from '@/components/booking/AddressField';
 import { AddressChips } from '@/components/booking/AddressChips';
-import { TruckIcon, BoxIcon, LayersIcon, CompassIcon, AlertIcon } from '@/components/ui/icons';
 import { PricingQuoteWidget } from '@/components/worker/AgentWidgets';
 import { FareCard, bucketVehicleCategory, type FareBreakdown } from '@/components/booking/FareCard';
 import { CategoryPicker, type ServiceCategory } from '@/components/booking/CategoryPicker';
 import { StatusPill } from '@/components/ui/StatusPill';
+import { Icon } from '@/components/ui/Icon';
+import { Media } from '@/components/ui/Media';
 
 // How far a selected pickup can be from the device's GPS reading before we
 // ask "is this pickup for you or someone else?" — big enough that normal
@@ -78,10 +79,10 @@ const GOODS_TYPES = [
   'documents_parcels', 'other',
 ] as const;
 
-const TYPES: { value: BookingType; labelKey: 'typeTruck' | 'typeHamali' | 'typeCombo'; icon: typeof TruckIcon }[] = [
-  { value: 'truck', labelKey: 'typeTruck', icon: TruckIcon },
-  { value: 'hamali', labelKey: 'typeHamali', icon: BoxIcon },
-  { value: 'combo', labelKey: 'typeCombo', icon: LayersIcon },
+const TYPES: { value: BookingType; labelKey: 'typeTruck' | 'typeHamali' | 'typeCombo'; glyph: string }[] = [
+  { value: 'truck', labelKey: 'typeTruck', glyph: 'local_shipping' },
+  { value: 'hamali', labelKey: 'typeHamali', glyph: 'engineering' },
+  { value: 'combo', labelKey: 'typeCombo', glyph: 'layers' },
 ];
 
 const inputClass =
@@ -352,6 +353,24 @@ function BookForm() {
           )}
         </div>
 
+        {selectedCategory && (
+          <div className="relative w-full h-40 rounded-card overflow-hidden mb-4 shadow-md bg-fyro-brown">
+            <Media
+              id={`household.category.${selectedCategory.slug}`}
+              kind="photo"
+              aspect={2.5}
+              treatment="full-bleed"
+              tint="household"
+              alt={selectedCategory.name}
+              className="w-full h-full"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-fyro-brown via-fyro-brown/40 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <h3 className="font-heading text-headline-sm text-white leading-snug">{selectedCategory.name}</h3>
+            </div>
+          </div>
+        )}
+
         <CategoryPicker
           selectedSlug={selectedCategory?.slug ?? null}
           onSelect={(category) => {
@@ -379,7 +398,7 @@ function BookForm() {
                 type === bt.value ? 'bg-ip-primary text-ip-on-primary' : 'text-ip-on-surface-variant hover:bg-ip-surface-container-high'
               }`}
             >
-              <bt.icon className="w-5 h-5" />
+              <Icon name={bt.glyph} size={20} />
               {t(bt.labelKey)}
             </button>
           ))}
@@ -391,7 +410,7 @@ function BookForm() {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form id="book-form" onSubmit={handleSubmit} className="space-y-5">
           <div className="ip-card space-y-4">
             <div>
               <AddressField
@@ -403,7 +422,7 @@ function BookForm() {
               />
               {locatingDevice && (
                 <p className="flex items-center gap-1.5 text-xs text-ip-on-surface-variant mt-2">
-                  <CompassIcon className="w-3.5 h-3.5 animate-pulse" />
+                  <Icon name="explore" size={14} className="animate-pulse" />
                   {t('findingLocation')}
                 </p>
               )}
@@ -415,7 +434,7 @@ function BookForm() {
               />
               {mismatch && (
                 <div className="mt-2 flex items-start gap-2.5 rounded-ip-input bg-amber-100/70 px-3.5 py-2.5 text-sm text-amber-900">
-                  <AlertIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Icon name="warning" size={16} className="mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="mb-1.5">{t('mismatchText')}</p>
                     <div className="flex gap-3">
@@ -665,16 +684,37 @@ function BookForm() {
             </div>
           )}
 
-          <Button type="submit" disabled={submitting || fareState !== 'ready'} className="w-full" size="lg">
+          {/* Spacer so the sticky CTA bar + BottomTabNav below never cover the last field. */}
+          <div className="h-36" aria-hidden="true" />
+        </form>
+      </div>
+
+      {/* Sticky bottom CTA bar — matches every Stitch booking-detail screen's
+          fixed price+confirm strip instead of a plain inline button at the
+          end of a long scroll. Offset above BottomTabNav (customer/layout.tsx,
+          also `fixed bottom-0`, ~73px tall) rather than stacking on top of it. */}
+      <div className="fixed bottom-[73px] inset-x-0 bg-fyro-bone/95 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.06)] z-30 pb-4 pt-3 px-ip-edge">
+        <div className="max-w-lg mx-auto flex items-center gap-3">
+          {fare && (
+            <div className="flex flex-col shrink-0">
+              <span className="font-label-caps text-label-caps text-ip-outline uppercase">{t('total')}</span>
+              <span className="font-heading text-headline-sm text-fyro-ink tabular-nums">₹{fare.total}</span>
+            </div>
+          )}
+          <Button
+            type="submit"
+            form="book-form"
+            disabled={submitting || fareState !== 'ready'}
+            className="flex-1 h-12"
+            size="lg"
+          >
             {submitting
               ? t('booking')
               : openForBidding && type !== 'combo' && !scheduledFor
                 ? t('postForBidding')
-                : fare
-                  ? t('confirmAmount', { amount: fare.total })
-                  : t('confirmBooking')}
+                : t('confirmBooking')}
           </Button>
-        </form>
+        </div>
       </div>
     </div>
   );
