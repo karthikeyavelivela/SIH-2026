@@ -38,6 +38,14 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Media } from '@/components/ui/Media';
 import { AgentCard } from '@/components/ui/AgentResultCard';
 import { useToast } from '@/components/ui/Toast';
+import { RotaryDial } from '@/components/ui/RotaryDial';
+import { HomeIcon, UsersIcon, TruckIcon } from '@/components/ui/icons';
+
+const DIAL_SECTORS = [
+  { key: 'household', label: 'Household', icon: <HomeIcon /> },
+  { key: 'labour', label: 'Labour', icon: <UsersIcon /> },
+  { key: 'transport', label: 'Transport', icon: <TruckIcon /> },
+];
 
 const PALETTE = [
   { name: 'bone', varName: '--fyro-bone' },
@@ -81,9 +89,11 @@ export default function StyleguidePage() {
   const [count, setCount] = useState(2);
   const [tonnage, setTonnage] = useState(45);
   const [search, setSearch] = useState('');
+  const [dialMode, setDialMode] = useState('household');
   const toast = useToast();
 
   return (
+    <RotaryDial sectors={DIAL_SECTORS} activeKey={dialMode} onChange={setDialMode}>
     <div className="min-h-screen bg-fyro-bone text-fyro-ink pb-32 relative">
       <div className="fixed inset-0 pointer-events-none fyro-grain z-0 opacity-40" />
       <TopBar title="FYRO Styleguide v3" showBack={false} right={<StatusPill tone="labour">v3 · live</StatusPill>} />
@@ -275,6 +285,10 @@ export default function StyleguidePage() {
           </div>
         </StyleSection>
 
+        <StyleSection title="RotaryDial" description="Phase 1.1 — the corner-anchored mode switch. It's genuinely viewport-anchored (fixed top-right), so it's rendered live on THIS page, not boxed in a demo frame — look at the actual top-right corner of your browser. All three sectors' content stays mounted; switching is a cross-fade only. Drag along the arc, tap a wedge, Tab to it and use arrow keys.">
+          <p className="font-body text-sm text-ip-on-surface-variant">Active sector: <span className="font-heading text-fyro-ink capitalize">{dialMode}</span></p>
+        </StyleSection>
+
         <StyleSection title="DataRow / ListDivider" description="Manifest lines, fare breakdowns — dense tabular content that isn't a full FlatRowList.">
           <DataRow label="Base fare" value="₹1,200" />
           <DataRow label="Distance (42 km)" value="₹630" />
@@ -291,5 +305,6 @@ export default function StyleguidePage() {
         <p className="font-body text-sm text-ip-on-surface-variant p-4">Content goes here.</p>
       </Modal>
     </div>
+    </RotaryDial>
   );
 }
