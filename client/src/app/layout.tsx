@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Noto_Serif, Inter, Noto_Serif_Telugu, Noto_Serif_Devanagari } from 'next/font/google';
+import { Noto_Serif, Inter, Noto_Serif_Telugu, Noto_Serif_Devanagari, JetBrains_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
@@ -26,6 +26,15 @@ const inter = Inter({
 // Weight-matched serif companions for Telugu/Hindi headings — DESIGN.md's
 // "Multilingual Harmony" rule: Indic scripts share the Latin serif scale,
 // not a mismatched sans fallback next to the Latin serif.
+// The marketing design sets every micro-label, statutory reference and
+// telemetry readout in a mono face — it is what makes the register and
+// ledger surfaces read as documents rather than as app chrome.
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['300', '400', '500', '600'],
+});
+
 const notoSerifTelugu = Noto_Serif_Telugu({
   subsets: ['telugu'],
   variable: '--font-noto-serif-telugu',
@@ -52,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${notoSerif.variable} ${inter.variable} ${notoSerifTelugu.variable} ${notoSerifDevanagari.variable}`}
+      className={`${notoSerif.variable} ${inter.variable} ${jetbrainsMono.variable} ${notoSerifTelugu.variable} ${notoSerifDevanagari.variable}`}
     >
       <head>
         {/* Material Symbols Outlined — the icon system every Stitch screen

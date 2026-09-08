@@ -194,3 +194,23 @@ h1, h2, h3, h4 {
 .skip-link:focus {
   left: 0;
 }
+
+/* Hero backdrop drift — used when no hero video URL is configured, so the
+   still landing photograph still reads as a moving plate behind the
+   headline. Suppressed under reduced motion. */
+@keyframes fyHeroDrift {
+  0%   { transform: scale(1.06) translate3d(0, 0, 0); }
+  50%  { transform: scale(1.12) translate3d(-1.5%, -1.5%, 0); }
+  100% { transform: scale(1.06) translate3d(0, 0, 0); }
+}
+.fy-hero-drift {
+  animation: fyHeroDrift 34s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fy-hero-drift { animation: none; transform: scale(1.05); }
+}
+
+/* Horizontal ticker strip hides its scrollbar but stays swipeable. */
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }

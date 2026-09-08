@@ -37,13 +37,20 @@
       "federationName": "Cooperative Federation",
       "footerPlatform": "Platform",
       "footerCooperative": "Cooperative",
-      "federationBlurb": "A federation of registered labour cooperative societies, working across household services, loading crews and goods transport."
+      "federationBlurb": "A federation of registered labour cooperative societies, working across household services, loading crews and goods transport.",
+      "federatedChip": "Federated",
+      "liveNode": "Ledger live",
+      "passbook": "Passbook",
+      "federationTitle": "FYRO Federation",
+      "sealTitle": "Verified members",
+      "sealSub": "KYC on file",
+      "terms": "Terms"
     },
     "home": {
       "liveBadge": "Live across India — cooperative-owned services",
-      "heroTitleLine1": "The sovereign",
-      "heroTitleAccent": "labour & logistics guild of India.",
-      "heroSubtitle": "Verified members of registered Labour Cooperative Societies — not gig strangers. Fixed fares agreed upfront, fair wages guaranteed.",
+      "heroTitleLine1": "Cooperative",
+      "heroTitleAccent": "labour",
+      "heroSubtitle": "Household trades, loading crews and goods transport, booked directly from registered cooperative societies. One published rate, one published commission, every deduction itemised.",
       "searchPlaceholder": "What service do you need?",
       "searchCta": "Find help",
       "ctaBookDelivery": "Book a service",
@@ -176,45 +183,181 @@
       "ctaPassbook": "Explore member passbook",
       "liveSettlement": "Live cooperative settlement",
       "directEscrow": "Published rate",
-      "settledNote": "Total paid out on completed jobs. Never counts a job still in progress.",
+      "settledNote": "Settled to members across completed jobs",
       "jobsSettled": "Jobs settled",
       "societiesLabel": "Societies",
-      "statWorkersLabel": "Cooperative members",
+      "statWorkersLabel": "Verified members",
       "statFederationsLabel": "District federations",
       "architectureHeading": "The tripartite cooperative architecture",
       "architectureBlurb": "Three guilds under one federation, each with its own dispatch, its own rate card and its own crews.",
       "dialEyebrow": "Built for tactile agency",
       "dialHeading": "The corner rotary dial",
       "dialBlurb": "One thumb-reach control switches between the three booking modes. It sits in the corner so it never covers what you are reading, and it springs to the nearest mode rather than demanding precision.",
-      "dialSector": {
-        "household": "Repairs, cleaning, care and domestic help",
-        "hamali": "Loading crews, priced per worker",
-        "transport": "Vehicles, priced per kilometre"
-      },
+      "dialSector": "Sector",
       "ledgerEyebrow": "The passbook ledger",
       "ledgerHeading": "Rates in the open",
       "ledgerBlurb": "The whole schedule, published. What a customer pays and what a member is dispatched against is the same number.",
       "ledgerFootnote": "These are the active fare rules the server actually charges against, not an indicative range.",
-      "charterHeadline": "Sovereign shareholding members.",
-      "charterBlurb": "What every affiliated society signs up to, and what a member can hold the cooperative to.",
+      "charterHeadline": "What every member is",
+      "charterBlurb": "Three undertakings that hold whichever division a member belongs to.",
       "charterCards": {
         "rotation": {
           "title": "Work turns rotate",
-          "body": "Jobs are offered to nearby verified members in turn, so income does not concentrate on whoever opens the app fastest."
+          "body": "Jobs are offered to nearby verified members in turn, so income does not concentrate on whoever opens the app fastest.",
+          "source": "Offer engine · sequential dispatch"
         },
         "fixedFare": {
           "title": "The fare is fixed first",
-          "body": "The price is agreed before the job starts. No surge on top, and no renegotiation at the door."
+          "body": "The price is agreed before the job starts. No surge on top, and no renegotiation at the door.",
+          "source": "Fare rules · quoted before dispatch"
         },
         "surplus": {
           "title": "Surplus returns to members",
-          "body": "What is left at the end of a distribution window is split among the society, not retained by the platform."
+          "body": "What is left at the end of a distribution window is split among the society, not retained by the platform.",
+          "source": "Society bye-laws · distribution window"
         }
       },
       "closingAccent": "Own your infrastructure.",
       "joinEyebrow": "Start here",
       "joinHeading": "Open a member passbook",
-      "joinBlurb": "One account books household work, loading crews and transport, and keeps every receipt in one ledger."
+      "joinBlurb": "One account books household work, loading crews and transport, and keeps every receipt in one ledger.",
+      "watermark": "ఫైరో",
+      "heroTitleLine3": "Infrastructure",
+      "ctaEngage": "Book a member",
+      "ctaInspect": "Inspect the rates",
+      "commissionChip": "10% commission",
+      "jobsSettledLine": "{count, plural, =0 {No jobs settled yet} one {# job settled} other {# jobs settled}}",
+      "societiesLine": "{count, plural, one {# society} other {# societies}}",
+      "liveTelemetry": "Live",
+      "scrollDown": "Read the charter",
+      "tickerSettled": "Settled to members ₹{amount}",
+      "tickerCommission": "Platform commission 10%, published",
+      "tickerSocieties": "{count, plural, one {# society} other {# societies}} across {districts, plural, one {# district} other {# districts}}",
+      "tickerMembers": "{count, plural, one {# verified member} other {# verified members}}",
+      "tickerCategories": "{count, plural, one {# service category} other {# service categories}}",
+      "manifestoLabel": "Manifesto",
+      "manifestoRight": "Why a federation",
+      "manifestoHeadline": "Labour organised by its own societies, not by a",
+      "manifestoAccent": "middleman.",
+      "manifestoP1": "FYRO is not a labour contractor. It is the booking and settlement layer for registered cooperative societies — the society holds the membership, verifies the worker and arbitrates the dispute. We move the job and the money.",
+      "manifestoP2": "The fare is <b>agreed before the job starts</b> and never surged. From it the platform takes a published <rate>10% commission</rate>, and the society takes its bye-law share. Both are shown to the worker, line by line, on every single job.",
+      "manifestoQuote": "A rate a worker cannot read is a rate a worker cannot refuse.",
+      "manifestoQuoteAttr": "Operating principle",
+      "manifestoQuoteSeal": "Published",
+      "plateStamp": "Member",
+      "plateCaption": "Verified society member at work",
+      "plateRight": "KYC on file",
+      "statFederationsInline": "across {count} districts",
+      "statCommissionLabel": "Platform cut",
+      "statCommissionSub": "Published, itemised",
+      "divisionsLabel": "Divisions",
+      "divisionsRight": "Three registers",
+      "divisionsHeading": "Three divisions,",
+      "divisionsSub": "one register.",
+      "guildSector": "Sector 0{n}",
+      "publishedRateChip": "Published rate",
+      "statCategories": "Categories",
+      "statFloor": "Floor",
+      "statFloorSub": "Minimum charged",
+      "statSocieties": "Societies",
+      "tradesIncluded": "Trades in this division",
+      "arbitratedBy": "Disputes arbitrated by the society",
+      "engageDivision": "Book this division",
+      "divisions": {
+        "artisan": {
+          "short": "Household",
+          "title": "Household & Repairs",
+          "sub": "Brown register",
+          "charter": "Division 01 · Skilled trades",
+          "desc": "Carpenters, licensed wiremen, plumbers, painters, gardeners, cleaners, caregivers and domestic help — booked directly from the society that holds their membership and their verification.",
+          "chips": [
+            "Electrician",
+            "Plumber",
+            "Carpenter",
+            "Painter",
+            "Gardener",
+            "Cleaning",
+            "AC repair",
+            "Caregiver"
+          ]
+        },
+        "hamali": {
+          "short": "Hamali",
+          "title": "Loading & Hamali Labour",
+          "sub": "Green banner",
+          "charter": "Division 02 · Loading crews",
+          "desc": "Mandi and warehouse loading crews, container de-stuffing and distributor transit yards — priced per worker for the crew size you actually book, not per middleman.",
+          "chips": [
+            "Mandi loading",
+            "Warehouse",
+            "De-stuffing",
+            "Cement basta",
+            "Grain sacks",
+            "Transit yard"
+          ]
+        },
+        "freight": {
+          "short": "Freight",
+          "title": "Goods Transport & Fleet",
+          "sub": "Slate fleet",
+          "charter": "Division 03 · Goods transit",
+          "desc": "Owner-operators with mini trucks, three-wheel tippers and multi-axle haulage, booked direct against the published distance schedule with no broker in between.",
+          "chips": [
+            "Mini truck",
+            "Three-wheeler",
+            "Tipper",
+            "Container",
+            "Multi-axle",
+            "Tractor"
+          ]
+        }
+      },
+      "rotaryLabel": "Interface",
+      "rotaryRight": "The selector",
+      "rotaryChip": "Machined selector",
+      "rotaryHeading": "One dial, three",
+      "rotaryAccent": "registers.",
+      "rotaryBlurb": "The division selector is a detented rotary, not a dropdown: three fixed positions 120° apart, so a member can find their own register by feel on a cheap phone in bright sun. It collapses to a plain list below the tablet breakpoint.",
+      "rotarySpec": {
+        "sectors": {
+          "label": "Sectors",
+          "value": "03",
+          "sub": "Fixed positions"
+        },
+        "reach": {
+          "label": "Detent",
+          "value": "120°",
+          "sub": "Per sector"
+        },
+        "collapse": {
+          "label": "Collapse",
+          "value": "768px",
+          "sub": "Falls to a list"
+        },
+        "motion": {
+          "label": "Travel",
+          "value": "360°",
+          "sub": "Continuous"
+        }
+      },
+      "rotarySimTitle": "Division selector",
+      "rotarySimSub": "Turn the dial, or use the sector buttons",
+      "registerLabel": "Open register",
+      "registerRight": "Rates as published",
+      "registerHeading": "The rate card is the",
+      "registerSub": "whole contract.",
+      "registerGuaranteeTitle": "What the number means",
+      "registerGuaranteeBody": "The fare is quoted from this schedule before you confirm, and it is what you pay. No surge multiplier, and no renegotiation at the door.",
+      "registerTableTitle": "Published fare schedule",
+      "registerTableRight": "Andhra Pradesh",
+      "activeRule": "Active rule",
+      "registerFootnote": "Member ledgers are private; only the schedule is public.",
+      "registerLink": "Full rate card",
+      "charterLabel": "Charter",
+      "charterRight": "Three undertakings",
+      "charterAccent": "owed.",
+      "closingChip": "Open enrolment",
+      "closingPatronCta": "Book a service"
     },
     "about": {
       "title": "About FYRO",

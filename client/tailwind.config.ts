@@ -10,6 +10,12 @@ const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        // Small-phone breakpoint. The 360-390px band is most of the Android
+        // fleet these members actually carry, and a few display strings need
+        // to step down below it.
+        xs: '400px',
+      },
       colors: {
         fy: {
           /* surfaces */
@@ -58,6 +64,7 @@ const config: Config = {
       fontFamily: {
         heading: ['var(--fy-font-heading)'],
         body: ['var(--fy-font-body)'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         // [size, { lineHeight, letterSpacing, fontWeight }]. These are no
