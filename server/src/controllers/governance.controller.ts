@@ -307,10 +307,44 @@ export const listPolls = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const polls = await Poll.find({ muthaId: mutha._id }).sort({ createdAt: -1 });
-  const myVotes = await Vote.find({ pollId: { $in: polls.map((p) => p._id) }, userId }).lean();
-  const votedPollIds = new Set(myVotes.map((v) => v.pollId.toString()));
+  const pollIds = polls.map((p) => p._id);
+  const myVotes = await Vote.find({ pollId: { $in: pollIds }, userId }).lean();
+  // Which option this member picked, not merely that they voted — a member
+  // returning to an open poll should see their own choice marked.
+  const myChoice = new Map(myVotes.map((v) => [v.pollId.toString(), v.optionIndex]));
 
-  res.status(200).json({ polls: polls.map((p) => ({ ...p.toObject(), hasVoted: votedPollIds.has(p._id.toString()) })) });
+  // Per-option tallies. Without these the client can only say a poll exists,
+  // not how the society is actually voting, and a cooperative's whole point
+  // is that its members can see the count.
+  const tallies = await Vote.aggregate<{ _id: { pollId: Types.ObjectId; optionIndex: number }; count: number }>([
+    { $match: { pollId: { $in: pollIds } } },
+    { $group: { _id: { pollId: '$pollId', optionIndex: '$optionIndex' }, count: { $sum: 1 } } },
+  ]);
+  const countsByPoll = new Map<string, number[]>();
+  for (const poll of polls) countsByPoll.set(poll._id.toString(), new Array(poll.options.length).fill(0));
+  for (const row of tallies) {
+    const counts = countsByPoll.get(row._id.pollId.toString());
+    if (counts && row._id.optionIndex < counts.length) counts[row._id.optionIndex] = row.count;
+  }
+
+  // The electorate is the leader plus the members — the same set assertInSociety
+  // lets vote — so turnout is a real fraction, not a guess.
+  const eligibleVoters = (mutha.memberIds?.length ?? 0) + 1;
+
+  res.status(200).json({
+    polls: polls.map((p) => {
+      const id = p._id.toString();
+      const optionVoteCounts = countsByPoll.get(id) ?? [];
+      return {
+        ...p.toObject(),
+        hasVoted: myChoice.has(id),
+        myOptionIndex: myChoice.get(id) ?? null,
+        optionVoteCounts,
+        totalVotes: optionVoteCounts.reduce((a, b) => a + b, 0),
+        eligibleVoters,
+      };
+    }),
+  });
 });
 
 export const castVote = asyncHandler(async (req: Request, res: Response) => {

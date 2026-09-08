@@ -227,6 +227,9 @@ const REAL_ASSETS: Partial<Record<string, string>> = {
   'warehouse.hero': CL.place('25.Warehouse_Interior'),
   'analytics.hero': CL.render('v1788790364/ChatGPT_Image_Sep_7_2026_07_42_21_PM.png'),
   'about.team': CL.place('24.Cooperative_Society_Office'),
+  // The society's own plate, on the governance and society profile
+  // screens, when the Mutha has no uploaded photo of its own.
+  'society.portrait': CL.place('24.Cooperative_Society_Office'),
 
   // --- vehicle class renders --------------------------------------------
   'vehicle.vehicle_small': CL.place('18.Tractor'),

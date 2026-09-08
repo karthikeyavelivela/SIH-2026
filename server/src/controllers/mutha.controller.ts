@@ -29,7 +29,26 @@ export const getMyMutha = asyncHandler(async (req: Request, res: Response) => {
     .lean();
   const statusByUserId = new Map(profiles.map((p) => [p.userId.toString(), p.availabilityStatus]));
 
+  // The affiliated district federation's own bye-law ceilings. updateByLaws
+  // already rejects anything above them, so without sending them here the
+  // leader can only discover the limit by tripping a 400 — the governance
+  // screen shows them beside the rate controls instead.
+  const federation = mutha.districtFederationId
+    ? await Federation.findById(mutha.districtFederationId)
+        .select('name region maxCommissionRatePct maxWelfareDeductionRatePct')
+        .lean()
+    : null;
+
   res.status(200).json({
+    federation: federation
+      ? {
+          _id: federation._id,
+          name: federation.name,
+          region: federation.region,
+          maxCommissionRatePct: federation.maxCommissionRatePct,
+          maxWelfareDeductionRatePct: federation.maxWelfareDeductionRatePct,
+        }
+      : null,
     mutha: {
       _id: mutha._id,
       name: mutha.name,

@@ -1,6 +1,6 @@
 'use client';
 
-import { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
 import { Icon } from '@/components/ui/Icon';
 
 /* Controls — anatomy per DESIGN_TOKENS.md §4.
@@ -97,9 +97,13 @@ export function ChipRow({ children, className = '' }: { children: ReactNode; cla
 }
 
 /** Horizontally scrolling variant — saved locations, specialist carousels. */
-export function ScrollRow({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function ScrollRow({
+  children,
+  className = '',
+  ...props
+}: HTMLAttributes<HTMLDivElement> & { children: ReactNode }) {
   return (
-    <div className={`flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden ${className}`}>
+    <div className={`flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden ${className}`} {...props}>
       {children}
     </div>
   );
