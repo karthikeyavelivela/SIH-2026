@@ -4,25 +4,35 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/Button';
-import { TruckIcon, MapPinIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
+import { Media } from '@/components/ui/Media';
+import { Button } from '@/components/fy/Controls';
+import { OnboardingShell } from '@/components/auth/OnboardingShell';
 
 // Short skippable walkthrough (design/stitch/.../onboarding_walkthrough).
-// Three cards instead of the mockup's single-slide-per-visit carousel —
+// Three slides instead of the mockup's single-slide-per-visit carousel —
 // StatusStepper (built for in-progress-booking steps, with fixed
 // accepted/arriving/loading/etc labels) doesn't fit a free-text onboarding
 // story, so this uses simple client-side step state with a dot progress
 // indicator instead. Ends with a CTA into role selection, per SCOPE.
+//
+// Each slide now carries the real photograph of the thing it describes
+// rather than an icon in a tinted circle — this is the first impression of
+// a platform whose whole argument is that the work is real.
 const SLIDE_KEYS = ['book', 'track', 'trust'] as const;
-const SLIDE_ICONS = [TruckIcon, MapPinIcon, ShieldIcon];
+
+const SLIDE_MEDIA: Record<(typeof SLIDE_KEYS)[number], { id: string; tint: 'household' | 'labour' | 'transport' }> = {
+  book: { id: 'landing.guild.household', tint: 'household' },
+  track: { id: 'landing.guild.transport', tint: 'transport' },
+  trust: { id: 'landing.guild.hamali', tint: 'labour' },
+};
 
 export default function OnboardingWalkthroughPage() {
   const t = useTranslations('shared.onboarding');
   const router = useRouter();
   const [step, setStep] = useState(0);
   const isLast = step === SLIDE_KEYS.length - 1;
-  const Icon = SLIDE_ICONS[step];
   const slideKey = SLIDE_KEYS[step];
+  const media = SLIDE_MEDIA[slideKey];
 
   function handleNext() {
     if (isLast) {
@@ -33,49 +43,39 @@ export default function OnboardingWalkthroughPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-fy-bone px-6 py-8">
-      <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
-        <div className="flex items-center justify-between mb-10">
-          <span className="font-heading text-lg font-extrabold text-fy-brown tracking-tight">FYRO</span>
+    <OnboardingShell
+      step={`${String(step + 1).padStart(2, '0')} / ${String(SLIDE_KEYS.length).padStart(2, '0')}`}
+      eyebrow={t(`slides.${slideKey}.eyebrow`)}
+      title={t(`slides.${slideKey}.title`)}
+      lede={t(`slides.${slideKey}.body`)}
+      action={
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-center gap-2" aria-hidden>
+            {SLIDE_KEYS.map((k, i) => (
+              <span
+                key={k}
+                className={`h-1.5 rounded-full transition-all duration-base ease-out ${
+                  i === step ? 'w-6 bg-fy-brown' : 'w-1.5 bg-fy-dim'
+                }`}
+              />
+            ))}
+          </div>
+          <Button className="w-full" trailingGlyph="arrow_forward" onClick={handleNext}>
+            {isLast ? t('getStarted') : t('next')}
+          </Button>
           <Link
             href="/role-selection"
-            className="text-xs font-bold uppercase tracking-[0.15em] text-fy-muted hover:text-fy-ink transition-colors duration-fast"
+            className="text-center font-mono text-[11px] uppercase tracking-widest text-fy-muted hover:text-fy-ink transition-colors"
           >
             {t('skip')}
           </Link>
         </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <div key={slideKey} className="animate-[fadeUp_400ms_ease-out]">
-            <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-fy-brown/10">
-              <Icon className="w-10 h-10 text-fy-brown" />
-            </div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-3">
-              {t(`slides.${slideKey}.eyebrow`)}
-            </p>
-            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-3">
-              {t(`slides.${slideKey}.title`)}
-            </h1>
-            <p className="text-fy-muted leading-relaxed">{t(`slides.${slideKey}.body`)}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
-          {SLIDE_KEYS.map((k, i) => (
-            <span
-              key={k}
-              className={`h-1.5 rounded-full transition-all duration-base ease-out ${
-                i === step ? 'w-6 bg-fy-brown' : 'w-1.5 bg-fy-dim'
-              }`}
-            />
-          ))}
-        </div>
-
-        <Button onClick={handleNext} size="lg" className="w-full">
-          {isLast ? t('getStarted') : t('next')}
-          <ChevronRightIcon className="w-4 h-4 ml-1" />
-        </Button>
+      }
+    >
+      <div key={slideKey} className="relative rounded-card overflow-hidden shadow-card h-56 bg-fy-dim animate-[fadeUp_400ms_ease-out]">
+        <Media id={media.id} kind="photo" fill treatment="full-bleed" tint={media.tint} alt="" className="w-full h-full" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-fy-ink/55 via-transparent to-transparent" />
       </div>
-    </div>
+    </OnboardingShell>
   );
 }

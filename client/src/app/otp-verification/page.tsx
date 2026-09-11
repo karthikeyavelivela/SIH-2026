@@ -15,26 +15,24 @@
  *     sign the user in.
  *   - Nothing else in the app (login, signup) links to this route, so it
  *     can't be stumbled into as part of a real auth flow.
- * See TASK decision doc (chosen approach (a)) for why this was preferred
- * over wiring a real request-otp/verify-otp backend in this pass: there is
- * no SMS provider configured (server/.env has MOCK_EXTERNAL_SERVICES=true
- * but no provider), and a half-built OTP check is explicitly disallowed.
+ *
+ * Restyled onto the shared first-run shell so it matches the rest of the
+ * flow; the disclaimer stays exactly as prominent as it was, because it is
+ * the most important thing on the screen.
  */
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/Button';
-import { ChevronLeftIcon } from '@/components/ui/icons';
-
-const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
+import { Button } from '@/components/fy/Controls';
+import { OnboardingShell } from '@/components/auth/OnboardingShell';
+import { SignupField, signupInputClass } from '@/components/auth/SignupShell';
 
 const CODE_LENGTH = 4;
 const RESEND_SECONDS = 30;
 
 export default function OtpVerificationPage() {
   const t = useTranslations('shared.otp');
+  const tf = useTranslations('shared.onboarding');
   const [step, setStep] = useState<'phone' | 'code'>('phone');
   const [phone, setPhone] = useState('');
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
@@ -75,125 +73,103 @@ export default function OtpVerificationPage() {
   }
 
   const codeComplete = digits.every((d) => d !== '');
+  const onCodeStep = step === 'code';
 
   return (
-    <div className="relative min-h-screen flex flex-col px-6 py-8 overflow-hidden bg-fy-bone">
-      <div className="flex items-center gap-3 mb-10">
-        <Link
-          href={step === 'code' ? '#' : '/role-selection'}
-          onClick={
-            step === 'code'
-              ? (e) => {
-                  e.preventDefault();
-                  setStep('phone');
-                }
-              : undefined
-          }
-          aria-label={t('back')}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-fy-card border border-fy-hairline shadow-sm hover:bg-fy-panel transition-colors duration-fast"
-        >
-          <ChevronLeftIcon className="w-5 h-5" />
-        </Link>
-        <span className="font-heading text-lg font-extrabold text-fy-brown tracking-tight">FYRO</span>
-      </div>
-
-      <div className="max-w-sm w-full mx-auto flex-1 flex flex-col">
-        {step === 'phone' ? (
-          <>
-            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-2">
-              {t('stepPhoneTitle')}
-            </h1>
-            <p className="text-fy-muted mb-8">{t('stepPhoneSubtitle')}</p>
-            <form onSubmit={handleSendCode} className="space-y-4">
-              <input
-                type="tel"
-                placeholder={t('phonePlaceholder')}
-                aria-label={t('phonePlaceholder')}
-                autoComplete="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={inputClass}
-                required
-              />
-              <Button type="submit" size="lg" className="w-full">
-                {t('sendCode')}
-              </Button>
-            </form>
-          </>
-        ) : (
-          <>
-            <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-2">
-              {t('stepCodeTitle')}
-            </h1>
-            <p className="text-fy-muted mb-8">{t('sentTo', { phone: phone || '—' })}</p>
-
-            <div className="flex justify-center gap-3 mb-6" role="group" aria-label={t('stepCodeTitle')}>
-              {digits.map((d, i) => (
-                <input
-                  key={i}
-                  ref={(el) => {
-                    inputsRef.current[i] = el;
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={d}
-                  onChange={(e) => handleDigitChange(i, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(i, e)}
-                  aria-label={`Digit ${i + 1}`}
-                  className="w-14 h-14 text-center text-xl font-heading font-bold rounded-control border border-fy-hairline bg-fy-bone text-fy-ink focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20 transition-colors duration-fast"
-                />
-              ))}
-            </div>
-
-            <div className="text-center mb-6">
-              {secondsLeft > 0 ? (
-                <p className="text-sm text-fy-muted">{t('resendIn', { seconds: secondsLeft })}</p>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setSecondsLeft(RESEND_SECONDS)}
-                  className="text-sm font-semibold text-fy-brown hover:underline"
-                >
-                  {t('resend')}
-                </button>
-              )}
-            </div>
-
-            <Button
-              type="button"
-              size="lg"
-              className="w-full"
-              disabled={!codeComplete}
-              onClick={() => setVerifyAttempted(true)}
-            >
+    <OnboardingShell
+      backHref={onCodeStep ? undefined : '/role-selection'}
+      backLabel={t('back')}
+      step={onCodeStep ? '02 / 02' : '01 / 02'}
+      eyebrow={tf('flowEyebrow')}
+      title={onCodeStep ? t('stepCodeTitle') : t('stepPhoneTitle')}
+      lede={onCodeStep ? undefined : t('stepPhoneSubtitle')}
+      action={
+        onCodeStep ? (
+          <div className="flex flex-col gap-3">
+            <Button className="w-full" disabled={!codeComplete} onClick={() => setVerifyAttempted(true)}>
               {t('verify')}
             </Button>
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setStep('phone')}
+                className="font-mono text-[11px] uppercase tracking-widest text-fy-muted hover:text-fy-ink transition-colors"
+              >
+                {t('changeNumber')}
+              </button>
+              <button
+                type="button"
+                disabled={secondsLeft > 0}
+                onClick={() => setSecondsLeft(RESEND_SECONDS)}
+                className="font-mono text-[11px] uppercase tracking-widest text-fy-brown font-semibold disabled:opacity-40"
+              >
+                {secondsLeft > 0 ? `${t('resend')} · ${secondsLeft}s` : t('resend')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <Button className="w-full" trailingGlyph="arrow_forward" disabled={!phone.trim()} onClick={handleSendCode}>
+            {t('sendCode')}
+          </Button>
+        )
+      }
+    >
+      {onCodeStep ? (
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center justify-center gap-3">
+            {digits.map((d, i) => (
+              <input
+                key={i}
+                ref={(el) => {
+                  inputsRef.current[i] = el;
+                }}
+                value={d}
+                onChange={(e) => handleDigitChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                aria-label={`${t('stepCodeTitle')} ${i + 1}`}
+                className="w-16 h-20 text-center rounded-card border border-fy-brown/15 bg-fy-card font-heading text-heading text-fy-ink shadow-card outline-none focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/15 transition-shadow"
+              />
+            ))}
+          </div>
 
-            <button
-              type="button"
-              onClick={() => setStep('phone')}
-              className="text-sm font-medium text-fy-muted hover:text-fy-ink mt-4 mx-auto block"
+          {/* The honest disclaimer — this flow verifies nothing. */}
+          {verifyAttempted && (
+            <div
+              role="alert"
+              className="rounded-card border border-fy-brown/25 bg-fy-panel p-4 flex flex-col gap-2"
             >
-              {t('changeNumber')}
-            </button>
-          </>
-        )}
-
-        {/* Honest disclaimer — always visible, not just after a verify
-            attempt, so this never reads as a working flow at a glance. */}
-        <div
-          className={`mt-8 rounded-control border border-fy-hairline bg-fy-panel px-4 py-3.5 text-sm text-fy-muted ${
-            verifyAttempted ? 'animate-[fadeIn_200ms_ease-out]' : ''
-          }`}
-        >
-          <p className="font-semibold text-fy-ink mb-1">{t('disclaimerTitle')}</p>
-          <p className="leading-relaxed">{t('disclaimer')}</p>
-          <Link href="/login" className="inline-block mt-2 text-fy-brown font-semibold hover:underline">
-            {t('backToLogin')}
-          </Link>
+              <span className="flex items-center gap-2">
+                <span aria-hidden className="material-symbols-outlined text-[18px] text-fy-brown leading-none">
+                  info
+                </span>
+                <span className="font-body text-body font-semibold text-fy-ink">{t('disclaimerTitle')}</span>
+              </span>
+              <p className="font-body text-label text-fy-ink-soft leading-relaxed">{t('disclaimer')}</p>
+              <a
+                href="/login"
+                className="font-mono text-[11px] uppercase tracking-widest text-fy-brown font-semibold hover:underline underline-offset-2"
+              >
+                {t('backToLogin')}
+              </a>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      ) : (
+        <form onSubmit={handleSendCode} className="bg-fy-card rounded-card p-5 shadow-card border border-fy-brown/12">
+          <SignupField label={t('phonePlaceholder')}>
+            <input
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder={t('phonePlaceholder')}
+              className={signupInputClass}
+            />
+          </SignupField>
+        </form>
+      )}
+    </OnboardingShell>
   );
 }
