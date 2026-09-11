@@ -4,13 +4,41 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { TopBar } from '@/components/ui/TopBar';
-import { Card } from '@/components/ui/Card';
-import { MetricCard } from '@/components/ui/MetricCard';
-import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { UsersIcon, LayersIcon, WalletIcon, ShieldIcon, ClockIcon, AlertIcon } from '@/components/ui/icons';
+import { Icon } from '@/components/ui/Icon';
+import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, SectionHeading, Body, MutedText } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { MetricBlock, StatRow, ProgressBar } from '@/components/fy/Data';
+import { Button } from '@/components/fy/Controls';
+import { TopBar } from '@/components/fy/Navigation';
+
+/* Built against client/public/design/federation_ap_state_dashboard.html and
+   federation_district_action_console.html.
+
+   Section order there: the apex seal header with the registration plate ->
+   seven statutory metric cards -> the AP cartogram with its inspector
+   drawer -> the district breakdown table -> the society registry.
+
+   Largest elements: the seven metric numerals. Dark surface: the apex
+   header plate.
+
+   All seven statutory metrics are real and come straight from
+   GET /api/federation/me: affiliated societies, worker-members, jobs
+   completed, earnings disbursed, training completion rate, welfare
+   enrolment rate and open grievances.
+
+   Deviations, all because the data does not exist:
+   - The NIC-CertIn token, the "SHA256: 8FA0·91E4·CC32·AP01" escrow audit
+     hash, the "Gazette Tier-1" clearance badge and the named Registrar of
+     Cooperative Societies are invented. The header plate carries the
+     federation's real registration number and the Act it is registered
+     under, which are real fields.
+   - The AP geometric cartogram places 26 district nodes on a drawn
+     coastline. No district geometry or coordinates exist in the data; the
+     district rollup the backend does compute is a count of societies per
+     district, so that is rendered as the breakdown table the design also
+     has, and the cartogram is not faked.
+   - "Export Legislative Dossier" has no endpoint behind it. */
 
 interface FederationDashboardResponse {
   federation: {
@@ -46,7 +74,14 @@ interface FederationDashboardResponse {
 }
 
 interface TrainingNeedsResponse {
-  assessment: { muthaId: string; name: string; region?: string; memberCount: number; skillGapPct: number; dueForRefreshCount: number }[];
+  assessment: {
+    muthaId: string;
+    name: string;
+    region?: string;
+    memberCount: number;
+    skillGapPct: number;
+    dueForRefreshCount: number;
+  }[];
 }
 
 interface AffiliationRequest {
@@ -56,6 +91,43 @@ interface AffiliationRequest {
   societyRegistrationNumber?: string;
   registeredUnderAct?: string;
   leaderId: { name: string; phone: string };
+}
+
+const money = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
+
+/** One of the seven statutory cards. */
+function Statutory({
+  label,
+  value,
+  note,
+  glyph,
+  tone = 'ink',
+  highlight = false,
+}: {
+  label: string;
+  value: string | number;
+  note?: string;
+  glyph: string;
+  tone?: 'ink' | 'green' | 'brown' | 'error';
+  highlight?: boolean;
+}) {
+  const valueTone = { ink: 'text-fy-ink', green: 'text-fy-green', brown: 'text-fy-brown', error: 'text-fy-error' }[
+    tone
+  ];
+  return (
+    <div
+      className={`rounded-card p-4 shadow-card flex flex-col gap-2 min-w-0 ${
+        highlight ? 'bg-fy-lime-tint-1 border border-fy-lime/50' : 'bg-fy-card'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <EyebrowLabel className="truncate">{label}</EyebrowLabel>
+        <Icon name={glyph} size={18} className="text-fy-brown shrink-0" />
+      </div>
+      <span className={`font-heading text-metric leading-none ${valueTone}`}>{value}</span>
+      {note && <span className="font-body text-eyebrow text-fy-muted">{note}</span>}
+    </div>
+  );
 }
 
 // Shared by /federation-state/dashboard and /federation-district/dashboard
@@ -103,11 +175,15 @@ export function FederationDashboardView() {
   if (state === 'loading' && !data) {
     return (
       <div className="min-h-screen bg-fy-bone">
-        <TopBar title={t('title')} showBack={false} />
-        <div className="max-w-3xl mx-auto px-gutter pt-4 space-y-3">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-40" />
-        </div>
+        <TopBar eyebrow="FYRO Cooperative" title={t('title')} />
+        <main className="pt-16 pb-16 px-gutter max-w-5xl mx-auto flex flex-col gap-3">
+          <div className="h-28 rounded-card bg-fy-field animate-pulse" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-28 rounded-card bg-fy-field animate-pulse" />
+            ))}
+          </div>
+        </main>
       </div>
     );
   }
@@ -115,8 +191,12 @@ export function FederationDashboardView() {
   if (!data) {
     return (
       <div className="min-h-screen bg-fy-bone">
-        <TopBar title={t('title')} showBack={false} />
-        <EmptyState icon={<AlertIcon className="w-7 h-7" />} title={t('errorGeneric')} className="mt-10" />
+        <TopBar eyebrow="FYRO Cooperative" title={t('title')} />
+        <main className="pt-16 px-gutter max-w-5xl mx-auto">
+          <LightCard>
+            <Body>{t('errorGeneric')}</Body>
+          </LightCard>
+        </main>
       </div>
     );
   }
@@ -124,155 +204,266 @@ export function FederationDashboardView() {
   const { federation, counts, societies, districts } = data;
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-16">
-      <TopBar title={t('title')} showBack={false} />
-      <div className="max-w-3xl mx-auto px-gutter pt-4 space-y-6">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-1">
-            {federation.type === 'state' ? t('tierState') : t('tierDistrict')}
-          </p>
-          <h1 className="font-heading text-heading font-extrabold mb-1">{federation.name}</h1>
-          <p className="text-sm text-fy-ink-soft">
-            {t('registrationLine', { number: federation.registrationNumber, act: federation.registeredUnderAct })}
-          </p>
-        </div>
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
-        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <MetricCard label={t('societies')} value={counts.societies} icon={<LayersIcon className="w-5 h-5" />} />
-          <MetricCard label={t('workers')} value={counts.workers} icon={<UsersIcon className="w-5 h-5" />} />
-          <MetricCard label={t('jobsCompleted')} value={counts.jobsCompleted} icon={<ShieldIcon className="w-5 h-5" />} />
-          <MetricCard label={t('earningsDistributed')} value={`₹${counts.earningsDistributed}`} icon={<WalletIcon className="w-5 h-5" />} />
-          <MetricCard label={t('trainingCompletion')} value={`${counts.trainingCompletionRatePct}%`} />
-          <MetricCard label={t('welfareEnrolment')} value={`${counts.welfareEnrolmentRatePct}%`} />
-          <MetricCard label={t('grievancesOpen')} value={counts.grievancesOpen} icon={<AlertIcon className="w-5 h-5" />} />
-        </div>
+      <TopBar
+        eyebrow="FYRO Cooperative"
+        title={t('title')}
+        actions={<StatusPill tone="lime">{t(isDistrict ? 'tierDistrict' : 'tierState')}</StatusPill>}
+      />
 
-        {federation.type === 'state' && districts && (
-          <Card>
-            <p className="font-heading font-semibold mb-3">{t('districtsHeading')}</p>
-            {districts.length === 0 ? (
-              <p className="text-sm text-fy-ink-soft">{t('noDistricts')}</p>
-            ) : (
-              <div className="space-y-2">
-                {districts.map((d) => (
-                  <div key={d._id} className="flex items-center justify-between text-sm py-1.5 border-b border-fy-muted/10 last:border-0">
-                    <span>{d.name}</span>
-                    <span className="text-fy-ink-soft">{t('societyCount', { count: d.societyCount })}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+      <main className="pt-16 pb-16 px-gutter max-w-5xl mx-auto relative z-10 flex flex-col gap-5">
+        {error && (
+          <div role="alert" className="mt-2 rounded-card border border-fy-error/25 bg-fy-error-bg px-4 py-3 text-body text-fy-on-error-bg">
+            {error}
+          </div>
         )}
 
-        {isDistrict && (
-          <Card>
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-heading font-semibold">{t('affiliationRequestsHeading')}</p>
-              <span className="text-xs text-fy-ink-soft">
-                {t('bylawBounds', {
-                  commission: federation.maxCommissionRatePct ?? '—',
-                  welfare: federation.maxWelfareDeductionRatePct ?? '—',
-                })}
+        {/* Apex header plate — real registration record only. */}
+        <div className="bg-fy-brown text-fy-on-brown rounded-sheet p-5 shadow-card flex flex-col gap-3 mt-2">
+          <div className="flex items-start justify-between gap-3">
+            <span className="flex items-center gap-3 min-w-0">
+              <IconTile tone="lime" size="lg">
+                <Icon name="account_balance" size={22} />
+              </IconTile>
+              <span className="flex flex-col min-w-0">
+                <EyebrowLabel tone="on-dark" className="opacity-75">
+                  {t('apexAuthority')}
+                </EyebrowLabel>
+                <p className="font-heading text-title text-fy-bone truncate">{federation.name}</p>
               </span>
+            </span>
+            <StatusPill tone="lime" dot>
+              {t('liveSynchronised')}
+            </StatusPill>
+          </div>
+          <Divider className="border-fy-bone/15" />
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <EyebrowLabel tone="on-dark" className="opacity-75">
+                {t('registrationNo')}
+              </EyebrowLabel>
+              <p className="font-mono text-label text-fy-bone mt-0.5">{federation.registrationNumber}</p>
             </div>
-            {error && (
-              <p role="alert" className="text-sm text-fy-error mb-3">
-                {error}
-              </p>
-            )}
+            <div>
+              <EyebrowLabel tone="on-dark" className="opacity-75">
+                {t('registeredUnder')}
+              </EyebrowLabel>
+              <p className="font-body text-label text-fy-bone mt-0.5">{federation.registeredUnderAct}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Seven statutory metrics — every one of them real. */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <Statutory label={t('affiliatedSocieties')} value={counts.societies} glyph="apartment" />
+          <Statutory label={t('workerMembers')} value={counts.workers.toLocaleString('en-IN')} glyph="groups" />
+          <Statutory label={t('jobsCompleted')} value={counts.jobsCompleted.toLocaleString('en-IN')} glyph="task_alt" />
+          <Statutory
+            label={t('earningsDisbursed')}
+            value={money(counts.earningsDistributed)}
+            glyph="payments"
+            tone="green"
+            highlight
+          />
+          <Statutory
+            label={t('trainingRate')}
+            value={`${counts.trainingCompletionRatePct}%`}
+            note={t('ofExpectedModules')}
+            glyph="school"
+            tone="brown"
+          />
+          <Statutory
+            label={t('welfareEnrolment')}
+            value={`${counts.welfareEnrolmentRatePct}%`}
+            note={t('membersWithCover')}
+            glyph="health_and_safety"
+            tone="brown"
+          />
+          <Statutory
+            label={t('openGrievances')}
+            value={counts.grievancesOpen}
+            note={t('disputesAndComplaints')}
+            glyph="gavel"
+            tone={counts.grievancesOpen > 0 ? 'error' : 'ink'}
+          />
+          {isDistrict && (
+            <Statutory
+              label={t('byeLawCeilings')}
+              value={`${federation.maxCommissionRatePct ?? '—'}% / ${federation.maxWelfareDeductionRatePct ?? '—'}%`}
+              note={t('reserveAndWelfare')}
+              glyph="rule"
+            />
+          )}
+        </div>
+
+        {/* Affiliation requests — district tier only, and a real decision. */}
+        {isDistrict && (
+          <Section
+            title={<SectionHeading>{t('affiliationRequests')}</SectionHeading>}
+            aside={<EyebrowLabel>{t('pendingCount', { count: requests?.length ?? 0 })}</EyebrowLabel>}
+          >
             {!requests || requests.length === 0 ? (
-              <p className="text-sm text-fy-ink-soft">{t('noAffiliationRequests')}</p>
+              <LightCard>
+                <MutedText>{t('noRequests')}</MutedText>
+              </LightCard>
             ) : (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-2">
                 {requests.map((r) => (
-                  <div key={r._id} className="flex items-center justify-between gap-3 p-3 rounded-control bg-fy-field">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold truncate">{r.name}</p>
-                      <p className="text-xs text-fy-ink-soft truncate">
-                        {r.leaderId?.name} · {r.societyRegistrationNumber} · {r.registeredUnderAct}
-                      </p>
+                  <Panel key={r._id} className="flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="flex flex-col min-w-0">
+                        <Body className="font-semibold truncate">{r.name}</Body>
+                        <MutedText className="truncate">
+                          {r.societyRegistrationNumber ?? t('noRegNumber')}
+                          {r.region ? ` · ${r.region}` : ''}
+                        </MutedText>
+                      </span>
+                      <StatusPill tone="neutral">{t('pending')}</StatusPill>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button size="md" disabled={busyId === r._id} onClick={() => decide(r._id, true)}>
-                        {t('approve')}
-                      </Button>
-                      <Button variant="ghost" size="md" disabled={busyId === r._id} onClick={() => decide(r._id, false)}>
+                    <StatRow label={t('societyLeader')} value={`${r.leaderId.name} · ${r.leaderId.phone}`} />
+                    {r.registeredUnderAct && <StatRow label={t('registeredUnder')} value={r.registeredUnderAct} />}
+                    <Divider />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="light"
+                        className="w-full"
+                        disabled={busyId === r._id}
+                        onClick={() => decide(r._id, false)}
+                      >
                         {t('reject')}
                       </Button>
+                      <Button
+                        variant="green"
+                        className="w-full"
+                        disabled={busyId === r._id}
+                        onClick={() => decide(r._id, true)}
+                      >
+                        {busyId === r._id ? t('submitting') : t('approve')}
+                      </Button>
                     </div>
-                  </div>
+                  </Panel>
                 ))}
               </div>
             )}
-          </Card>
+          </Section>
         )}
 
-        <Card>
-          <p className="font-heading font-semibold mb-3">{t('societiesHeading')}</p>
-          {societies.length === 0 ? (
-            <EmptyState icon={<LayersIcon className="w-7 h-7" />} title={t('noSocieties')} />
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-fy-ink-soft">
-                    <th className="pb-2 pr-3">{t('colName')}</th>
-                    <th className="pb-2 pr-3">{t('colMembers')}</th>
-                    <th className="pb-2 pr-3">{t('colRating')}</th>
-                    <th className="pb-2 pr-3">{t('colCommission')}</th>
-                    <th className="pb-2">{t('colWelfare')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {societies.map((s) => (
-                    <tr key={s._id} className="border-t border-fy-muted/10">
-                      <td className="py-2 pr-3 font-medium">{s.name}</td>
-                      <td className="py-2 pr-3 tabular-nums">{s.memberCount}</td>
-                      <td className="py-2 pr-3 tabular-nums">{s.ratingAvg.toFixed(1)}</td>
-                      <td className="py-2 pr-3 tabular-nums">{s.commissionRatePct}%</td>
-                      <td className="py-2 tabular-nums">{s.welfareDeductionRatePct}%</td>
+        {/* District breakdown — the real rollup the cartogram stands in for. */}
+        {districts && districts.length > 0 && (
+          <Section
+            title={<SectionHeading>{t('districtBreakdown')}</SectionHeading>}
+            aside={<EyebrowLabel>{t('districtCount', { count: districts.length })}</EyebrowLabel>}
+          >
+            <LightCard className="p-0 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[420px]">
+                  <thead>
+                    <tr className="border-b border-fy-hairline">
+                      <th scope="col" className="text-left px-4 py-3">
+                        <EyebrowLabel>{t('district')}</EyebrowLabel>
+                      </th>
+                      <th scope="col" className="text-left px-4 py-3">
+                        <EyebrowLabel>{t('region')}</EyebrowLabel>
+                      </th>
+                      <th scope="col" className="text-right px-4 py-3">
+                        <EyebrowLabel>{t('societiesCol')}</EyebrowLabel>
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+                  </thead>
+                  <tbody className="divide-y divide-fy-hairline/60">
+                    {districts.map((d) => (
+                      <tr key={d._id} className="hover:bg-fy-well/60 transition-colors">
+                        <td className="px-4 py-3">
+                          <Body className="font-semibold">{d.name}</Body>
+                        </td>
+                        <td className="px-4 py-3">
+                          <MutedText>{d.region}</MutedText>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span
+                            className={`font-heading text-title font-semibold ${
+                              d.societyCount === 0 ? 'text-fy-muted' : 'text-fy-brown'
+                            }`}
+                          >
+                            {d.societyCount}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </LightCard>
+          </Section>
+        )}
 
-        <Card>
-          <p className="font-heading font-semibold mb-1">{t('trainingNeedsHeading')}</p>
-          <p className="text-xs text-fy-ink-soft mb-3">{t('trainingNeedsSubtitle')}</p>
-          {!needsData || needsData.assessment.length === 0 ? (
-            <p className="text-sm text-fy-ink-soft">{t('noTrainingData')}</p>
+        {/* Society registry */}
+        <Section
+          title={<SectionHeading>{t('societyRegistry')}</SectionHeading>}
+          aside={<EyebrowLabel>{t('societiesCount', { count: societies.length })}</EyebrowLabel>}
+        >
+          {societies.length === 0 ? (
+            <LightCard>
+              <MutedText>{t('noSocieties')}</MutedText>
+            </LightCard>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-fy-ink-soft">
-                    <th className="pb-2 pr-3">{t('colName')}</th>
-                    <th className="pb-2 pr-3">{t('colSkillGap')}</th>
-                    <th className="pb-2 flex items-center gap-1">
-                      <ClockIcon className="w-3.5 h-3.5" /> {t('colDueForRefresh')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {needsData.assessment.map((a) => (
-                    <tr key={a.muthaId} className="border-t border-fy-muted/10">
-                      <td className="py-2 pr-3 font-medium">{a.name}</td>
-                      <td className={`py-2 pr-3 tabular-nums ${a.skillGapPct > 50 ? 'text-fy-error font-semibold' : ''}`}>
-                        {a.skillGapPct}%
-                      </td>
-                      <td className="py-2 tabular-nums">{a.dueForRefreshCount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex flex-col gap-2">
+              {societies.map((s, i) => (
+                <Panel key={s._id} className="flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="flex items-center gap-3 min-w-0">
+                      <IconTile tone="slate-pale" size="lg">
+                        <span className="font-mono text-[11px] font-bold">{String(i + 1).padStart(2, '0')}</span>
+                      </IconTile>
+                      <span className="flex flex-col min-w-0">
+                        <Body className="font-semibold truncate">{s.name}</Body>
+                        <MutedText className="truncate">
+                          {s.region ?? t('regionUnset')} · {t('membersCount', { count: s.memberCount })}
+                        </MutedText>
+                      </span>
+                    </span>
+                    {s.activeJobsCount > 0 && (
+                      <StatusPill tone="lime">{t('activeJobs', { count: s.activeJobsCount })}</StatusPill>
+                    )}
+                  </div>
+                  <Divider />
+                  <div className="grid grid-cols-2 gap-3">
+                    <StatRow stacked label={t('reserveRate')} value={`${s.commissionRatePct}%`} />
+                    <StatRow stacked label={t('welfareRate')} value={`${s.welfareDeductionRatePct}%`} />
+                  </div>
+                </Panel>
+              ))}
             </div>
           )}
-        </Card>
-      </div>
+        </Section>
+
+        {/* Training needs — a real per-society skill-gap assessment. */}
+        {needsData && needsData.assessment.length > 0 && (
+          <Section
+            title={<SectionHeading>{t('trainingNeeds')}</SectionHeading>}
+            aside={<EyebrowLabel>{t('skillGapAside')}</EyebrowLabel>}
+          >
+            <LightCard className="flex flex-col gap-4">
+              {needsData.assessment.map((a) => (
+                <div key={a.muthaId} className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <Body className="font-semibold truncate">{a.name}</Body>
+                    <EyebrowLabel tone={a.skillGapPct > 50 ? 'brown' : 'green'}>
+                      {t('skillGap', { pct: a.skillGapPct })}
+                    </EyebrowLabel>
+                  </div>
+                  <ProgressBar value={100 - a.skillGapPct} tone={a.skillGapPct > 50 ? 'error' : 'green'} />
+                  <MutedText>
+                    {t('dueForRefresh', { count: a.dueForRefreshCount, members: a.memberCount })}
+                  </MutedText>
+                </div>
+              ))}
+            </LightCard>
+          </Section>
+        )}
+      </main>
     </div>
   );
 }
