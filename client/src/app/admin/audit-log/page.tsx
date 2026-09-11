@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { DataTable } from '@/components/admin/DataTable';
+import { ConsoleHead } from '@/components/admin/ConsoleHead';
 import { StatusChip } from '@/components/ui/StatusChip';
 
 interface AuditEntry {
@@ -19,7 +20,7 @@ interface AuditEntry {
 }
 
 const inputClass =
-  'min-h-[40px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm placeholder:text-fy-ink-soft/70 focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20 transition-colors';
+  'min-h-[46px] px-4 rounded-cell border border-fy-brown/15 bg-fy-card shadow-card font-body text-body text-fy-ink placeholder:text-fy-muted/70 outline-none focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/15 transition-shadow';
 
 // Restyled onto the ip-* tonal system per DESIGN_INVENTORY.md's
 // system_audit_trail row, moved onto the shared DataTable component. Same
@@ -51,9 +52,7 @@ export default function AdminAuditLogPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-fy-ink-soft mb-6">{t('subtitle')}</p>
+      <ConsoleHead eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
       <div className="flex flex-wrap gap-3 mb-6">
         <input

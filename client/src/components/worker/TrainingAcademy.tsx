@@ -4,12 +4,24 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { AlertBanner } from '@/components/ui/AlertBanner';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { CheckIcon, ClockIcon, ShieldIcon } from '@/components/ui/icons';
+import { Icon } from '@/components/ui/Icon';
+import { LightCard, Panel, Divider, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, Body, MutedText } from '@/components/fy/Text';
+import { StatusPill } from '@/components/fy/Status';
+import { Button } from '@/components/fy/Controls';
+
+/* Built against client/public/design/worker_training_academy.html — the
+   curriculum list, with the sequential lock the server enforces and the
+   certification that is issued the moment the curriculum completes.
+
+   This is the console-embedded variant: it renders the list only, with no
+   page chrome of its own, because it sits inside the fleet owner's sidebar
+   layout. The phone-shell variant with its own TopBar and accreditation
+   card is TrainingScreen.
+
+   Nothing here is decorative: every module, its order, its duration and its
+   lock state come from GET /api/training/progress, and completing one is a
+   real POST that can return a real certification. */
 
 type ModuleStatus = 'locked' | 'in_progress' | 'completed';
 
@@ -17,15 +29,14 @@ interface TrainingModuleDoc {
   _id: string;
   title: string;
   description: string;
-  durationMinutes: number;
-  order: number;
   content: string;
+  order: number;
+  durationMinutes: number;
 }
 
 interface ProgressEntry {
   module: TrainingModuleDoc;
   status: ModuleStatus;
-  completedAt: string | null;
 }
 
 interface CertificationDoc {
@@ -33,30 +44,11 @@ interface CertificationDoc {
   title: string;
 }
 
-interface Accent {
-  bg: string;
-  text: string;
-  ring: string;
-}
-
-const ACCENTS: Record<'primary' | 'secondary', Accent> = {
-  primary: { bg: 'bg-fy-brown', text: 'text-fy-brown', ring: 'border-fy-brown' },
-  secondary: { bg: 'bg-fy-green', text: 'text-fy-green', ring: 'border-fy-green' },
-};
-
 // Shared presentational curriculum view for driver/hamali_solo/fleet_owner
-// training-academy pages — sequential module list with server-enforced
-// unlocking, and the auto-issued certification surfaced the moment the
-// curriculum completes. Each role's page (client/src/app/*/training/page.tsx)
-// is a thin wrapper that renders this with its own accent color.
+// training-academy pages. Each role's page is a thin wrapper that renders
+// this with its own accent colour.
 export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
   const t = useTranslations('worker.trainingAcademy');
-  function statusLabel(status: ModuleStatus): string {
-    if (status === 'completed') return t('completed');
-    if (status === 'in_progress') return t('available');
-    return t('locked');
-  }
-  const tone = ACCENTS[accent];
   const { data, state, error, reload } = usePolling(
     () => api.get<{ modules: ProgressEntry[] }>('/api/training/progress'),
     30000
@@ -67,6 +59,13 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
   const [justCertified, setJustCertified] = useState<CertificationDoc | null>(null);
 
   const modules = data?.modules ?? [];
+  const accentTone = accent === 'secondary' ? 'green' : 'brown';
+
+  function statusLabel(status: ModuleStatus): string {
+    if (status === 'completed') return t('completed');
+    if (status === 'in_progress') return t('available');
+    return t('locked');
+  }
 
   async function handleComplete(moduleId: string) {
     setActionError(null);
@@ -86,115 +85,135 @@ export function TrainingAcademy({ accent = 'primary' }: { accent?: 'primary' | '
 
   if (state === 'loading') {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-24" />
-        <Skeleton className="h-40" />
-        <Skeleton className="h-40" />
+      <div className="flex flex-col gap-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-32 rounded-card bg-fy-field animate-pulse" />
+        ))}
       </div>
     );
   }
 
   if (state === 'error') {
     return (
-      <Card>
-        <EmptyState title={t('couldNotLoad')} description={error ?? undefined} action={<Button onClick={() => reload()}>{t('tryAgain')}</Button>} />
-      </Card>
+      <LightCard className="flex flex-col gap-3">
+        <Body className="font-semibold">{t('couldNotLoad')}</Body>
+        {error && <MutedText>{error}</MutedText>}
+        <Button variant="light" className="w-full" onClick={() => reload()}>
+          {t('tryAgain')}
+        </Button>
+      </LightCard>
     );
   }
 
   if (modules.length === 0) {
     return (
-      <Card>
-        <EmptyState
-          icon={<ShieldIcon className="w-7 h-7" />}
-          title={t('noModulesYet')}
-          description={t('noModulesYetDesc')}
-        />
-      </Card>
+      <LightCard className="flex flex-col gap-1.5">
+        <Body className="font-semibold">{t('noModulesYet')}</Body>
+        <MutedText>{t('noModulesYetDesc')}</MutedText>
+      </LightCard>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       {justCertified && (
-        <AlertBanner tone="success" icon={<CheckIcon className="w-4 h-4" />} action={<Button size="md" variant="ghost" onClick={() => setJustCertified(null)}>{t('dismiss')}</Button>}>
-          <span className="font-semibold">{t('certified')}</span> {t('certifiedBody', { title: justCertified.title })}
-        </AlertBanner>
+        <Panel className="border border-fy-lime/50 bg-fy-lime-tint-1 flex items-start justify-between gap-3">
+          <span className="flex items-start gap-3 min-w-0">
+            <IconTile tone="lime" size="sm">
+              <Icon name="workspace_premium" size={16} />
+            </IconTile>
+            <span className="flex flex-col min-w-0">
+              <Body className="font-semibold">{t('certified')}</Body>
+              <MutedText>{t('certifiedBody', { title: justCertified.title })}</MutedText>
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setJustCertified(null)}
+            className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-fy-green font-bold"
+          >
+            {t('dismiss')}
+          </button>
+        </Panel>
       )}
 
-      {/* The completion percentage and progress bar live on the screen's
-          own accreditation card now (TrainingScreen), so this component is
-          just the curriculum list and does not repeat them. */}
+      {actionError && (
+        <div role="alert" className="rounded-card bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
+          {actionError}
+        </div>
+      )}
 
-      {actionError && <p className="text-sm text-fy-error">{actionError}</p>}
-
-      <div className="space-y-4">
+      <div className="flex flex-col gap-3">
         {modules.map((entry) => {
           const isExpanded = expanded === entry.module._id;
           const locked = entry.status === 'locked';
           const completed = entry.status === 'completed';
           return (
-            <Card key={entry.module._id} className={locked ? 'opacity-60' : ''}>
+            <Panel key={entry.module._id} className={`flex flex-col gap-3 ${locked ? 'opacity-60' : ''}`}>
               <div className="flex items-start gap-3">
-                <span
-                  className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    completed ? `${tone.bg} text-white` : locked ? 'bg-fy-panel text-fy-muted' : `border ${tone.ring} ${tone.text}`
-                  }`}
-                >
-                  {completed ? <CheckIcon className="w-4 h-4" /> : locked ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                      <rect x="5" y="11" width="14" height="9" rx="2" />
-                      <path d="M8 11V7a4 4 0 118 0v4" />
-                    </svg>
+                <IconTile tone={completed ? (accentTone === 'green' ? 'green' : 'brown') : 'slate-pale'} size="lg">
+                  {completed ? (
+                    <Icon name="check" size={20} />
+                  ) : locked ? (
+                    <Icon name="lock" size={18} />
                   ) : (
-                    <span className="font-heading font-bold text-sm">{entry.module.order}</span>
+                    <span className="font-heading text-title font-bold">{entry.module.order}</span>
                   )}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-fy-muted">
-                      {t('moduleN', { n: entry.module.order })}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs text-fy-muted">
-                      <ClockIcon className="w-3 h-3" /> {t('minutesShort', { mins: entry.module.durationMinutes })}
+                </IconTile>
+
+                <div className="min-w-0 flex-1 flex flex-col gap-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <EyebrowLabel>{t('moduleN', { n: entry.module.order })}</EyebrowLabel>
+                    <span className="inline-flex items-center gap-1 font-mono text-[10px] text-fy-muted">
+                      <Icon name="schedule" size={12} />
+                      {t('minutesShort', { mins: entry.module.durationMinutes })}
                     </span>
                   </div>
-                  <h3 className="font-heading font-bold text-base mb-1">{entry.module.title}</h3>
-                  <p className="text-sm text-fy-muted mb-2">{entry.module.description}</p>
-
-                  {isExpanded && !locked && (
-                    <div className="text-sm bg-fy-panel rounded-control p-3 mb-2 whitespace-pre-wrap">{entry.module.content}</div>
-                  )}
-
-                  <div className="flex items-center gap-3 flex-wrap pt-2 mt-1 border-t border-fy-hairline">
-                    <span className={`text-xs font-semibold ${completed ? tone.text : 'text-fy-muted'}`}>
-                      {statusLabel(entry.status)}
-                    </span>
-                    {!locked && !completed && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setExpanded(isExpanded ? null : entry.module._id)}
-                          className="text-xs font-semibold text-fy-muted hover:underline"
-                        >
-                          {isExpanded ? t('hideLesson') : t('readLesson')}
-                        </button>
-                        <Button
-                          size="md"
-                          variant={accent === 'secondary' ? 'secondary' : 'primary'}
-                          className="ml-auto"
-                          disabled={completingId === entry.module._id}
-                          onClick={() => handleComplete(entry.module._id)}
-                        >
-                          {completingId === entry.module._id ? t('saving') : t('markComplete')}
-                        </Button>
-                      </>
-                    )}
-                    {locked && <span className="text-xs text-fy-muted ml-auto">{t('unlockHint')}</span>}
-                  </div>
+                  <Body className="font-semibold">{entry.module.title}</Body>
+                  <MutedText>{entry.module.description}</MutedText>
                 </div>
+
+                <StatusPill tone={completed ? 'lime' : locked ? 'neutral' : 'slate'} className="shrink-0">
+                  {statusLabel(entry.status)}
+                </StatusPill>
               </div>
-            </Card>
+
+              {isExpanded && !locked && (
+                <div className="rounded-cell bg-fy-well p-4 font-body text-body text-fy-ink-soft whitespace-pre-wrap leading-relaxed">
+                  {entry.module.content}
+                </div>
+              )}
+
+              {!locked && !completed && (
+                <>
+                  <Divider />
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(isExpanded ? null : entry.module._id)}
+                      className="font-mono text-[10px] uppercase tracking-wider text-fy-muted hover:text-fy-ink transition-colors"
+                    >
+                      {isExpanded ? t('hideLesson') : t('readLesson')}
+                    </button>
+                    <Button
+                      size="md"
+                      variant={accent === 'secondary' ? 'green' : 'brown'}
+                      disabled={completingId === entry.module._id}
+                      onClick={() => handleComplete(entry.module._id)}
+                    >
+                      {completingId === entry.module._id ? t('saving') : t('markComplete')}
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {locked && (
+                <>
+                  <Divider />
+                  <MutedText>{t('unlockHint')}</MutedText>
+                </>
+              )}
+            </Panel>
           );
         })}
       </div>

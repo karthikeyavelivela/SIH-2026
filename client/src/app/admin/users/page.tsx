@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { UserTable, AdminUserRow } from '@/components/admin/UserTable';
 import { Pagination } from '@/components/ui/Pagination';
-import { SearchIcon } from '@/components/ui/icons';
+import { ConsoleHead, ConsoleSearch } from '@/components/admin/ConsoleHead';
 
 const PAGE_SIZE = 20;
 
@@ -48,21 +48,15 @@ export default function AdminUsersPage() {
 
   return (
     <div className="animate-[fadeUp_400ms_ease-out]">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
-      <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
-      <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
+      <ConsoleHead eyebrow={t('eyebrow')} title={t('title')} subtitle={t('subtitle')} />
 
-      <div className="flex gap-3 mb-6">
-        <div className="relative w-full max-w-sm">
-          <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-fy-muted" />
-          <input
-            placeholder={t('searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && load(1)}
-            className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-control border border-fy-muted/20 bg-fy-card shadow-sm text-fy-ink placeholder:text-fy-ink-soft/70 transition-colors focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
-          />
-        </div>
+      <div className="mb-6">
+        <ConsoleSearch
+          value={search}
+          onChange={setSearch}
+          onSubmit={() => load(1)}
+          placeholder={t('searchPlaceholder')}
+        />
       </div>
       <UserTable users={users} onRoleChange={handleRoleChange} onStatusChange={handleStatusChange} />
       <Pagination page={page} totalPages={Math.max(1, Math.ceil(total / PAGE_SIZE))} onChange={(p) => load(p)} />

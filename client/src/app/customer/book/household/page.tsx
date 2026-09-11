@@ -45,12 +45,29 @@ function HouseholdBookRedirect() {
     if (categoriesState.status !== 'loading') router.replace('/customer/dashboard');
   }, [wanted, categoriesState.status, household, router]);
 
-  return null;
+  // Unlike the other two compatibility redirects, this one waits on
+  // /api/service-categories before it can forward, so returning null would
+  // leave the screen blank for the length of that request. A quiet holding
+  // state is shown instead.
+  return <RedirectHold />;
+}
+
+function RedirectHold() {
+  return (
+    <div className="min-h-screen bg-fy-bone flex flex-col items-center justify-center gap-4">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain opacity-40" />
+      <span
+        aria-hidden
+        className="relative w-10 h-10 rounded-full border-2 border-fy-brown/20 border-t-fy-brown animate-spin"
+      />
+      <span className="relative font-mono text-[11px] uppercase tracking-widest text-fy-muted">FYRO</span>
+    </div>
+  );
 }
 
 export default function HouseholdBookPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RedirectHold />}>
       <HouseholdBookRedirect />
     </Suspense>
   );
