@@ -13,19 +13,50 @@ interface RatingModalProps {
   onDone: () => void;
   accent?: 'primary' | 'secondary';
   title?: string;
+  /**
+   * Show the "rate later" escape. Off by default: the prompt that appears
+   * right after a job finishes should still be the straightforward ask. It is
+   * turned on where the rating is standing between someone and their next
+   * booking, which is where a hard wall does real harm.
+   */
+  allowDefer?: boolean;
 }
 
 // Spec: rating is mandatory before the rater's next booking/job — the
 // server enforces that (see ratingGate.service.ts), this modal is the
 // proactive prompt so the rater hits it here first instead of discovering
 // the gate via a rejected next action.
-export function RatingModal({ bookingId, open, onDone, accent = 'primary', title }: RatingModalProps) {
+export function RatingModal({
+  bookingId,
+  open,
+  onDone,
+  accent = 'primary',
+  title,
+  allowDefer = false,
+}: RatingModalProps) {
   const t = useTranslations('worker.ratingModal');
   const [score, setScore] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [deferring, setDeferring] = useState(false);
+
+  /* "Rate later" does not mark the job rated — it stays in the pending list
+     and can be rated any time. It only stops this one booking holding the
+     rating gate for a day, so nobody is walled out of booking by admin. */
+  async function defer() {
+    setDeferring(true);
+    setError(null);
+    try {
+      await api.post(`/api/ratings/${bookingId}/defer`);
+      onDone();
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : t('errorSubmit'));
+    } finally {
+      setDeferring(false);
+    }
+  }
 
   async function submit() {
     if (score === 0) {
@@ -86,11 +117,21 @@ export function RatingModal({ bookingId, open, onDone, accent = 'primary', title
         className="w-full"
         size="lg"
         variant={accent === 'primary' ? 'primary' : 'secondary'}
-        disabled={submitting}
+        disabled={submitting || deferring}
         onClick={submit}
       >
         {submitting ? t('submitting') : t('submitRating')}
       </Button>
+      {allowDefer && (
+        <button
+          type="button"
+          disabled={submitting || deferring}
+          onClick={defer}
+          className="w-full mt-3 py-2 font-mono text-[11px] uppercase tracking-widest text-fy-muted hover:text-fy-ink transition-colors disabled:opacity-50"
+        >
+          {deferring ? t('deferring') : t('rateLater')}
+        </button>
+      )}
     </Modal>
   );
 }

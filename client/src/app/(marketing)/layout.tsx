@@ -36,11 +36,33 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
+  /* Scroll fires dozens of times a second. This only ever needs to know
+     which side of one threshold we are on, so the read is deferred to the
+     next frame and state is only touched when the answer actually changes —
+     otherwise React was being asked to reconcile the whole shell on every
+     scroll event. */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
+    let frame = 0;
+    let last = window.scrollY > 8;
+    setScrolled(last);
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const next = window.scrollY > 8;
+        if (next !== last) {
+          last = next;
+          setScrolled(next);
+        }
+      });
+    };
+
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   return (
@@ -56,8 +78,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             }`}
             style={{
               background: scrolled ? 'rgba(253, 249, 240, 0.78)' : 'rgba(253, 249, 240, 0.62)',
-              backdropFilter: 'blur(22px) saturate(1.7)',
-              WebkitBackdropFilter: 'blur(22px) saturate(1.7)',
+              backdropFilter: 'blur(14px) saturate(1.35)',
+              WebkitBackdropFilter: 'blur(14px) saturate(1.35)',
+              contain: 'paint',
               boxShadow: scrolled
                 ? 'inset 0 0 0 1px rgba(28,28,22,0.10), 0 10px 32px rgba(28,28,22,0.10)'
                 : 'inset 0 0 0 1px rgba(28,28,22,0.07), 0 4px 18px rgba(28,28,22,0.05)',

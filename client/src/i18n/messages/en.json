@@ -774,7 +774,9 @@
       "errorPickStar": "Pick a star rating first.",
       "errorSubmit": "Could not submit your rating.",
       "submitting": "Submitting…",
-      "submitRating": "Submit rating"
+      "submitRating": "Submit rating",
+      "rateLater": "Rate later",
+      "deferring": "Saving…"
     },
     "photoProof": {
       "takePickupPhoto": "Take pickup photo",
@@ -3672,5 +3674,24 @@
       "payouts": "Payouts",
       "settings": "Settings"
     }
+  },
+  "pendingRatings": {
+    "pageTitle": "Ratings owed",
+    "eyebrow": "Cooperative trust",
+    "heading": "Jobs waiting on your rating",
+    "lede": "Rating both ways is what keeps the register honest. You can rate now, or rate later and come back — a deferred job stays on this list.",
+    "jobsHeading": "Waiting on you",
+    "count": "{count, plural, one {# job} other {# jobs}}",
+    "aJob": "A completed job",
+    "rateThis": "Rate this job",
+    "rateNow": "Rate now",
+    "rateLater": "Rate later",
+    "blockingPill": "Blocking new bookings",
+    "deferredFor": "{hours, plural, one {Deferred # hour} other {Deferred # hours}}",
+    "allClearTitle": "Nothing owed",
+    "allClearBody": "Every completed job has been rated. Thank you — that is what other members see when they decide to take your work.",
+    "backToBooking": "Back to booking",
+    "loadError": "Could not load your pending ratings.",
+    "tryAgain": "Try again"
   }
 }

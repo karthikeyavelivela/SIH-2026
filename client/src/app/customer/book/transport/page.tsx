@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { RatingGateNotice } from '@/components/booking/RatingGateNotice';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -446,20 +446,7 @@ export default function TransportBookingPage() {
 
           {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} />}
           {flow.submitError && (
-            <div role="alert" className="rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
-              {flow.submitError}
-              {/* The server blocks a new booking until the last completed one
-                  is rated. Telling the customer that without a way to get
-                  there is a dead end, so link straight to the job. */}
-              {flow.blockedByUnratedId && (
-                <Link
-                  href={`/customer/track/${flow.blockedByUnratedId}`}
-                  className="block mt-2 font-semibold underline underline-offset-2"
-                >
-                  {t('rateLastJob')}
-                </Link>
-              )}
-            </div>
+            <RatingGateNotice message={flow.submitError} bookingId={flow.blockedByUnratedId} />
           )}
 
           <Button

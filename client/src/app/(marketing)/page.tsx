@@ -170,6 +170,9 @@ export default function HomePage() {
      so it is stopped whenever the hero is off screen — otherwise the
      compositor never idles while a reader is down in the ledger. */
   const heroRef = useRef<HTMLElement | null>(null);
+  const divisionsRef = useRef<HTMLElement | null>(null);
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null);
+  const divisionVideoRef = useRef<HTMLVideoElement | null>(null);
   const [heroVisible, setHeroVisible] = useState(true);
   useEffect(() => {
     const node = heroRef.current;
@@ -178,6 +181,36 @@ export default function HomePage() {
     io.observe(node);
     return () => io.disconnect();
   }, []);
+
+  /* A <video> keeps decoding frames while it is off screen, and this page
+     has two of them. Left alone they burn CPU for the whole time a reader is
+     down in the ledger, which is most of the visit — and decoding under a
+     backdrop-filtered bar is what makes scrolling feel heavy. Each clip is
+     paused the moment its own section leaves the viewport and resumed when it
+     comes back. */
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const pairs: [HTMLElement | null, React.RefObject<HTMLVideoElement | null>][] = [
+      [heroRef.current, heroVideoRef],
+      [divisionsRef.current, divisionVideoRef],
+    ];
+    const observers = pairs.flatMap(([section, videoRef]) => {
+      if (!section) return [];
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          const video = videoRef.current;
+          if (!video) return;
+          if (entry.isIntersecting) void video.play().catch(() => {});
+          else video.pause();
+        },
+        { threshold: 0 }
+      );
+      io.observe(section);
+      return [io];
+    });
+    return () => observers.forEach((io) => io.disconnect());
+    // Re-bind when the divisions section swaps its clip.
+  }, [division]);
 
   const statsState = useApiState(
     () => api.get<{ stats: PublicStats }>('/api/public/stats').then((r) => r.stats),
@@ -214,12 +247,15 @@ export default function HomePage() {
         <div aria-hidden className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {HERO_VIDEO_URL ? (
             <video
+              ref={heroVideoRef}
               autoPlay={!reduceMotion}
               muted
               loop
               playsInline
+              preload="metadata"
+              disablePictureInPicture
               poster={HERO_POSTER || undefined}
-              className="w-full h-full object-cover object-center scale-105 opacity-[0.2] mix-blend-multiply contrast-105 sepia-[0.35] brightness-110"
+              className="w-full h-full object-cover object-center scale-105 opacity-[0.55] contrast-[1.04] saturate-[0.85] sepia-[0.18]"
             >
               <source src={HERO_VIDEO_URL} type="video/mp4" />
             </video>
@@ -228,14 +264,18 @@ export default function HomePage() {
             <img
               src={HERO_POSTER}
               alt=""
-              className={`w-full h-full object-cover object-center opacity-[0.2] mix-blend-multiply contrast-105 sepia-[0.35] brightness-110 ${
+              className={`w-full h-full object-cover object-center opacity-[0.55] contrast-[1.04] saturate-[0.85] sepia-[0.18] ${
                 reduceMotion || !heroVisible ? 'scale-105' : 'fy-hero-drift'
               }`}
             />
           )}
           {/* Warm washes so the headline stays legible over any frame. */}
-          <div className="absolute inset-0 bg-gradient-to-b from-fy-bone/70 via-fy-bone/74 to-fy-bone" />
-          <div className="absolute inset-0 bg-gradient-to-r from-fy-bone via-transparent to-fy-bone/85" />
+          {/* The washes are shaped around the text rather than laid flat over
+              the whole frame: heavy on the left where the headline sits,
+              nearly clear on the right so the footage is actually visible,
+              and closing to solid at the bottom so the ticker stays readable. */}
+          <div className="absolute inset-0 bg-gradient-to-r from-fy-bone via-fy-bone/70 to-fy-bone/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-fy-bone/55 via-transparent to-fy-bone" />
         </div>
 
         {/* Telugu archival watermark */}
@@ -456,7 +496,7 @@ export default function HomePage() {
       </section>
 
       {/* =================================================== 02 / TRIPARTITE */}
-      <section id="divisions" className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
+      <section id="divisions" ref={divisionsRef} className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
         <SectionRule num="02" label={t('divisionsLabel')} right={t('divisionsRight')} />
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -500,11 +540,13 @@ export default function HomePage() {
               ) : (
                 <video
                   key={division}
+                  ref={divisionVideoRef}
                   autoPlay
                   muted
                   loop
                   playsInline
                   preload="metadata"
+                  disablePictureInPicture
                   poster={assetUrl(DIVISION_MEDIA[division])}
                   aria-hidden
                   className="absolute inset-0 w-full h-full object-cover"

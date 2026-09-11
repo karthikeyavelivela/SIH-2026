@@ -1,5 +1,6 @@
 import { Booking } from '../models/Booking';
 import { Rating } from '../models/Rating';
+import { RatingDeferral } from '../models/RatingDeferral';
 
 /**
  * Spec: "both sides are prompted to submit a Rating (mandatory before
@@ -26,6 +27,23 @@ export async function findUnratedCompletedBooking(userId: string): Promise<strin
     ).map((r) => r.bookingId.toString())
   );
 
-  const unrated = completedBookingIds.find((b) => !ratedBookingIds.has(b._id.toString()));
+  // A booking the user chose to rate later does not hold the gate until its
+  // reminder falls due. It stays unrated and stays in the pending list —
+  // this only stops it blocking a new booking in the meantime.
+  const deferredBookingIds = new Set(
+    (
+      await RatingDeferral.find({
+        userId,
+        bookingId: { $in: completedBookingIds.map((b) => b._id) },
+        remindAt: { $gt: new Date() },
+      })
+        .select('bookingId')
+        .lean()
+    ).map((d) => d.bookingId.toString())
+  );
+
+  const unrated = completedBookingIds.find(
+    (b) => !ratedBookingIds.has(b._id.toString()) && !deferredBookingIds.has(b._id.toString())
+  );
   return unrated ? unrated._id.toString() : null;
 }

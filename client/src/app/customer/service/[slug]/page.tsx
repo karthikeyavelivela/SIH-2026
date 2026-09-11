@@ -7,6 +7,7 @@ import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { useBookingFlow } from '@/lib/useBookingFlow';
+import { RatingGateNotice } from '@/components/booking/RatingGateNotice';
 import { usePublishedRates } from '@/lib/usePublishedRates';
 import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { AddressField } from '@/components/booking/AddressField';
@@ -387,9 +388,7 @@ export default function ServiceDetailPage() {
         </Section>
 
         {flow.submitError && (
-          <div role="alert" className="rounded-control bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
-            {flow.submitError}
-          </div>
+          <RatingGateNotice message={flow.submitError} bookingId={flow.blockedByUnratedId} />
         )}
 
         <div className="fixed inset-x-0 bottom-16 z-30 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40">

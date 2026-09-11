@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking, IBooking } from '../models/Booking';
 import { Rating } from '../models/Rating';
+import { RatingDeferral, RATING_DEFERRAL_HOURS } from '../models/RatingDeferral';
 import { Mutha } from '../models/Mutha';
 import { applyRatingToUser, applyRatingToMutha } from '../services/rating.service';
 import { rethrowAsConflict } from '../utils/mongoErrors';
@@ -80,9 +81,80 @@ export const submitRating = asyncHandler(async (req: Request, res: Response) => 
 
 /** GET /api/ratings/pending — the caller's own unrated-completed-booking gate state, so the client can prompt proactively instead of only discovering it via a 403 on their next action. */
 export const getPendingRating = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
   const { findUnratedCompletedBooking } = await import('../services/ratingGate.service');
-  const bookingId = await findUnratedCompletedBooking(req.user!.id);
-  res.status(200).json({ bookingId });
+
+  // `bookingId` stays exactly what it was — the one booking currently
+  // holding the gate, or null — so existing callers are unaffected.
+  const bookingId = await findUnratedCompletedBooking(userId);
+
+  // `pending` is the full list, deferred jobs included, so a member can see
+  // and clear everything they owe rather than being handed one id at a time
+  // with no way to find the rest.
+  const completed = await Booking.find({
+    status: 'completed',
+    $or: [{ customerId: userId }, { assignedDriverIds: userId }, { assignedHamaliIds: userId }],
+  })
+    .select('_id serviceType type pickupAddress dropAddress fareBreakdown.total completedAt updatedAt')
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const ratedIds = new Set(
+    (await Rating.find({ fromUserId: userId, bookingId: { $in: completed.map((b) => b._id) } })
+      .select('bookingId')
+      .lean()
+    ).map((r) => r.bookingId.toString())
+  );
+
+  const deferrals = new Map(
+    (await RatingDeferral.find({ userId, bookingId: { $in: completed.map((b) => b._id) } })
+      .select('bookingId remindAt')
+      .lean()
+    ).map((d) => [d.bookingId.toString(), d.remindAt])
+  );
+
+  const pending = completed
+    .filter((b) => !ratedIds.has(b._id.toString()))
+    .map((b) => ({ ...b, deferredUntil: deferrals.get(b._id.toString()) ?? null }));
+
+  res.status(200).json({ bookingId, pending });
+});
+
+/**
+ * POST /api/ratings/:bookingId/defer — "rate later".
+ *
+ * Does not mark the booking rated and does not remove it from the pending
+ * list; it only stops that booking holding the rating gate for a window, so
+ * a member with a job to book is not walled off by unrelated admin. Deferring
+ * again just moves the reminder.
+ */
+export const deferRating = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const { bookingId } = req.params;
+
+  const booking = await Booking.findById(bookingId).select('status customerId assignedDriverIds assignedHamaliIds').lean();
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  if (booking.status !== 'completed') throw new ApiError(400, 'Only a completed booking can be rated later');
+
+  // Only a party to the booking may defer its rating.
+  const parties = [
+    booking.customerId?.toString(),
+    ...(booking.assignedDriverIds ?? []).map((d) => d.toString()),
+    ...(booking.assignedHamaliIds ?? []).map((h) => h.toString()),
+  ].filter(Boolean);
+  if (!parties.includes(userId)) throw new ApiError(403, 'You were not part of this booking');
+
+  const alreadyRated = await Rating.exists({ fromUserId: userId, bookingId });
+  if (alreadyRated) throw new ApiError(400, 'You have already rated this booking');
+
+  const remindAt = new Date(Date.now() + RATING_DEFERRAL_HOURS * 60 * 60 * 1000);
+  const deferral = await RatingDeferral.findOneAndUpdate(
+    { bookingId, userId },
+    { bookingId, userId, remindAt },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  res.status(200).json({ deferral });
 });
 
 /**
