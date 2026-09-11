@@ -2522,7 +2522,43 @@
         "label": "Audit log",
         "hint": "Immutable action history"
       }
-    }
+    },
+    "openGrievances": "Open grievances",
+    "workersOnline": "Workers online",
+    "scopeChip": "Scope: {role}",
+    "roleSuperAdmin": "Super admin",
+    "roleManager": "Manager",
+    "strata": {
+      "demandEyebrow": "Realtime demand",
+      "activeNote": "{completed} settled all-time",
+      "clearanceEyebrow": "Aggregate clearance",
+      "gmvNote": "Sum of completed booking totals",
+      "trustEyebrow": "Trust & governance",
+      "grievanceNote": "{complaints} complaints · {disputes} disputes",
+      "labourEyebrow": "Labour cooperative",
+      "workersNote": "{vehicles, plural, =0 {No vehicles available} one {# vehicle available} other {# vehicles available}}"
+    },
+    "incidentQueue": "Incident queue",
+    "needsReview": "Needs review",
+    "openCount": "{count, plural, =0 {Nothing open} one {# open} other {# open}}",
+    "incident": {
+      "disputes": {
+        "label": "Disputes",
+        "hint": "Arbitrate a contested job"
+      },
+      "complaints": {
+        "label": "Complaints",
+        "hint": "Resolve a grievance"
+      },
+      "kyc": {
+        "label": "KYC queue",
+        "hint": "Verify pending members"
+      }
+    },
+    "pulseEyebrow": "Institutional ledger",
+    "pulseJobs": "{count, plural, one {# settled job} other {# settled jobs}}",
+    "openLedger": "Open ledger",
+    "consoleSections": "Console"
   },
   "adminDisputes": {
     "eyebrow": "Trust & safety",

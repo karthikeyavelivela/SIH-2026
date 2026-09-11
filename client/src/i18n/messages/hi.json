@@ -2522,7 +2522,43 @@
         "label": "ऑडिट लॉग",
         "hint": "अपरिवर्तनीय कार्रवाई इतिहास"
       }
-    }
+    },
+    "openGrievances": "लंबित शिकायतें",
+    "workersOnline": "ऑनलाइन कामगार",
+    "scopeChip": "दायरा: {role}",
+    "roleSuperAdmin": "सुपर एडमिन",
+    "roleManager": "प्रबंधक",
+    "strata": {
+      "demandEyebrow": "वर्तमान माँग",
+      "activeNote": "कुल {completed} निपटे",
+      "clearanceEyebrow": "कुल निपटान",
+      "gmvNote": "पूरी हुई बुकिंग का योग",
+      "trustEyebrow": "विश्वास एवं शासन",
+      "grievanceNote": "{complaints} शिकायतें · {disputes} विवाद",
+      "labourEyebrow": "श्रम सहकारिता",
+      "workersNote": "{vehicles, plural, =0 {कोई वाहन उपलब्ध नहीं} one {# वाहन उपलब्ध} other {# वाहन उपलब्ध}}"
+    },
+    "incidentQueue": "घटना सूची",
+    "needsReview": "समीक्षा आवश्यक",
+    "openCount": "{count, plural, =0 {कुछ लंबित नहीं} one {# लंबित} other {# लंबित}}",
+    "incident": {
+      "disputes": {
+        "label": "विवाद",
+        "hint": "विवादित काम का निपटारा करें"
+      },
+      "complaints": {
+        "label": "शिकायतें",
+        "hint": "शिकायत हल करें"
+      },
+      "kyc": {
+        "label": "केवाईसी सूची",
+        "hint": "लंबित सदस्य सत्यापित करें"
+      }
+    },
+    "pulseEyebrow": "संस्थागत बही",
+    "pulseJobs": "{count, plural, one {# निपटा काम} other {# निपटे काम}}",
+    "openLedger": "बही खोलें",
+    "consoleSections": "कंसोल"
   },
   "adminDisputes": {
     "eyebrow": "ट्रस्ट एंड सेफ्टी",

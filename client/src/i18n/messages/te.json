@@ -2522,7 +2522,43 @@
         "label": "ఆడిట్ లాగ్",
         "hint": "మార్చలేని చర్య చరిత్ర"
       }
-    }
+    },
+    "openGrievances": "పరిష్కారం కాని ఫిర్యాదులు",
+    "workersOnline": "ఆన్‌లైన్‌లో కార్మికులు",
+    "scopeChip": "పరిధి: {role}",
+    "roleSuperAdmin": "సూపర్ అడ్మిన్",
+    "roleManager": "మేనేజర్",
+    "strata": {
+      "demandEyebrow": "ప్రస్తుత డిమాండ్",
+      "activeNote": "మొత్తం {completed} పూర్తయ్యాయి",
+      "clearanceEyebrow": "మొత్తం పరిష్కారం",
+      "gmvNote": "పూర్తయిన బుకింగ్‌ల మొత్తం",
+      "trustEyebrow": "విశ్వాసం, పాలన",
+      "grievanceNote": "{complaints} ఫిర్యాదులు · {disputes} వివాదాలు",
+      "labourEyebrow": "కార్మిక సహకారం",
+      "workersNote": "{vehicles, plural, =0 {వాహనాలు అందుబాటులో లేవు} one {# వాహనం అందుబాటులో} other {# వాహనాలు అందుబాటులో}}"
+    },
+    "incidentQueue": "ఘటనల జాబితా",
+    "needsReview": "సమీక్ష అవసరం",
+    "openCount": "{count, plural, =0 {ఏదీ పెండింగ్ లేదు} one {# పెండింగ్} other {# పెండింగ్}}",
+    "incident": {
+      "disputes": {
+        "label": "వివాదాలు",
+        "hint": "వివాదాస్పద పనిని పరిష్కరించండి"
+      },
+      "complaints": {
+        "label": "ఫిర్యాదులు",
+        "hint": "ఫిర్యాదును పరిష్కరించండి"
+      },
+      "kyc": {
+        "label": "కేవైసీ జాబితా",
+        "hint": "పెండింగ్ సభ్యులను ధృవీకరించండి"
+      }
+    },
+    "pulseEyebrow": "సంస్థాగత లెడ్జర్",
+    "pulseJobs": "{count, plural, one {# పని పూర్తి} other {# పనులు పూర్తి}}",
+    "openLedger": "లెడ్జర్ తెరవండి",
+    "consoleSections": "కన్సోల్"
   },
   "adminDisputes": {
     "eyebrow": "ట్రస్ట్ & సేఫ్టీ",
