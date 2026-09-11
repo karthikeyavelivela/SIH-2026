@@ -113,6 +113,12 @@ export function useBookingFlow({ type, serviceCategorySlug, needsWeight, needsHa
   const [fare, setFare] = useState<FareBreakdown | null>(null);
   const [fareError, setFareError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  /* createBooking refuses a new booking while the customer still owes a
+     rating on their last completed one, and names that booking in the
+     error's `details`. Without capturing it the customer is told to go and
+     rate something with no way to reach it, so the id is held here and the
+     form offers a link straight to that job. */
+  const [blockedByUnratedId, setBlockedByUnratedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [scheduledFor, setScheduledFor] = useState('');
   const [openForBidding, setOpenForBidding] = useState(false);
@@ -168,6 +174,7 @@ export function useBookingFlow({ type, serviceCategorySlug, needsWeight, needsHa
   async function submit(cargoDetails: Record<string, unknown>, fallbackError: string) {
     if (!pickup || !drop) return;
     setSubmitError(null);
+    setBlockedByUnratedId(null);
     setSubmitting(true);
     try {
       const res = await api.post<{ booking: { _id: string } }>('/api/bookings', {
@@ -181,6 +188,10 @@ export function useBookingFlow({ type, serviceCategorySlug, needsWeight, needsHa
       router.push(`/customer/track/${res.booking._id}`);
     } catch (err) {
       setSubmitError(err instanceof ApiClientError ? err.message : fallbackError);
+      if (err instanceof ApiClientError) {
+        const details = err.details as { unratedBookingId?: string } | undefined;
+        if (details?.unratedBookingId) setBlockedByUnratedId(details.unratedBookingId);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -217,5 +228,6 @@ export function useBookingFlow({ type, serviceCategorySlug, needsWeight, needsHa
     submit,
     submitting,
     submitError,
+    blockedByUnratedId,
   };
 }

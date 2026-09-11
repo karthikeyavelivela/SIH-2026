@@ -3348,7 +3348,8 @@
     "continueWithCount": "Continue with {count, plural, one {# worker} other {# workers}}",
     "continueWithTotal": "Continue · {count, plural, one {# worker} other {# workers}} · ₹{total}",
     "submitting": "Requesting…",
-    "errorSubmit": "Could not create the booking."
+    "errorSubmit": "Could not create the booking.",
+    "rateLastJob": "Rate your last job to continue"
   },
   "labourBulk": {
     "title": "Bulk consignment",
@@ -3485,7 +3486,8 @@
     "submit": "Review & book fleet",
     "submitting": "Requesting…",
     "guaranteeNote": "Dispatched through registered cooperative transport societies.",
-    "errorSubmit": "Could not create the booking."
+    "errorSubmit": "Could not create the booking.",
+    "rateLastJob": "Rate your last job to continue"
   },
   "customerLedger": {
     "title": "Passbook",

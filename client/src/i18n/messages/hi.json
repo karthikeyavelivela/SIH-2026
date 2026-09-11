@@ -3348,7 +3348,8 @@
     "continueWithCount": "{count, plural, one {# कामगार} other {# कामगारों}} के साथ आगे बढ़ें",
     "continueWithTotal": "आगे बढ़ें · {count, plural, one {# कामगार} other {# कामगार}} · ₹{total}",
     "submitting": "अनुरोध भेजा जा रहा है…",
-    "errorSubmit": "बुकिंग नहीं बन सकी।"
+    "errorSubmit": "बुकिंग नहीं बन सकी।",
+    "rateLastJob": "जारी रखने के लिए अपने पिछले काम को रेटिंग दें"
   },
   "labourBulk": {
     "title": "बड़ी खेप",
@@ -3485,7 +3486,8 @@
     "submit": "समीक्षा करें और बेड़ा बुक करें",
     "submitting": "अनुरोध भेजा जा रहा है…",
     "guaranteeNote": "पंजीकृत सहकारी परिवहन समितियों के माध्यम से भेजा जाता है।",
-    "errorSubmit": "बुकिंग नहीं बन सकी।"
+    "errorSubmit": "बुकिंग नहीं बन सकी।",
+    "rateLastJob": "जारी रखने के लिए अपने पिछले काम को रेटिंग दें"
   },
   "customerLedger": {
     "title": "पासबुक",
