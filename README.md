@@ -6,7 +6,9 @@
 - **Live API:** [sih-2026-f63s.onrender.com](https://sih-2026-f63s.onrender.com)
 - **Stack:** Next.js (client) · Express + MongoDB (server) · deployed on Vercel + Render + MongoDB Atlas
 
-A customer can book cargo transport or Hamali labor in under a minute, see honest live-matching state (never a fake instant match), track the assigned worker on a real map, and pay/rate at the end. Workers see a job offer with a visible countdown and get paid transparently. See [`PRODUCT.md`](./PRODUCT.md) for the full product brief and [`DESIGN.md`](./DESIGN.md) for the design system.
+A customer can book a household service, a Hamali crew or a truck in under a minute, see honest live-matching state (never a fake instant match), track the assigned worker on a real map, and pay/rate at the end. Workers see a job offer with a visible countdown and get paid transparently.
+
+**Start here:** [`FLOWS.md`](./FLOWS.md) — the three booking processes end to end, an honest line-by-line map of the problem statement against what is actually built (including what deliberately is not), every demo login, and how the money splits. [`PRODUCT.md`](./PRODUCT.md) has the product brief; [`DESIGN.md`](./DESIGN.md) the design system.
 
 ---
 
@@ -89,6 +91,7 @@ shared/               types shared between client and server (npm workspace)
 
 ## More docs
 
+- [`FLOWS.md`](./FLOWS.md) — booking flows, problem-statement coverage, roles, money
 - [`PRODUCT.md`](./PRODUCT.md) — users, purpose, design principles
 - [`DESIGN.md`](./DESIGN.md) / [`DESIGN_INVENTORY.md`](./DESIGN_INVENTORY.md) — design system and screen inventory
 - [`DEPLOY.md`](./DEPLOY.md) — full deployment walkthrough (Vercel + Render + Atlas), including turning on live AI agents and real Cloudinary/Razorpay

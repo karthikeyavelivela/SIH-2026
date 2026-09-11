@@ -12,6 +12,7 @@ import { usePublishedRates } from '@/lib/usePublishedRates';
 import { bucketCategories } from '@/lib/categoryBuckets';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
+import { LanguageDial } from '@/components/fy/LanguageDial';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { PermissionDeniedState } from '@/components/ui/PermissionDeniedState';
@@ -184,12 +185,11 @@ export default function CustomerDashboardPage() {
               <Icon name="expand_more" size={14} className="shrink-0" />
             </Link>
             <div className="flex items-center gap-2.5 shrink-0">
-              <Link
-                href="/customer/profile"
-                className="px-2 py-0.5 rounded-full bg-fy-well text-fy-ink-soft font-body text-eyebrow uppercase"
-              >
-                EN / తె / हि
-              </Link>
+              {/* Was a static "EN / తె / हि" label that only linked to the
+                  profile page — it looked like a control and switched
+                  nothing. This is the real dial: slide it, or tap a
+                  position, and the locale changes here. */}
+              <LanguageDial size="sm" />
               <NotificationBell href="/customer/notifications" />
             </div>
           </div>
