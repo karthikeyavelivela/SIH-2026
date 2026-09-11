@@ -202,7 +202,13 @@ export default function HomePage() {
       {/* ===================================================== HERO / VIDEO */}
       <section
         ref={heroRef}
-        className="relative min-h-[calc(100vh-5rem)] w-full flex flex-col justify-between px-gutter lg:px-12 pt-10 pb-8 overflow-hidden"
+        /* The shell reserves room for the floating navbar, but the hero's
+           backdrop is meant to run the full height of the window with the
+           capsule floating *over* it — otherwise the top strip reads as a
+           bare cream band above the picture. Pulling the section up by the
+           shell's own offset and adding it back as padding puts the media
+           behind the navbar while the headline stays clear of it. */
+        className="relative -mt-20 md:-mt-24 min-h-screen w-full flex flex-col justify-between px-gutter lg:px-12 pt-28 md:pt-32 pb-8 overflow-hidden"
       >
         {/* The moving backdrop is the page's first element, behind everything. */}
         <div aria-hidden className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -228,7 +234,7 @@ export default function HomePage() {
             />
           )}
           {/* Warm washes so the headline stays legible over any frame. */}
-          <div className="absolute inset-0 bg-gradient-to-b from-fy-bone/90 via-fy-bone/78 to-fy-bone" />
+          <div className="absolute inset-0 bg-gradient-to-b from-fy-bone/70 via-fy-bone/74 to-fy-bone" />
           <div className="absolute inset-0 bg-gradient-to-r from-fy-bone via-transparent to-fy-bone/85" />
         </div>
 

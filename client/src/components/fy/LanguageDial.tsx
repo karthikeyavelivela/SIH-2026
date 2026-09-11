@@ -124,7 +124,7 @@ export function LanguageDial({
       tabIndex={0}
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}
-      className={`relative ${h} ${w} rounded-full p-1 select-none cursor-grab active:cursor-grabbing touch-none outline-none focus-visible:ring-2 focus-visible:ring-fy-brown/40 ${className}`}
+      className={`relative block ${h} ${w} rounded-full p-1 select-none cursor-grab active:cursor-grabbing touch-none outline-none focus-visible:ring-2 focus-visible:ring-fy-brown/40 ${className}`}
       style={{
         background: 'rgba(255,255,255,0.55)',
         backdropFilter: 'blur(12px) saturate(1.4)',
@@ -145,7 +145,7 @@ export function LanguageDial({
           left: '0.25rem',
         }}
       />
-      <div className="relative grid h-full" style={{ gridTemplateColumns: `repeat(${LANGS.length}, 1fr)` }}>
+      <div className="relative grid h-full w-full" style={{ gridTemplateColumns: `repeat(${LANGS.length}, 1fr)` }}>
         {LANGS.map((l, i) => {
           const on = i === Math.round(pos);
           return (

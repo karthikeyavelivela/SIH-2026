@@ -109,7 +109,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </nav>
 
             <div className="flex items-center gap-2 md:gap-3 shrink-0">
-              <LanguageDial size="sm" className="hidden sm:flex" />
+              <LanguageDial size="sm" className="hidden sm:block" />
 
               <Link
                 href="/login"
