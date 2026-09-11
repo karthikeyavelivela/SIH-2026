@@ -1,44 +1,85 @@
 import { getTranslations } from 'next-intl/server';
-import { Card } from '@/components/ui/Card';
+import Link from 'next/link';
+import { EditorialPage, PageHead, Chapter, Plate } from '@/components/marketing/Editorial';
+
+/* The three audiences the platform actually serves, set in the landing
+   page's own register. Each block's copy describes behaviour that exists:
+   the sequential offer engine, the visible countdown, the status stepper,
+   and the society route for Hamali members. */
 
 const SECTION_KEYS = ['customers', 'drivers', 'hamaliWorkers'] as const;
 
+const GLYPH: Record<(typeof SECTION_KEYS)[number], string> = {
+  customers: 'shopping_bag',
+  drivers: 'local_shipping',
+  hamaliWorkers: 'engineering',
+};
+
+const SIGNUP_HREF: Record<(typeof SECTION_KEYS)[number], string> = {
+  customers: '/signup/customer',
+  drivers: '/signup/driver',
+  hamaliWorkers: '/signup/hamali',
+};
+
 export default async function HowItWorksPage() {
   const t = await getTranslations('marketing.howItWorks');
-  const sections = SECTION_KEYS.map((key) => ({
-    title: t(`${key}.title`),
-    body: t(`${key}.body`),
-  }));
+  const th = await getTranslations('marketing.home');
 
   return (
-    <div className="relative overflow-hidden">
-      <div aria-hidden className="absolute -top-32 -right-32 w-[24rem] h-[24rem] rounded-full bg-fy-green/10 blur-[110px] -z-10" />
+    <EditorialPage>
+      <PageHead eyebrow={th('manifestoLabel')} title={t('title')} accent={th('divisionsSub')} />
 
-      <div className="max-w-4xl mx-auto px-6 pt-8 pb-8">
-        <div className="max-w-xl mb-16">
-          <span aria-hidden className="inline-block w-12 h-1.5 rounded-full bg-fy-brown mb-6" />
-          <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink">{t('title')}</h1>
-        </div>
-
-        <div className="space-y-8">
-          {sections.map((s, i) => (
-            <div key={s.title} className={i % 2 === 1 ? 'md:ml-16' : ''}>
-              <Card className="relative overflow-hidden md:flex md:gap-8 md:items-start hover:shadow-lg transition-shadow duration-base ease-out">
+      {SECTION_KEYS.map((key, i) => (
+        <Chapter key={key} num={`0${i + 1}`} label={t(`${key}.title`)} right={th('publishedRateChip')}>
+          <div className="grid gap-5 lg:grid-cols-12 items-start">
+            <div className="lg:col-span-8">
+              <Plate className="flex flex-col gap-4">
+                <span className="flex items-center gap-3">
+                  <span
+                    aria-hidden
+                    className="w-11 h-11 rounded-cell bg-fy-lime-tint-1 border border-fy-lime/50 flex items-center justify-center shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[22px] text-fy-green leading-none">
+                      {GLYPH[key]}
+                    </span>
+                  </span>
+                  <h2 className="font-heading text-title sm:text-heading text-fy-ink leading-tight">
+                    {t(`${key}.title`)}
+                  </h2>
+                </span>
+                <p className="font-body text-body-lg text-fy-ink-soft font-light leading-relaxed">
+                  {t(`${key}.body`)}
+                </p>
+              </Plate>
+            </div>
+            <div className="lg:col-span-4">
+              <Link
+                href={SIGNUP_HREF[key]}
+                className="group flex items-center justify-between gap-3 bg-fy-brown hover:bg-fy-brown-soft text-fy-bone rounded-card px-5 py-4 shadow-card transition-colors"
+              >
+                <span className="font-mono text-[11px] uppercase tracking-widest font-semibold">
+                  {th('ctaEngage')}
+                </span>
                 <span
                   aria-hidden
-                  className="select-none font-heading text-6xl md:text-7xl font-extrabold text-fy-green/10 leading-none shrink-0 block mb-4 md:mb-0"
+                  className="material-symbols-outlined text-sm text-fy-lime group-hover:translate-x-1 transition-transform"
                 >
-                  {String(i + 1).padStart(2, '0')}
+                  arrow_forward
                 </span>
-                <div>
-                  <h2 className="font-heading text-xl font-bold mb-3 text-fy-ink">{s.title}</h2>
-                  <p className="text-fy-muted leading-relaxed">{s.body}</p>
-                </div>
-              </Card>
+              </Link>
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
+          </div>
+        </Chapter>
+      ))}
+
+      <Chapter num="04" label={th('charterLabel')} right={th('charterRight')}>
+        <Plate className="flex flex-col gap-3">
+          <p className="font-heading italic text-body-lg text-fy-ink leading-relaxed">{th('manifestoQuote')}</p>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-fy-brown font-semibold">
+            {th('manifestoQuoteAttr')}
+          </span>
+        </Plate>
+      </Chapter>
+    </EditorialPage>
   );
 }

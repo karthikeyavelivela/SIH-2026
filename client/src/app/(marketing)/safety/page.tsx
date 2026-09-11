@@ -1,52 +1,79 @@
 import { getTranslations } from 'next-intl/server';
-import { Card } from '@/components/ui/Card';
-import { XIcon, CameraIcon, StarIcon, MapPinIcon, MessageIcon, AlertIcon } from '@/components/ui/icons';
+import { EditorialPage, PageHead, Chapter, Plate } from '@/components/marketing/Editorial';
 
-// Every item here is a real, shipped mechanic — cross-referenced against
-// the actual feature set (PhotoProofCapture, the mandatory-rating gate,
-// useLiveLocationBroadcast, in-app chat over sockets, cancelMyBooking, and
-// the Complaint model/report flow) rather than generic trust-page copy.
-// Deliberately excludes a "KYC verification" claim: kycStatus exists on
-// the User model but nothing in the backend gates a worker going online on
-// it, so claiming it protects you here would be false.
+/* Six protections, each one a feature that is actually running — the
+   cancel guard, the photo-proof gate, the mandatory two-way rating, the
+   live location stream, in-app chat without number sharing, and the
+   per-booking complaint route. Nothing here is a roadmap promise, which is
+   why the page says so in its own lede. */
+
 const MEASURE_KEYS = [
-  { key: 'cancelWithoutPenalty', icon: XIcon },
-  { key: 'photoProof', icon: CameraIcon },
-  { key: 'twoWayRatings', icon: StarIcon },
-  { key: 'liveLocation', icon: MapPinIcon },
-  { key: 'inAppChat', icon: MessageIcon },
-  { key: 'reportIssue', icon: AlertIcon },
+  'cancelWithoutPenalty',
+  'photoProof',
+  'twoWayRatings',
+  'liveLocation',
+  'inAppChat',
+  'reportIssue',
 ] as const;
+
+const GLYPH: Record<(typeof MEASURE_KEYS)[number], string> = {
+  cancelWithoutPenalty: 'free_cancellation',
+  photoProof: 'photo_camera',
+  twoWayRatings: 'star_half',
+  liveLocation: 'share_location',
+  inAppChat: 'forum',
+  reportIssue: 'report',
+};
 
 export default async function SafetyPage() {
   const t = await getTranslations('marketing.safety');
-  const measures = MEASURE_KEYS.map(({ key, icon }) => ({
-    icon,
-    title: t(`measures.${key}.title`),
-    body: t(`measures.${key}.body`),
-  }));
+  const th = await getTranslations('marketing.home');
 
   return (
-    <div className="relative overflow-hidden">
-      <div aria-hidden className="absolute -top-32 -right-32 w-[24rem] h-[24rem] rounded-full bg-fy-brown/10 blur-[110px] -z-10" />
+    <EditorialPage>
+      <PageHead
+        eyebrow={th('charterLabel')}
+        title={t('title')}
+        accent={th('charterAccent')}
+        lede={t('subtitle')}
+      />
 
-      <div className="max-w-5xl mx-auto px-6 pt-8 pb-8">
-        <div className="max-w-xl mb-16">
-          <span aria-hidden className="inline-block w-12 h-1.5 rounded-full bg-fy-brown mb-6" />
-          <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-4">{t('title')}</h1>
-          <p className="text-fy-muted text-lg leading-relaxed">{t('subtitle')}</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-6">
-          {measures.map((m) => (
-            <Card key={m.title} className="hover:-translate-y-1 hover:shadow-lg transition-all duration-base ease-out">
-              <m.icon className="w-6 h-6 text-fy-brown mb-3" />
-              <h2 className="font-heading text-base font-bold mb-2 text-fy-ink">{m.title}</h2>
-              <p className="text-sm text-fy-muted leading-relaxed">{m.body}</p>
-            </Card>
+      <Chapter num="01" label={th('charterRight')} right={th('manifestoQuoteSeal')}>
+        <div className="grid gap-5 md:grid-cols-2">
+          {MEASURE_KEYS.map((key, i) => (
+            <Plate key={key} className="flex flex-col gap-3 h-full">
+              <div className="flex items-start justify-between gap-3">
+                <span className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    aria-hidden
+                    className="w-9 h-9 rounded-cell bg-fy-lime-tint-1 border border-fy-lime/50 flex items-center justify-center shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[18px] text-fy-green leading-none">
+                      {GLYPH[key]}
+                    </span>
+                  </span>
+                  <h2 className="font-heading text-title text-fy-ink leading-snug">
+                    {t(`measures.${key}.title`)}
+                  </h2>
+                </span>
+                <span className="font-mono text-[10px] text-fy-brown font-bold shrink-0">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+              </div>
+              <p className="font-body text-body text-fy-ink-soft leading-relaxed">{t(`measures.${key}.body`)}</p>
+            </Plate>
           ))}
         </div>
-      </div>
-    </div>
+      </Chapter>
+
+      <Chapter num="02" label={th('registerGuaranteeTitle')} right={th('publishedRateChip')}>
+        <Plate className="flex flex-col gap-3">
+          <p className="font-heading italic text-body-lg text-fy-ink leading-relaxed">{th('manifestoQuote')}</p>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-fy-brown font-semibold">
+            {th('manifestoQuoteAttr')}
+          </span>
+        </Plate>
+      </Chapter>
+    </EditorialPage>
   );
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ChevronRightIcon } from '@/components/ui/icons';
+import { EditorialPage, PageHead, Chapter } from '@/components/marketing/Editorial';
 
 // Grounded in actual product behavior — fare rules (base + per-km +
 // minimum, per region/category), the cancelMyBooking guard, the
@@ -14,56 +14,70 @@ import { ChevronRightIcon } from '@/components/ui/icons';
 // the backend actually checks it before a worker can go online.
 const FAQ_KEYS = ['fare', 'payment', 'cancel', 'coverage', 'accountability', 'noAccept', 'mutha', 'issue'] as const;
 
-function FaqItem({ q, a }: { q: string; a: string }) {
+function FaqItem({ index, q, a }: { index: string; q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-fy-hairline last:border-b-0">
+    <div className="border-b border-fy-brown/12 last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-4 py-5 text-left"
+        className="w-full flex items-start justify-between gap-4 py-5 text-left group"
       >
-        <span className="font-heading font-semibold text-fy-ink">{q}</span>
-        <ChevronRightIcon
-          className={`w-4 h-4 flex-shrink-0 text-fy-muted transition-transform duration-base ${open ? 'rotate-90' : ''}`}
-        />
+        <span className="flex items-start gap-4 min-w-0">
+          <span className="font-mono text-[10px] text-fy-brown font-bold pt-1.5 shrink-0">{index}</span>
+          <span className="font-heading text-title text-fy-ink leading-snug group-hover:text-fy-brown transition-colors">
+            {q}
+          </span>
+        </span>
+        <span
+          aria-hidden
+          className={`material-symbols-outlined text-[20px] text-fy-muted shrink-0 transition-transform duration-base ${
+            open ? 'rotate-45' : ''
+          }`}
+        >
+          add
+        </span>
       </button>
-      {open && <p className="pb-5 text-sm text-fy-muted leading-relaxed pr-8">{a}</p>}
+      {open && (
+        <p className="pb-6 pl-[2.1rem] pr-8 font-body text-body text-fy-ink-soft leading-relaxed">{a}</p>
+      )}
     </div>
   );
 }
 
 export default function FaqPage() {
   const t = useTranslations('marketing.faq');
-  const faqs = FAQ_KEYS.map((key) => ({
-    q: t(`items.${key}.q`),
-    a: t(`items.${key}.a`),
-  }));
+  const th = useTranslations('marketing.home');
 
   return (
-    <div className="relative overflow-hidden">
-      <div aria-hidden className="absolute -top-20 -left-32 w-[24rem] h-[24rem] rounded-full bg-fy-green/10 blur-[110px] -z-10" />
-
-      <div className="max-w-3xl mx-auto px-6 pt-8 pb-8">
-        <div className="mb-12">
-          <span aria-hidden className="inline-block w-12 h-1.5 rounded-full bg-fy-green mb-6" />
-          <h1 className="font-heading text-2xl font-extrabold tracking-tight text-fy-ink mb-4">{t('title')}</h1>
-          <p className="text-fy-muted text-lg leading-relaxed">
+    <EditorialPage>
+      <PageHead
+        eyebrow={th('registerLabel')}
+        title={t('title')}
+        aside={
+          <p className="font-body text-body text-fy-ink-soft">
             {t('cantFindPrefix')}{' '}
-            <Link href="/contact" className="text-fy-brown font-semibold hover:underline">
+            <Link href="/contact" className="text-fy-brown font-semibold hover:underline underline-offset-2">
               {t('contactUsLink')}
             </Link>
             .
           </p>
-        </div>
+        }
+      />
 
-        <div className="rounded-card bg-fy-card border border-fy-hairline shadow-sm px-6">
-          {faqs.map((f) => (
-            <FaqItem key={f.q} q={f.q} a={f.a} />
+      <Chapter num="01" label={t('title')} right={th('registerTableRight')}>
+        <div className="bg-fy-card border border-fy-brown/15 rounded-card shadow-card px-6">
+          {FAQ_KEYS.map((key, i) => (
+            <FaqItem
+              key={key}
+              index={String(i + 1).padStart(2, '0')}
+              q={t(`items.${key}.q`)}
+              a={t(`items.${key}.a`)}
+            />
           ))}
         </div>
-      </div>
-    </div>
+      </Chapter>
+    </EditorialPage>
   );
 }
