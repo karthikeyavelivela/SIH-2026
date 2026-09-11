@@ -14,6 +14,8 @@ import { StatusPill } from '@/components/fy/Status';
 import { Button } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
 import { BottomTabBar } from '@/components/fy/Navigation';
+import { LanguageDial } from '@/components/fy/LanguageDial';
+import { FYRO_LOGO_URL } from '@/lib/brand';
 
 /* Built against design-reference/login.png.
    Section order there, top to bottom: brand header -> photo card with a
@@ -59,24 +61,36 @@ export default function LoginPage() {
     <div className="min-h-screen bg-fy-bone relative">
       <div className="fixed inset-0 pointer-events-none fy-grain opacity-40 z-0" />
 
-      <header className="sticky top-0 z-30 bg-fy-bone/88 backdrop-blur-xl border-b border-fy-hairline/40">
-        <div className="h-16 max-w-2xl mx-auto px-gutter flex items-center justify-between gap-3">
-          <Link href="/" className="flex flex-col leading-none min-w-0" aria-label={t('backToHome')}>
-            <span className="font-heading text-title text-fy-brown">FYRO</span>
-            <EyebrowLabel className="mt-0.5">{t('brandSub')}</EyebrowLabel>
+      {/* Signed out, the only chrome is the bottom bar and this one control.
+          A full nav here competes with the single thing the screen is for,
+          so the brand mark drops to a plain home link on the left and the
+          language dial floats top-right — where the old static EN/తె/हि pill
+          sat, except this one actually switches the locale. */}
+      <div className="fixed top-0 inset-x-0 z-30 pointer-events-none">
+        <div className="max-w-2xl mx-auto px-gutter pt-3 flex items-center justify-between gap-3">
+          {/* Both controls stay legible over whatever scrolls beneath them,
+              so each carries its own glass ground rather than sitting bare
+              on the page. */}
+          <Link
+            href="/"
+            aria-label={t('backToHome')}
+            className="pointer-events-auto flex items-center gap-2 min-w-0 h-8 pl-1 pr-3 rounded-full"
+            style={{
+              background: 'rgba(255,255,255,0.55)',
+              backdropFilter: 'blur(12px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(12px) saturate(1.4)',
+              boxShadow: 'inset 0 0 0 1px rgba(28,28,22,0.10)',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={FYRO_LOGO_URL} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
+            <span className="font-heading text-label text-fy-brown leading-none">FYRO</span>
           </Link>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="px-3 py-1.5 rounded-full bg-fy-field font-body text-label text-fy-ink-soft">
-              EN <span className="text-fy-hairline">/</span> తె <span className="text-fy-hairline">/</span> हि
-            </span>
-            <span className="w-9 h-9 rounded-full bg-fy-brown-soft text-fy-on-brown flex items-center justify-center">
-              <Icon name="person" size={18} />
-            </span>
-          </div>
+          <LanguageDial size="sm" className="pointer-events-auto" />
         </div>
-      </header>
+      </div>
 
-      <main className="relative z-10 max-w-2xl mx-auto px-gutter pt-4 pb-28 flex flex-col gap-4">
+      <main className="relative z-10 max-w-2xl mx-auto px-gutter pt-20 pb-28 flex flex-col gap-4">
         <LightCard className="p-0 overflow-hidden">
           <PhotoCard
             id="login.hero"
@@ -221,11 +235,25 @@ export default function LoginPage() {
             <span className="h-px flex-1 bg-fy-hairline/60" />
           </div>
 
+          {/* Two-word labels clip at 375px inside a fixed-height button, so
+              these are auto-height and wrap instead of truncating. */}
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="light" size="md" glyph="fingerprint" onClick={unavailable}>
+            <Button
+              variant="light"
+              size="md"
+              glyph="fingerprint"
+              onClick={unavailable}
+              className="h-auto min-h-11 py-2.5 text-label leading-tight text-left"
+            >
               {t('biometric')}
             </Button>
-            <Button variant="light" size="md" glyph="sms" onClick={unavailable}>
+            <Button
+              variant="light"
+              size="md"
+              glyph="sms"
+              onClick={unavailable}
+              className="h-auto min-h-11 py-2.5 text-label leading-tight text-left"
+            >
               {t('smsOtp')}
             </Button>
           </div>

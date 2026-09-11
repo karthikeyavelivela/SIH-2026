@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { FYRO_LOGO_URL } from '@/lib/brand';
 import { Noto_Serif, Inter, Noto_Serif_Telugu, Noto_Serif_Devanagari, JetBrains_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
@@ -49,6 +50,11 @@ const notoSerifDevanagari = Noto_Serif_Devanagari({
 export const metadata: Metadata = {
   title: 'FYRO — Find Your Right One',
   description: 'Book trucks and Hamali labor across Andhra Pradesh, on demand.',
+  icons: {
+    icon: [{ url: FYRO_LOGO_URL }],
+    shortcut: [{ url: FYRO_LOGO_URL }],
+    apple: [{ url: FYRO_LOGO_URL }],
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

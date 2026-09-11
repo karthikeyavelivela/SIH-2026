@@ -1,25 +1,26 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { useTranslations, useLocale } from 'next-intl';
-import { type LanguageCode } from '@/components/ui/LanguagePill';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { BottomTabBar } from '@/components/fy/Navigation';
-import { setLocaleAction } from '@/i18n/setLocale';
+import { LanguageDial } from '@/components/fy/LanguageDial';
+import { FYRO_LOGO_URL } from '@/lib/brand';
 
 /**
- * The public shell: a glass executive bar over the page, responsive across
- * the two marketing designs.
+ * The public shell: a floating glass bar, centred over the page.
  *
- * Below `md` it stays the phone shell — a compact bar over the five-tab
- * bottom bar. From `md` up it becomes the desktop header from the design:
- * brand crest with its charter line, numbered monograph nav, the three-way
- * language switcher, a live telemetry node and the passbook entry.
+ * The bar is not pinned to the window edges — it is a rounded capsule that
+ * sits inset from the top with the page scrolling visibly beneath and
+ * through it, which is what makes the glass read as glass rather than as a
+ * tinted strip. Real translucency: a bone ground under a saturating
+ * backdrop blur, with a hairline and shadow that deepen once the page
+ * scrolls so the capsule lifts off the content passing under it.
  *
- * The glass is real rather than a flat tint: a translucent bone ground under
- * a saturating backdrop blur, with a hairline that strengthens once the page
- * scrolls so the bar separates from content passing beneath it.
+ * Below `md` it stays the phone shell — a compact capsule over the
+ * five-tab bottom bar. From `md` up it carries the numbered monograph nav,
+ * the language dial and the passbook entry.
  */
 
 const NAV = [
@@ -30,18 +31,9 @@ const NAV = [
   { href: '/faq', num: '05', key: 'faq' },
 ] as const;
 
-const LOCALES: { code: LanguageCode; short: string }[] = [
-  { code: 'en', short: 'EN' },
-  { code: 'te', short: 'తెలుగు' },
-  { code: 'hi', short: 'हिन्दी' },
-];
-
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('marketing.layout');
-  const locale = useLocale() as LanguageCode;
-  const router = useRouter();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -51,119 +43,89 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  function handleLocaleChange(code: LanguageCode) {
-    if (code === locale) return;
-    startTransition(async () => {
-      await setLocaleAction(code);
-      router.refresh();
-    });
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
-      <header
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-base ${
-          scrolled ? 'border-b border-fy-brown/12 shadow-[0_1px_20px_rgba(28,28,22,0.06)]' : 'border-b border-transparent'
-        }`}
-        style={{
-          background: 'rgba(253, 249, 240, 0.72)',
-          backdropFilter: 'blur(20px) saturate(1.6)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-gutter lg:px-12 h-16 md:h-20 flex items-center justify-between gap-4">
-          {/* Brand crest + statutory charter line */}
-          <Link href="/" className="group flex items-center gap-3 min-w-0 shrink-0">
-            <span className="relative w-10 h-10 rounded-cell bg-fy-brown flex items-center justify-center shadow-card">
-              <span className="font-heading font-bold text-title text-fy-lime tracking-tighter leading-none">FY</span>
-              <span
-                aria-hidden
-                className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-fy-lime ring-2 ring-fy-bone"
+      {/* Floating, centred, fully rounded. The outer bar is only a
+          positioning frame — it stays transparent so the page shows
+          through either side of the capsule. */}
+      <header className="fixed top-0 inset-x-0 z-50 pointer-events-none">
+        <div className="max-w-7xl mx-auto px-gutter lg:px-8 pt-3 md:pt-4">
+          <div
+            className={`pointer-events-auto rounded-full h-14 md:h-16 pl-3 pr-2 md:pl-5 md:pr-3 flex items-center justify-between gap-4 transition-all duration-base ${
+              scrolled ? 'shadow-float' : 'shadow-card'
+            }`}
+            style={{
+              background: scrolled ? 'rgba(253, 249, 240, 0.78)' : 'rgba(253, 249, 240, 0.62)',
+              backdropFilter: 'blur(22px) saturate(1.7)',
+              WebkitBackdropFilter: 'blur(22px) saturate(1.7)',
+              boxShadow: scrolled
+                ? 'inset 0 0 0 1px rgba(28,28,22,0.10), 0 10px 32px rgba(28,28,22,0.10)'
+                : 'inset 0 0 0 1px rgba(28,28,22,0.07), 0 4px 18px rgba(28,28,22,0.05)',
+            }}
+          >
+            {/* Brand crest */}
+            <Link href="/" className="flex items-center gap-2.5 min-w-0 shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={FYRO_LOGO_URL}
+                alt=""
+                width={40}
+                height={40}
+                className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover shrink-0"
               />
-            </span>
-            <span className="flex flex-col min-w-0">
-              <span className="flex items-center gap-2">
-                <span className="font-heading text-title text-fy-ink tracking-wide leading-none">FYRO</span>
-                <span className="hidden sm:inline font-mono text-[9px] tracking-widest px-1.5 py-0.5 rounded-tag bg-fy-lime-tint-1 text-fy-green border border-fy-lime/50 uppercase font-semibold">
-                  {t('federatedChip')}
+              <span className="flex flex-col min-w-0">
+                <span className="flex items-center gap-2">
+                  <span className="font-heading text-title text-fy-ink tracking-wide leading-none">FYRO</span>
+                  <span className="hidden sm:inline font-mono text-[9px] tracking-widest px-1.5 py-0.5 rounded-tag bg-fy-lime-tint-1 text-fy-green border border-fy-lime/50 uppercase font-semibold">
+                    {t('federatedChip')}
+                  </span>
+                </span>
+                <span className="hidden md:block font-mono text-[10px] text-fy-muted tracking-wider mt-0.5 truncate">
+                  {t('federationName')}
                 </span>
               </span>
-              <span className="hidden sm:block font-mono text-[10px] text-fy-muted tracking-wider mt-0.5 truncate">
-                {t('federationName')}
-              </span>
-            </span>
-          </Link>
-
-          {/* Numbered monograph nav */}
-          <nav aria-label="Main" className="hidden lg:flex items-center gap-7 font-mono text-[11px] tracking-widest uppercase">
-            {NAV.map((l) => {
-              const active = pathname === l.href;
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`whitespace-nowrap transition-colors ${active ? 'text-fy-brown font-semibold' : 'text-fy-muted hover:text-fy-brown'}`}
-                >
-                  {l.num} / {t(l.key)}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Three-way language switcher */}
-            <div
-              className={`hidden xl:flex items-center gap-0.5 font-mono text-[11px] px-1.5 py-1 rounded-cell border border-fy-brown/12 transition-opacity ${
-                isPending ? 'opacity-60' : ''
-              }`}
-              style={{ background: 'rgba(255,255,255,0.6)' }}
-              role="radiogroup"
-              aria-label="Select language"
-            >
-              {LOCALES.map((l) => (
-                <button
-                  key={l.code}
-                  type="button"
-                  role="radio"
-                  aria-checked={locale === l.code}
-                  onClick={() => handleLocaleChange(l.code)}
-                  className={`px-2 py-0.5 rounded-tag transition-colors ${
-                    locale === l.code ? 'bg-fy-card text-fy-ink font-semibold shadow-card' : 'text-fy-muted hover:text-fy-ink'
-                  }`}
-                >
-                  {l.short}
-                </button>
-              ))}
-            </div>
-
-            {/* Live telemetry node — a real heartbeat, not a decoration: it
-                reflects that the public stats endpoint is answering. */}
-            <span
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-cell border border-fy-brown/12 font-mono text-[11px] shadow-card"
-              style={{ background: 'rgba(255,255,255,0.6)' }}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fy-lime opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-fy-green" />
-              </span>
-              <span className="text-fy-muted font-medium tracking-wide">{t('liveNode')}</span>
-            </span>
-
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 px-4 h-10 bg-fy-brown hover:bg-fy-brown-soft text-fy-bone font-mono text-[11px] font-semibold uppercase tracking-wider rounded-cell shadow-card transition-colors"
-            >
-              <span>{t('passbook')}</span>
-              <span aria-hidden className="material-symbols-outlined text-[15px] text-fy-lime">
-                arrow_outward
-              </span>
             </Link>
+
+            {/* Numbered monograph nav */}
+            <nav
+              aria-label="Main"
+              className="hidden lg:flex items-center gap-6 xl:gap-7 font-mono text-[11px] tracking-widest uppercase"
+            >
+              {NAV.map((l) => {
+                const active = pathname === l.href;
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`whitespace-nowrap transition-colors ${
+                      active ? 'text-fy-brown font-semibold' : 'text-fy-muted hover:text-fy-brown'
+                    }`}
+                  >
+                    {l.num} / {t(l.key)}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="flex items-center gap-2 md:gap-3 shrink-0">
+              <LanguageDial size="sm" className="hidden sm:flex" />
+
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 px-4 md:px-5 h-10 bg-fy-brown hover:bg-fy-brown-soft text-fy-bone font-mono text-[11px] font-semibold uppercase tracking-wider rounded-full shadow-card transition-colors"
+              >
+                <span>{t('passbook')}</span>
+                <span aria-hidden className="material-symbols-outlined text-[15px] text-fy-lime">
+                  arrow_outward
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 pt-16 md:pt-20 pb-24 md:pb-0">{children}</main>
+      <main className="flex-1 pt-20 md:pt-24 pb-24 md:pb-0">{children}</main>
 
       <div className="md:hidden">
         <BottomTabBar
@@ -183,9 +145,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12 border-b border-fy-brown/12 pb-12">
             <div className="lg:col-span-4 flex flex-col gap-3">
               <span className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-cell bg-fy-brown flex items-center justify-center font-heading text-fy-lime font-bold">
-                  FY
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={FYRO_LOGO_URL} alt="" width={36} height={36} className="w-9 h-9 rounded-full object-cover" />
                 <span className="font-heading text-title text-fy-ink tracking-wide">{t('federationTitle')}</span>
               </span>
               <p className="font-body text-label text-fy-ink-soft max-w-sm">{t('federationBlurb')}</p>

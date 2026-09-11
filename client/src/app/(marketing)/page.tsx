@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { Media } from '@/components/ui/Media';
 import { assetUrl } from '@/lib/MEDIA_MANIFEST';
+import { useReveal } from '@/lib/useReveal';
 
 /* Built against the Stitch editorial landing design.
 
@@ -45,6 +46,15 @@ const DIVISION_MEDIA: Record<Division, string> = {
   artisan: 'landing.guild.household',
   hamali: 'landing.guild.hamali',
   freight: 'landing.guild.transport',
+};
+
+/* Each division's plate is footage of that trade at work, not a still. The
+   poster falls back to the division's photograph so the panel is never
+   blank while the file loads or if it fails outright. */
+const DIVISION_VIDEO: Record<Division, string> = {
+  artisan: 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v1789117298/jzytstxxglawl596hhqj.mp4',
+  hamali: 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v1789117421/indpwkqvkow3cmb7ka3l.mp4',
+  freight: 'https://res.cloudinary.com/dqwm8wgg8/video/upload/v1789117416/aiuquvbu64oyo0iy9utx.mp4',
 };
 
 const DIVISION_TINT: Record<Division, 'household' | 'labour' | 'transport'> = {
@@ -174,6 +184,7 @@ export default function HomePage() {
     []
   );
   const stats = statsState.data;
+  useReveal([statsState.status]);
   const settled = useMemo(() => (stats ? stats.settledValue.toLocaleString('en-IN') : null), [stats]);
 
   const tickerItems = [
@@ -324,18 +335,30 @@ export default function HomePage() {
               <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-fy-green" />
               {t('liveTelemetry')}
             </span>
+            {/* A real marquee: the list is rendered twice and the track
+                translates by exactly half its width, so the loop is seamless
+                with no gap or jump. It pauses on hover so a reader can
+                actually read a figure, and holds still under reduced
+                motion (where it scrolls by hand instead). */}
             <div
-              className="flex items-center gap-8 whitespace-nowrap overflow-x-auto scrollbar-none min-w-0 pr-6"
+              className={`fy-marquee min-w-0 flex-1 ${reduceMotion ? 'overflow-x-auto scrollbar-none' : ''}`}
               style={{
-                maskImage: 'linear-gradient(to right, #000 calc(100% - 3rem), transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to right, #000 calc(100% - 3rem), transparent 100%)',
+                maskImage: 'linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 3rem), transparent 100%)',
+                WebkitMaskImage:
+                  'linear-gradient(to right, transparent 0, #000 2rem, #000 calc(100% - 3rem), transparent 100%)',
               }}
             >
-              {tickerItems.map((item, i) => (
-                <span key={i} className={i === 1 ? 'text-fy-green font-medium' : ''}>
-                  ● {item}
-                </span>
-              ))}
+              <div className={reduceMotion ? 'flex items-center gap-8 whitespace-nowrap' : 'fy-marquee-track'}>
+                {(reduceMotion ? [tickerItems] : [tickerItems, tickerItems]).map((group, g) => (
+                  <div key={g} className="flex items-center gap-8 whitespace-nowrap pr-8" aria-hidden={g === 1}>
+                    {group.map((item, i) => (
+                      <span key={i} className={i === 1 ? 'text-fy-green font-medium' : ''}>
+                        ● {item}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <a href="#manifesto" className="hidden sm:flex items-center gap-2 hover:text-fy-brown transition-colors shrink-0 font-medium">
@@ -348,7 +371,7 @@ export default function HomePage() {
       </section>
 
       {/* ==================================================== 01 / MANIFESTO */}
-      <section id="manifesto" className="relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
+      <section id="manifesto" className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
         <SectionRule num="01" label={t('manifestoLabel')} right={t('manifestoRight')} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 items-start">
@@ -427,7 +450,7 @@ export default function HomePage() {
       </section>
 
       {/* =================================================== 02 / TRIPARTITE */}
-      <section id="divisions" className="relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
+      <section id="divisions" className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
         <SectionRule num="02" label={t('divisionsLabel')} right={t('divisionsRight')} />
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -458,15 +481,31 @@ export default function HomePage() {
         <div className="bg-fy-card border border-fy-brown/15 overflow-hidden shadow-float rounded-card">
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[520px]">
             <div className="lg:col-span-5 relative overflow-hidden bg-fy-dim min-h-[320px] lg:min-h-full">
-              <Media
-                id={DIVISION_MEDIA[division]}
-                kind="photo"
-                fill
-                treatment="full-bleed"
-                tint={DIVISION_TINT[division]}
-                alt=""
-                className="w-full h-full"
-              />
+              {reduceMotion ? (
+                <Media
+                  id={DIVISION_MEDIA[division]}
+                  kind="photo"
+                  fill
+                  treatment="full-bleed"
+                  tint={DIVISION_TINT[division]}
+                  alt=""
+                  className="w-full h-full"
+                />
+              ) : (
+                <video
+                  key={division}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={assetUrl(DIVISION_MEDIA[division])}
+                  aria-hidden
+                  className="absolute inset-0 w-full h-full object-cover"
+                >
+                  <source src={DIVISION_VIDEO[division]} type="video/mp4" />
+                </video>
+              )}
               <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-fy-ink/80 via-fy-ink/20 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="font-mono text-[11px] text-fy-lime uppercase tracking-widest block mb-1 font-semibold">
@@ -556,7 +595,7 @@ export default function HomePage() {
       </section>
 
       {/* ====================================================== 03 / ROTARY */}
-      <section id="rotary" className="relative z-10 py-24 lg:py-28 px-gutter lg:px-12 bg-fy-panel border-t border-fy-brown/15 overflow-hidden">
+      <section id="rotary" className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 bg-fy-panel border-t border-fy-brown/15 overflow-hidden">
         <div
           aria-hidden
           className="absolute inset-0 opacity-[0.05]"
@@ -611,7 +650,7 @@ export default function HomePage() {
       </section>
 
       {/* ==================================================== 04 / REGISTER */}
-      <section id="register" className="relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
+      <section id="register" className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 max-w-7xl mx-auto border-t border-fy-brown/15">
         <SectionRule num="04" label={t('registerLabel')} right={t('registerRight')} />
 
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
@@ -684,7 +723,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================================================== 05 / CHARTER */}
-      <section id="charter" className="relative z-10 py-24 lg:py-28 px-gutter lg:px-12 bg-fy-card/70 border-t border-fy-brown/15">
+      <section id="charter" className="fy-reveal relative z-10 py-24 lg:py-28 px-gutter lg:px-12 bg-fy-card/70 border-t border-fy-brown/15">
         <div className="max-w-7xl mx-auto">
           <SectionRule num="05" label={t('charterLabel')} right={t('charterRight')} />
 

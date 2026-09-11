@@ -214,3 +214,38 @@ h1, h2, h3, h4 {
 /* Horizontal ticker strip hides its scrollbar but stays swipeable. */
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Marquee. The track holds the item list twice and slides by exactly half
+   its own width, so the second copy is in the first copy's place when the
+   animation restarts and the loop has no seam. Pauses on hover so a reader
+   can hold a figure still long enough to read it. */
+@keyframes fyMarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.fy-marquee { overflow: hidden; }
+.fy-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: fyMarquee 38s linear infinite;
+  will-change: transform;
+}
+.fy-marquee:hover .fy-marquee-track,
+.fy-marquee:focus-within .fy-marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .fy-marquee-track { animation: none; }
+}
+
+/* Section entrances — content lifts in as it first scrolls into view.
+   Applied by the useReveal hook, which adds .is-in once the element has
+   intersected; without JS (or under reduced motion) everything stays at
+   its resting state, so nothing is ever stuck invisible. */
+.fy-reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 620ms var(--fy-ease-out), transform 620ms var(--fy-ease-out);
+}
+.fy-reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .fy-reveal { opacity: 1; transform: none; transition: none; }
+}
