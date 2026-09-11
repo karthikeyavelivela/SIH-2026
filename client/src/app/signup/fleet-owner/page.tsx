@@ -6,17 +6,18 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { ChevronLeftIcon } from '@/components/ui/icons';
+import { Button } from '@/components/fy/Controls';
+import { SignupShell, SignupField, signupInputClass } from '@/components/auth/SignupShell';
 
-const inputClass =
-  'w-full min-h-[44px] px-4 py-2.5 rounded-control border border-fy-hairline bg-fy-bone text-fy-ink placeholder:text-fy-muted/70 transition-colors duration-fast focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20';
+/* Built against client/public/design/signup_business.html — the shared
+   enrolment shell with the operator's own field, the fleet's name.
+   Unchanged endpoint and payload. */
 
 export default function SignupFleetOwnerPage() {
   const router = useRouter();
   const { refetch } = useAuth();
   const t = useTranslations('auth.signupFleetOwner');
+
   const [form, setForm] = useState({ name: '', phone: '', password: '', fleetName: '' });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,91 +38,75 @@ export default function SignupFleetOwnerPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-12 overflow-hidden bg-fy-bone">
-      <Link
-        href="/"
-        aria-label="Back to home"
-        className="absolute top-5 left-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-fy-card border border-fy-hairline shadow-sm hover:bg-fy-panel transition-colors duration-fast"
-      >
-        <ChevronLeftIcon className="w-5 h-5" />
-      </Link>
-      <div
-        className="pointer-events-none absolute -top-32 -right-24 w-80 h-80 rounded-full bg-fy-brown/10 blur-3xl"
-        aria-hidden="true"
-      />
-
-      <Card elevation="raised" className="w-full max-w-sm relative z-10 animate-[fadeUp_600ms_ease-out]">
-        <p className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">
-          {t('eyebrow')}
-        </p>
-        <h1 className="font-heading text-2xl font-bold mb-1">{t('title')}</h1>
-        <p className="text-sm text-fy-muted mb-7">{t('subtitle')}</p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            placeholder={t('namePlaceholder')}
-            aria-label={t('namePlaceholder')}
-            autoComplete="name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className={inputClass}
-            required
-          />
-          <input
-            type="tel"
-            placeholder={t('phonePlaceholder')}
-            aria-label={t('phonePlaceholder')}
-            autoComplete="tel"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className={inputClass}
-            required
-          />
-          <input
-            type="password"
-            placeholder={t('passwordPlaceholder')}
-            aria-label={t('passwordPlaceholder')}
-            autoComplete="new-password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className={inputClass}
-            required
-            minLength={8}
-          />
-          <input
-            placeholder={t('fleetNamePlaceholder')}
-            aria-label={t('fleetNamePlaceholder')}
-            value={form.fleetName}
-            onChange={(e) => setForm({ ...form, fleetName: e.target.value })}
-            className={inputClass}
-            required
-          />
-          {error && (
-            <div
-              role="alert"
-              className="flex items-start gap-2.5 rounded-control border border-fy-error/25 bg-fy-error-bg px-4 py-3 text-sm text-fy-on-error-bg animate-[fadeIn_200ms_ease-out]"
-            >
-              <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7-4a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <p>{error}</p>
-            </div>
-          )}
-          <Button type="submit" disabled={loading} className="w-full" size="lg">
-            {loading ? t('submitLoading') : t('submit')}
-          </Button>
-        </form>
-        <p className="text-sm text-fy-muted mt-7 pt-6 border-t border-fy-hairline">
+    <SignupShell
+      eyebrow={t('eyebrow')}
+      title={t('title')}
+      lede={t('subtitle')}
+      mediaId="landing.guild.transport"
+      tint="transport"
+      stamp={t('eyebrow')}
+      footer={
+        <p className="text-center font-body text-label text-fy-ink-soft">
           {t('loginPrompt')}{' '}
-          <Link href="/login" className="text-fy-brown font-semibold hover:underline">
+          <Link href="/login" className="text-fy-brown font-semibold hover:underline underline-offset-2">
             {t('loginLink')}
           </Link>
         </p>
-      </Card>
-    </div>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {error && (
+          <div role="alert" className="rounded-cell bg-fy-error-bg px-4 py-3 font-body text-label text-fy-on-error-bg">
+            {error}
+          </div>
+        )}
+
+        <SignupField label={t('fleetNamePlaceholder')}>
+          <input
+            required
+            value={form.fleetName}
+            onChange={(e) => setForm((f) => ({ ...f, fleetName: e.target.value }))}
+            placeholder={t('fleetNamePlaceholder')}
+            className={signupInputClass}
+          />
+        </SignupField>
+
+        <SignupField label={t('namePlaceholder')}>
+          <input
+            required
+            value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            placeholder={t('namePlaceholder')}
+            className={signupInputClass}
+          />
+        </SignupField>
+
+        <SignupField label={t('phonePlaceholder')}>
+          <input
+            required
+            type="tel"
+            value={form.phone}
+            onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+            placeholder={t('phonePlaceholder')}
+            className={signupInputClass}
+          />
+        </SignupField>
+
+        <SignupField label={t('passwordPlaceholder')}>
+          <input
+            required
+            type="password"
+            value={form.password}
+            onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+            placeholder={t('passwordPlaceholder')}
+            className={signupInputClass}
+          />
+        </SignupField>
+
+        <Button type="submit" className="w-full mt-1" disabled={loading}>
+          {t('submit')}
+        </Button>
+      </form>
+    </SignupShell>
   );
 }
