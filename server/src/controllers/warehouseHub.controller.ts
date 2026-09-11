@@ -14,9 +14,21 @@ export const getMyHub = asyncHandler(async (req: Request, res: Response) => {
   const hub = await WarehouseHub.findOne({ ownerId: req.user!.id });
   if (!hub) throw new ApiError(404, 'No warehouse hub found for this account');
 
+  // Both lists previously came back with raw ObjectIds, so the dashboard
+  // could show that *an* event happened but not which vehicle drove in or
+  // which crew member signed on — and a bay could not name the load it is
+  // holding. Populating the references here is what lets the gate feed and
+  // the bay tiles read as a real log instead of a row of ids.
   const [dockSlots, gateEvents] = await Promise.all([
-    DockSlot.find({ hubId: hub._id }).sort({ label: 1 }),
-    GateEvent.find({ hubId: hub._id }).sort({ createdAt: -1 }).limit(20),
+    DockSlot.find({ hubId: hub._id })
+      .populate({ path: 'currentBookingId', select: 'serviceType status cargo scheduledFor' })
+      .sort({ label: 1 }),
+    GateEvent.find({ hubId: hub._id })
+      .populate({ path: 'vehicleId', select: 'registrationNumber type' })
+      .populate({ path: 'userId', select: 'name role' })
+      .populate({ path: 'bookingId', select: 'serviceType cargo' })
+      .sort({ createdAt: -1 })
+      .limit(20),
   ]);
 
   res.status(200).json({ hub, dockSlots, gateEvents });

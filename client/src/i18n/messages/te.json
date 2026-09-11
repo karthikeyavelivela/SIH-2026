@@ -2335,7 +2335,55 @@
     "hrAgo": "{count} గంట క్రితం",
     "hrsAgo": "{count} గంటల క్రితం",
     "dayAgo": "{count} రోజు క్రితం",
-    "daysAgo": "{count} రోజుల క్రితం"
+    "daysAgo": "{count} రోజుల క్రితం",
+    "pageTitle": "హబ్ కార్యకలాపాలు",
+    "hubPill": "హబ్",
+    "cooperativeTerminal": "సహకార టెర్మినల్",
+    "liveSync": "ప్రత్యక్షం",
+    "docksFree": "ఖాళీ డాక్‌లు",
+    "baysReady": "{labels} సిద్ధం",
+    "noBaysFree": "అన్ని బే‌లు వాడుకలో ఉన్నాయి",
+    "crewsOnSite": "సైట్‌లో సిబ్బంది",
+    "signedInNow": "ప్రస్తుతం హాజరు",
+    "vehiclesOnSite": "లోపల వాహనాలు",
+    "insideGate": "గేటు లోపల",
+    "movementsToday": "ఈరోజు కదలికలు",
+    "gateEventsLogged": "నమోదైన గేటు ఘటనలు",
+    "tapToAllocate": "కేటాయించడానికి నొక్కండి",
+    "addBay": "బే జోడించండి",
+    "noLoadAssigned": "లోడ్ కేటాయించలేదు",
+    "etaAt": "రాక {time}",
+    "realtimeLog": "ప్రత్యక్ష నమోదు",
+    "currentLoad": "ప్రస్తుత లోడ్",
+    "cargoWeight": "{kg} కిలోలు",
+    "facilityDetails": "కేంద్రం",
+    "operatingHours": "పనివేళలు",
+    "totalBays": "మొత్తం బే‌లు",
+    "notSet": "నిర్ణయించలేదు",
+    "submitting": "భద్రపరుస్తోంది…",
+    "eventWithVehicle": {
+      "vehicle_entered": "గేటు లోపలికి: {reg}",
+      "vehicle_exited": "గేటు బయటికి: {reg}"
+    },
+    "eventWithPerson": {
+      "crew_signed_in": "{name} హాజరయ్యారు",
+      "crew_signed_out": "{name} వెళ్లారు"
+    },
+    "serviceType": {
+      "transport": "సరుకు రవాణా",
+      "labour": "లోడింగ్ బృందం",
+      "household": "ఇంటి సేవ",
+      "other": "కేటాయించిన లోడ్"
+    },
+    "docksTitle": "డాక్ బే‌లు",
+    "capacityLabel": "ఖాళీ బే‌లు",
+    "baysAvailableNote": "ప్రస్తుతం వచ్చే లోడ్‌కు అందుబాటులో",
+    "expandCapacity": "సామర్థ్యం పెంచండి",
+    "expandCapacityHint": "బే‌కు ఒక పేరు కావాలి. మిగతావన్నీ — స్థితి, రాక సమయం, లోడ్ — పని జరిగే కొద్దీ నిర్ణయమవుతాయి.",
+    "bayCount": "{count, plural, =0 {బే‌లు లేవు} one {# బే} other {# బే‌లు}}",
+    "filterAll": "అన్నీ",
+    "noBaysInFilter": "ఆ స్థితిలో బే‌లు లేవు.",
+    "etaLabel": "రాక సమయం"
   },
   "adminLayout": {
     "nav": {

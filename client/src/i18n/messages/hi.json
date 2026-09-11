@@ -2335,7 +2335,55 @@
     "hrAgo": "{count} घंटे पहले",
     "hrsAgo": "{count} घंटे पहले",
     "dayAgo": "{count} दिन पहले",
-    "daysAgo": "{count} दिन पहले"
+    "daysAgo": "{count} दिन पहले",
+    "pageTitle": "हब संचालन",
+    "hubPill": "हब",
+    "cooperativeTerminal": "सहकारी टर्मिनल",
+    "liveSync": "लाइव",
+    "docksFree": "खाली डॉक",
+    "baysReady": "{labels} तैयार",
+    "noBaysFree": "सभी बे उपयोग में हैं",
+    "crewsOnSite": "साइट पर कर्मी",
+    "signedInNow": "अभी उपस्थित",
+    "vehiclesOnSite": "अंदर वाहन",
+    "insideGate": "गेट के भीतर",
+    "movementsToday": "आज की आवाजाही",
+    "gateEventsLogged": "दर्ज गेट घटनाएँ",
+    "tapToAllocate": "आवंटन हेतु दबाएँ",
+    "addBay": "बे जोड़ें",
+    "noLoadAssigned": "कोई लोड नहीं",
+    "etaAt": "आगमन {time}",
+    "realtimeLog": "रीयलटाइम लॉग",
+    "currentLoad": "वर्तमान लोड",
+    "cargoWeight": "{kg} किग्रा",
+    "facilityDetails": "सुविधा",
+    "operatingHours": "कार्य समय",
+    "totalBays": "कुल बे",
+    "notSet": "तय नहीं",
+    "submitting": "सहेजा जा रहा है…",
+    "eventWithVehicle": {
+      "vehicle_entered": "गेट अंदर: {reg}",
+      "vehicle_exited": "गेट बाहर: {reg}"
+    },
+    "eventWithPerson": {
+      "crew_signed_in": "{name} ने हाज़िरी दी",
+      "crew_signed_out": "{name} रवाना"
+    },
+    "serviceType": {
+      "transport": "माल परिवहन",
+      "labour": "लोडिंग टोली",
+      "household": "घरेलू सेवा",
+      "other": "आवंटित लोड"
+    },
+    "docksTitle": "डॉक बे",
+    "capacityLabel": "खाली बे",
+    "baysAvailableNote": "अभी आने वाले लोड के लिए उपलब्ध",
+    "expandCapacity": "क्षमता बढ़ाएँ",
+    "expandCapacityHint": "बे को एक नाम चाहिए। बाकी सब — स्थिति, आगमन समय, लोड — काम बढ़ने के साथ तय होता है।",
+    "bayCount": "{count, plural, =0 {कोई बे नहीं} one {# बे} other {# बे}}",
+    "filterAll": "सभी",
+    "noBaysInFilter": "उस स्थिति में कोई बे नहीं।",
+    "etaLabel": "अपेक्षित आगमन"
   },
   "adminLayout": {
     "nav": {

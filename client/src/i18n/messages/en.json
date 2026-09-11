@@ -2335,7 +2335,55 @@
     "hrAgo": "{count} hr ago",
     "hrsAgo": "{count} hrs ago",
     "dayAgo": "{count} day ago",
-    "daysAgo": "{count} days ago"
+    "daysAgo": "{count} days ago",
+    "pageTitle": "Hub operations",
+    "hubPill": "Hub",
+    "cooperativeTerminal": "Cooperative terminal",
+    "liveSync": "Live",
+    "docksFree": "Docks free",
+    "baysReady": "{labels} ready",
+    "noBaysFree": "Every bay is in use",
+    "crewsOnSite": "Crew on site",
+    "signedInNow": "Signed in now",
+    "vehiclesOnSite": "Vehicles inside",
+    "insideGate": "Inside the gate",
+    "movementsToday": "Movements today",
+    "gateEventsLogged": "Gate events logged",
+    "tapToAllocate": "Tap to allocate",
+    "addBay": "Add a bay",
+    "noLoadAssigned": "No load assigned",
+    "etaAt": "ETA {time}",
+    "realtimeLog": "Realtime log",
+    "currentLoad": "Current load",
+    "cargoWeight": "{kg} kg",
+    "facilityDetails": "Facility",
+    "operatingHours": "Operating hours",
+    "totalBays": "Total bays",
+    "notSet": "Not set",
+    "submitting": "Saving…",
+    "eventWithVehicle": {
+      "vehicle_entered": "Gate in: {reg}",
+      "vehicle_exited": "Gate out: {reg}"
+    },
+    "eventWithPerson": {
+      "crew_signed_in": "{name} signed in",
+      "crew_signed_out": "{name} signed out"
+    },
+    "serviceType": {
+      "transport": "Goods transport",
+      "labour": "Loading crew",
+      "household": "Household service",
+      "other": "Assigned load"
+    },
+    "docksTitle": "Dock bays",
+    "capacityLabel": "Bays free",
+    "baysAvailableNote": "Available for an inbound load right now",
+    "expandCapacity": "Add capacity",
+    "expandCapacityHint": "A bay needs a label. Everything else about it — its status, its ETA, the load it holds — is set as work moves through it.",
+    "bayCount": "{count, plural, =0 {No bays} one {# bay} other {# bays}}",
+    "filterAll": "All",
+    "noBaysInFilter": "No bays in that state.",
+    "etaLabel": "Expected arrival"
   },
   "adminLayout": {
     "nav": {
