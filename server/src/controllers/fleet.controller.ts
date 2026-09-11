@@ -41,7 +41,12 @@ export const getMyFleet = asyncHandler(async (req: Request, res: Response) => {
   const fleet = await Fleet.findOne({ ownerId: req.user!.id })
     .populate({
       path: 'vehicleIds',
-      select: 'type capacityKg registrationNumber availabilityStatus verified assignedDriverId',
+      // currentLocation, complianceStatus and insuranceExpiryAt are all real
+      // fields on Vehicle that this route previously withheld, so the fleet
+      // dashboard could not plot a unit, flag a non-compliant one, or warn on
+      // an expiring policy without inventing the data.
+      select:
+        'type capacityKg registrationNumber availabilityStatus verified assignedDriverId currentLocation complianceStatus insuranceExpiryAt',
       populate: { path: 'assignedDriverId', select: 'name phone ratingAvg ratingCount' },
     })
     .populate({ path: 'driverIds', select: 'name phone ratingAvg ratingCount accountStatus' });
