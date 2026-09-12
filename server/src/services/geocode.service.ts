@@ -143,6 +143,52 @@ function regionForms(raw?: string): string[] {
   return forms;
 }
 
+/**
+ * Renamed and anglicised city names, mapped to the district a fare rule is
+ * actually seeded under.
+ *
+ * Suffix stripping cannot reach these — Photon answers "Bengaluru" with
+ * "Bangalore", which shares no suffix with the seeded "Bengaluru Urban".
+ * Every entry is a real administrative rename or a long-standing English
+ * spelling still returned by one provider or the other, and the map is used
+ * ONLY to test whether a candidate resolves to a priced region; it never
+ * rewrites the address text a customer sees.
+ */
+const REGION_ALIASES: Record<string, string> = {
+  bangalore: 'Bengaluru Urban',
+  bengaluru: 'Bengaluru Urban',
+  mysore: 'Mysuru',
+  mangalore: 'Dakshina Kannada',
+  mangaluru: 'Dakshina Kannada',
+  belgaum: 'Belagavi',
+  hubli: 'Dharwad',
+  hubballi: 'Dharwad',
+  gulbarga: 'Kalaburagi',
+  trivandrum: 'Thiruvananthapuram',
+  calicut: 'Kozhikode',
+  cochin: 'Ernakulam',
+  kochi: 'Ernakulam',
+  quilon: 'Kollam',
+  trichur: 'Thrissur',
+  madras: 'Chennai',
+  bombay: 'Mumbai',
+  poona: 'Pune',
+  trichy: 'Tiruchirappalli',
+  tinnevelly: 'Tirunelveli',
+  cuddapah: 'Kadapa',
+  vizag: 'Visakhapatnam',
+  vishakhapatnam: 'Visakhapatnam',
+  waltair: 'Visakhapatnam',
+  rajamahendravaram: 'Rajahmundry',
+  'chhatrapati sambhajinagar': 'Aurangabad',
+  secunderabad: 'Hyderabad',
+  anantapuramu: 'Anantapur',
+};
+
+function aliasFor(raw: string): string | undefined {
+  return REGION_ALIASES[raw.toLowerCase()];
+}
+
 function normaliseRegion(raw?: string): string | undefined {
   const forms = regionForms(raw);
   return forms[forms.length - 1] || undefined;
@@ -196,7 +242,11 @@ function pickRegion(candidates: (string | undefined)[], hints: (string | undefin
   // ("Bengaluru Urban") is never stripped away.
   for (const c of [...cleaned, ...hinted]) if (pricedRegions?.has(c)) return c;
   for (const c of [...cleaned, ...hinted]) {
-    for (const form of regionForms(c)) if (pricedRegions?.has(form)) return form;
+    for (const form of regionForms(c)) {
+      if (pricedRegions?.has(form)) return form;
+      const alias = aliasFor(form);
+      if (alias && pricedRegions?.has(alias)) return alias;
+    }
   }
 
   // Nothing here is priced. Return the most local name anyway rather than
