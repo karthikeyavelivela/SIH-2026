@@ -1,4 +1,5 @@
 import { env } from '../config/env';
+import { FareRule } from '../models/FareRule';
 
 /* Address lookup.
  *
@@ -120,7 +121,38 @@ function writeCache(q: string, outcome: GeocodeOutcome) {
  */
 function normaliseRegion(raw?: string): string | undefined {
   if (!raw) return undefined;
-  return raw.replace(/\s+(district|urban|rural)$/i, '').trim() || undefined;
+  return (
+    raw
+      .replace(/\s*\((?:urban|rural)\)$/i, '')
+      .replace(/\s+(district|urban|rural)$/i, '')
+      .trim() || undefined
+  );
+}
+
+/**
+ * The regions that actually carry an active fare rule.
+ *
+ * Region is not a label here — it is the key a booking is priced on, and a
+ * region with no rule fails booking creation outright. So rather than guess
+ * which of a provider's half-dozen administrative fields happens to be the
+ * one a rule was seeded under, ask the rules themselves. Cached because this
+ * runs on every suggestion keystroke and the set changes about as often as
+ * an admin publishes a tariff.
+ */
+let pricedRegions: Set<string> | null = null;
+let pricedRegionsAt = 0;
+const PRICED_REGION_TTL_MS = 5 * 60 * 1000;
+
+async function ensurePricedRegions() {
+  if (pricedRegions && Date.now() - pricedRegionsAt < PRICED_REGION_TTL_MS) return;
+  try {
+    const rows = (await FareRule.distinct('region', { active: true })) as string[];
+    pricedRegions = new Set(rows.map((r) => String(r).trim()));
+    pricedRegionsAt = Date.now();
+  } catch {
+    // A DB hiccup must not take address search down with it — fall through
+    // to whatever set is already cached, or to the plain first-field guess.
+  }
 }
 
 /**
@@ -132,11 +164,22 @@ function normaliseRegion(raw?: string): string | undefined {
  * normalising whatever wins covers both providers' shapes.
  */
 function pickRegion(candidates: (string | undefined)[]): string | undefined {
-  for (const c of candidates) {
+  const cleaned = candidates.map((c) => c?.trim()).filter((c): c is string => !!c);
+
+  // A field that IS a priced region wins outright, whatever its rank. This is
+  // what makes a village work: LocationIQ's `city` for Vaddeswaram is
+  // "Vaddeswaram", which no rule is keyed on, while its `state_district` is
+  // "Guntur", which is.
+  for (const c of cleaned) if (pricedRegions?.has(c)) return c;
+  for (const c of cleaned) {
     const n = normaliseRegion(c);
-    if (n) return n;
+    if (n && pricedRegions?.has(n)) return n;
   }
-  return undefined;
+
+  // Nothing is priced here. Return the most local name anyway rather than
+  // nothing: the customer can see and correct it on the booking form, and
+  // the server's own "No active fare rule for X" then names something real.
+  return normaliseRegion(cleaned[0]);
 }
 
 function inIndia(lat: number, lon: number) {
@@ -326,6 +369,7 @@ export async function geocodeAddress(query: string): Promise<GeocodeOutcome> {
   const cached = readCache(query);
   if (cached) return cached;
 
+  await ensurePricedRegions();
   const failures: string[] = [];
 
   for (const provider of PROVIDERS) {
@@ -349,6 +393,7 @@ export async function geocodeAddress(query: string): Promise<GeocodeOutcome> {
 }
 
 export async function reverseGeocode(lat: number, lon: number): Promise<ReverseOutcome> {
+  await ensurePricedRegions();
   const failures: string[] = [];
 
   for (const provider of PROVIDERS) {
