@@ -265,13 +265,31 @@ function inIndia(lat: number, lon: number) {
   );
 }
 
-async function getJson(url: string): Promise<unknown> {
+/**
+ * One short retry on a rate-limit, then give up and let the chain move on.
+ *
+ * LocationIQ's free tier allows about two requests a second, and a customer
+ * typing an address produces bursts right at that edge (the field debounces
+ * at 350ms, and pickup and drop can both be in flight). Falling straight
+ * through to Photon on the first 429 is safe but lossy: Photon returns no
+ * district field at all for an Indian village, so a job in Vaddeswaram
+ * prices only while LocationIQ is answering. A single 400ms retry keeps the
+ * better provider through an ordinary burst; anything worse than that is a
+ * real outage and belongs to the fallback.
+ */
+const RATE_LIMIT_RETRY_MS = 400;
+
+async function getJson(url: string, retryOn429 = true): Promise<unknown> {
   const res = await fetch(url, {
     // Photon and LocationIQ both want an identifying agent; sending one is
     // also what keeps us in good standing with their fair-use policies.
     headers: { 'User-Agent': 'FYRO-cooperative-logistics/1.0 (contact: velivelakarthikeya@gmail.com)' },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
+  if (res.status === 429 && retryOn429) {
+    await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_RETRY_MS));
+    return getJson(url, false);
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
