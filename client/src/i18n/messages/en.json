@@ -1252,7 +1252,12 @@
     "status": {
       "accepted": "Accepted",
       "in_progress": "Underway"
-    }
+    },
+    "heldSeatTitle": "Holding a seat on a crew job",
+    "heldSeatNote": "You accepted one seat. The job starts when the rest of the crew is filled — until then you will not be offered other work.",
+    "heldSeatRelease": "Give up this seat",
+    "heldSeatReleasing": "Releasing…",
+    "heldSeatError": "Could not release the seat. Try again."
   },
   "profile": {
     "language": {

@@ -127,6 +127,37 @@ export async function acceptAsHamaliSolo(userId: string, bookingId: string): Pro
   return (await Booking.findById(booking._id))!;
 }
 
+/**
+ * Release a seat on a crew booking that has not filled.
+ *
+ * A hamali who takes one seat on a three-worker job is marked `on_job`
+ * immediately, but the BOOKING stays `searching` until every seat is taken.
+ * Until this existed, a crew that never filled left that worker pinned
+ * forever: no offers (the matcher only considers `online` profiles), no
+ * active-job screen (it only renders accepted/in-progress work), and no way
+ * to undo the accept. Production had exactly one such worker, idle for days
+ * on a booking that was never going to start.
+ *
+ * Withdrawal is only possible while the crew is still incomplete. Once the
+ * booking advances to `accepted` the commitment is real and cancelling is
+ * the customer's decision, not a button on the worker's dashboard.
+ */
+export async function withdrawAsHamaliSolo(userId: string, bookingId: string): Promise<void> {
+  const profile = await HamaliProfile.findOne({ userId, type: 'solo' });
+  if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
+
+  const booking = await Booking.findOneAndUpdate(
+    { _id: bookingId, status: openStatus, assignedHamaliIds: userId },
+    { $pull: { assignedHamaliIds: userId } },
+    { new: true }
+  );
+  if (!booking) {
+    throw new ApiError(409, 'This job has already started — ask the customer to cancel it instead');
+  }
+
+  await HamaliProfile.updateOne({ _id: profile._id }, { availabilityStatus: 'online' });
+}
+
 export async function acceptAsMuthaLeader(
   userId: string,
   bookingId: string,

@@ -19,6 +19,7 @@ import { Icon } from '@/components/ui/Icon';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
 import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill } from '@/components/fy/Status';
+import { Button } from '@/components/fy/Controls';
 import { MetricBlock, DataList, DataRow } from '@/components/fy/Data';
 import { TopBar } from '@/components/fy/Navigation';
 
@@ -89,6 +90,27 @@ export function WorkerDashboard({
 
   const { data: mine } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 8000);
   const activeJob = mine?.bookings.find((b) => b.status === 'accepted' || b.status === 'in_progress');
+  /* A crew booking the worker has taken a seat on but which has not filled
+     yet. It is NOT an active job — it has no stages to walk — but it does
+     hold the worker off every other job, so leaving it off this screen made
+     the dashboard say "standby" while the matcher considered the worker
+     busy, with no way to see or undo the commitment. */
+  const heldSeat = mine?.bookings.find((b) => b.status === 'searching' || b.status === 'requested');
+  const [releasing, setReleasing] = useState(false);
+  const [releaseError, setReleaseError] = useState<string | null>(null);
+
+  async function releaseSeat(bookingId: string) {
+    setReleasing(true);
+    setReleaseError(null);
+    try {
+      await api.post(`/api/requests/${bookingId}/withdraw`, {});
+      window.location.reload();
+    } catch {
+      setReleaseError(t('heldSeatError'));
+    } finally {
+      setReleasing(false);
+    }
+  }
   const { data: earnings } = usePolling(() => api.get<EarningsResponse>('/api/earnings/me'), 30000);
   const todayLines =
     earnings?.lines.filter((l) => l.completedAt && new Date(l.completedAt).getTime() >= startOfToday()) ?? [];
@@ -204,6 +226,39 @@ export function WorkerDashboard({
               </span>
             </Panel>
           </Link>
+        ) : heldSeat ? (
+          <Panel className="flex flex-col gap-3">
+            <EyebrowLabel tone={accent === 'primary' ? 'brown' : 'green'}>{t('heldSeatTitle')}</EyebrowLabel>
+            <DataList>
+              <DataRow
+                lead={
+                  <IconTile tone="peach" size="md" className="rounded-full">
+                    <Icon name="trip_origin" size={18} />
+                  </IconTile>
+                }
+                title={heldSeat.pickupLocation.address}
+              />
+              <DataRow
+                lead={
+                  <IconTile tone="lime" size="md" className="rounded-full">
+                    <Icon name="location_on" size={18} />
+                  </IconTile>
+                }
+                title={heldSeat.dropLocation.address}
+              />
+            </DataList>
+            <Body size="label">{t('heldSeatNote')}</Body>
+            {releaseError && <Body size="label">{releaseError}</Body>}
+            <Button
+              variant="ghost"
+              size="md"
+              glyph="logout"
+              disabled={releasing}
+              onClick={() => releaseSeat(heldSeat._id)}
+            >
+              {releasing ? t('heldSeatReleasing') : t('heldSeatRelease')}
+            </Button>
+          </Panel>
         ) : (
           <LightCard className="flex items-center gap-3">
             <IconTile tone={accent === 'primary' ? 'peach' : 'lime'} size="md">

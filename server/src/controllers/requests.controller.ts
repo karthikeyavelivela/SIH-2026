@@ -14,6 +14,7 @@ import {
 import {
   acceptAsDriver,
   acceptAsHamaliSolo,
+  withdrawAsHamaliSolo,
   acceptAsMuthaLeader,
   rejectBooking,
 } from '../services/bookingAssignment.service';
@@ -239,6 +240,17 @@ export const rejectRequest = asyncHandler(async (req: Request, res: Response) =>
   }
   const booking = await rejectBooking(userId, req.params.id);
   res.status(200).json({ booking });
+});
+
+// ---- POST /api/requests/:id/withdraw (give back an unfilled crew seat) ----
+
+export const withdrawRequest = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  if (req.user!.role !== 'hamali_solo') {
+    throw new ApiError(403, 'Only a solo hamali can withdraw from a crew seat');
+  }
+  await withdrawAsHamaliSolo(userId, req.params.id);
+  res.status(200).json({ withdrawn: true });
 });
 
 // ---- POST /api/requests/:id/start (accepted -> in_progress) ----

@@ -42,6 +42,14 @@ requestsRouter.post(
 );
 
 requestsRouter.post(
+  '/:id/withdraw',
+  requireRole('hamali_solo'),
+  [param('id').isMongoId()],
+  validate,
+  requestsController.withdrawRequest
+);
+
+requestsRouter.post(
   '/:id/start',
   requireRole('driver', 'hamali_solo', 'mutha_leader'),
   [param('id').isMongoId()],
