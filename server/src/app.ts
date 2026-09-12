@@ -51,6 +51,7 @@ import { ApiError } from './utils/ApiError';
 import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
 import { resolveLocale } from './i18n/resolveLocale';
+import { describeChain } from './agents/providers';
 
 export const app = express();
 
@@ -115,7 +116,10 @@ app.use('/api', (_req, res, next) => {
   next();
 });
 
-app.get('/api/health', (_req, res) => res.status(200).json({ ok: true }));
+// `ai` names the provider chain the agent layer would use right now — the
+// one honest way to answer "is the AI live in production?" without reading
+// the dashboard's env vars. It reports configuration, never a key.
+app.get('/api/health', (_req, res) => res.status(200).json({ ok: true, ai: describeChain() }));
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before
 // the general /api/admin router below. Express's app.use() matches by path

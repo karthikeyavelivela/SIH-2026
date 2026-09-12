@@ -44,6 +44,18 @@ const envSchema = z.object({
   // like the rest of this file's integrations — see agents/client.ts's
   // callAgent doc comment for why agents need their own switch.
   ANTHROPIC_API_KEY: z.string().optional(),
+  // Job 2 — the agent layer is no longer tied to one vendor. Keys are all
+  // optional and independent: whichever are present form the provider chain,
+  // in the order AI_PROVIDER selects. With none present every agent falls
+  // back to its rule-based mock, labelled as such, exactly as before.
+  GEMINI_API_KEY: z.string().optional(),
+  GROQ_API_KEY: z.string().optional(),
+  // 'auto' (the default) tries Gemini, then Groq, then Anthropic, skipping
+  // any without a key. Naming one provider pins the chain to it alone —
+  // useful for proving which vendor answered, and for cutting a provider out
+  // fast if it starts misbehaving. 'mock' forces the rule-based path even
+  // when keys exist, so a demo can be made deterministic on purpose.
+  AI_PROVIDER: z.enum(['auto', 'gemini', 'groq', 'anthropic', 'mock']).default('auto'),
   // Phase 6.4 — Indian tax documents. Optional on purpose: never fabricate
   // a real-looking GSTIN for a legal document. When absent,
   // taxInvoice.service.ts prints "Not yet registered" instead of inventing

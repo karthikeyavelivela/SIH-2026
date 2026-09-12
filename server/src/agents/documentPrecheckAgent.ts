@@ -1,9 +1,9 @@
 import { User } from '../models/User';
-import { env } from '../config/env';
 import { ApiError } from '../utils/ApiError';
 import { callAgent } from './client';
 import { AgentResult } from './types';
 import { localeInstruction, type AgentLocale } from './locale';
+import { generate, anyProviderConfigured } from './providers';
 import type { KycDocumentType } from '@fyro/shared';
 
 const DOC_TYPE_LABEL: Record<KycDocumentType, string> = {
@@ -68,9 +68,12 @@ export async function runDocumentPrecheckAgent(userId: string, documentType: Kyc
     hasFetchableImage: false, // overwritten below once we know
   };
 
-  // See agents/client.ts's callAgent doc comment: agents gate on
-  // ANTHROPIC_API_KEY alone, not the shared MOCK_EXTERNAL_SERVICES flag.
-  if (!env.ANTHROPIC_API_KEY) {
+  // See agents/client.ts's callAgent doc comment: agents gate on the
+  // configured AI providers, not the shared MOCK_EXTERNAL_SERVICES flag.
+  // `true` asks specifically for a vision-capable provider — a chain with
+  // only a text provider in it must take the metadata-only path rather than
+  // send an image nobody can read.
+  if (!anyProviderConfigured(true)) {
     return callAgent({ agentName: 'document_precheck', systemPrompt: '', userPrompt: '', context, locale }, (ctx) =>
       mockPrecheck(ctx as typeof context, locale)
     );
@@ -98,30 +101,42 @@ Respond ONLY with JSON: {"summary": "<what you found, plain language, tell the w
   }
 
   // Real vision call — bypasses callAgent's text-only path since this one
-  // needs an image content block; still goes through the same Anthropic
-  // client construction and JSON-parsing discipline, including the locale
-  // instruction callAgent would otherwise have appended.
-  const Anthropic = (await import('@anthropic-ai/sdk')).default;
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-  const message = await client.messages.create({
-    model: 'claude-sonnet-5',
-    max_tokens: 1024,
-    system: locale === 'en' ? systemPrompt : systemPrompt + localeInstruction(locale),
-    messages: [
-      {
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: image.mediaType as 'image/jpeg', data: image.data } },
-          { type: 'text', text: userPrompt },
-        ],
-      },
-    ],
-  });
-  const textBlock = message.content.find((b) => b.type === 'text');
-  const rawText = textBlock && 'text' in textBlock ? textBlock.text : '';
+  // needs an image content block, but goes through the same provider chain
+  // and the same JSON-parsing discipline, including the locale instruction
+  // callAgent would otherwise have appended. Before Job 2 this block
+  // constructed an Anthropic client directly; it was the one place in the
+  // agent layer that knew a vendor's name, and the whole point of the swap
+  // was that no such place should exist.
+  let raw: { text: string; provider: string; model: string };
+  try {
+    raw = await generate({
+      systemPrompt: locale === 'en' ? systemPrompt : systemPrompt + localeInstruction(locale),
+      userPrompt,
+      maxOutputTokens: 1024,
+      image: { mediaType: image.mediaType, data: image.data },
+    });
+  } catch (err) {
+    // Every vision-capable provider failed. Same reasoning as callAgent's
+    // catch: this is an anticipatable outage, not a bug, so it degrades to
+    // the honest metadata-only result with a visible note instead of a 500.
+    // eslint-disable-next-line no-console
+    console.error('documentPrecheck: every vision provider failed —', err);
+    const mock = mockPrecheck(context, locale);
+    return {
+      agentName: 'document_precheck',
+      mock: true,
+      generatedAt: new Date().toISOString(),
+      ...mock,
+      evidence: [
+        ...mock.evidence,
+        { label: 'Note', value: 'Live AI document checking was unavailable this time — a human reviewer still sees this document.' },
+      ],
+    };
+  }
+
   let parsed: { summary: string; confidence: 'low' | 'moderate' | 'high'; evidence: { label: string; value: string }[] } | null = null;
   try {
-    const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+    const cleaned = raw.text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
     const candidate = JSON.parse(cleaned);
     if (typeof candidate.summary === 'string' && ['low', 'moderate', 'high'].includes(candidate.confidence)) {
       parsed = candidate;
@@ -131,9 +146,26 @@ Respond ONLY with JSON: {"summary": "<what you found, plain language, tell the w
   }
 
   if (!parsed) {
-    return { agentName: 'document_precheck', summary: 'Could not complete the visual pre-check this time.', confidence: 'low', evidence: [], mock: false, generatedAt: new Date().toISOString() };
+    return {
+      agentName: 'document_precheck',
+      summary: 'Could not complete the visual pre-check this time.',
+      confidence: 'low',
+      evidence: [],
+      mock: false,
+      provider: raw.provider,
+      model: raw.model,
+      generatedAt: new Date().toISOString(),
+    };
   }
-  return { agentName: 'document_precheck', mock: false, generatedAt: new Date().toISOString(), ...parsed };
+  return {
+    agentName: 'document_precheck',
+    mock: false,
+    provider: raw.provider,
+    model: raw.model,
+    generatedAt: new Date().toISOString(),
+    ...parsed,
+    evidence: Array.isArray(parsed.evidence) ? parsed.evidence : [],
+  };
 }
 
 function mockPrecheck(

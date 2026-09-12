@@ -1,6 +1,6 @@
-import { env } from '../config/env';
 import { AgentResult, AgentConfidence } from './types';
 import { localeInstruction, type AgentLocale } from './locale';
+import { generate, anyProviderConfigured } from './providers';
 
 // AUDIT_REPORT.md Phase 4: "zero LLM SDK exists anywhere in the repo" was
 // the audit's headline finding for the whole AI-agents section. This is
@@ -8,7 +8,6 @@ import { localeInstruction, type AgentLocale } from './locale';
 // goes through here, never imports @anthropic-ai/sdk directly, so the
 // mock/real split and the "never invents data" guardrail are enforced in
 // exactly one place instead of once per agent.
-const AGENT_MODEL = 'claude-sonnet-5';
 const MAX_OUTPUT_TOKENS = 1024;
 
 export interface AgentCallInput {
@@ -55,19 +54,19 @@ function parseModelJson(text: string): ParsedModelOutput | null {
 }
 
 /**
- * Runs one agent call. Mock mode (no ANTHROPIC_API_KEY) never calls the
- * real API — it returns a result built from the same `context` a real call
- * would have used, with `mock:true` set so no caller can mistake it for a
- * real analysis.
+ * Runs one agent call. Mock mode (no provider key configured, or
+ * AI_PROVIDER=mock) never calls any API — it returns a result built from the
+ * same `context` a real call would have used, with `mock:true` set so no
+ * caller can mistake it for a real analysis.
  *
- * Deliberately gated on ANTHROPIC_API_KEY alone, NOT on the shared
+ * Deliberately gated on the agent providers alone, NOT on the shared
  * MOCK_EXTERNAL_SERVICES flag that payment.service.ts/cloudinary.service.ts
  * still use: that flag also controls otp.service.ts's sendOtpSms, which
  * *throws* in real mode with no SMS provider configured (none is, by
  * design). Reusing it here would mean flipping it to unlock live agents
  * also breaks the phone-change flow in production. Same
  * one-flag-per-concern precedent as PARAMETRIC_PAYOUTS_ENABLED in env.ts —
- * agents go live purely on whether a real key is present.
+ * agents go live purely on whether some real model key is present.
  */
 export async function callAgent(
   input: AgentCallInput,
@@ -75,7 +74,7 @@ export async function callAgent(
 ): Promise<AgentResult> {
   const generatedAt = new Date().toISOString();
 
-  if (!env.ANTHROPIC_API_KEY) {
+  if (!anyProviderConfigured()) {
     const mock = mockResult(input.context);
     return { agentName: input.agentName, mock: true, generatedAt, ...mock };
   }
@@ -89,23 +88,20 @@ export async function callAgent(
   // mode, not a bug, and the whole point of mockResult already existing is
   // "give a real, honest, data-grounded answer even without a live model
   // call" — so that's exactly what a live-call failure degrades to here,
-  // instead of a 500. The caller can always tell the two mock paths apart:
+  // instead of a 500. With a chain this now means EVERY provider failed,
+  // not just one. The caller can always tell the two mock paths apart:
   // this one's evidence carries an explicit note, an env-not-configured
   // mock doesn't.
   try {
-    const Anthropic = (await import('@anthropic-ai/sdk')).default;
-    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-
     const systemPrompt = input.locale ? input.systemPrompt + localeInstruction(input.locale) : input.systemPrompt;
-    const message = await client.messages.create({
-      model: AGENT_MODEL,
-      max_tokens: MAX_OUTPUT_TOKENS,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: input.userPrompt }],
+    const { text, provider, model } = await generate({
+      systemPrompt,
+      userPrompt: input.userPrompt,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      json: true,
     });
 
-    const textBlock = message.content.find((b) => b.type === 'text');
-    const parsed = textBlock && 'text' in textBlock ? parseModelJson(textBlock.text) : null;
+    const parsed = parseModelJson(text);
 
     if (!parsed) {
       return {
@@ -114,14 +110,16 @@ export async function callAgent(
         confidence: 'low',
         evidence: [],
         mock: false,
+        provider,
+        model,
         generatedAt,
       };
     }
 
-    return { agentName: input.agentName, mock: false, generatedAt, ...parsed };
+    return { agentName: input.agentName, mock: false, provider, model, generatedAt, ...parsed };
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error(`callAgent(${input.agentName}): real API call failed, falling back to mock —`, err);
+    console.error(`callAgent(${input.agentName}): every AI provider failed, falling back to mock —`, err);
     const mock = mockResult(input.context);
     return {
       agentName: input.agentName,

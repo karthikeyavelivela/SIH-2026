@@ -15,8 +15,19 @@ export interface AgentResult {
   confidence: 'low' | 'moderate' | 'high';
   evidence: AgentEvidenceItem[];
   mock: boolean;
+  /** Which vendor answered. Optional because a mock result has no provider,
+      and because the server only started reporting it when the model layer
+      stopped being a single hard-coded vendor. */
+  provider?: string;
+  model?: string;
   generatedAt: string;
 }
+
+const PROVIDER_LABEL: Record<string, string> = {
+  gemini: 'Gemini',
+  groq: 'Groq',
+  anthropic: 'Claude',
+};
 
 const CONFIDENCE_FILLED: Record<AgentResult['confidence'], number> = { low: 1, moderate: 2, high: 3 };
 
@@ -63,10 +74,20 @@ export function AgentResultCard({ result, accent = 'primary' }: { result: AgentR
         <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${chipColor}`}>
           {t('aiChip')}
         </span>
-        {result.mock && (
+        {result.mock ? (
           <span className="text-[10px] font-semibold uppercase tracking-wider text-fy-ink-soft px-1.5 py-0.5 rounded border border-fy-muted/30">
             {t('demoMode')}
           </span>
+        ) : (
+          result.provider && (
+            // Which model produced this. The vendor is now configurable, so
+            // "AI" alone no longer says enough — a reader comparing two
+            // answers deserves to know they may not have come from the same
+            // model.
+            <span className="text-[10px] text-fy-ink-soft" title={result.model}>
+              {t('viaProvider', { provider: PROVIDER_LABEL[result.provider] ?? result.provider })}
+            </span>
+          )
         )}
         <div className="flex items-center gap-1 ml-auto">
           <span className="text-[10px] text-fy-ink-soft mr-1">{t(`confidence.${result.confidence}`)}</span>

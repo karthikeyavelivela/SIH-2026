@@ -1512,7 +1512,8 @@
       "subtitle": "Week-over-week trend from real bookings and fleet supply",
       "loading": "Analysing…",
       "error": "Could not load market insights — try again."
-    }
+    },
+    "viaProvider": "via {provider}"
   },
   "insurance": {
     "headerTitle": "Insurance",
