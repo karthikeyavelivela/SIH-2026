@@ -96,10 +96,14 @@ export default function TransportBookingPage() {
     serviceCategorySlug: category?.slug,
     needsWeight: true,
     needsHamali: addHamali,
+    // Mid-range default so the slider opens somewhere useful rather than at
+    // its floor — the design opens at a lorry-sized load, not a 500kg one.
+    // Seeded into the flow's own state, not applied here: the quote gate
+    // reads the state, so a display-only default left the form priceless
+    // and unsubmittable until the slider was touched.
+    initialWeightKg: DEFAULT_LOAD_KG,
   });
 
-  // Mid-range default so the slider opens somewhere useful rather than at
-  // its floor — the design opens at a lorry-sized load, not a 500kg one.
   const weightKg = Number(flow.weightKg) || DEFAULT_LOAD_KG;
   const vehicleClass = bucketVehicleCategory(weightKg);
   const ewayRequired = Number(estimatedValue) >= EWAY_BILL_THRESHOLD_RUPEES;

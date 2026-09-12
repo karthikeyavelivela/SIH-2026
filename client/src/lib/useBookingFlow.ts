@@ -38,15 +38,30 @@ export interface BookingFlowOptions {
   needsWeight: boolean;
   /** True for crew bookings, which price on headcount. */
   needsHamali: boolean;
+  /**
+   * Starting cargo weight in kg, for pages whose slider opens part-way up
+   * its range. It must live in state rather than being a display-only
+   * fallback in the page: `readyToQuote` reads the state, so a page that
+   * showed 15 t while the state held '' looked complete and priced nothing
+   * — the quote never fired and the submit button stayed disabled until the
+   * customer happened to touch the slider.
+   */
+  initialWeightKg?: number;
 }
 
-export function useBookingFlow({ type, serviceCategorySlug, needsWeight, needsHamali }: BookingFlowOptions) {
+export function useBookingFlow({
+  type,
+  serviceCategorySlug,
+  needsWeight,
+  needsHamali,
+  initialWeightKg,
+}: BookingFlowOptions) {
   const router = useRouter();
 
   const [pickup, setPickup] = useState<GeoPoint | null>(null);
   const [drop, setDrop] = useState<GeoPoint | null>(null);
   const [stops, setStops] = useState<GeoPoint[]>([]);
-  const [weightKg, setWeightKg] = useState('');
+  const [weightKg, setWeightKg] = useState(initialWeightKg ? String(initialWeightKg) : '');
   const [hamaliCount, setHamaliCount] = useState(1);
 
   // Device GPS as the default pickup — requested once on mount (the real
