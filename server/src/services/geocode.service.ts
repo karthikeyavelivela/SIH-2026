@@ -107,11 +107,36 @@ function writeCache(q: string, outcome: GeocodeOutcome) {
 
 // ------------------------------------------------------------- helpers
 
-function stripDistrict(raw?: string): string | undefined {
+/**
+ * Normalise a provider's administrative name to the form FareRule.region is
+ * seeded in.
+ *
+ * Indian admin areas come back with suffixes that vary by provider and by
+ * record: OSM's `state_district` is often "Guntur District", and Photon's
+ * `county` for Visakhapatnam is "Visakhapatnam Urban". A FareRule seeded as
+ * plain "Visakhapatnam" matches neither, and booking creation then fails with
+ * "No active fare rule for Visakhapatnam Urban/hamali" — which is exactly
+ * what happened the first time this chain ran against Photon.
+ */
+function normaliseRegion(raw?: string): string | undefined {
   if (!raw) return undefined;
-  // OSM's state_district often carries a literal "... District" suffix that a
-  // FareRule.region seeded as plain "Guntur" will not match.
-  return raw.replace(/\s+district$/i, '').trim() || undefined;
+  return raw.replace(/\s+(district|urban|rural)$/i, '').trim() || undefined;
+}
+
+/**
+ * Pick the field most likely to equal a seeded FareRule.region.
+ *
+ * Order matters and is provider-specific in practice: for an Indian address
+ * the *city* is the district name a fare rule is keyed on, while `county`
+ * carries the "... Urban"/"... Rural" revenue division. Trying city first and
+ * normalising whatever wins covers both providers' shapes.
+ */
+function pickRegion(candidates: (string | undefined)[]): string | undefined {
+  for (const c of candidates) {
+    const n = normaliseRegion(c);
+    if (n) return n;
+  }
+  return undefined;
 }
 
 function inIndia(lat: number, lon: number) {
@@ -166,9 +191,13 @@ const locationIq: Provider = {
       lat: parseFloat(d.lat),
       lon: parseFloat(d.lon),
       displayName: d.display_name,
-      region: stripDistrict(
-        d.address?.state_district ?? d.address?.county ?? d.address?.city ?? d.address?.town ?? d.address?.state
-      ),
+      region: pickRegion([
+        d.address?.city,
+        d.address?.town,
+        d.address?.state_district,
+        d.address?.county,
+        d.address?.state,
+      ]),
     }));
   },
   async reverse(lat, lon) {
@@ -189,9 +218,13 @@ const locationIq: Provider = {
       lat: parseFloat(d.lat ?? String(lat)),
       lon: parseFloat(d.lon ?? String(lon)),
       displayName: d.display_name,
-      region: stripDistrict(
-        d.address?.state_district ?? d.address?.county ?? d.address?.city ?? d.address?.town ?? d.address?.state
-      ),
+      region: pickRegion([
+        d.address?.city,
+        d.address?.town,
+        d.address?.state_district,
+        d.address?.county,
+        d.address?.state,
+      ]),
     };
   },
 };
@@ -222,7 +255,7 @@ const photon: Provider = {
           lat,
           lon,
           displayName: label || p.name || 'Unnamed location',
-          region: stripDistrict(p.county ?? p.city ?? p.district ?? p.state),
+          region: pickRegion([p.city, p.district, p.county, p.state]),
         };
       })
       .filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon) && inIndia(r.lat, r.lon));
@@ -242,7 +275,7 @@ const photon: Provider = {
       lat,
       lon,
       displayName: label || 'Selected location',
-      region: stripDistrict(p.county ?? p.city ?? p.district ?? p.state),
+      region: pickRegion([p.city, p.district, p.county, p.state]),
     };
   },
 };
