@@ -19,6 +19,10 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
+  // Address lookup. Optional: without it the chain falls through to Photon's
+  // keyless public instance, which works but has tighter fair-use limits.
+  // See geocode.service.ts for the full provider chain.
+  LOCATIONIQ_API_KEY: z.string().optional(),
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),
   RAZORPAY_WEBHOOK_SECRET: z.string().optional(),

@@ -7,7 +7,9 @@
 // through the authenticated /api/geocode route, never Nominatim directly
 // from the browser.
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
+import { MapPinPicker } from '@/components/booking/MapPinPicker';
 import { MapPinIcon } from '@/components/ui/icons';
 
 export interface GeoPoint {
@@ -39,10 +41,17 @@ interface AddressFieldProps {
 const DEBOUNCE_MS = 350;
 
 export function AddressField({ label, placeholder, value, onChange, markerColorClass }: AddressFieldProps) {
+  const t = useTranslations('booking.pin');
   const [query, setQuery] = useState(value?.address ?? '');
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  /* Distinct from "no results": true means we could not search at all,
+     because every geocoding provider failed. The old code collapsed both
+     into an empty list, which is how a total outage looked to customers
+     like "your address does not exist". */
+  const [lookupDown, setLookupDown] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Keep the field's text in sync if a point is set from elsewhere (e.g.
@@ -67,13 +76,15 @@ export function AddressField({ label, placeholder, value, onChange, markerColorC
       try {
         const res = await api.get<{ results: GeocodeResult[] }>(`/api/geocode?q=${encodeURIComponent(next)}`);
         setResults(res.results);
+        setLookupDown(false);
         setOpen(true);
       } catch (err) {
-        // A rate-limit or upstream hiccup here shouldn't block the form —
-        // the customer can still type and select from an empty list, or
-        // retry the same query a moment later.
+        // 503 = every provider failed. That is a service outage, and the
+        // customer is told so and offered the map instead — never left
+        // staring at "no matches" with a dead confirm button.
         setResults([]);
-        setOpen(err instanceof ApiClientError ? false : false);
+        setLookupDown(err instanceof ApiClientError && err.status === 503);
+        setOpen(false);
       } finally {
         setLoading(false);
       }
@@ -83,6 +94,13 @@ export function AddressField({ label, placeholder, value, onChange, markerColorC
   function select(r: GeocodeResult) {
     onChange({ lat: r.lat, lng: r.lon, address: r.displayName, region: r.region });
     setQuery(r.displayName);
+    setOpen(false);
+  }
+
+  function selectPinned(point: GeoPoint) {
+    onChange(point);
+    setQuery(point.address);
+    setLookupDown(false);
     setOpen(false);
   }
 
@@ -136,9 +154,51 @@ export function AddressField({ label, placeholder, value, onChange, markerColorC
 
       {open && !loading && results.length === 0 && query.trim().length >= 3 && (
         <div className="absolute z-20 mt-1.5 w-full rounded-control border border-fy-hairline bg-fy-card shadow-lg px-3.5 py-3 text-sm text-fy-muted">
-          No matches for &ldquo;{query}&rdquo;.
+          {t('noMatches', { query })}
         </div>
       )}
+
+      {/* Service outage — stated plainly, with the way out attached. */}
+      {lookupDown && !loading && (
+        <div
+          role="alert"
+          className="mt-2 rounded-control border border-fy-brown/25 bg-fy-panel px-3.5 py-3 flex flex-col gap-2"
+        >
+          <span className="flex items-start gap-2">
+            <span aria-hidden className="material-symbols-outlined text-[18px] text-fy-brown leading-none mt-0.5">
+              cloud_off
+            </span>
+            <span className="font-body text-label text-fy-ink-soft">{t('lookupDown')}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setPinOpen(true)}
+            className="self-start inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-fy-brown text-fy-bone font-mono text-[10px] uppercase tracking-wider font-semibold hover:bg-fy-brown-soft transition-colors"
+          >
+            <span aria-hidden className="material-symbols-outlined text-[15px] text-fy-lime leading-none">
+              pin_drop
+            </span>
+            {t('dropPin')}
+          </button>
+        </div>
+      )}
+
+      {/* Always available, not only during an outage — some addresses simply
+          are not in any gazetteer, and a pin is the honest answer for those. */}
+      {!lookupDown && (
+        <button
+          type="button"
+          onClick={() => setPinOpen(true)}
+          className="mt-1.5 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-fy-muted hover:text-fy-brown transition-colors"
+        >
+          <span aria-hidden className="material-symbols-outlined text-[14px] leading-none">
+            pin_drop
+          </span>
+          {t('orDropPin')}
+        </button>
+      )}
+
+      <MapPinPicker open={pinOpen} onClose={() => setPinOpen(false)} onPick={selectPinned} initial={value} />
     </div>
   );
 }

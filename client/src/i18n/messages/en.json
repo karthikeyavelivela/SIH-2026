@@ -3693,5 +3693,20 @@
     "backToBooking": "Back to booking",
     "loadError": "Could not load your pending ratings.",
     "tryAgain": "Try again"
+  },
+  "booking": {
+    "pin": {
+      "eyebrow": "Service location",
+      "title": "Drop a pin",
+      "confirm": "Use this location",
+      "cancel": "Close",
+      "resolving": "Finding the address…",
+      "pinnedLocation": "Pinned location",
+      "hint": "Tap the map or drag the pin. The exact address is optional — the position is what the crew needs.",
+      "lookupDown": "Address lookup is unavailable right now. You can still book — drop a pin on the map instead.",
+      "dropPin": "Drop a pin",
+      "orDropPin": "or drop a pin on the map",
+      "noMatches": "No matches for “{query}”."
+    }
   }
 }
