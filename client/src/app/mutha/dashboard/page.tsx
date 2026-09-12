@@ -10,7 +10,8 @@ import { Booking, EarningsResponse, MuthaResponse } from '@/lib/types';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
-import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
+import { DemandForecastWidget } from '@/components/worker/AgentWidgets';
+import { TaraEntry } from '@/components/ui/TaraEntry';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -289,7 +290,7 @@ export default function MuthaDashboardPage() {
             </DataList>
 
             <DemandForecastWidget region={user?.region} accent="secondary" />
-            <SupportAgentWidget accent="secondary" />
+            <TaraEntry accent="secondary" />
           </>
         )}
 

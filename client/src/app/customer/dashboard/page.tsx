@@ -19,7 +19,7 @@ import { PermissionDeniedState } from '@/components/ui/PermissionDeniedState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RotaryDial, type DialSector } from '@/components/ui/RotaryDial';
 import { Icon } from '@/components/ui/Icon';
-import { SupportAgentWidget } from '@/components/worker/AgentWidgets';
+import { TaraEntry } from '@/components/ui/TaraEntry';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
 import { LightCard, Panel, Section, IconTile } from '@/components/fy/Surfaces';
 import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
@@ -426,7 +426,7 @@ export default function CustomerDashboardPage() {
             )}
           </Section>
 
-          <SupportAgentWidget accent="primary" />
+          <TaraEntry accent="primary" />
         </main>
 
       </div>

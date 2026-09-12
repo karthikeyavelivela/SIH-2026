@@ -11,13 +11,9 @@ export const agentsRouter = Router();
 
 agentsRouter.use(verifyJwt, agentLimiter);
 
-// Agent A — any authenticated role may ask about their OWN records.
-agentsRouter.post(
-  '/support',
-  [body('question').isString().trim().isLength({ min: 1, max: 500 })],
-  validate,
-  agentsController.askSupportAgent
-);
+// Agent A's route is gone: TARA (/api/assistant) is the one assistant now,
+// and leaving a second, weaker copy of it mounted would have been an extra
+// surface answering the same questions with no transcript and no escalation.
 
 // Agent B — admin-only, same posture as dispute.routes.ts (money/
 // account-status decisions downstream of this).

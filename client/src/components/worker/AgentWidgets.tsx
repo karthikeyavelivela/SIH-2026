@@ -7,94 +7,15 @@ import { AgentResultCard, type AgentResult } from '@/components/ui/AgentResultCa
 import { SparkleIcon } from '@/components/ui/icons';
 
 /**
- * Phase 4 client surface 1 — the support-agent ask box (Agent A). Any
- * authenticated role can ask about their OWN records (bookings, complaints,
- * insurance, KYC status) — the server derives scope from the session, this
- * component never sends a userId. Collapsed by default so it doesn't
- * compete with the primary dashboard content; expands into a plain
- * question box + AgentResultCard on submit.
- */
-export function SupportAgentWidget({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
-  const t = useTranslations('agents.support');
-  const [open, setOpen] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [result, setResult] = useState<AgentResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function ask() {
-    if (!question.trim()) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.post<{ result: AgentResult }>('/api/agents/support', { question: question.trim() });
-      setResult(res.result);
-    } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : t('error'));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-3 p-4 rounded-card bg-fy-field hover:bg-fy-well transition-colors duration-base w-full text-left mb-3"
-      >
-        <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green'}`}>
-          <SparkleIcon className="w-5 h-5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">{t('collapsedTitle')}</p>
-          <p className="text-xs text-fy-ink-soft">{t('collapsedHint')}</p>
-        </div>
-      </button>
-    );
-  }
-
-  return (
-    <div className="fy-surface-card mb-3">
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold">{t('askTitle')}</p>
-        <button type="button" onClick={() => setOpen(false)} className="text-xs text-fy-ink-soft">
-          {t('close')}
-        </button>
-      </div>
-      <div className="flex gap-2">
-        <input
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && ask()}
-          placeholder={t('placeholder')}
-          className="flex-1 min-h-[44px] px-3.5 rounded-control border border-fy-muted/20 bg-fy-bone text-sm focus:border-fy-brown focus:ring-2 focus:ring-fy-brown/20"
-        />
-        <button
-          type="button"
-          disabled={loading || !question.trim()}
-          onClick={ask}
-          className="px-4 rounded-control bg-fy-brown text-white text-sm font-semibold disabled:opacity-50"
-        >
-          {loading ? '…' : t('ask')}
-        </button>
-      </div>
-      {error && <p className="text-sm text-fy-error mt-2">{error}</p>}
-      {result && (
-        <div className="mt-3">
-          <AgentResultCard result={result} accent={accent} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Phase 4 client surface 3 — the demand-forecast widget (Agent C). Region
- * comes from the caller's own profile (user.region) — the audience framing
- * (worker earnings hint vs. mutha_leader workforce-allocation vs. admin
- * surge framing) is decided server-side from the caller's role, never sent
- * from here.
+ * The remaining per-screen agent widgets.
+ *
+ * The support ask-box that used to live here is gone: it was one of five
+ * copies of the same feature, and TARA (components/ui/TaraEntry.tsx ->
+ * /assistant) replaced all of them with a single assistant that keeps a
+ * transcript and can fetch a human. What is left here are the agents that
+ * are genuinely about the screen they sit on — a demand forecast for a
+ * region, a pricing second opinion for a quote — and neither is a
+ * conversation.
  */
 export function DemandForecastWidget({ region, accent = 'primary' }: { region: string | undefined; accent?: 'primary' | 'secondary' }) {
   const t = useTranslations('agents.demandForecast');

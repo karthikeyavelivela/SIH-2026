@@ -4,7 +4,6 @@ import { ApiError } from '../utils/ApiError';
 import { Dispute } from '../models/Dispute';
 import { writeAuditLog } from '../services/audit.service';
 import { cached } from '../agents/cache';
-import { runSupportAgent } from '../agents/supportAgent';
 import { runDisputeTriageAgent } from '../agents/disputeTriageAgent';
 import { runDemandForecastAgent } from '../agents/demandForecastAgent';
 import { User } from '../models/User';
@@ -31,25 +30,6 @@ import type { Role, KycDocumentType } from '@fyro/shared';
  * account — every handler only ever returns an AgentResult for a human to
  * read and act on elsewhere.
  */
-
-export const askSupportAgent = asyncHandler(async (req: Request, res: Response) => {
-  const { question } = req.body as { question: string };
-  const userId = req.user!.id;
-  const role = req.user!.role as Role;
-
-  const result = await cached(`support:${userId}:${question}`, () => runSupportAgent(userId, role, question));
-
-  await writeAuditLog({
-    actorId: userId,
-    actorRole: role,
-    action: 'agent_support_queried',
-    targetType: 'User',
-    targetId: userId,
-    details: { question, confidence: result.confidence, mock: result.mock },
-  });
-
-  res.status(200).json({ result });
-});
 
 export const triageDispute = asyncHandler(async (req: Request, res: Response) => {
   const disputeId = req.params.id;

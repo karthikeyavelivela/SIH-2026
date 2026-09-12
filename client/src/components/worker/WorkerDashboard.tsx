@@ -13,7 +13,8 @@ import { RatingModal } from '@/components/worker/RatingModal';
 import { ServiceAreaCard } from '@/components/worker/ServiceAreaCard';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
-import { SupportAgentWidget, DemandForecastWidget } from '@/components/worker/AgentWidgets';
+import { DemandForecastWidget } from '@/components/worker/AgentWidgets';
+import { TaraEntry } from '@/components/ui/TaraEntry';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -281,7 +282,7 @@ export function WorkerDashboard({
         )}
 
         <DemandForecastWidget region={user?.region} accent={accent} />
-        <SupportAgentWidget accent={accent} />
+        <TaraEntry accent={accent} />
 
         <DataList>
           <DataRow

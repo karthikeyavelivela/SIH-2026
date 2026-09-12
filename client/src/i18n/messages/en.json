@@ -3714,5 +3714,31 @@
       "orDropPin": "or drop a pin on the map",
       "noMatches": "No matches for “{query}”."
     }
+  },
+  "tara": {
+    "name": "TARA",
+    "tagline": "Your FYRO assistant",
+    "entryTitle": "Ask TARA",
+    "entryHint": "Answers from your own account — bookings, pay, documents",
+    "placeholder": "Type your question, or describe the problem",
+    "send": "Send",
+    "sending": "Thinking…",
+    "greeting": "Hello {name}. I'm TARA. Ask me about your bookings, pay or documents — or just describe what's wrong and I'll point you to the right service.",
+    "greetingNoName": "Hello. I'm TARA. Ask me about your bookings, pay or documents — or just describe what's wrong and I'll point you to the right service.",
+    "error": "TARA could not answer just now. Try again.",
+    "newConversation": "New conversation",
+    "history": "Past conversations",
+    "noHistory": "No past conversations yet.",
+    "escalate": "Talk to a person",
+    "escalating": "Passing to a person…",
+    "escalated": "Passed to a person. Your complaint reference is {id}.",
+    "escalateError": "Could not pass this to a person.",
+    "alreadyEscalated": "This conversation is already with a person.",
+    "suggestionTitle": "Looks like you need a {category}",
+    "suggestionCta": "Open the booking screen",
+    "suggestionMatched": "Matched from what you wrote: {terms}",
+    "cannotAct": "TARA never books, cancels or pays anything — you do that yourself on the booking screens.",
+    "you": "You",
+    "openAssistant": "Open TARA"
   }
 }

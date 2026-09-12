@@ -41,7 +41,7 @@ describe('Agent A (support) — IDOR: only ever sees the caller\'s own data', ()
     const { agent: attackerAgent, user: attacker } = await loginAs('customer', '9880000002');
     await makeCompletedBookingFor(attacker._id.toString(), 111, 'AttackerOwnAddress'); // attacker's own, different data
 
-    const res = await attackerAgent.post('/api/agents/support').send({ question: 'What is the status of my last booking?' });
+    const res = await attackerAgent.post('/api/assistant/ask').send({ question: 'What is the status of my last booking?' });
     expect(res.status).toBe(200);
     const body = JSON.stringify(res.body);
     // The victim's booking amount/address must never appear in the
@@ -52,20 +52,20 @@ describe('Agent A (support) — IDOR: only ever sees the caller\'s own data', ()
     void attacker;
   });
 
-  it('writes an audit log entry for every support query', async () => {
+  it('writes an audit log entry for every assistant query', async () => {
     const { agent } = await loginAs('customer', '9880000003');
-    await agent.post('/api/agents/support').send({ question: 'Where is my order?' });
-    const entries = await AuditLog.find({ action: 'agent_support_queried' });
+    await agent.post('/api/assistant/ask').send({ question: 'Where is my order?' });
+    const entries = await AuditLog.find({ action: 'assistant_queried' });
     expect(entries.length).toBeGreaterThan(0);
   });
 
   it('response carries a confidence score and non-fabricated evidence array (mock mode)', async () => {
     const { agent } = await loginAs('driver', '9880000004');
-    const res = await agent.post('/api/agents/support').send({ question: 'How am I doing?' });
+    const res = await agent.post('/api/assistant/ask').send({ question: 'How am I doing?' });
     expect(res.status).toBe(200);
-    expect(['low', 'moderate', 'high']).toContain(res.body.result.confidence);
-    expect(Array.isArray(res.body.result.evidence)).toBe(true);
-    expect(res.body.result.mock).toBe(true); // no ANTHROPIC_API_KEY in test env
+    expect(['low', 'moderate', 'high']).toContain(res.body.answer.confidence);
+    expect(Array.isArray(res.body.answer.evidence)).toBe(true);
+    expect(res.body.answer.mock).toBe(true); // no model provider key in the test env
   });
 });
 
@@ -205,7 +205,7 @@ describe('No agent can execute a privileged action — every response is read-on
   it('a support-agent call never changes account status, booking status, or any other record', async () => {
     const { agent, user } = await loginAs('customer', '9880000012');
     const booking = await makeCompletedBookingFor(user._id.toString(), 500, 'Whatever');
-    await agent.post('/api/agents/support').send({ question: 'cancel my booking' });
+    await agent.post('/api/assistant/ask').send({ question: 'cancel my booking' });
 
     const after = await Booking.findById(booking._id);
     expect(after!.status).toBe('completed'); // unchanged — the agent has no write path to this at all

@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { Complaint, COMPLAINT_CATEGORIES, ComplaintCategory, Booking } from '@/lib/types';
-import { SupportAgentWidget } from '@/components/worker/AgentWidgets';
+import { TaraEntry } from '@/components/ui/TaraEntry';
 import { Icon } from '@/components/ui/Icon';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
 import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
@@ -157,7 +157,7 @@ function SupportInner() {
           <Body className="mt-1.5">{t('subtitle')}</Body>
         </div>
 
-        <SupportAgentWidget accent="primary" />
+        <TaraEntry accent="primary" />
 
         <TabRow
           variant="inset"
