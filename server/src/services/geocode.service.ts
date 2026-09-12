@@ -119,14 +119,33 @@ function writeCache(q: string, outcome: GeocodeOutcome) {
  * "No active fare rule for Visakhapatnam Urban/hamali" — which is exactly
  * what happened the first time this chain ran against Photon.
  */
+const ADMIN_SUFFIX = /(?:\s*\((?:urban|rural)\)|\s+(?:mandal|taluk|taluka|tehsil|district|division|urban|rural|north|south|east|west|central))$/i;
+
+/**
+ * Progressively strip administrative suffixes, most specific first.
+ *
+ * Photon's `county` for Khammam is "Khammam Urban mandal" and for Nizamabad
+ * "Nizamabad South mandal"; LocationIQ's `state_district` is often
+ * "Guntur District" and its county "Visakhapatnam (Rural)". Each strip is
+ * a separate candidate rather than one final answer, because the priced
+ * region can sit at any depth — "Bengaluru Urban" IS a seeded region, so
+ * stripping all the way down would destroy it.
+ */
+function regionForms(raw?: string): string[] {
+  const forms: string[] = [];
+  let cur = raw?.trim() ?? '';
+  while (cur) {
+    if (!forms.includes(cur)) forms.push(cur);
+    const next = cur.replace(ADMIN_SUFFIX, '').trim();
+    if (next === cur) break;
+    cur = next;
+  }
+  return forms;
+}
+
 function normaliseRegion(raw?: string): string | undefined {
-  if (!raw) return undefined;
-  return (
-    raw
-      .replace(/\s*\((?:urban|rural)\)$/i, '')
-      .replace(/\s+(district|urban|rural)$/i, '')
-      .trim() || undefined
-  );
+  const forms = regionForms(raw);
+  return forms[forms.length - 1] || undefined;
 }
 
 /**
@@ -158,29 +177,34 @@ async function ensurePricedRegions() {
 /**
  * Pick the field most likely to equal a seeded FareRule.region.
  *
- * Order matters and is provider-specific in practice: for an Indian address
- * the *city* is the district name a fare rule is keyed on, while `county`
- * carries the "... Urban"/"... Rural" revenue division. Trying city first and
- * normalising whatever wins covers both providers' shapes.
+ * `candidates` are the provider's administrative fields in the order we
+ * would fall back to them. `hints` are fields that are only trustworthy when
+ * they happen to BE a priced region — Photon returns no district at all for
+ * a Telangana city and puts the district name in `name`, but `name` is also
+ * "Klef Road" for a street query, so it may never be the fallback.
  */
-function pickRegion(candidates: (string | undefined)[]): string | undefined {
-  const cleaned = candidates.map((c) => c?.trim()).filter((c): c is string => !!c);
+function pickRegion(candidates: (string | undefined)[], hints: (string | undefined)[] = []): string | undefined {
+  const clean = (xs: (string | undefined)[]) => xs.map((c) => c?.trim()).filter((c): c is string => !!c);
+  const cleaned = clean(candidates);
+  const hinted = clean(hints);
 
-  // A field that IS a priced region wins outright, whatever its rank. This is
-  // what makes a village work: LocationIQ's `city` for Vaddeswaram is
-  // "Vaddeswaram", which no rule is keyed on, while its `state_district` is
-  // "Guntur", which is.
-  for (const c of cleaned) if (pricedRegions?.has(c)) return c;
-  for (const c of cleaned) {
-    const n = normaliseRegion(c);
-    if (n && pricedRegions?.has(n)) return n;
+  // Any form of any field that IS a priced region wins outright, whatever its
+  // rank — that is what makes a village work: LocationIQ's `city` for
+  // Vaddeswaram is "Vaddeswaram", which no rule is keyed on, while its
+  // `state_district` is "Guntur", which is. Exact matches are tried across
+  // everything before any stripped form, so a region seeded WITH a suffix
+  // ("Bengaluru Urban") is never stripped away.
+  for (const c of [...cleaned, ...hinted]) if (pricedRegions?.has(c)) return c;
+  for (const c of [...cleaned, ...hinted]) {
+    for (const form of regionForms(c)) if (pricedRegions?.has(form)) return form;
   }
 
-  // Nothing is priced here. Return the most local name anyway rather than
+  // Nothing here is priced. Return the most local name anyway rather than
   // nothing: the customer can see and correct it on the booking form, and
   // the server's own "No active fare rule for X" then names something real.
-  return normaliseRegion(cleaned[0]);
+  return normaliseRegion(cleaned[0] ?? hinted[0]);
 }
+
 
 function inIndia(lat: number, lon: number) {
   return (
@@ -298,7 +322,7 @@ const photon: Provider = {
           lat,
           lon,
           displayName: label || p.name || 'Unnamed location',
-          region: pickRegion([p.city, p.district, p.county, p.state]),
+          region: pickRegion([p.city, p.district, p.county, p.state], [p.name]),
         };
       })
       .filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon) && inIndia(r.lat, r.lon));
@@ -318,7 +342,7 @@ const photon: Provider = {
       lat,
       lon,
       displayName: label || 'Selected location',
-      region: pickRegion([p.city, p.district, p.county, p.state]),
+      region: pickRegion([p.city, p.district, p.county, p.state], [p.name]),
     };
   },
 };
