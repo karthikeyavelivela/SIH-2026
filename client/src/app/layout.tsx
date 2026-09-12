@@ -6,6 +6,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { GlobalSearch } from '@/components/ui/GlobalSearch';
 import { ToastProvider } from '@/components/ui/Toast';
 
 // The designs' serif is Noto Serif — named in the export and confirmed by
@@ -83,7 +84,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="font-body">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {children}
+              {/* Mounted once, globally: search is reachable from every
+                  screen and renders nothing at all when signed out. */}
+              <GlobalSearch />
+            </AuthProvider>
             <OfflineBanner />
           </ToastProvider>
         </NextIntlClientProvider>

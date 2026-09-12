@@ -253,4 +253,10 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+// Global search (Job 4). Only ever queried by roles that already have a
+// people-directory route of their own — admin/manager over everyone, a
+// society leader over their own members. search.service.ts is where that is
+// enforced; an index is not an access grant.
+userSchema.index({ name: 'text' }, { name: 'user_search' });
+
 export const User = model<IUser>('User', userSchema);

@@ -74,5 +74,6 @@ const muthaSchema = new Schema<IMutha>(
 );
 
 muthaSchema.index({ districtFederationId: 1, affiliationStatus: 1 });
+muthaSchema.index({ name: 'text' }, { name: 'mutha_search' });
 
 export const Mutha = model<IMutha>('Mutha', muthaSchema);

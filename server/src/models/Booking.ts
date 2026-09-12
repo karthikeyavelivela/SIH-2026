@@ -193,5 +193,13 @@ bookingSchema.index({ dropLocation: '2dsphere' });
 bookingSchema.index({ customerId: 1, status: 1 });
 bookingSchema.index({ region: 1, status: 1 }); // surge.service's searching-count query
 bookingSchema.index({ status: 1, scheduledFor: 1 }); // scheduledBooking.service's due-for-release poll
+// Global search (Job 4). A booking is found by where it went, not by its id
+// — people search "Gajuwaka", never "6aa552328ecbb689a5cfb736". Weighted so
+// a pickup match outranks a drop match, since a person recalling one address
+// usually recalls where the job started.
+bookingSchema.index(
+  { 'pickupLocation.address': 'text', 'dropLocation.address': 'text', 'cargoDetails.goodsType': 'text' },
+  { weights: { 'pickupLocation.address': 3, 'dropLocation.address': 2, 'cargoDetails.goodsType': 1 }, name: 'booking_search' }
+);
 
 export const Booking = model<IBooking>('Booking', bookingSchema);

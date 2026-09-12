@@ -78,5 +78,6 @@ const serviceCategorySchema = new Schema<IServiceCategory>(
 );
 
 serviceCategorySchema.index({ active: 1 });
+serviceCategorySchema.index({ name: 'text', slug: 'text' }, { name: 'service_category_search' });
 
 export const ServiceCategory = model<IServiceCategory>('ServiceCategory', serviceCategorySchema);

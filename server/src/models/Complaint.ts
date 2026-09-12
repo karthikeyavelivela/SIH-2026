@@ -31,4 +31,8 @@ const complaintSchema = new Schema<IComplaint>(
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
+// Global search (Job 4) — a person looks for their grievance by what they
+// said in it, not by its category enum.
+complaintSchema.index({ description: 'text' }, { name: 'complaint_search' });
+
 export const Complaint = model<IComplaint>('Complaint', complaintSchema);

@@ -3740,5 +3740,24 @@
     "cannotAct": "TARA never books, cancels or pays anything — you do that yourself on the booking screens.",
     "you": "You",
     "openAssistant": "Open TARA"
+  },
+  "search": {
+    "placeholder": "Search bookings, services, people…",
+    "hint": "Press {key} to search",
+    "noResults": "Nothing matched “{q}”.",
+    "recent": "Recent searches",
+    "clearRecent": "Clear",
+    "close": "Close",
+    "searching": "Searching…",
+    "groups": {
+      "services": "Services",
+      "bookings": "Bookings",
+      "jobs": "Jobs",
+      "addresses": "Saved addresses",
+      "complaints": "Complaints",
+      "members": "Members",
+      "people": "People",
+      "vehicles": "Vehicles"
+    }
   }
 }
