@@ -101,7 +101,16 @@ describe('cooperative commission deduction — recorded on real job completion',
     memberAgent.jar.setCookie(`accessToken=${signAccessToken({ id: member._id.toString(), role: 'mutha_member' as never })}`);
     const res = await memberAgent.get('/api/earnings/me');
     expect(res.status).toBe(200);
-    expect(res.body.total).toBe(425);
+    // Gross 500, with BOTH cuts taken on gross and neither compounded on
+    // the other: 10% platform commission (50) and the society's own
+    // bye-law deductions, 10% reserve + 5% welfare (75). The member keeps
+    // 375. Each line is asserted separately because "the worker is shown
+    // every deduction individually" is the promise the earnings screen
+    // makes, not just the final number.
+    expect(res.body.gross).toBe(500);
+    expect(res.body.platformFee).toBe(50);
+    expect(res.body.retained).toBe(75);
+    expect(res.body.total).toBe(375);
   });
 });
 

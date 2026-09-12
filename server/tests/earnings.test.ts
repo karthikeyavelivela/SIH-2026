@@ -67,7 +67,11 @@ describe('GET /api/earnings/me', () => {
     expect(res.status).toBe(200);
     expect(res.body.jobCount).toBe(1);
     // (base 100 + distance 50) * (total 230 / preSurgeSubtotal 230) = 150
-    expect(res.body.total).toBe(150);
+    // gross is the worker's share of the fare; total is what they keep after
+    // the published 10% platform commission, itemised on every job.
+    expect(res.body.gross).toBe(150);
+    expect(res.body.platformFee).toBe(15);
+    expect(res.body.total).toBe(135);
   });
 
   it('scales a driver\'s share by surge', async () => {
@@ -79,8 +83,9 @@ describe('GET /api/earnings/me', () => {
     });
 
     const res = await agent.get('/api/earnings/me');
-    // (150) * (345/230) = 225
-    expect(res.body.total).toBe(225);
+    // (150) * (345/230) = 225, less the 10% commission
+    expect(res.body.gross).toBe(225);
+    expect(res.body.total).toBe(202.5);
   });
 
   it('splits the hamali pool equally across assigned solo hamalis', async () => {
@@ -92,8 +97,9 @@ describe('GET /api/earnings/me', () => {
     });
 
     const res = await agentA.get('/api/earnings/me');
-    // hamaliFare 80 * (230/230) = 80, split 2 ways = 40
-    expect(res.body.total).toBe(40);
+    // hamaliFare 80 * (230/230) = 80, split 2 ways = 40, less 10% = 36
+    expect(res.body.gross).toBe(40);
+    expect(res.body.total).toBe(36);
   });
 
   it('gives a mutha_leader the group total plus a correct per-member breakdown', async () => {
@@ -114,9 +120,22 @@ describe('GET /api/earnings/me', () => {
     });
 
     const res = await leaderAgent.get('/api/earnings/me');
+    // A leader's `total` is the GROUP's gross pool — what the society
+    // billed for the job — while each member's own `total` is net of the
+    // 10% platform commission. That asymmetry is deliberate (the leader
+    // screen reports the group's earnings, the member screen reports take-
+    // home), and it is asserted here so a future change to either side has
+    // to be a conscious one.
+    expect(res.body.gross).toBe(80);
     expect(res.body.total).toBe(80);
     expect(res.body.perMember).toEqual(
       expect.arrayContaining([
+        // 40 each, not 36: this test writes a completed booking straight
+        // into the database, so no CommissionRecord exists for it, and the
+        // per-member figure falls back to the plain gross share. That
+        // fallback is deliberate — a booking that never went through the
+        // completion flow has no deduction to report, and inventing one
+        // would misstate what the member is owed.
         expect.objectContaining({ userId: memberA._id.toString(), total: 40 }),
         expect.objectContaining({ userId: memberB._id.toString(), total: 40 }),
       ])
