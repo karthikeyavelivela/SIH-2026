@@ -6,6 +6,7 @@ import { User } from '../src/models/User';
 import { Booking } from '../src/models/Booking';
 import { Complaint } from '../src/models/Complaint';
 import { AssistantConversation } from '../src/models/AssistantConversation';
+import { WorkerPricingProfile } from '../src/models/WorkerPricingProfile';
 import { signAccessToken } from '../src/services/token.service';
 import { diagnoseCategory, bookingPathFor } from '../src/agents/tara/symptoms';
 
@@ -251,5 +252,141 @@ describe('TARA — scoping and guardrails', () => {
     const { agent } = await loginAs('customer', '9940000012');
     const res = await agent.post('/api/assistant/ask').send({ question: 'x'.repeat(501) });
     expect(res.status).toBe(400);
+  });
+});
+
+describe('TARA — pricing awareness', () => {
+  async function workerWithRates(phone: string, draft: Record<string, unknown>) {
+    const passwordHash = await bcrypt.hash('Passw0rd!', 12);
+    const worker = await User.create({
+      name: 'Priced Worker',
+      phone,
+      passwordHash,
+      role: 'hamali_solo',
+      region: 'Visakhapatnam',
+    });
+    const agent = request.agent(app);
+    agent.jar.setCookie(
+      `accessToken=${signAccessToken({ id: worker._id.toString(), role: 'hamali_solo' as never })}`
+    );
+    const res = await agent.put('/api/pricing/mine').send(draft);
+    expect(res.status).toBe(200);
+    return worker;
+  }
+
+  it('identifies a leaking tap as fixed-price task work and quotes only real rates', async () => {
+    await workerWithRates('9945000001', {
+      categorySlug: 'plumber',
+      modesOffered: ['per_task'],
+      perTask: [
+        { taskName: 'Tap repair', fixedPrice: 250 },
+        { taskName: 'Leak fix', fixedPrice: 400 },
+      ],
+    });
+    const { agent } = await loginAs('customer', '9945000002');
+
+    const res = await agent.post('/api/assistant/ask').send({ question: 'the tap in my kitchen is leaking' });
+
+    expect(res.status).toBe(200);
+    const pricing = res.body.answer.suggestion.pricing;
+    expect(res.body.answer.suggestion.categorySlug).toBe('plumber');
+    expect(pricing.mode).toBe('per_task');
+    // The range is exactly what those two workers published — nothing wider.
+    expect(pricing.low).toBe(250);
+    expect(pricing.high).toBe(400);
+    expect(pricing.sampleSize).toBe(2);
+  });
+
+  it('identifies a wardrobe as measured work, in the unit the trade uses', async () => {
+    await workerWithRates('9945000003', {
+      categorySlug: 'carpenter',
+      modesOffered: ['per_unit'],
+      perUnit: [{ unitType: 'sq_ft_face', rate: 900, minimumQuantity: 10 }],
+    });
+    const { agent } = await loginAs('customer', '9945000004');
+
+    const res = await agent
+      .post('/api/assistant/ask')
+      .send({ question: 'I want a new wardrobe built in the bedroom' });
+
+    const pricing = res.body.answer.suggestion.pricing;
+    expect(res.body.answer.suggestion.categorySlug).toBe('carpenter');
+    expect(pricing.mode).toBe('per_unit');
+    expect(pricing.unitType).toBe('sq_ft_face');
+    expect(pricing.low).toBe(900);
+  });
+
+  it('sends a whole-flat rewire down the quotation path, with no price at all', async () => {
+    await workerWithRates('9945000005', {
+      categorySlug: 'electrician',
+      modesOffered: ['per_unit', 'quotation'],
+      perUnit: [{ unitType: 'per_point', rate: 45, minimumQuantity: 1 }],
+      quotation: { accepts: true, siteVisitFee: 200, siteVisitAdjustable: true },
+    });
+    const { agent } = await loginAs('customer', '9945000006');
+
+    const res = await agent
+      .post('/api/assistant/ask')
+      .send({ question: 'rewiring the whole flat, every room' });
+
+    const pricing = res.body.answer.suggestion.pricing;
+    expect(pricing.mode).toBe('quotation');
+    // A job nobody has seen has no price, and the payload carries none.
+    expect(pricing.low).toBeUndefined();
+    expect(pricing.high).toBeUndefined();
+    expect(pricing.quotationWorkers).toBe(1);
+  });
+
+  it('says there is no published rate rather than inventing one', async () => {
+    // A trade nobody near this customer has priced at all.
+    const { agent } = await loginAs('customer', '9945000007');
+
+    const res = await agent.post('/api/assistant/ask').send({ question: 'my ceiling fan is not working' });
+
+    const pricing = res.body.answer.suggestion.pricing;
+    expect(pricing.sampleSize).toBe(0);
+    expect(pricing.low).toBeUndefined();
+    // And nothing anywhere in the response looks like a quoted figure.
+    expect(res.body.answer.summary).not.toMatch(/₹\s?\d/);
+  });
+
+  it('does not quote a rate published in another region', async () => {
+    const passwordHash = await bcrypt.hash('Passw0rd!', 12);
+    const farAway = await User.create({
+      name: 'Hyderabad Plumber',
+      phone: '9945000008',
+      passwordHash,
+      role: 'hamali_solo',
+      region: 'Hyderabad',
+    });
+    const farAgent = request.agent(app);
+    farAgent.jar.setCookie(
+      `accessToken=${signAccessToken({ id: farAway._id.toString(), role: 'hamali_solo' as never })}`
+    );
+    await farAgent.put('/api/pricing/mine').send({
+      categorySlug: 'plumber',
+      modesOffered: ['per_task'],
+      perTask: [{ taskName: 'Tap repair', fixedPrice: 900 }],
+    });
+
+    const { agent } = await loginAs('customer', '9945000009');
+    const res = await agent.post('/api/assistant/ask').send({ question: 'my tap is leaking' });
+
+    // A rate published 600km away is not evidence about this job.
+    expect(res.body.answer.suggestion.pricing.sampleSize).toBe(0);
+  });
+
+  it('ignores a rate a society floor has since disowned', async () => {
+    const worker = await workerWithRates('9945000010', {
+      categorySlug: 'painter',
+      modesOffered: ['per_unit'],
+      perUnit: [{ unitType: 'sq_ft_face', rate: 10, minimumQuantity: 50 }],
+    });
+    await WorkerPricingProfile.updateOne({ workerId: worker._id }, { societyFloorRespected: false });
+
+    const { agent } = await loginAs('customer', '9945000011');
+    const res = await agent.post('/api/assistant/ask').send({ question: 'need the wall painting done' });
+
+    expect(res.body.answer.suggestion.pricing.sampleSize).toBe(0);
   });
 });

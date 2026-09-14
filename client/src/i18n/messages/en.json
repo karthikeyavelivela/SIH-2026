@@ -3758,7 +3758,16 @@
     "suggestionMatched": "Matched from what you wrote: {terms}",
     "cannotAct": "TARA never books, cancels or pays anything — you do that yourself on the booking screens.",
     "you": "You",
-    "openAssistant": "Open TARA"
+    "openAssistant": "Open TARA",
+    "pricedHourly": "Charged by the hour",
+    "pricedPerUnit": "Measured work",
+    "pricedPerTask": "Fixed price per job",
+    "pricedQuotation": "Quoted after a visit",
+    "rangeFrom": "Workers near you charge ₹{low}–₹{high}",
+    "rangeOne": "One worker near you charges ₹{low}",
+    "noRates": "Nobody near you has published a rate for this yet.",
+    "quotationWorkers": "{count} nearby worker(s) will visit and quote.",
+    "ratesNote": "From rates workers near you actually published."
   },
   "search": {
     "placeholder": "Search bookings, services, people…",
@@ -4105,5 +4114,58 @@
       "customerEntry": "My quotations",
       "customerEntryHint": "Quotes you have asked for"
     }
+  },
+  "feedback": {
+    "title": "Tell us what you think",
+    "hint": "What is missing, what is broken, what we should offer",
+    "category": "What is this about?",
+    "categories": {
+      "feature_request": "Something we should add",
+      "bug": "Something is broken",
+      "pricing": "About prices",
+      "worker_quality": "About a worker",
+      "service_request": "A service you don't offer yet",
+      "other": "Something else"
+    },
+    "serviceName": "Which service?",
+    "servicePlaceholder": "Pest control, CCTV fitting, tuition…",
+    "serviceHint": "If enough people ask for the same thing, we add it.",
+    "message": "Tell us more",
+    "messagePlaceholder": "What happened, or what you were looking for",
+    "submit": "Send",
+    "submitting": "Sending…",
+    "sent": "Thank you. We read every one of these.",
+    "error": "Could not send that.",
+    "mine": "What you have sent",
+    "none": "You have not sent us anything yet.",
+    "status": {
+      "new": "Received",
+      "reviewing": "Being looked at",
+      "planned": "Planned",
+      "closed": "Closed"
+    },
+    "adminQueue": "Feedback",
+    "demandTitle": "Services people asked for",
+    "demandHint": "Trades FYRO does not offer yet, counted by how many people asked.",
+    "demandCount": "{count} asked",
+    "noDemand": "Nobody has asked for a service we do not offer.",
+    "markReviewing": "Looking at it",
+    "markPlanned": "Planned",
+    "markClosed": "Close",
+    "adminNote": "Note back to them (optional)"
+  },
+  "signIn": {
+    "heading": "Sign in",
+    "phone": "Phone number",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "forgot": "Forgot password?",
+    "newHere": "New here? Create an account",
+    "error": "That phone number or password is wrong.",
+    "forgotHeading": "Forgot your password?",
+    "forgotBody": "There is no automatic password reset yet — FYRO has no SMS or email provider connected, and we would rather say so than send you to a screen that quietly does nothing.",
+    "forgotWho": "Ask your society leader, or the FYRO desk, to reset it for you. They will verify who you are first.",
+    "forgotBack": "Back to sign in"
   }
 }

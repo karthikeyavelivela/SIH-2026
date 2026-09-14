@@ -9,6 +9,7 @@ import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import Link from 'next/link';
 import { ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
+import { FeedbackSection } from '@/components/ui/FeedbackSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
   LanguageSection,
@@ -146,7 +147,8 @@ export default function FleetOwnerProfilePage() {
           <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <SupportSection />
-        <AccountDangerZoneSection />
+        <FeedbackSection />
+            <AccountDangerZoneSection />
       </div>
     </div>
   );

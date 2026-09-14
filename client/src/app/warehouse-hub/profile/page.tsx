@@ -10,6 +10,7 @@ import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import Link from 'next/link';
 import { XIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
+import { FeedbackSection } from '@/components/ui/FeedbackSection';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -207,7 +208,8 @@ export default function WarehouseHubProfilePage() {
           <ChevronRightIcon className="w-4 h-4 text-fy-ink-soft" />
         </Link>
         <SupportSection />
-        <AccountDangerZoneSection />
+        <FeedbackSection />
+            <AccountDangerZoneSection />
       </div>
     </div>
   );

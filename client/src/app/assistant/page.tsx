@@ -38,7 +38,20 @@ interface Answer {
   evidence: Evidence[];
   mock: boolean;
   provider?: string;
-  suggestion?: { categorySlug: string; path: string; matchedTerms: string[] };
+  suggestion?: {
+    categorySlug: string;
+    path: string;
+    matchedTerms: string[];
+    /** How this kind of job is priced, and what workers near the asker charge. */
+    pricing?: {
+      mode: 'hourly' | 'per_unit' | 'per_task' | 'quotation';
+      unitType?: string;
+      low?: number;
+      high?: number;
+      sampleSize: number;
+      quotationWorkers?: number;
+    };
+  };
   recommendEscalation: boolean;
 }
 
@@ -207,6 +220,41 @@ export default function AssistantPage() {
                       <Body size="label">
                         {t('suggestionTitle', { category: turn.suggestion.categorySlug.replace(/_/g, ' ') })}
                       </Body>
+
+                      {/* How this kind of job is priced, and what it actually
+                          costs near this person. Every figure comes from rates
+                          workers published; when there are none, it says so
+                          rather than showing an empty range. */}
+                      {turn.suggestion.pricing && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-body text-label font-semibold text-fy-ink">
+                            {t(
+                              turn.suggestion.pricing.mode === 'hourly'
+                                ? 'pricedHourly'
+                                : turn.suggestion.pricing.mode === 'per_unit'
+                                  ? 'pricedPerUnit'
+                                  : turn.suggestion.pricing.mode === 'per_task'
+                                    ? 'pricedPerTask'
+                                    : 'pricedQuotation'
+                            )}
+                          </span>
+                          <Body size="label">
+                            {turn.suggestion.pricing.mode === 'quotation'
+                              ? t('quotationWorkers', { count: turn.suggestion.pricing.quotationWorkers ?? 0 })
+                              : turn.suggestion.pricing.sampleSize === 0
+                                ? t('noRates')
+                                : turn.suggestion.pricing.low === turn.suggestion.pricing.high
+                                  ? t('rangeOne', { low: turn.suggestion.pricing.low ?? 0 })
+                                  : t('rangeFrom', {
+                                      low: turn.suggestion.pricing.low ?? 0,
+                                      high: turn.suggestion.pricing.high ?? 0,
+                                    })}
+                          </Body>
+                          {turn.suggestion.pricing.sampleSize > 0 && (
+                            <span className="font-mono text-[10px] text-fy-muted">{t('ratesNote')}</span>
+                          )}
+                        </div>
+                      )}
                       <span className="font-mono text-[10px] text-fy-muted">
                         {t('suggestionMatched', { terms: turn.suggestion.matchedTerms.slice(0, 4).join(', ') })}
                       </span>

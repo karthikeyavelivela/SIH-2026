@@ -13,6 +13,7 @@ import { StatusPill, VerifiedBadge } from '@/components/fy/Status';
 import { DataList, DataRow } from '@/components/fy/Data';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 import { QuotationLink } from '@/components/pricing/QuotationLink';
+import { FeedbackSection } from '@/components/ui/FeedbackSection';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -257,6 +258,7 @@ export default function CustomerProfilePage() {
                 <Icon name="chevron_right" size={18} className="text-fy-muted shrink-0" />
               </Panel>
             </Link>
+            <FeedbackSection />
             <AccountDangerZoneSection />
           </>
         )}

@@ -26,6 +26,8 @@ import type { Role } from '@fyro/shared';
 export interface TaraContext {
   role: string;
   name?: string;
+  /** Used to find published rates near this person, and nothing else. */
+  region?: string;
   /** Everything below is the caller's own data. See the module comment. */
   recentBookings: {
     id: string;
@@ -61,12 +63,13 @@ export async function buildTaraContext(userId: string, role: Role): Promise<Tara
       .lean(),
     Complaint.find({ raisedByUserId: userId }).sort({ createdAt: -1 }).limit(BOOKING_LIMIT).lean(),
     InsurancePolicy.find({ userId }).lean(),
-    User.findById(userId).select('kycStatus kycDocs name role preferredLocale').lean(),
+    User.findById(userId).select('kycStatus kycDocs name role preferredLocale region').lean(),
   ]);
 
   const context: TaraContext = {
     role,
     name: user?.name,
+    region: user?.region,
     recentBookings: bookings.map((b) => ({
       id: b._id.toString(),
       type: b.type,

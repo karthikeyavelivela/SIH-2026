@@ -29,6 +29,7 @@ import {
 import { AlertIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
 import { PricingLink } from '@/components/pricing/PricingLink';
 import { QuotationLink } from '@/components/pricing/QuotationLink';
+import { FeedbackSection } from '@/components/ui/FeedbackSection';
 
 interface MyGroup {
   mutha: { _id: string; name: string; ratingAvg: number; ratingCount: number };
@@ -213,7 +214,8 @@ export default function MuthaMemberProfilePage() {
       </Link>
 
       <SupportSection />
-      <AccountDangerZoneSection />
+      <FeedbackSection />
+            <AccountDangerZoneSection />
     </div>
   );
 }

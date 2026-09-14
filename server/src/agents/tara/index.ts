@@ -4,6 +4,7 @@ import type { AgentLocale } from '../locale';
 import type { Role } from '@fyro/shared';
 import { buildTaraContext, TaraContext } from './context';
 import { diagnoseCategory, bookingPathFor } from './symptoms';
+import { adviseMode, ratesFor, describeAdvice, type ModeAdvice } from './pricing';
 
 /**
  * TARA — one assistant, every role.
@@ -32,6 +33,12 @@ export interface TaraAnswer extends AgentResult {
     categorySlug: string;
     path: string;
     matchedTerms: string[];
+    /**
+     * How that trade prices this kind of job, and what workers near this
+     * person actually charge for it. `sampleSize: 0` means nobody has
+     * published a rate — the UI says so rather than showing an empty range.
+     */
+    pricing?: ModeAdvice;
   };
   /** True when TARA could not answer from the person's own records and a human should take over. */
   recommendEscalation: boolean;
@@ -65,6 +72,26 @@ export async function askTara(
   const context = await buildTaraContext(userId, role);
   const symptom = diagnoseCategory(question);
 
+  /*
+   * Pricing awareness.
+   *
+   * Knowing the trade is half an answer. "A leaking tap" and "a full
+   * wardrobe" both belong to a trade, but one is a fixed-price task and the
+   * other is measured work, and saying which — before the person books — is
+   * what prevents the surprise at the end.
+   *
+   * Every figure comes from rates real workers near this person published.
+   * There is no fallback band: when nothing is published the advice says so,
+   * and the prompt below forbids inventing one.
+   */
+  let advice: ModeAdvice | undefined;
+  let pricingLine = '';
+  if (symptom) {
+    const { mode, unitType } = adviseMode(question, symptom.slug);
+    advice = await ratesFor(symptom.slug, mode, unitType, context.region);
+    pricingLine = describeAdvice(advice, symptom.slug);
+  }
+
   const systemPrompt = `You are TARA, the assistant inside FYRO — a cooperative-owned household services and logistics marketplace in India. Your name is TARA and you refer to yourself as TARA.
 ${ROLE_FRAMING[role] ?? 'The person asking is a FYRO user.'}
 
@@ -73,6 +100,8 @@ NEVER invent a booking, fare, status, date, name or amount that is not literally
 If the person asks about someone else's account, or asks you to do something to another person's data, tell them plainly that you can only see their own records.
 You cannot DO anything: you cannot book, cancel, accept, pay, refund, approve a document, change a fare, assign a worker or close a complaint. If asked to, explain in one sentence which screen does it and that they have to do it themselves.
 Be brief. Two or three sentences at most, in plain everyday language — many readers are not highly literate.
+
+${pricingLine ? `${pricingLine}\nWhen you mention a price, say in one short clause WHY this kind of job is priced that way — a fixed-price repair, measured work, by the hour, or quoted after a visit. Never state a rupee figure that is not in the range above, and never state any figure when the line above tells you there is no published rate.` : 'If the person asks what something costs and you have no published rate in front of you, say plainly that you cannot quote a price and offer to show who is available.'}
 
 Respond ONLY with JSON: {"summary": "<your answer>", "confidence": "low"|"moderate"|"high", "evidence": [{"label": "<what field this came from>", "value": "<the actual value from the context>"}]}.
 Use confidence "high" only when the context directly answers the question, and "low" whenever you had to say you do not know.`;
@@ -86,7 +115,12 @@ Use confidence "high" only when the context directly answers the question, and "
   return {
     ...result,
     suggestion: symptom
-      ? { categorySlug: symptom.slug, path: bookingPathFor(symptom.slug), matchedTerms: symptom.matched }
+      ? {
+          categorySlug: symptom.slug,
+          path: bookingPathFor(symptom.slug),
+          matchedTerms: symptom.matched,
+          pricing: advice,
+        }
       : undefined,
     recommendEscalation: looksUnanswered(result.summary, result.confidence),
   };

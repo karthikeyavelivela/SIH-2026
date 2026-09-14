@@ -39,7 +39,11 @@ interface CategorySymptoms {
 export const SYMPTOMS: CategorySymptoms[] = [
   {
     slug: 'electrician',
-    en: ['no power', 'power cut', 'current', 'short circuit', 'shock', 'fuse', 'wiring', 'switch', 'socket', 'mcb', 'inverter', 'fan not working', 'light not working', 'bulb', 'meter', 'electric'],
+    // 'rewire'/'rewiring' are listed separately because matching is
+    // word-boundary-aware: 'wiring' does not match inside 'rewiring'.
+    // 'fan' is listed bare because people say "the fan is not working",
+    // not the exact phrase "fan not working".
+    en: ['no power', 'power cut', 'current', 'short circuit', 'shock', 'fuse', 'wiring', 'rewire', 'rewiring', 'switch', 'socket', 'mcb', 'inverter', 'fan', 'fan not working', 'light not working', 'bulb', 'meter', 'electric'],
     te: ['కరెంటు', 'విద్యుత్', 'షాక్', 'ఫ్యూజ్', 'వైరింగ్', 'స్విచ్', 'బల్బ్', 'లైట్ రావట్లేదు', 'ఫ్యాన్ తిరగట్లేదు', 'మీటర్'],
     hi: ['बिजली', 'करंट', 'शॉक', 'फ्यूज', 'वायरिंग', 'स्विच', 'बल्ब', 'लाइट नहीं', 'पंखा नहीं', 'मीटर', 'शॉर्ट सर्किट'],
   },

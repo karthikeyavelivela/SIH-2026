@@ -55,8 +55,51 @@ function escapeRegex(q: string) {
  */
 function matcher(q: string, fields: string[]) {
   if (q.length > PREFIX_MODE_MAX) return { $text: { $search: q } };
+  return regexMatcher(q, fields);
+}
+
+function regexMatcher(q: string, fields: string[]) {
   const rx = new RegExp(escapeRegex(q), 'i');
   return { $or: fields.map((f) => ({ [f]: rx })) };
+}
+
+/**
+ * A text index that is not there yet is not an outage.
+ *
+ * Mongoose builds indexes in the background after connecting, so for a window
+ * after a fresh deploy — or on a brand-new database — a `$text` query throws
+ * IndexNotFound (error 27) while the index is still being built. Letting that
+ * reach the user would mean search returning a 500 for the first minute of
+ * every deployment, which is exactly when someone is most likely to be
+ * looking at the app.
+ *
+ * So a missing text index falls back to the regex path: slower and unranked,
+ * but correct, and it heals itself the moment the index finishes. Any other
+ * error is a real error and is rethrown.
+ *
+ * This also fixed a genuinely intermittent test — one that only failed when
+ * the suite ran slowly enough for the query to beat the index.
+ */
+function isMissingTextIndex(err: unknown): boolean {
+  const e = err as { code?: number; codeName?: string; message?: string };
+  return (
+    e?.code === 27 ||
+    e?.codeName === 'IndexNotFound' ||
+    /text index required|no text index/i.test(e?.message ?? '')
+  );
+}
+
+async function withTextFallback<T>(
+  run: (match: object) => Promise<T[]>,
+  q: string,
+  fields: string[]
+): Promise<T[]> {
+  try {
+    return await run(matcher(q, fields));
+  } catch (err) {
+    if (!isMissingTextIndex(err)) throw err;
+    return run(regexMatcher(q, fields));
+  }
 }
 
 function bookingHit(b: {
@@ -77,25 +120,33 @@ function bookingHit(b: {
 
 /** The caller's own bookings, in whatever capacity they hold them. */
 async function myBookings(userId: string, q: string, basePath: string): Promise<SearchHit[]> {
-  const rows = await Booking.find({
-    $and: [
-      { $or: [{ customerId: userId }, { assignedDriverIds: userId }, { assignedHamaliIds: userId }] },
-      matcher(q, ['pickupLocation.address', 'dropLocation.address']),
-    ],
-  })
-    .sort({ createdAt: -1 })
-    .limit(PER_GROUP)
-    .lean();
+  const rows = await withTextFallback(
+    (match) =>
+      Booking.find({
+        $and: [
+          { $or: [{ customerId: userId }, { assignedDriverIds: userId }, { assignedHamaliIds: userId }] },
+          match,
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .limit(PER_GROUP)
+        .lean(),
+    q,
+    ['pickupLocation.address', 'dropLocation.address']
+  );
   return rows.map((b) => bookingHit(b, basePath));
 }
 
 async function myComplaints(userId: string, q: string): Promise<SearchHit[]> {
-  const rows = await Complaint.find({
-    $and: [{ raisedByUserId: userId }, matcher(q, ['description'])],
-  })
-    .sort({ createdAt: -1 })
-    .limit(PER_GROUP)
-    .lean();
+  const rows = await withTextFallback(
+    (match) =>
+      Complaint.find({ $and: [{ raisedByUserId: userId }, match] })
+        .sort({ createdAt: -1 })
+        .limit(PER_GROUP)
+        .lean(),
+    q,
+    ['description']
+  );
   return rows.map((c) => ({
     id: String(c._id),
     title: c.description.slice(0, 70),
@@ -107,11 +158,11 @@ async function myComplaints(userId: string, q: string): Promise<SearchHit[]> {
 /** Public catalogue — the one group that is not scoped to a person, because
  *  the service list is the same for everyone and is already a public route. */
 async function serviceCategories(q: string): Promise<SearchHit[]> {
-  const rows = await ServiceCategory.find({
-    $and: [{ active: true }, matcher(q, ['name', 'slug'])],
-  })
-    .limit(PER_GROUP)
-    .lean();
+  const rows = await withTextFallback(
+    (match) => ServiceCategory.find({ $and: [{ active: true }, match] }).limit(PER_GROUP).lean(),
+    q,
+    ['name', 'slug']
+  );
   return rows.map((c) => ({
     id: String(c._id),
     title: c.name,
@@ -190,10 +241,11 @@ async function allUsers(q: string): Promise<SearchHit[]> {
 }
 
 async function allBookings(q: string): Promise<SearchHit[]> {
-  const rows = await Booking.find(matcher(q, ['pickupLocation.address', 'dropLocation.address']))
-    .sort({ createdAt: -1 })
-    .limit(PER_GROUP)
-    .lean();
+  const rows = await withTextFallback(
+    (match) => Booking.find(match).sort({ createdAt: -1 }).limit(PER_GROUP).lean(),
+    q,
+    ['pickupLocation.address', 'dropLocation.address']
+  );
   return rows.map((b) => bookingHit(b, '/admin/bookings'));
 }
 

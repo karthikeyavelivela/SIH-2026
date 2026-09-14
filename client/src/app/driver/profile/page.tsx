@@ -31,6 +31,7 @@ import { Button, Field } from '@/components/fy/Controls';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 import { PricingLink } from '@/components/pricing/PricingLink';
 import { QuotationLink } from '@/components/pricing/QuotationLink';
+import { FeedbackSection } from '@/components/ui/FeedbackSection';
 
 /* Built against client/public/design/worker_profile.html.
 
@@ -269,6 +270,7 @@ export default function DriverProfilePage() {
       <NotificationPreferencesSection />
             <PrivacySettingsSection />
             <SupportSection />
+            <FeedbackSection />
             <AccountDangerZoneSection />
           </>
         )}
