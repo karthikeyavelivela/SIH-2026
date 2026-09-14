@@ -130,6 +130,22 @@ export async function generateTaxInvoicePdf(
     doc.text(`Pickup: ${booking.pickupLocation.address}`);
     doc.text(`Drop: ${booking.dropLocation.address}`);
     if (booking.distanceKm) doc.text(`Distance: ${booking.distanceKm.toFixed(1)} km`);
+
+    /*
+     * The measurement, on the document that settles arguments.
+     *
+     * A work-priced job was agreed at a rate per square foot, per point or per
+     * item, and which measurement that rate multiplies is the single most
+     * disputed detail in Indian trade work. The declaration was frozen onto
+     * the booking in the customer's own words at the moment they confirmed;
+     * printing it here is the point of having frozen it.
+     */
+    if (booking.quantity && booking.pricingMode) {
+      doc.text(`Priced: ${booking.pricingMode.replace(/_/g, ' ')} x ${booking.quantity}`);
+    }
+    if (booking.frozenUnitDeclaration) {
+      doc.text(`Measured as: ${booking.frozenUnitDeclaration}`, { width: 495 });
+    }
     doc.moveDown(0.8);
 
     const colX = { desc: 50, rate: 300, taxable: 360, tax: 440, total: 500 };

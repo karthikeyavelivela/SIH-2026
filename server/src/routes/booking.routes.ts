@@ -6,6 +6,7 @@ import { validate } from '../middleware/validate';
 import { bookingCreateLimiter, bookingQuoteLimiter } from '../middleware/rateLimit';
 import { GOODS_TYPES } from '../models/Booking';
 import * as bookingController from '../controllers/booking.controller';
+import { PRICING_MODES, UNIT_TYPES } from '@fyro/shared';
 
 export const bookingRouter = Router();
 
@@ -24,7 +25,14 @@ const pointRule = (field: string) => [
 // vehicle/hamali shape create does, so a shown estimate can never validate
 // differently than the booking it's estimating.
 const pricingRules = [
-  body('type').isIn(['truck', 'hamali', 'combo']),
+  // Optional when a service category is named, because the server derives the
+  // dispatch type from that category and deliberately ignores whatever the
+  // client claims alongside it (see createBooking). Requiring it anyway meant
+  // a caller that correctly sent only a category was rejected before the
+  // derivation could run.
+  body('type')
+    .if((_value: unknown, { req }: { req: { body?: { serviceCategorySlug?: string } } }) => !req.body?.serviceCategorySlug)
+    .isIn(['truck', 'hamali', 'combo']),
   // Deliberately NOT isLength({min:1}) — customer/book/page.tsx sends
   // region:'' on purpose when the geocoder couldn't classify the pickup
   // address into a district/city/state (geocode.service.ts's extractRegion
@@ -62,6 +70,17 @@ const pricingRules = [
   body('requiredVehicles.*.capacityKg').optional().isFloat({ min: 1 }),
   body('requiredVehicles.*.count').optional().isInt({ min: 1 }),
   body('requiredHamaliCount').optional().isInt({ min: 0 }),
+  // Work-based pricing. All optional — a booking without them is an ordinary
+  // distance-priced dispatch, exactly as before. `unitType` is constrained to
+  // the controlled list here as well as in the schema, because an unstated or
+  // invented unit is the ambiguity the whole feature exists to remove.
+  body('pricingMode').optional().isIn(PRICING_MODES),
+  body('unitType').optional().isIn(UNIT_TYPES),
+  body('quantity').optional().isFloat({ min: 0 }),
+  body('taskName').optional().isString().trim().isLength({ max: 120 }),
+  body('quotationId').optional().isMongoId(),
+  body('workerId').optional().isMongoId(),
+  body('unitDeclaration').optional().isString().isLength({ max: 400 }),
 ];
 
 bookingRouter.post(

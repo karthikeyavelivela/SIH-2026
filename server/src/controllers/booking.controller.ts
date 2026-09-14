@@ -15,6 +15,8 @@ import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 import { findUnratedCompletedBooking } from '../services/ratingGate.service';
 import { detectAbnormalCancellationRate } from '../services/fraudDetection.service';
 import { guaranteeStatusFor, claimGuarantee } from '../services/guarantee.service';
+import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
+import { priceWork, UNIT_DECLARATIONS } from '../services/workPricing.service';
 
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
@@ -129,7 +131,33 @@ async function priceBooking(input: QuoteInput) {
 // what create would actually charge.
 export const quoteBooking = asyncHandler(async (req: Request, res: Response) => {
   const { region, pickupLocation, dropLocation, stops, requiredVehicles, requiredHamaliCount, serviceCategorySlug } = req.body;
+  const { pricingMode, unitType, quantity, taskName, quotationId, workerId } = req.body;
   let { type } = req.body;
+
+  // A work-priced estimate never touches the distance engine: the number
+  // comes from the named worker's published rate, and it is the same
+  // function that will price the booking itself.
+  if (pricingMode && workerId) {
+    const profile = await WorkerPricingProfile.findOne({
+      workerId,
+      categorySlug: serviceCategorySlug,
+      active: true,
+    }).lean();
+    if (!profile) throw new ApiError(404, 'That worker has not published rates for this service');
+    const fare = await priceWork({ profile, mode: pricingMode, unitType, quantity, taskName, quotationId });
+    res.status(200).json({
+      fareBreakdown: {
+        baseFare: 0,
+        distanceFare: 0,
+        surgeMultiplier: 1,
+        hamaliFare: fare.total,
+        total: fare.total,
+      },
+      workFare: fare,
+    });
+    return;
+  }
+
   if (serviceCategorySlug) {
     const category = await ServiceCategory.findOne({ slug: serviceCategorySlug, active: true }).lean();
     if (!category) throw new ApiError(400, `Unknown or inactive service category: ${serviceCategorySlug}`);
@@ -172,6 +200,16 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     scheduledFor,
     openForBidding,
     serviceCategorySlug,
+    // Work-based pricing. Present together or not at all: a customer either
+    // hires a named worker at that worker's own published rate, or raises an
+    // ordinary dispatch priced by the region's fare rules.
+    pricingMode,
+    unitType,
+    quantity,
+    taskName,
+    quotationId,
+    workerId,
+    unitDeclaration,
   } = req.body;
   let { type } = req.body;
 
@@ -214,15 +252,63 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     if (leadMs > MAX_LEAD_MS) throw new ApiError(400, 'scheduledFor cannot be more than 14 days from now');
   }
 
-  const { fareBreakdown, distanceKm } = await priceBooking({
-    type,
-    region,
-    pickupLocation,
-    dropLocation,
-    stops,
-    requiredVehicles,
-    requiredHamaliCount,
-  });
+  /*
+   * Two pricing paths, and which one runs is decided by whether the customer
+   * named a worker.
+   *
+   * The distance-based engine still prices every truck and hamali dispatch
+   * exactly as before. The work-based engine prices a trade job from the
+   * worker's OWN published rate — per square foot, per point, per task, or a
+   * quotation total agreed in writing. Neither knows about the other, which
+   * is why the original path below is untouched.
+   */
+  let fareBreakdown;
+  let distanceKm: number | undefined;
+  let frozenUnitDeclaration: string | undefined;
+  let workFare: Awaited<ReturnType<typeof priceWork>> | undefined;
+
+  if (pricingMode && workerId) {
+    const profile = await WorkerPricingProfile.findOne({
+      workerId,
+      categorySlug: serviceCategorySlug,
+      active: true,
+    }).lean();
+    if (!profile) throw new ApiError(404, 'That worker has not published rates for this service');
+
+    workFare = await priceWork({ profile, mode: pricingMode, unitType, quantity, taskName, quotationId });
+
+    // The measurement method freezes here, in the words the customer read:
+    // the client sends back the exact declaration it displayed, and the
+    // server falls back to its own canonical English if none came. What
+    // settles an argument six weeks later is the sentence they agreed to,
+    // not a slug.
+    if (workFare.unitType) {
+      frozenUnitDeclaration =
+        typeof unitDeclaration === 'string' && unitDeclaration.trim()
+          ? unitDeclaration.trim().slice(0, 400)
+          : UNIT_DECLARATIONS[workFare.unitType].declaration;
+    }
+
+    // Expressed through the existing FareBreakdown shape so every downstream
+    // reader — earnings, commission, invoice, ledger — keeps working unchanged.
+    fareBreakdown = {
+      baseFare: 0,
+      distanceFare: 0,
+      surgeMultiplier: 1,
+      hamaliFare: workFare.total,
+      total: workFare.total,
+    };
+  } else {
+    ({ fareBreakdown, distanceKm } = await priceBooking({
+      type,
+      region,
+      pickupLocation,
+      dropLocation,
+      stops,
+      requiredVehicles,
+      requiredHamaliCount,
+    }));
+  }
 
   const initialStatus = scheduledForDate ? 'scheduled' : 'searching';
   const booking = await Booking.create({
@@ -230,6 +316,12 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     type,
     region,
     serviceCategorySlug: serviceCategorySlug || undefined,
+    pricingMode: pricingMode || undefined,
+    unitType: workFare?.unitType,
+    quantity: workFare ? workFare.billedQuantity : undefined,
+    frozenUnitDeclaration,
+    quotationId: quotationId || undefined,
+    preferredWorkerId: workerId || undefined,
     cargoDetails,
     pickupLocation: { type: 'Point', coordinates: pickupLocation.coordinates, address: pickupLocation.address },
     dropLocation: { type: 'Point', coordinates: dropLocation.coordinates, address: dropLocation.address },
@@ -252,7 +344,9 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   // for a booking whose whole point is letting workers propose their own
   // price instead. It's still visible on the ordinary browse list AND on
   // GET /api/loadboard; workers place a Bid instead of hitting accept.
-  if (!scheduledForDate && !booking.openForBidding) {
+  // A directly-hired job is offered to its worker and to nobody else, so the
+  // sequential offer engine is skipped entirely for it.
+  if (!scheduledForDate && !booking.openForBidding && !booking.preferredWorkerId) {
     // Kick off Phase 3's sequential-timed-offer flow immediately — fire and
     // forget from the HTTP handler's perspective (the booking is already
     // created and returned to the customer regardless of matching progress;

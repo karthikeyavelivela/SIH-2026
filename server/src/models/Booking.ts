@@ -76,6 +76,16 @@ export interface IBooking {
   frozenUnitDeclaration?: string;
   /** For a quotation job: the accepted quotation whose total this booking charges. */
   quotationId?: Types.ObjectId;
+  /**
+   * The one worker this job was raised for.
+   *
+   * Work-based pricing changes who chooses whom. A truck booking is dispatched
+   * to whoever is nearest and free; a carpenter is hired because the customer
+   * read that carpenter's own published rate and picked it. So a booking with
+   * this set is offered to that worker and to nobody else — the sequential
+   * offer engine skips it, and every other worker's request list excludes it.
+   */
+  preferredWorkerId?: Types.ObjectId;
   cargoDetails: {
     weightKg: number;
     description?: string;
@@ -168,6 +178,7 @@ const bookingSchema = new Schema<IBooking>(
     quantity: { type: Number, min: 0 },
     frozenUnitDeclaration: { type: String, maxlength: 400 },
     quotationId: { type: Schema.Types.ObjectId, ref: 'Quotation' },
+    preferredWorkerId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     cargoDetails: {
       weightKg: { type: Number, required: true, min: 0 },
       description: { type: String },

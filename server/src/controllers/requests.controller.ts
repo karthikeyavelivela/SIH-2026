@@ -134,6 +134,9 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       status: openStatus,
       type: { $in: ['hamali', 'combo'] as const },
       rejectedByUserIds: { $ne: userId },
+      // A job raised for one named worker belongs to that worker. It never
+      // appears in anyone else's list, however near they are.
+      preferredWorkerId: { $exists: false },
       $expr: { $lt: [{ $size: '$assignedHamaliIds' }, '$requiredHamaliCount'] },
       // See the matching comment on driverBase above.
       openForBidding: { $ne: true },

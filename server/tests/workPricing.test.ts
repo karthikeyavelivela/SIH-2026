@@ -7,6 +7,9 @@ import { Mutha } from '../src/models/Mutha';
 import { WorkerPricingProfile } from '../src/models/WorkerPricingProfile';
 import { SocietyRateFloor } from '../src/models/SocietyRateFloor';
 import { Quotation } from '../src/models/Quotation';
+import { Booking } from '../src/models/Booking';
+import { ServiceCategory } from '../src/models/ServiceCategory';
+import { HamaliProfile } from '../src/models/HamaliProfile';
 import { signAccessToken } from '../src/services/token.service';
 
 async function loginAs(role: string, phone: string, name = 'U') {
@@ -522,5 +525,181 @@ describe('work-based pricing — members can vote a floor into place', () => {
     const profile = await WorkerPricingProfile.findOne({ workerId: member._id });
     expect(profile?.societyFloorRespected).toBe(false);
     expect(profile?.perTask[0].fixedPrice).toBe(120);
+  });
+});
+
+describe('work-based pricing — booking at a published rate', () => {
+  async function publishedCarpenter(phone: string) {
+    // The booking path derives its dispatch type from the real category row,
+    // so the trade has to exist as a category, not only as a slug on a rate.
+    await ServiceCategory.findOneAndUpdate(
+      { slug: 'carpenter' },
+      {
+        $setOnInsert: {
+          name: 'Carpenter',
+          icon: 'HammerIcon',
+          accentColor: 'primary',
+          pricingUnit: 'per_job',
+          dispatchType: 'hamali',
+          defaultDurationMinutes: 60,
+          active: true,
+        },
+      },
+      { upsert: true }
+    );
+    const { user } = await loginAs('hamali_solo', phone, 'Ravi Carpenter');
+    const workerAgent = request.agent(app);
+    workerAgent.jar.setCookie(
+      `accessToken=${signAccessToken({ id: user._id.toString(), role: 'hamali_solo' as never })}`
+    );
+    await workerAgent.put('/api/pricing/mine').send(CARPENTER_DRAFT);
+    return user;
+  }
+
+  const WHERE = {
+    region: 'Visakhapatnam',
+    cargoDetails: { weightKg: 0 },
+    pickupLocation: { coordinates: [83.2185, 17.6868], address: 'MVP Colony' },
+    dropLocation: { coordinates: [83.2185, 17.6868], address: 'MVP Colony' },
+    requiredHamaliCount: 1,
+  };
+
+  it('creates a booking priced from the worker\'s own rate, not a fare rule', async () => {
+    const worker = await publishedCarpenter('9960000080');
+    const { agent } = await loginAs('customer', '9960000081');
+
+    const res = await agent.post('/api/bookings').send({
+      ...WHERE,
+      serviceCategorySlug: 'carpenter',
+      workerId: worker._id.toString(),
+      pricingMode: 'per_unit',
+      unitType: 'sq_ft_face',
+      quantity: 32,
+      unitDeclaration: 'Front face area (height x width of the visible surface).',
+    });
+
+    expect(res.status).toBe(201);
+    const booking = await Booking.findById(res.body.booking._id);
+    // 32 sq ft x Rs 300. No fare rule was consulted, and none exists for this
+    // trade — the price is the worker's own published number.
+    expect(booking?.fareBreakdown.total).toBe(9600);
+    expect(booking?.pricingMode).toBe('per_unit');
+    expect(booking?.unitType).toBe('sq_ft_face');
+    expect(booking?.quantity).toBe(32);
+    expect(booking?.preferredWorkerId?.toString()).toBe(worker._id.toString());
+  });
+
+  it('freezes the measurement declaration in the words the customer read', async () => {
+    const worker = await publishedCarpenter('9960000082');
+    const { agent } = await loginAs('customer', '9960000083');
+
+    const res = await agent.post('/api/bookings').send({
+      ...WHERE,
+      serviceCategorySlug: 'carpenter',
+      workerId: worker._id.toString(),
+      pricingMode: 'per_unit',
+      unitType: 'sq_ft_developed',
+      quantity: 45,
+      // The Telugu customer saw this sentence, so this is what is frozen.
+      unitDeclaration: 'మొత్తం విస్తీర్ణం: లోపలి ప్రతి అర కొలిచి లెక్కిస్తారు.',
+    });
+
+    const booking = await Booking.findById(res.body.booking._id);
+    expect(booking?.frozenUnitDeclaration).toContain('లోపలి ప్రతి అర');
+  });
+
+  it('falls back to the canonical declaration when the client sends none', async () => {
+    const worker = await publishedCarpenter('9960000084');
+    const { agent } = await loginAs('customer', '9960000085');
+
+    const res = await agent.post('/api/bookings').send({
+      ...WHERE,
+      serviceCategorySlug: 'carpenter',
+      workerId: worker._id.toString(),
+      pricingMode: 'per_unit',
+      unitType: 'sq_ft_face',
+      quantity: 10,
+    });
+
+    const booking = await Booking.findById(res.body.booking._id);
+    expect(booking?.frozenUnitDeclaration).toContain('Front face area');
+  });
+
+  it('offers a directly-hired job to that worker and to nobody else', async () => {
+    const worker = await publishedCarpenter('9960000086');
+    const { agent } = await loginAs('customer', '9960000087');
+    await agent.post('/api/bookings').send({
+      ...WHERE,
+      serviceCategorySlug: 'carpenter',
+      workerId: worker._id.toString(),
+      pricingMode: 'per_task',
+      taskName: 'Door hinge replacement',
+    });
+
+    // Another hamali, online and in range, must not see a job that was raised
+    // for someone by name.
+    const { user: other } = await loginAs('hamali_solo', '9960000088');
+    const otherAgent = request.agent(app);
+    otherAgent.jar.setCookie(
+      `accessToken=${signAccessToken({ id: other._id.toString(), role: 'hamali_solo' as never })}`
+    );
+    await HamaliProfile.create({
+      userId: other._id,
+      type: 'solo',
+      availabilityStatus: 'online',
+      currentLocation: { type: 'Point', coordinates: [83.2185, 17.6868] },
+    });
+
+    const open = await otherAgent.get('/api/requests');
+    expect(open.status).toBe(200);
+    expect(open.body.requests).toHaveLength(0);
+  });
+
+  it('refuses to book a worker who has not published that service', async () => {
+    const worker = await publishedCarpenter('9960000089');
+    const { agent } = await loginAs('customer', '9960000090');
+
+    await ServiceCategory.findOneAndUpdate(
+      { slug: 'plumber' },
+      {
+        $setOnInsert: {
+          name: 'Plumber',
+          icon: 'PipeIcon',
+          accentColor: 'primary',
+          pricingUnit: 'per_job',
+          dispatchType: 'hamali',
+          defaultDurationMinutes: 60,
+          active: true,
+        },
+      },
+      { upsert: true }
+    );
+    const res = await agent.post('/api/bookings').send({
+      ...WHERE,
+      serviceCategorySlug: 'plumber',
+      workerId: worker._id.toString(),
+      pricingMode: 'per_task',
+      taskName: 'Tap repair',
+    });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('quotes before anything is created, through the same function', async () => {
+    const worker = await publishedCarpenter('9960000091');
+    const { agent, user: customer } = await loginAs('customer', '9960000092');
+
+    const quote = await agent.post('/api/bookings/quote').send({
+      serviceCategorySlug: 'carpenter',
+      workerId: worker._id.toString(),
+      pricingMode: 'per_unit',
+      unitType: 'sq_ft_face',
+      quantity: 20,
+      ...WHERE,
+    });
+
+    expect(quote.status).toBe(200);
+    expect(quote.body.fareBreakdown.total).toBe(6000);
+    expect(await Booking.countDocuments({ customerId: customer._id })).toBe(0);
   });
 });

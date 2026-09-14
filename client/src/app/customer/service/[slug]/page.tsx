@@ -24,6 +24,7 @@ import { Button, Chip, ChipRow, SelectCard, Field, Toggle } from '@/components/f
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 import { useCategoryName } from '@/lib/categoryName';
+import Link from 'next/link';
 
 /* Built against client/public/design/service_detail_booking_1.html.
 
@@ -66,6 +67,7 @@ const MIN_LEAD_MIN = 35;
 
 export default function ServiceDetailPage() {
   const t = useTranslations('serviceDetail');
+  const tHire = useTranslations('pricing.hire');
   const categoryName = useCategoryName();
   const params = useParams<{ slug: string }>();
   const router = useRouter();
@@ -407,6 +409,18 @@ export default function ServiceDetailPage() {
           </div>
         </div>
       </form>
+
+      {/* The other way to book this trade: choose the person first and pay
+          their own published rate, rather than the region's standard fare.
+          Both paths are real, so both are offered rather than one being
+          hidden behind the other. */}
+      <div className="px-gutter max-w-2xl mx-auto pb-28">
+        <Link href={`/customer/hire/${slug}`}>
+          <Button variant="ghost" size="md" glyph="groups" className="w-full">
+            {tHire('entryFromService')}
+          </Button>
+        </Link>
+      </div>
 
     </div>
   );
