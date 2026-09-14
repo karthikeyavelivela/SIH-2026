@@ -12,6 +12,7 @@ import { DocumentExpiryCard } from '@/components/worker/DocumentExpiryCard';
 import { KycDocumentsSection } from '@/components/worker/KycDocumentsSection';
 import { AvatarUpload } from '@/components/ui/AvatarUpload';
 import { PricingLink } from '@/components/pricing/PricingLink';
+import { QuotationLink } from '@/components/pricing/QuotationLink';
 import { REQUIRED_KYC_DOCS_BY_ROLE } from '@fyro/shared';
 import {
   LanguageSection,
@@ -65,6 +66,7 @@ export default function HamaliProfilePage() {
       />
 
       <PricingLink base="/hamali" />
+      <QuotationLink href="/hamali/quotations" as="worker" />
       <NotificationPreferencesSection />
       <PrivacySettingsSection />
       <PayoutDetailsSection />

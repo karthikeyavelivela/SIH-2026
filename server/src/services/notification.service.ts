@@ -65,6 +65,14 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'SOS వచ్చింది', body: `${v.name ?? 'ఒక కార్మికుడు'} అత్యవసర హెచ్చరిక పంపారు (${v.kind ?? 'other'}).` }),
     hi: (v) => ({ title: 'SOS आया', body: `${v.name ?? 'एक कर्मचारी'} ने आपातकालीन चेतावनी भेजी (${v.kind ?? 'other'})।` }),
   },
+  // One template for every step of a quotation, keyed by the event, because a
+  // customer tracking a quote cares which step it reached, not which of six
+  // notification types the code calls it.
+  quotation_update: {
+    en: (v) => ({ title: 'Quotation update', body: `Your quotation moved to: ${String(v.event ?? 'updated').replace(/_/g, ' ')}.` }),
+    te: (v) => ({ title: 'కోటేషన్ నవీకరణ', body: `మీ కోటేషన్ స్థితి: ${String(v.event ?? 'updated').replace(/_/g, ' ')}.` }),
+    hi: (v) => ({ title: 'कोटेशन अपडेट', body: `आपका कोटेशन अब: ${String(v.event ?? 'updated').replace(/_/g, ' ')}।` }),
+  },
 };
 
 /**

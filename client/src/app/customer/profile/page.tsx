@@ -12,6 +12,7 @@ import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill, VerifiedBadge } from '@/components/fy/Status';
 import { DataList, DataRow } from '@/components/fy/Data';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { QuotationLink } from '@/components/pricing/QuotationLink';
 import {
   LanguageSection,
   ProfileIdentitySection,
@@ -241,6 +242,10 @@ export default function CustomerProfilePage() {
             <LanguageSection />
             <NotificationPreferencesSection />
             <PrivacySettingsSection />
+            {/* Quotations are a customer-side record like insurance and
+                history, so they live with those rather than inside a
+                booking flow the customer may have left. */}
+            <QuotationLink href="/customer/quotations" as="customer" />
             <Link href="/customer/support" className="block">
               <Panel className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">

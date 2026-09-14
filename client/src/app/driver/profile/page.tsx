@@ -30,6 +30,7 @@ import { MetricBlock } from '@/components/fy/Data';
 import { Button, Field } from '@/components/fy/Controls';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 import { PricingLink } from '@/components/pricing/PricingLink';
+import { QuotationLink } from '@/components/pricing/QuotationLink';
 
 /* Built against client/public/design/worker_profile.html.
 
@@ -264,6 +265,7 @@ export default function DriverProfilePage() {
             <ProfileIdentitySection />
             <RoleSwitcherSection />
             <PricingLink base="/driver" />
+      <QuotationLink href="/driver/quotations" as="worker" />
       <NotificationPreferencesSection />
             <PrivacySettingsSection />
             <SupportSection />

@@ -19,7 +19,8 @@ export type NotificationType =
   | 'dispute_update'
   | 'complaint_update'
   | 'unplanned_halt'
-  | 'emergency_alert';
+  | 'emergency_alert'
+  | 'quotation_update';
 
 export interface INotification {
   _id: Types.ObjectId;
