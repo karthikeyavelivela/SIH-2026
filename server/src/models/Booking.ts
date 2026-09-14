@@ -1,4 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
+import { PRICING_MODES, UNIT_TYPES, type PricingMode, type UnitType } from '@fyro/shared';
 
 // SIH26089 — what kind of goods a truck/combo booking is actually moving.
 // Free-text `description` already existed but a structured type is what
@@ -50,6 +51,31 @@ export interface IBooking {
   // and every existing read path treats that as "generic logistics/labour"
   // exactly as before this field existed.
   serviceCategorySlug?: string;
+  /**
+   * How this job is priced. Absent on every booking made before work-based
+   * pricing existed, and on the transport/logistics flows, which are priced
+   * by distance against a published fare rule rather than by a worker's own
+   * published rate — those read as 'hourly' semantics today and are left
+   * untouched.
+   */
+  pricingMode?: PricingMode;
+  unitType?: UnitType;
+  /** Hours for hourly, measured quantity for per_unit, unused otherwise. */
+  quantity?: number;
+  /**
+   * The measurement method, spelled out in the words the customer actually
+   * saw, frozen at confirmation.
+   *
+   * This is the anti-dispute mechanism and it is stored as prose on purpose.
+   * A slug like 'sq_ft_face' is what the code needs; what settles an argument
+   * six weeks later is the sentence the customer read before they agreed —
+   * "front face area (height × width of the visible surface); internal
+   * shelves are not counted separately". It is written once and never
+   * updated, and it is what the invoice prints.
+   */
+  frozenUnitDeclaration?: string;
+  /** For a quotation job: the accepted quotation whose total this booking charges. */
+  quotationId?: Types.ObjectId;
   cargoDetails: {
     weightKg: number;
     description?: string;
@@ -137,6 +163,11 @@ const bookingSchema = new Schema<IBooking>(
     type: { type: String, enum: ['truck', 'hamali', 'combo'], required: true },
     region: { type: String, trim: true },
     serviceCategorySlug: { type: String, trim: true },
+    pricingMode: { type: String, enum: PRICING_MODES },
+    unitType: { type: String, enum: UNIT_TYPES },
+    quantity: { type: Number, min: 0 },
+    frozenUnitDeclaration: { type: String, maxlength: 400 },
+    quotationId: { type: Schema.Types.ObjectId, ref: 'Quotation' },
     cargoDetails: {
       weightKg: { type: Number, required: true, min: 0 },
       description: { type: String },

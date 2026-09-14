@@ -95,3 +95,55 @@ export interface JwtRefreshPayload {
   id: string;
   tokenVersion: number;
 }
+
+// ---------------------------------------------------------------- pricing
+
+/**
+ * How a piece of work is priced.
+ *
+ * Indian trades do not price by the hour, and the four modes below are the
+ * ones they actually use. A carpenter quotes per square foot, an electrician
+ * per point or per square foot, a plumber a fixed price per task, and
+ * anything genuinely custom gets quoted after a site visit. Cleaning,
+ * domestic help, caregiving, gardening and loading labour genuinely are
+ * hourly — so hourly stays, as one mode among four rather than the only one.
+ *
+ * A worker chooses which modes they offer and may offer several. That choice
+ * belongs to the worker, not to the platform.
+ */
+export const PRICING_MODES = ['hourly', 'per_unit', 'per_task', 'quotation'] as const;
+export type PricingMode = (typeof PRICING_MODES)[number];
+
+/**
+ * The measured quantity a per-unit rate multiplies.
+ *
+ * `sq_ft_face` and `sq_ft_developed` exist as separate values because the
+ * difference between them is the single most common cause of real disputes in
+ * Indian carpentry. "₹300 per sq ft" is genuinely ambiguous: the front face
+ * of a wardrobe (height × width of what you can see) or the developed area,
+ * which counts every internal shelf and partition separately and can be 40%
+ * more. FYRO refuses to let that ambiguity exist — a worker publishing a
+ * per-unit rate must pick one, and the customer is shown which one in plain
+ * language before they confirm.
+ */
+export const UNIT_TYPES = [
+  'sq_ft_face',
+  'sq_ft_developed',
+  'per_point',
+  'per_running_ft',
+  'per_item',
+] as const;
+export type UnitType = (typeof UNIT_TYPES)[number];
+
+/** Quotation lifecycle. Linear except for the one negotiation round. */
+export const QUOTATION_STATUSES = [
+  'requested',
+  'visit_scheduled',
+  'visit_done',
+  'submitted',
+  'negotiating',
+  'accepted',
+  'rejected',
+  'expired',
+] as const;
+export type QuotationStatus = (typeof QUOTATION_STATUSES)[number];
