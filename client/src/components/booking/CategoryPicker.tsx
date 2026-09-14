@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
+import { useCategoryName } from '@/lib/categoryName';
 import {
   TruckIcon,
   BoxIcon,
@@ -58,6 +59,7 @@ interface CategoryPickerProps {
 // specific copy the rest of the booking form shows.
 export function CategoryPicker({ selectedSlug, onSelect, categories: providedCategories }: CategoryPickerProps) {
   const t = useTranslations('categoryPicker');
+  const categoryName = useCategoryName();
   const [fetchedCategories, setFetchedCategories] = useState<ServiceCategory[] | null>(null);
 
   useEffect(() => {
@@ -100,7 +102,7 @@ export function CategoryPicker({ selectedSlug, onSelect, categories: providedCat
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[11px] font-semibold leading-tight">{c.name}</span>
+              <span className="text-[11px] font-semibold leading-tight">{categoryName(c)}</span>
             </button>
           );
         })}

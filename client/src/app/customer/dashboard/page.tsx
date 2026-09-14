@@ -28,6 +28,7 @@ import { DataList, DataRow, ProgressBar } from '@/components/fy/Data';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar } from '@/components/fy/Navigation';
 import { bookingStatusTone } from '@/components/ui/StatusPill';
+import { useCategoryName } from '@/lib/categoryName';
 
 /* Built against client/public/design/household_home.html.
 
@@ -80,6 +81,7 @@ const CATEGORY_GLYPH: Record<string, string> = {
 
 export default function CustomerDashboardPage() {
   const t = useTranslations('customerDashboard');
+  const categoryName = useCategoryName();
   const { user } = useAuth();
   const router = useRouter();
   const { addresses: savedAddresses } = useSavedAddresses();
@@ -239,7 +241,7 @@ export default function CustomerDashboardPage() {
             <Link href={`/customer/service/${heroCategory.slug}`} className="block">
               <PhotoCard
                 id={`household.category.${heroCategory.slug}`}
-                alt={heroCategory.name}
+                alt={categoryName(heroCategory)}
                 height="hero"
                 scrim="brown"
                 className="shadow-card"
@@ -262,7 +264,7 @@ export default function CustomerDashboardPage() {
                     <div className="flex items-end justify-between gap-2">
                       <div className="min-w-0">
                         <SectionHeading as="h3" tone="on-dark">
-                          {heroCategory.name}
+                          {categoryName(heroCategory)}
                         </SectionHeading>
                         <Body tone="on-dark" size="label" className="opacity-80">
                           {t(`pricingUnit.${heroCategory.pricingUnit}` as never)}
@@ -307,7 +309,7 @@ export default function CustomerDashboardPage() {
                               <Icon name={CATEGORY_GLYPH[c.slug] ?? 'handyman'} size={24} />
                             </IconTile>
                             <div className="min-w-0">
-                              <h4 className="font-body text-body font-semibold truncate">{c.name}</h4>
+                              <h4 className="font-body text-body font-semibold truncate">{categoryName(c)}</h4>
                               <p className="font-body text-label text-fy-on-brown-soft truncate">
                                 {t(`pricingUnit.${c.pricingUnit}` as never)}
                               </p>
@@ -335,12 +337,12 @@ export default function CustomerDashboardPage() {
                             </div>
                             <PhotoCard
                               id={`household.category.${c.slug}`}
-                              alt={c.name}
+                              alt={categoryName(c)}
                               height="tile"
                               scrim="none"
                               className="mb-2"
                             />
-                            <h4 className="font-body text-body font-semibold text-fy-ink leading-tight">{c.name}</h4>
+                            <h4 className="font-body text-body font-semibold text-fy-ink leading-tight">{categoryName(c)}</h4>
                           </div>
                           <div className="mt-2 pt-2">{priceLine(c)}</div>
                         </LightCard>

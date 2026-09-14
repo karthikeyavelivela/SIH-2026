@@ -57,6 +57,7 @@ const STEP_STATUSES = ['accepted', 'in_progress', 'completed'] as const;
 export function WorkerActiveJob({ base, accent }: { base: '/driver' | '/hamali'; accent: 'primary' | 'secondary' }) {
   const role = base === '/driver' ? 'driver' : 'hamali';
   const t = useTranslations('activeJob.common');
+  const tSos = useTranslations('sos');
   const tRole = useTranslations(`activeJob.${role}` as never);
   const { bookingId } = useParams<{ bookingId: string }>();
   const router = useRouter();
@@ -127,7 +128,22 @@ export function WorkerActiveJob({ base, accent }: { base: '/driver' | '/hamali';
         title={t('title')}
         showBack
         onBack={() => router.push(`${base}/dashboard`)}
-        actions={<StatusPill tone={booking.status === 'in_progress' ? 'lime' : 'neutral'}>{t(`status.${booking.status}` as never) ?? booking.status}</StatusPill>}
+        actions={
+          <span className="flex items-center gap-2">
+            {/* The SOS lives on the screen a worker is actually looking at
+                while the job is happening — not buried in a profile menu. */}
+            <Link
+              href="/emergency"
+              aria-label={tSos('title')}
+              className="w-9 h-9 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center"
+            >
+              <Icon name="emergency" size={18} />
+            </Link>
+            <StatusPill tone={booking.status === 'in_progress' ? 'lime' : 'neutral'}>
+              {t(`status.${booking.status}` as never) ?? booking.status}
+            </StatusPill>
+          </span>
+        }
       />
 
       <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">

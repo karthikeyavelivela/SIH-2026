@@ -6,7 +6,7 @@ export interface IComplaint {
   raisedByUserId: Types.ObjectId;
   againstUserId?: Types.ObjectId;
   againstMuthaId?: Types.ObjectId;
-  category: 'no_show' | 'damage' | 'payment' | 'misconduct' | 'other';
+  category: 'no_show' | 'damage' | 'payment' | 'misconduct' | 'workmanship' | 'other';
   description: string;
   status: 'open' | 'in_review' | 'resolved';
   resolutionNote?: string;
@@ -21,7 +21,14 @@ const complaintSchema = new Schema<IComplaint>(
     raisedByUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     againstUserId: { type: Schema.Types.ObjectId, ref: 'User' },
     againstMuthaId: { type: Schema.Types.ObjectId, ref: 'Mutha' },
-    category: { type: String, enum: ['no_show', 'damage', 'payment', 'misconduct', 'other'], required: true },
+    // 'workmanship' is a guarantee claim — same queue, same resolution flow
+    // as any other grievance, but distinguishable so the desk can see that a
+    // published guarantee is what is being invoked.
+    category: {
+      type: String,
+      enum: ['no_show', 'damage', 'payment', 'misconduct', 'workmanship', 'other'],
+      required: true,
+    },
     description: { type: String, required: true },
     status: { type: String, enum: ['open', 'in_review', 'resolved'], default: 'open' },
     resolutionNote: { type: String },

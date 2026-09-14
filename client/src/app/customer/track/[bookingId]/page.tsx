@@ -26,6 +26,7 @@ import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, StatRow } from '@/components/fy/Data';
 import { Button as FyButton } from '@/components/fy/Controls';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { GuaranteeSection } from '@/components/booking/GuaranteeSection';
 
 // react-leaflet touches `window` at module load — must never run during
 // Next's server render pass.
@@ -201,6 +202,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
 
 export default function TrackBookingPage() {
   const t = useTranslations('trackBooking');
+  const tSos = useTranslations('sos');
   const { bookingId } = useParams<{ bookingId: string }>();
   const { user } = useAuth();
   const [booking, setBooking] = useState<BookingDetail | null>(null);
@@ -330,15 +332,30 @@ export default function TrackBookingPage() {
         title={t('pageTitle')}
         showBack
         actions={
-          <StatusPill
-            tone={booking.status === 'completed' ? 'lime' : booking.status === 'cancelled' ? 'critical' : 'neutral'}
-          >
-            {t(`historyStatus.${booking.status}` as never) ?? booking.status}
-          </StatusPill>
+          <span className="flex items-center gap-2">
+            {/* A customer's emergency is most likely to happen while a job is
+                in progress in their home or at their gate — so the SOS is on
+                the tracking screen, where they already are. */}
+            {booking.status !== 'completed' && booking.status !== 'cancelled' && (
+              <Link
+                href="/emergency"
+                aria-label={tSos('title')}
+                className="w-9 h-9 rounded-full bg-fy-brown/10 text-fy-brown flex items-center justify-center"
+              >
+                <Icon name="emergency" size={18} />
+              </Link>
+            )}
+            <StatusPill
+              tone={booking.status === 'completed' ? 'lime' : booking.status === 'cancelled' ? 'critical' : 'neutral'}
+            >
+              {t(`historyStatus.${booking.status}` as never) ?? booking.status}
+            </StatusPill>
+          </span>
         }
       />
 
       <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <GuaranteeSection bookingId={booking._id} status={booking.status} />
         <RouteMap
           pickup={{ lat: pLat, lng: pLng }}
           drop={{ lat: dLat, lng: dLng }}

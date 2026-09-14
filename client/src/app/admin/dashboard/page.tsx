@@ -57,6 +57,9 @@ interface AdminStats {
 }
 
 const LINK_META = [
+  // First in the list on purpose: an SOS outranks every other queue on this
+  // screen, and 'view_analytics' is the permission a manager on the desk has.
+  { href: '/admin/emergencies', key: 'emergencies', icon: AlertIcon, perm: 'view_analytics' },
   { href: '/admin/kyc-queue', key: 'kycQueue', icon: ShieldIcon, perm: 'verify_kyc' },
   { href: '/admin/disputes', key: 'disputes', icon: AlertIcon, perm: 'admin' },
   { href: '/admin/fraud-alerts', key: 'fraudAlerts', icon: ShieldIcon, perm: 'admin' },

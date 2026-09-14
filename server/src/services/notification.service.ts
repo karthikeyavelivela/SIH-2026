@@ -58,6 +58,13 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'మీ బుకింగ్‌లో ప్రణాళిక లేని ఆగుట', body: `మీ డ్రైవర్ నిర్దేశిత చెక్‌పాయింట్ వెలుపల ${v.minutes} నిమిషాలకు పైగా ఆగారు.` }),
     hi: (v) => ({ title: 'आपकी बुकिंग में अनियोजित रुकावट', body: `आपका ड्राइवर तय चेकपॉइंट के बाहर ${v.minutes} मिनट से अधिक रुका रहा।` }),
   },
+  // Sent to the operations desk, not to the person in trouble — they are
+  // busy having the emergency.
+  emergency_alert: {
+    en: (v) => ({ title: 'SOS raised', body: `${v.name ?? 'A worker'} raised an emergency alert (${v.kind ?? 'other'}).` }),
+    te: (v) => ({ title: 'SOS వచ్చింది', body: `${v.name ?? 'ఒక కార్మికుడు'} అత్యవసర హెచ్చరిక పంపారు (${v.kind ?? 'other'}).` }),
+    hi: (v) => ({ title: 'SOS आया', body: `${v.name ?? 'एक कर्मचारी'} ने आपातकालीन चेतावनी भेजी (${v.kind ?? 'other'})।` }),
+  },
 };
 
 /**

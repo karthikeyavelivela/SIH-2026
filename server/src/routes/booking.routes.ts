@@ -115,6 +115,21 @@ bookingRouter.get(
   validate,
   bookingController.downloadTaxInvoice
 );
+// The workmanship guarantee, which until now was a badge with nothing behind
+// it. Status is a read; claiming re-checks the window server-side.
+bookingRouter.get(
+  '/:id/guarantee',
+  [param('id').isMongoId()],
+  validate,
+  bookingController.getGuaranteeStatus
+);
+bookingRouter.post(
+  '/:id/guarantee-claim',
+  [param('id').isMongoId(), body('description').isString().trim().isLength({ min: 10, max: 1000 })],
+  validate,
+  bookingController.raiseGuaranteeClaim
+);
+
 bookingRouter.patch(
   '/:id/cancel',
   [param('id').isMongoId()],

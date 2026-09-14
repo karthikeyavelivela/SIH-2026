@@ -2530,6 +2530,10 @@
       "auditLog": {
         "label": "Audit log",
         "hint": "Immutable action history"
+      },
+      "emergencies": {
+        "label": "Emergency alerts",
+        "hint": "Open SOS alerts from workers and customers"
       }
     },
     "openGrievances": "Open grievances",
@@ -3139,7 +3143,21 @@
     "trainingNeeds": "Training needs",
     "skillGapAside": "Coverage by society",
     "skillGap": "{pct}% gap",
-    "dueForRefresh": "{count, plural, =0 {No refreshers due} one {# of {members} due a refresher} other {# of {members} due a refresher}}"
+    "dueForRefresh": "{count, plural, =0 {No refreshers due} one {# of {members} due a refresher} other {# of {members} due a refresher}}",
+    "suspend": "Suspend society",
+    "suspending": "Suspending…",
+    "suspendConfirm": "Suspend {name}? Its affiliation ends and its members stop receiving work through the federation.",
+    "suspendError": "Could not suspend this society.",
+    "suspended": "Suspended",
+    "editCeilings": "Edit ceilings",
+    "saveCeilings": "Save ceilings",
+    "saving": "Saving…",
+    "ceilingsSaved": "Ceilings updated.",
+    "ceilingsError": "Could not update the ceilings.",
+    "maxReserve": "Maximum reserve rate (%)",
+    "maxWelfare": "Maximum welfare rate (%)",
+    "ceilingsHint": "Every affiliated society is bound by these. A society cannot set a rate above the ceiling.",
+    "cancel": "Cancel"
   },
   "governance": {
     "title": "Cooperative Governance",
@@ -3759,5 +3777,52 @@
       "people": "People",
       "vehicles": "Vehicles"
     }
+  },
+  "sos": {
+    "title": "Emergency",
+    "hold": "Hold for 3 seconds",
+    "holdHint": "Press and hold the button to raise an SOS. It reaches the operations desk immediately.",
+    "kind": "What is happening?",
+    "kinds": {
+      "accident": "Accident",
+      "unsafe": "I feel unsafe",
+      "medical": "Medical",
+      "vehicle": "Vehicle breakdown",
+      "other": "Something else"
+    },
+    "noteLabel": "Anything the desk should know (optional)",
+    "notePlaceholder": "Where you are, what happened",
+    "sent": "SOS sent. The operations desk has been alerted.",
+    "alreadyOpen": "You already have an SOS open. The desk can see it.",
+    "error": "Could not send the SOS. Try again, or call 112.",
+    "locating": "Getting your location…",
+    "noLocation": "Sending without location — permission was not given.",
+    "myAlerts": "Your alerts",
+    "status": {
+      "open": "Open",
+      "acknowledged": "Picked up",
+      "resolved": "Resolved"
+    },
+    "emergencyNumber": "For immediate danger, call 112.",
+    "queueTitle": "Emergency alerts",
+    "queueEmpty": "No open alerts.",
+    "acknowledge": "Pick up",
+    "resolve": "Mark resolved",
+    "resolutionPlaceholder": "What happened and what was done",
+    "raisedBy": "Raised by",
+    "openMap": "Open location",
+    "noLocationShort": "No location"
+  },
+  "guarantee": {
+    "title": "Workmanship guarantee",
+    "daysLeft": "{days} days left to raise a claim",
+    "expired": "The guarantee window for this job has closed.",
+    "claimed": "A guarantee claim is already open for this job.",
+    "claim": "Claim the guarantee",
+    "claiming": "Sending…",
+    "placeholder": "What was wrong with the work?",
+    "sent": "Claim raised. The cooperative desk will review it.",
+    "error": "Could not raise the claim.",
+    "notEligible": "This service does not carry a workmanship guarantee."
   }
 }

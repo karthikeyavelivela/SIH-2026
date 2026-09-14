@@ -14,6 +14,7 @@ import { getSurgeMultiplier } from '../services/surge.service';
 import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 import { findUnratedCompletedBooking } from '../services/ratingGate.service';
 import { detectAbnormalCancellationRate } from '../services/fraudDetection.service';
+import { guaranteeStatusFor, claimGuarantee } from '../services/guarantee.service';
 
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
@@ -355,4 +356,25 @@ export const cancelMyBooking = asyncHandler(async (req: Request, res: Response) 
   detectAbnormalCancellationRate(req.user!.id).catch(() => {});
 
   res.status(200).json({ booking });
+});
+
+
+/**
+ * Workmanship guarantee — status and claim.
+ *
+ * Both are customer-side and scoped to the caller's own booking. The status
+ * read is what lets the tracking screen say something true ("6 days left",
+ * "the window closed on the 14th", "already claimed") instead of hiding a
+ * promise the app already made on the dashboard.
+ */
+export const getGuaranteeStatus = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  res.status(200).json({ guarantee: await guaranteeStatusFor(booking) });
+});
+
+export const raiseGuaranteeClaim = asyncHandler(async (req: Request, res: Response) => {
+  const { description } = req.body as { description: string };
+  const complaint = await claimGuarantee(req.user!.id, req.params.id, description);
+  res.status(201).json({ complaintId: complaint._id.toString() });
 });

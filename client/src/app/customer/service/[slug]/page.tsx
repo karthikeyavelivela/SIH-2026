@@ -23,6 +23,7 @@ import { StatusPill } from '@/components/fy/Status';
 import { Button, Chip, ChipRow, SelectCard, Field, Toggle } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { useCategoryName } from '@/lib/categoryName';
 
 /* Built against client/public/design/service_detail_booking_1.html.
 
@@ -65,6 +66,7 @@ const MIN_LEAD_MIN = 35;
 
 export default function ServiceDetailPage() {
   const t = useTranslations('serviceDetail');
+  const categoryName = useCategoryName();
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const slug = params?.slug;
@@ -193,7 +195,7 @@ export default function ServiceDetailPage() {
       >
         <PhotoCard
           id={`household.category.${category.slug}`}
-          alt={category.name}
+          alt={categoryName(category)}
           height="banner"
           scrim="brown"
           className="shadow-card mt-2"
@@ -205,7 +207,7 @@ export default function ServiceDetailPage() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <EyebrowLabel tone="brown">{t('standardRate')}</EyebrowLabel>
-            <h2 className="font-heading text-heading text-fy-ink leading-[1.05]">{category.name}</h2>
+            <h2 className="font-heading text-heading text-fy-ink leading-[1.05]">{categoryName(category)}</h2>
           </div>
           {rate && (
             <div className="text-right shrink-0">

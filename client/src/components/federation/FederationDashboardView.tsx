@@ -9,7 +9,7 @@ import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Su
 import { EyebrowLabel, SectionHeading, Body, MutedText } from '@/components/fy/Text';
 import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, StatRow, ProgressBar } from '@/components/fy/Data';
-import { Button } from '@/components/fy/Controls';
+import { Button, Field } from '@/components/fy/Controls';
 import { TopBar } from '@/components/fy/Navigation';
 
 /* Built against client/public/design/federation_ap_state_dashboard.html and
@@ -167,6 +167,54 @@ export function FederationDashboardView() {
     }
   }
 
+  /* The two federation powers that existed only as endpoints.
+     PATCH /federation/societies/:id/suspend and PATCH /federation/me/bounds
+     were both implemented, tested and unreachable: nothing in the UI called
+     either. That is the "real infrastructure, no trigger" pattern the audit
+     named, and this is the trigger. */
+  const [suspending, setSuspending] = useState<string | null>(null);
+  const [ceilingsOpen, setCeilingsOpen] = useState(false);
+  const [maxCommission, setMaxCommission] = useState('');
+  const [maxWelfare, setMaxWelfare] = useState('');
+  const [savingCeilings, setSavingCeilings] = useState(false);
+  const [ceilingsMessage, setCeilingsMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  async function suspendSociety(muthaId: string, name: string) {
+    // Ending a society's affiliation stops its members receiving work. That
+    // is not something to do on a stray tap.
+    if (!window.confirm(t('suspendConfirm', { name }))) return;
+    setSuspending(muthaId);
+    setActionError(null);
+    try {
+      await api.patch(`/api/federation/societies/${muthaId}/suspend`, {});
+      await reload();
+    } catch (err) {
+      setActionError(err instanceof ApiClientError ? err.message : t('suspendError'));
+    } finally {
+      setSuspending(null);
+    }
+  }
+
+  async function saveCeilings() {
+    setSavingCeilings(true);
+    setActionError(null);
+    setCeilingsMessage(null);
+    try {
+      await api.patch('/api/federation/me/bounds', {
+        ...(maxCommission.trim() ? { maxCommissionRatePct: Number(maxCommission) } : {}),
+        ...(maxWelfare.trim() ? { maxWelfareDeductionRatePct: Number(maxWelfare) } : {}),
+      });
+      setCeilingsMessage(t('ceilingsSaved'));
+      setCeilingsOpen(false);
+      await reload();
+    } catch (err) {
+      setActionError(err instanceof ApiClientError ? err.message : t('ceilingsError'));
+    } finally {
+      setSavingCeilings(false);
+    }
+  }
+
   useEffect(() => {
     if (isDistrict) loadRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -297,6 +345,51 @@ export function FederationDashboardView() {
             />
           )}
         </div>
+
+        {/* The ceilings are the district federation's actual regulatory
+            lever — every affiliated society's bye-laws are bounded by them
+            server-side. Until now they were displayed and not editable. */}
+        {isDistrict && (
+          <Section title={<SectionHeading>{t('byeLawCeilings')}</SectionHeading>}>
+            {ceilingsOpen ? (
+              <Panel className="flex flex-col gap-3">
+                <MutedText>{t('ceilingsHint')}</MutedText>
+                <label className="flex flex-col gap-1">
+                  <EyebrowLabel>{t('maxReserve')}</EyebrowLabel>
+                  <Field
+                    type="number"
+                    value={maxCommission}
+                    onChange={(e) => setMaxCommission(e.target.value)}
+                    placeholder={String(federation.maxCommissionRatePct ?? '')}
+                  />
+                </label>
+                <label className="flex flex-col gap-1">
+                  <EyebrowLabel>{t('maxWelfare')}</EyebrowLabel>
+                  <Field
+                    type="number"
+                    value={maxWelfare}
+                    onChange={(e) => setMaxWelfare(e.target.value)}
+                    placeholder={String(federation.maxWelfareDeductionRatePct ?? '')}
+                  />
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="light" size="md" onClick={() => setCeilingsOpen(false)}>
+                    {t('cancel')}
+                  </Button>
+                  <Button size="md" glyph="check" disabled={savingCeilings} onClick={saveCeilings}>
+                    {savingCeilings ? t('saving') : t('saveCeilings')}
+                  </Button>
+                </div>
+              </Panel>
+            ) : (
+              <Button variant="ghost" size="md" glyph="rule" onClick={() => setCeilingsOpen(true)}>
+                {t('editCeilings')}
+              </Button>
+            )}
+            {ceilingsMessage && <MutedText>{ceilingsMessage}</MutedText>}
+            {actionError && <MutedText>{actionError}</MutedText>}
+          </Section>
+        )}
 
         {/* Affiliation requests — district tier only, and a real decision. */}
         {isDistrict && (
@@ -433,6 +526,17 @@ export function FederationDashboardView() {
                     <StatRow stacked label={t('reserveRate')} value={`${s.commissionRatePct}%`} />
                     <StatRow stacked label={t('welfareRate')} value={`${s.welfareDeductionRatePct}%`} />
                   </div>
+                  {isDistrict && (
+                    <Button
+                      variant="ghost"
+                      size="md"
+                      glyph="block"
+                      disabled={suspending === s._id}
+                      onClick={() => suspendSociety(s._id, s.name)}
+                    >
+                      {suspending === s._id ? t('suspending') : t('suspend')}
+                    </Button>
+                  )}
                 </Panel>
               ))}
             </div>

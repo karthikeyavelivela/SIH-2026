@@ -7,6 +7,10 @@ import * as complaintController from '../controllers/complaint.controller';
 
 export const complaintRouter = Router();
 
+// 'workmanship' is deliberately NOT here: a guarantee claim goes through
+// POST /api/bookings/:id/guarantee-claim, which checks the category actually
+// carries a guarantee and that the window is still open. Letting it be
+// selected on the plain complaint form would bypass both checks.
 const CATEGORIES = ['no_show', 'damage', 'payment', 'misconduct', 'other'];
 
 complaintRouter.use(verifyJwt);
