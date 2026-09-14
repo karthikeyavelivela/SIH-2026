@@ -3824,5 +3824,14 @@
     "sent": "Claim raised. The cooperative desk will review it.",
     "error": "Could not raise the claim.",
     "notEligible": "This service does not carry a workmanship guarantee."
+  },
+  "pwa": {
+    "offlineTitle": "You are offline",
+    "offlineBody": "FYRO needs a connection to show live bookings, pay and documents. Everything is still here — reconnect and this page will load.",
+    "retry": "Try again",
+    "installTitle": "Install FYRO",
+    "installBody": "Add it to your home screen — it opens like an app.",
+    "install": "Install",
+    "dismiss": "Not now"
   }
 }

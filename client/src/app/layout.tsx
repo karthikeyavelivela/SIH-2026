@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { FYRO_LOGO_URL } from '@/lib/brand';
 import { Noto_Serif, Inter, Noto_Serif_Telugu, Noto_Serif_Devanagari, JetBrains_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
@@ -7,6 +7,7 @@ import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
+import { PwaProvider } from '@/components/ui/PwaProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 
 // The designs' serif is Noto Serif — named in the export and confirmed by
@@ -35,18 +36,42 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
   weight: ['300', '400', '500', '600'],
+  // Not preloaded: mono is used for micro-labels and ledger readouts, none of
+  // which are the first thing on screen. next/font still self-hosts it — this
+  // only stops it competing with the body text for the first connections.
+  preload: false,
 });
 
+// The Indic faces are large and are needed by exactly the readers whose
+// locale selects them. Preloading all three scripts for every visitor cost
+// every English user two font downloads they would never render — which is
+// the kind of thing that makes a mid-range Android phone feel slow on first
+// paint. They are still self-hosted and still applied by CSS variable; they
+// are simply fetched when the page that needs them asks for them.
 const notoSerifTelugu = Noto_Serif_Telugu({
   subsets: ['telugu'],
   variable: '--font-noto-serif-telugu',
   weight: ['400', '500', '600'],
+  preload: false,
 });
 const notoSerifDevanagari = Noto_Serif_Devanagari({
   subsets: ['devanagari'],
   variable: '--font-noto-serif-devanagari',
   weight: ['400', '500', '600'],
+  preload: false,
 });
+
+// Android tints the status bar with this, and it is the same brown the
+// manifest declares — an installed FYRO should not open with a white bar
+// above the app's own colour.
+export const viewport: Viewport = {
+  themeColor: '#6B4423',
+  // The app has its own bottom bars and fixed controls; letting the browser
+  // zoom the layout on a double-tap makes those jump. Text zoom still works.
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: 'FYRO — Find Your Right One',
@@ -71,13 +96,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${notoSerif.variable} ${inter.variable} ${jetbrainsMono.variable} ${notoSerifTelugu.variable} ${notoSerifDevanagari.variable}`}
     >
       <head>
+        {/* The icon stylesheet below is render-blocking and lives on another
+            origin, so the TCP and TLS handshakes are worth starting before
+            the parser reaches it. Two origins: the stylesheet and the font
+            file it references. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* Material Symbols Outlined — the icon system every Stitch screen
             actually uses (`<span class="material-symbols-outlined">
             icon_name</span>`). Loaded once, globally, so every rebuilt page
             can use the exact glyphs the design references instead of a
-            hand-drawn approximation — see components/ui/Icon.tsx. */}
+            hand-drawn approximation — see components/ui/Icon.tsx.
+
+            Only two of the four axes are requested as ranges. Icon.tsx varies
+            FILL (0 or 1) and opsz (with the rendered size) and pins wght to
+            400 and GRAD to 0, so asking for the full 100..700 weight and
+            -50..200 grade ranges was downloading a much larger variable font
+            to render exactly one weight of it. */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block"
           rel="stylesheet"
         />
       </head>
@@ -89,6 +126,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {/* Mounted once, globally: search is reachable from every
                   screen and renders nothing at all when signed out. */}
               <GlobalSearch />
+              <PwaProvider />
             </AuthProvider>
             <OfflineBanner />
           </ToastProvider>

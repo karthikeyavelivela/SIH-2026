@@ -13,3 +13,28 @@ design/stitch/
 design/
 design-reference/
 client/public/design/
+
+# Working documents — kept on disk, kept out of the repository.
+#
+# These are the notes this project was built from: design exports, page
+# inventories, audit passes, deployment runbooks and handoff prompts. They
+# are useful to whoever is building, and noise to anyone reading the code —
+# several are long, several contradict each other by design (an audit is a
+# snapshot, not a statement of current truth), and one of them is a
+# deployment runbook that should not be the first thing a stranger reads.
+#
+# README.md stays: it is the one document that is meant to be read here.
+AUDIT_REPORT*.md
+DEPLOY.md
+DESIGN.md
+DESIGN_INVENTORY.md
+DESIGN_MAP.md
+DESIGN_TOKENS.md
+FLOWS.md
+HANDOFF_PROMPT.md
+PAGE_INVENTORY.md
+PRODUCT.md
+SIH_COMPLIANCE.md
+SIH_READINESS.md
+PRICING_SPEC.md
+docs/superpowers/
