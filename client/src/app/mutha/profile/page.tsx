@@ -29,6 +29,7 @@ import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill, VerifiedBadge } from '@/components/fy/Status';
 import { DataList, DataRow } from '@/components/fy/Data';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { PricingLink } from '@/components/pricing/PricingLink';
 
 /* Built against client/public/design/society_profile.html.
 
@@ -168,7 +169,8 @@ export default function MuthaLeaderProfilePage() {
             <LanguageSection />
             <ProfileIdentitySection />
             <RoleSwitcherSection />
-            <NotificationPreferencesSection />
+            <PricingLink base="/mutha" />
+      <NotificationPreferencesSection />
             <PrivacySettingsSection />
             <SupportSection />
             <AccountDangerZoneSection />

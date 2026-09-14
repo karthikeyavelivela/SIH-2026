@@ -17,6 +17,7 @@ import {
 } from '../services/workPricing.service';
 import { getPlatformCommissionPct } from '../services/platformCommission.service';
 import { writeAuditLog } from '../services/audit.service';
+import { guideFor } from '../services/taskCatalogue';
 import type { PricingMode, UnitType } from '@fyro/shared';
 
 /**
@@ -221,6 +222,19 @@ export const quoteWork = asyncHandler(async (req: Request, res: Response) => {
   const disclosure = await disclosePrice(fare.total, workerId, await getPlatformCommissionPct());
 
   res.status(200).json({ fare, disclosure });
+});
+
+/**
+ * What this trade usually charges for, and roughly what it charges.
+ *
+ * Guidance for the worker filling in the form — never shown to a customer as
+ * a market rate. A customer only ever sees a number some specific worker
+ * actually published.
+ */
+export const getCategoryGuide = asyncHandler(async (req: Request, res: Response) => {
+  const categorySlug = String(req.query.categorySlug ?? '');
+  if (!categorySlug) throw new ApiError(400, 'categorySlug is required');
+  res.status(200).json({ guide: guideFor(categorySlug) });
 });
 
 /** The controlled list, with the exact declaration each unit carries. */

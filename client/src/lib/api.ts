@@ -59,6 +59,11 @@ export const api = {
   get: <T>(path: string) => request<T>(path, { method: 'GET' }),
   post: <T>(path: string, data?: unknown) =>
     request<T>(path, { method: 'POST', body: data ? JSON.stringify(data) : undefined }),
+  // PUT, for the handful of endpoints that genuinely replace a whole
+  // resource rather than patching fields of it — a worker's published rate
+  // card is one document they rewrite wholesale, not a field at a time.
+  put: <T>(path: string, data?: unknown) =>
+    request<T>(path, { method: 'PUT', body: data ? JSON.stringify(data) : undefined }),
   patch: <T>(path: string, data?: unknown) =>
     request<T>(path, { method: 'PATCH', body: data ? JSON.stringify(data) : undefined }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),

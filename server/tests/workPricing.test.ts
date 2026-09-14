@@ -475,3 +475,52 @@ describe('work-based pricing — what the customer is shown', () => {
     expect(res.body.workers).toHaveLength(0);
   });
 });
+
+describe('work-based pricing — members can vote a floor into place', () => {
+  it('a closed rate_floor poll moves the floor and re-checks every member', async () => {
+    const { agent: leaderAgent, user: leader } = await loginAs('mutha_leader', '9960000070');
+    const { user: member } = await loginAs('mutha_member', '9960000071');
+    const mutha = await Mutha.create({
+      name: 'Voting Society',
+      leaderId: leader._id,
+      memberIds: [member._id],
+      inviteCode: 'VOTEFL01',
+    });
+
+    const memberAgent = request.agent(app);
+    memberAgent.jar.setCookie(
+      `accessToken=${signAccessToken({ id: member._id.toString(), role: 'mutha_member' as never })}`
+    );
+    await memberAgent.put('/api/pricing/mine').send({
+      categorySlug: 'plumber',
+      modesOffered: ['per_task'],
+      perTask: [{ taskName: 'Tap repair', fixedPrice: 120 }],
+    });
+
+    // The members who are bound by a floor are the ones who move it — the
+    // same mechanism a rate-card poll already uses for the society's own cut.
+    const poll = await leaderAgent.post('/api/governance/polls').send({
+      question: 'Minimum for a plumbing job?',
+      type: 'rate_floor',
+      options: [
+        { label: '₹250', value: JSON.stringify({ categorySlug: 'plumber', mode: 'per_task', minimumRate: 250 }) },
+        { label: 'Leave as is', value: JSON.stringify({ categorySlug: 'plumber', mode: 'per_task', minimumRate: 0 }) },
+      ],
+      closesAt: new Date(Date.now() + 60_000).toISOString(),
+    });
+    expect(poll.status).toBe(201);
+
+    await memberAgent.post(`/api/governance/polls/${poll.body.poll._id}/vote`).send({ optionIndex: 0 });
+    const closed = await leaderAgent.post(`/api/governance/polls/${poll.body.poll._id}/close`);
+
+    expect(closed.status).toBe(200);
+    const floor = await SocietyRateFloor.findOne({ societyId: mutha._id, categorySlug: 'plumber', mode: 'per_task' });
+    expect(floor?.minimumRate).toBe(250);
+    expect(floor?.setByPollId?.toString()).toBe(poll.body.poll._id);
+
+    // And the member who priced below it is flagged, not rewritten.
+    const profile = await WorkerPricingProfile.findOne({ workerId: member._id });
+    expect(profile?.societyFloorRespected).toBe(false);
+    expect(profile?.perTask[0].fixedPrice).toBe(120);
+  });
+});

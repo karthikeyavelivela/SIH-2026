@@ -15,6 +15,14 @@ pricingRouter.use(verifyJwt);
 // definition — that shared definition is the point.
 pricingRouter.get('/units', pricingController.getUnitDeclarations);
 
+// The trade's common jobs and typical bands, for the worker's own form.
+pricingRouter.get(
+  '/guide',
+  [query('categorySlug').isString().trim().notEmpty()],
+  validate,
+  pricingController.getCategoryGuide
+);
+
 // ---- worker: publish your own rates -------------------------------------
 // Every service-providing role. A driver prices an hourly engagement, a
 // hamali prices loading, a society member prices their trade.
@@ -45,6 +53,7 @@ pricingRouter.put(
     body('perUnit.*.unitType').isIn(UNIT_TYPES),
     body('perUnit.*.rate').isFloat({ min: 1 }),
     body('perTask').optional().isArray(),
+    body('perTask.*.taskSlug').optional().isString(),
     body('perTask.*.taskName').isString().trim().notEmpty(),
     body('perTask.*.fixedPrice').isFloat({ min: 1 }),
     body('quotation.siteVisitFee').optional().isFloat({ min: 0 }),

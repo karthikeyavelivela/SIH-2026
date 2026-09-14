@@ -13,6 +13,8 @@ import { User } from '../models/User';
 import { writeAuditLog } from '../services/audit.service';
 import { writeLedgerEntry } from '../services/ledger.service';
 import { assertWithinFederationBounds, computeSurplus, distributeSurplus } from '../services/governance.service';
+import { SocietyRateFloor } from '../models/SocietyRateFloor';
+import { reflagSocietyProfiles } from '../services/workPricing.service';
 
 async function requireLeaderMutha(userId: string) {
   const mutha = await Mutha.findOne({ leaderId: userId });
@@ -261,7 +263,7 @@ export const getMyCommissionRecords = asyncHandler(async (req: Request, res: Res
 
 export const createPoll = asyncHandler(async (req: Request, res: Response) => {
   const { type, question, options, closesAt } = req.body as {
-    type: 'rate_card' | 'leader_election';
+    type: 'rate_card' | 'leader_election' | 'rate_floor';
     question: string;
     options: { label: string; value: string }[];
     closesAt: string;
@@ -438,6 +440,33 @@ export const closePoll = asyncHandler(async (req: Request, res: Response) => {
         }
       } catch {
         consequence = { appliedError: 'Malformed rate-card proposal value' };
+      }
+    } else if (poll.type === 'rate_floor') {
+      // The same mechanism as a rate-card poll, applied to the floor beneath
+      // members' own prices: the members who are bound by it are the ones who
+      // move it. A leader can still set a floor directly — this is the
+      // members' route to the same control.
+      try {
+        const proposal = JSON.parse(winningOption.value) as {
+          categorySlug: string;
+          mode: 'hourly' | 'per_unit' | 'per_task';
+          unitType?: string;
+          minimumRate: number;
+        };
+        const floor = await SocietyRateFloor.findOneAndUpdate(
+          {
+            societyId: mutha._id,
+            categorySlug: proposal.categorySlug,
+            mode: proposal.mode,
+            unitType: proposal.mode === 'per_unit' ? proposal.unitType : undefined,
+          },
+          { $set: { minimumRate: proposal.minimumRate, setByLeaderId: mutha.leaderId, setByPollId: poll._id } },
+          { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+        const flagged = await reflagSocietyProfiles(mutha._id.toString());
+        consequence = { ...proposal, floorId: floor._id.toString(), membersNowBelowFloor: flagged };
+      } catch {
+        consequence = { appliedError: 'Malformed rate-floor proposal value' };
       }
     }
   }

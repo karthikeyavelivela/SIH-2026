@@ -3228,7 +3228,8 @@
       "byelaws": "Bye-laws",
       "equity": "Equity",
       "surplus": "Surplus",
-      "voting": "Voting"
+      "voting": "Voting",
+      "rateFloors": "Rate floors"
     },
     "guild": "Cooperative society",
     "guildRegion": "Society · {region}",
@@ -3833,5 +3834,141 @@
     "installBody": "Add it to your home screen — it opens like an app.",
     "install": "Install",
     "dismiss": "Not now"
+  },
+  "pricing": {
+    "units": {
+      "sq_ft_face": {
+        "label": "Per sq ft — front face",
+        "declaration": "Front face area: height × width of the surface you can see. Internal shelves and partitions are not counted separately.",
+        "help": "A 6ft × 4ft wardrobe front = 24 sq ft, whatever is inside it."
+      },
+      "sq_ft_developed": {
+        "label": "Per sq ft — developed area",
+        "declaration": "Developed area: every internal shelf, partition and shutter is measured and counted, so the total is larger than the visible front.",
+        "help": "The same 6ft × 4ft wardrobe can measure 35–45 sq ft once the shelves inside are counted."
+      },
+      "per_point": {
+        "label": "Per point",
+        "declaration": "One point is one fitting — a light, a fan, a switch or a socket — including the wiring run to it.",
+        "help": "A room with 2 lights, 1 fan and 3 sockets is 6 points."
+      },
+      "per_running_ft": {
+        "label": "Per running ft",
+        "declaration": "Running feet measured along the length of the work, whatever its height.",
+        "help": "An 8ft kitchen counter is 8 running ft."
+      },
+      "per_item": {
+        "label": "Per item",
+        "declaration": "A fixed rate for each item of the same kind.",
+        "help": "Five identical chairs is 5 items."
+      }
+    },
+    "tasks": {
+      "door_hinge": "Door hinge replacement",
+      "door_lock_fit": "Door lock fitting",
+      "drawer_repair": "Drawer repair",
+      "shelf_fitting": "Shelf fitting",
+      "furniture_assembly": "Furniture assembly",
+      "fan_installation": "Fan installation",
+      "switchboard_repair": "Switchboard repair",
+      "light_fitting": "Light fitting",
+      "mcb_replacement": "MCB replacement",
+      "inverter_service": "Inverter service",
+      "tap_repair": "Tap repair",
+      "leak_fix": "Leak fix",
+      "drain_unblock": "Drain unblocking",
+      "bathroom_fitting": "Bathroom fitting",
+      "motor_service": "Water motor service",
+      "single_room_paint": "Paint one room",
+      "touch_up": "Paint touch-up",
+      "ac_service": "AC service",
+      "fridge_repair": "Fridge repair",
+      "washing_machine_repair": "Washing machine repair",
+      "geyser_repair": "Geyser repair",
+      "ro_service": "Water purifier service",
+      "deep_clean_bathroom": "Bathroom deep clean",
+      "kitchen_clean": "Kitchen deep clean",
+      "sofa_clean": "Sofa cleaning",
+      "water_tank_clean": "Water tank cleaning",
+      "cooking_one_meal": "Cooking one meal",
+      "utensils_and_laundry": "Utensils and laundry",
+      "day_attendant": "Full-day attendant",
+      "lawn_mowing": "Lawn mowing",
+      "tree_pruning": "Tree pruning",
+      "outstation_day": "Outstation day",
+      "loading_unloading": "Loading and unloading"
+    },
+    "modes": {
+      "hourly": {
+        "name": "By the hour",
+        "blurb": "You charge for your time. Best for cleaning, house help, caregiving, gardening and loading work."
+      },
+      "per_unit": {
+        "name": "By measurement",
+        "blurb": "You charge a rate for each square foot, point or item. This is how carpentry, wiring and painting are normally priced."
+      },
+      "per_task": {
+        "name": "Fixed price per job",
+        "blurb": "One price for a named job, whatever it takes. Best for repairs — a tap, a fan, a lock."
+      },
+      "quotation": {
+        "name": "Quote after a visit",
+        "blurb": "You look at the job first, then give a written price. Best for big or custom work."
+      }
+    },
+    "worker": {
+      "title": "How you charge",
+      "intro": "Pick the ways you want to be paid. You can choose more than one — most workers do.",
+      "pickCategory": "Which work is this for?",
+      "save": "Save my rates",
+      "saving": "Saving…",
+      "saved": "Your rates are published.",
+      "hourlyRate": "Your rate per hour (₹)",
+      "minimumBlock": "Minimum hours you will take",
+      "travelIncluded": "Travel is included in this rate",
+      "addUnitRate": "Add a measured rate",
+      "unitRate": "Rate (₹)",
+      "minimumQuantity": "Minimum you will take on",
+      "unitDescription": "What this covers (optional)",
+      "chooseUnit": "Which measurement?",
+      "unitWarning": "Pick carefully. These two are not the same measurement, and the customer is shown exactly which one you chose.",
+      "addTask": "Add a job",
+      "taskPrice": "Fixed price (₹)",
+      "taskDuration": "Usually takes (minutes)",
+      "commonTasks": "Common jobs in your trade",
+      "typicalBand": "Others charge ₹{min}–₹{max}",
+      "acceptsQuotation": "I will visit and give a written quote",
+      "siteVisitFee": "Site visit fee (₹)",
+      "siteVisitAdjustable": "Take this off the final bill if the job goes ahead",
+      "turnaround": "I usually send the quote within (hours)",
+      "floorLabel": "Your society's minimum: ₹{rate}",
+      "floorBlocked": "Below your society's minimum",
+      "noFloor": "Your society has not set a minimum for this",
+      "belowFloorWarning": "Some of your rates are below a minimum your society has since raised. Customers cannot see you until you update them.",
+      "removeRow": "Remove",
+      "error": "Could not save your rates.",
+      "openSection": "Set your rates",
+      "noModes": "Pick at least one way of charging."
+    },
+    "floors": {
+      "intro": "A floor is the least any member of {society} will work for. It binds every member, and the federation's cap bounds it in turn.",
+      "yourSociety": "your society",
+      "current": "Floors in force",
+      "count": "{count} set",
+      "none": "No floors set yet. Members price themselves freely.",
+      "setHeading": "Set a floor",
+      "category": "Which work",
+      "mode": "Which way of charging",
+      "unit": "Which measurement",
+      "unitNote": "A floor on one square-foot definition says nothing about the other — they measure different things.",
+      "minimum": "Minimum rate (₹)",
+      "consequence": "Members already publishing below this will stop appearing to customers until they update their rates. Their own rate is never changed for them.",
+      "save": "Set this floor",
+      "saving": "Setting…",
+      "savedNoneAffected": "Floor set. Every member already charges at or above it.",
+      "savedAffected": "Floor set. {count} member(s) now price below it and are hidden from customers until they update.",
+      "loadError": "Could not load your society's floors.",
+      "saveError": "Could not set that floor."
+    }
   }
 }

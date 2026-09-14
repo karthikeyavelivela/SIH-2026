@@ -9,11 +9,14 @@ import { Schema, model, Types } from 'mongoose';
 // does become the Society's new commissionRatePct/welfareDeductionRatePct
 // (still bounded by the affiliated district Federation's max, same as a
 // leader's own direct bye-law edit would be).
-export type PollType = 'rate_card' | 'leader_election';
+export type PollType = 'rate_card' | 'leader_election' | 'rate_floor';
 export type PollStatus = 'open' | 'closed';
 
 export interface IPollOption {
   label: string;
+  // 'rate_floor': a JSON-encoded {categorySlug, mode, unitType?, minimumRate}
+  // — the least a member may charge, decided by the members it binds rather
+  // than by the leader alone.
   // 'leader_election': the candidate's User _id. 'rate_card': a JSON-
   // encoded {commissionRatePct, welfareDeductionRatePct} proposal.
   value: string;
@@ -37,7 +40,7 @@ export interface IPoll {
 const pollSchema = new Schema<IPoll>(
   {
     muthaId: { type: Schema.Types.ObjectId, ref: 'Mutha', required: true },
-    type: { type: String, enum: ['rate_card', 'leader_election'], required: true },
+    type: { type: String, enum: ['rate_card', 'leader_election', 'rate_floor'], required: true },
     question: { type: String, required: true, trim: true },
     options: {
       type: [{ label: { type: String, required: true }, value: { type: String, required: true } }],

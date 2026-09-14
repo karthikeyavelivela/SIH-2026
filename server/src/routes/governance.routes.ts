@@ -59,7 +59,7 @@ governanceRouter.post(
   '/polls',
   requireRole('mutha_leader'),
   [
-    body('type').isIn(['rate_card', 'leader_election']),
+    body('type').isIn(['rate_card', 'leader_election', 'rate_floor']),
     body('question').isString().trim().isLength({ min: 1, max: 300 }),
     body('options').isArray({ min: 2 }),
     body('options.*.label').isString().trim().isLength({ min: 1, max: 100 }),

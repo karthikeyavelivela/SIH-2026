@@ -27,6 +27,7 @@ import {
   AccountDangerZoneSection,
 } from '@/components/worker/ProfileSections';
 import { AlertIcon, ShieldIcon, ChevronRightIcon } from '@/components/ui/icons';
+import { PricingLink } from '@/components/pricing/PricingLink';
 
 interface MyGroup {
   mutha: { _id: string; name: string; ratingAvg: number; ratingCount: number };
@@ -187,6 +188,7 @@ export default function MuthaMemberProfilePage() {
 
       <KycDocumentsSection requiredTypes={REQUIRED_KYC_DOCS_BY_ROLE.mutha_member} />
 
+      <PricingLink base="/mutha-member" />
       <NotificationPreferencesSection />
       <PrivacySettingsSection />
       <PayoutDetailsSection />

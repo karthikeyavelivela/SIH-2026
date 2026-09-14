@@ -29,6 +29,7 @@ import { StatusPill, VerifiedBadge } from '@/components/fy/Status';
 import { MetricBlock } from '@/components/fy/Data';
 import { Button, Field } from '@/components/fy/Controls';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { PricingLink } from '@/components/pricing/PricingLink';
 
 /* Built against client/public/design/worker_profile.html.
 
@@ -262,7 +263,8 @@ export default function DriverProfilePage() {
             <LanguageSection />
             <ProfileIdentitySection />
             <RoleSwitcherSection />
-            <NotificationPreferencesSection />
+            <PricingLink base="/driver" />
+      <NotificationPreferencesSection />
             <PrivacySettingsSection />
             <SupportSection />
             <AccountDangerZoneSection />

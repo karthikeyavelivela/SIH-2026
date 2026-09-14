@@ -27,6 +27,14 @@ export interface IPerUnitRate {
 }
 
 export interface IPerTaskRate {
+  /**
+   * Set when the worker picked this job from the trade's catalogue, absent
+   * when they typed their own. It is what lets a Telugu carpenter's task list
+   * read correctly to a Hindi customer — a catalogued task is displayed from
+   * the translation, a typed one in the worker's own words, which is the
+   * honest fallback rather than a machine translation of a price promise.
+   */
+  taskSlug?: string;
   taskName: string;
   description?: string;
   fixedPrice: number;
@@ -76,6 +84,7 @@ const perUnitSchema = new Schema<IPerUnitRate>(
 
 const perTaskSchema = new Schema<IPerTaskRate>(
   {
+    taskSlug: { type: String, trim: true },
     taskName: { type: String, required: true, trim: true, maxlength: 120 },
     description: { type: String, maxlength: 300 },
     fixedPrice: { type: Number, required: true, min: 1 },

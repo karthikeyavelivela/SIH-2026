@@ -13,6 +13,7 @@ import { Button, Chip, Field, ScrollRow, Slider } from '@/components/fy/Controls
 import { TopBar } from '@/components/fy/Navigation';
 import { SocietyTabBar } from '@/components/fy/RoleNav';
 import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
+import { RateFloorsTab } from '@/components/pricing/RateFloorsTab';
 
 /* Built against client/public/design/society_governance.html.
 
@@ -38,11 +39,15 @@ import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
    - Percentages, share counts and every rupee figure come from
      /api/mutha/me, /api/governance/shares and /api/governance/surplus. */
 
-type TabKey = 'affiliation' | 'byelaws' | 'equity' | 'surplus' | 'voting';
+type TabKey = 'affiliation' | 'byelaws' | 'rateFloors' | 'equity' | 'surplus' | 'voting';
 
 const TABS: { key: TabKey; glyph: string }[] = [
   { key: 'affiliation', glyph: 'apartment' },
   { key: 'byelaws', glyph: 'gavel' },
+  // Beside the bye-law rates because it is the same kind of instrument, in
+  // the other direction: a bye-law rate is the most the society takes from a
+  // member, a floor is the least a member may charge a customer.
+  { key: 'rateFloors', glyph: 'shield' },
   { key: 'equity', glyph: 'pie_chart' },
   { key: 'surplus', glyph: 'payments' },
   { key: 'voting', glyph: 'how_to_vote' },
@@ -512,6 +517,8 @@ export default function MuthaGovernancePage() {
             </Chip>
           ))}
         </ScrollRow>
+
+        {tab === 'rateFloors' && <RateFloorsTab />}
 
         {/* ------------------------------------------------ 1. AFFILIATION */}
         {tab === 'affiliation' && (
