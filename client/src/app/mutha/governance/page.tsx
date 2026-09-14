@@ -126,6 +126,14 @@ function defaultPeriod(): { start: string; end: string } {
 
 const money = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
+// The one figure that must keep its paise. Every other total here is large
+// enough that whole rupees read better, but a per-share amount is
+// fractional by nature: ₹24 over 10 shares is ₹2.40, and rounding it to
+// "₹2 per share" makes the disclosure fail its own arithmetic — a member
+// holding 10 shares reads ₹20 against a stated total of ₹24.
+const perShare = (n: number) =>
+  n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default function MuthaGovernancePage() {
   const t = useTranslations('governance');
   const [tab, setTab] = useState<TabKey>('affiliation');
@@ -828,7 +836,7 @@ export default function MuthaGovernancePage() {
                     tone="lime"
                     label={t('totalNetSurplus')}
                     value={money(latest.totalSurplus)}
-                    note={t('perShareAmount', { amount: Math.round(latest.perShareAmount) })}
+                    note={t('perShareAmount', { amount: perShare(latest.perShareAmount) })}
                   />
                   <Divider className="border-fy-bone/15" />
                   <StatRow
@@ -893,7 +901,7 @@ export default function MuthaGovernancePage() {
                           {new Date(d.periodStart).toLocaleDateString('en-IN')} –{' '}
                           {new Date(d.periodEnd).toLocaleDateString('en-IN')}
                         </Body>
-                        <EyebrowLabel>{t('perShareAmount', { amount: Math.round(d.perShareAmount) })}</EyebrowLabel>
+                        <EyebrowLabel>{t('perShareAmount', { amount: perShare(d.perShareAmount) })}</EyebrowLabel>
                       </span>
                       <span className="flex flex-col items-end gap-1 shrink-0">
                         <span className="font-heading text-body-lg text-fy-ink font-semibold tabular-nums">

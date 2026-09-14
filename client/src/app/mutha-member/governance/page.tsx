@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { BackHeader } from '@/components/ui/BackHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -57,6 +58,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
 // this page simply never renders a control the API would reject anyway.
 export default function MuthaMemberGovernancePage() {
   const t = useTranslations('governance');
+  const { user } = useAuth();
   const [shares, setShares] = useState<MemberShareRow[] | null>(null);
   const [distributions, setDistributions] = useState<SurplusDistributionRow[] | null>(null);
   const [records, setRecords] = useState<CommissionRecordRow[] | null>(null);
@@ -164,14 +166,36 @@ export default function MuthaMemberGovernancePage() {
             <p className="text-sm text-fy-muted">{t('noSurplus')}</p>
           ) : (
             <div className="space-y-2">
-              {distributions.map((d) => (
-                <div key={d._id} className="flex items-center justify-between text-sm">
-                  <span>
-                    {new Date(d.periodStart).toLocaleDateString('en-IN')} – {new Date(d.periodEnd).toLocaleDateString('en-IN')}
-                  </span>
-                  <span className="tabular-nums">{t(`surplusStatus.${d.status}`)}</span>
-                </div>
-              ))}
+              {distributions.map((d) => {
+                // The member's OWN line from this run. A surplus screen that
+                // shows only the period and a status word tells a member
+                // nothing they came here for: the number they were paid.
+                // Read from the run's frozen line items, never recomputed
+                // from perShareAmount × their current holding — shares
+                // issued after a run must not appear to have earned from it.
+                const mine = d.lineItems?.find((li) => li.userId === user?._id);
+                return (
+                  <div key={d._id} className="flex items-start justify-between gap-3 text-sm">
+                    <span className="min-w-0">
+                      <span className="block">
+                        {new Date(d.periodStart).toLocaleDateString('en-IN')} –{' '}
+                        {new Date(d.periodEnd).toLocaleDateString('en-IN')}
+                      </span>
+                      <span className="block text-xs text-fy-muted tabular-nums">
+                        {mine
+                          ? t('yourSurplusShare', {
+                              amount: mine.amount.toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }),
+                            })
+                          : t('noSurplusShare')}
+                      </span>
+                    </span>
+                    <span className="tabular-nums shrink-0">{t(`surplusStatus.${d.status}`)}</span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Section>

@@ -3278,6 +3278,8 @@
     "sharesIssued": "Shares issued.",
     "totalNetSurplus": "Total net surplus",
     "perShareAmount": "₹{amount} per share",
+    "yourSurplusShare": "Your share: ₹{amount}",
+    "noSurplusShare": "You held no shares in this period",
     "shareholdersInRun": "Members in this run",
     "distributeNow": "Distribute now",
     "computeTitle": "Compute a new run",

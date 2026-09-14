@@ -3278,6 +3278,8 @@
     "sharesIssued": "शेयर जारी हो गए।",
     "totalNetSurplus": "कुल शुद्ध अधिशेष",
     "perShareAmount": "₹{amount} प्रति शेयर",
+    "yourSurplusShare": "आपका हिस्सा: ₹{amount}",
+    "noSurplusShare": "इस अवधि में आपके पास शेयर नहीं थे",
     "shareholdersInRun": "इस वितरण में सदस्य",
     "distributeNow": "अभी वितरित करें",
     "computeTitle": "नया वितरण गणना करें",

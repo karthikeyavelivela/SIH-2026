@@ -3278,6 +3278,8 @@
     "sharesIssued": "వాటాలు జారీ అయ్యాయి.",
     "totalNetSurplus": "మొత్తం నికర మిగులు",
     "perShareAmount": "ఒక్కో వాటాకు ₹{amount}",
+    "yourSurplusShare": "మీ వాటా: ₹{amount}",
+    "noSurplusShare": "ఈ కాలంలో మీకు వాటాలు లేవు",
     "shareholdersInRun": "ఈ పంపిణీలో సభ్యులు",
     "distributeNow": "ఇప్పుడే పంపిణీ చేయండి",
     "computeTitle": "కొత్త పంపిణీ లెక్కించండి",
