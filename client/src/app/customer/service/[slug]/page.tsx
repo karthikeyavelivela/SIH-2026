@@ -24,6 +24,7 @@ import { Button, Chip, ChipRow, SelectCard, Field, Toggle } from '@/components/f
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
 import { useCategoryName } from '@/lib/categoryName';
+import { CATEGORY_SYMPTOMS, symptomSlugFor } from '@/lib/categorySymptoms';
 import Link from 'next/link';
 
 /* Built against client/public/design/service_detail_booking_1.html.
@@ -41,23 +42,6 @@ import Link from 'next/link';
 
    The design's "upload unit photo or error code tag" has no endpoint
    behind it — see the comment at that section for what replaces it. */
-
-/**
- * The issue chips. Nothing server-side enumerates per-category symptoms, so
- * these are a fixed household set and what the customer picks is written
- * into the booking's own description field, which is real and reaches the
- * worker — rather than into an invented "unit issue" column.
- */
-const ISSUES = [
-  'not_working',
-  'intermittent',
-  'leak',
-  'noise',
-  'smell',
-  'installation',
-  'routine',
-  'other',
-] as const;
 
 /** Now, or one of the next few slots. Maps to the real `scheduledFor` field. */
 const SLOT_OFFSETS_MIN = [90, 180, 1080, 1260];
@@ -96,6 +80,12 @@ export default function ServiceDetailPage() {
     [categoriesState.data, slug]
   );
 
+  // Which trade's questions to ask. Driven by the slug in the URL, not by
+  // the loaded category record, so the chips are right on the first paint
+  // rather than after the categories request lands.
+  const symptomSlug = symptomSlugFor(slug);
+  const symptoms = CATEGORY_SYMPTOMS[symptomSlug];
+
   const flow = useBookingFlow({
     type: category?.dispatchType === 'truck' ? 'truck' : 'hamali',
     serviceCategorySlug: slug,
@@ -126,7 +116,7 @@ export default function ServiceDetailPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const chosen = issues.map((k) => t(`issues.${k}`)).join(', ');
+    const chosen = issues.map((k) => t(`symptoms.${symptomSlug}.${k}` as never)).join(', ');
     const description = [chosen, notes.trim()].filter(Boolean).join(' — ');
     // 'now' sends no scheduledFor at all, which is the API's own contract
     // for an instant booking.
@@ -226,11 +216,11 @@ export default function ServiceDetailPage() {
         </LightCard>
 
         <Section
-          title={<SectionHeading>{t('issuesHeading')}</SectionHeading>}
+          title={<SectionHeading>{t(`symptomHeading.${symptomSlug}` as never)}</SectionHeading>}
           aside={<EyebrowLabel>{t('multipleChoices')}</EyebrowLabel>}
         >
           <ChipRow>
-            {ISSUES.map((k) => (
+            {symptoms.map((k) => (
               <Chip
                 key={k}
                 type="button"
@@ -239,7 +229,7 @@ export default function ServiceDetailPage() {
                 active={issues.includes(k)}
                 onClick={() => toggleIssue(k)}
               >
-                {t(`issues.${k}`)}
+                {t(`symptoms.${symptomSlug}.${k}` as never)}
               </Chip>
             ))}
           </ChipRow>
@@ -258,7 +248,7 @@ export default function ServiceDetailPage() {
           <Field
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder={t('detailsPlaceholder')}
+            placeholder={t(`notePlaceholder.${symptomSlug}` as never)}
             maxLength={300}
           />
           <Body size="label">{t('detailsHint')}</Body>

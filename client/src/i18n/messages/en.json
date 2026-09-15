@@ -3574,21 +3574,9 @@
     "standardRate": "Standard guild rate",
     "from": "From",
     "directToPassbook": "The fare goes to the worker’s passbook, less a published {pct}% platform commission that is itemised on their earnings.",
-    "issuesHeading": "What needs attention?",
     "multipleChoices": "Choose any",
-    "issues": {
-      "not_working": "Not working at all",
-      "intermittent": "Works intermittently",
-      "leak": "Leak or water damage",
-      "noise": "Unusual noise or vibration",
-      "smell": "Burning or gas smell",
-      "installation": "New installation",
-      "routine": "Routine servicing",
-      "other": "Something else"
-    },
     "detailsHeading": "Anything else the worker should know?",
     "optional": "Optional",
-    "detailsPlaceholder": "Model, floor, access notes…",
     "detailsHint": "This is sent with the booking and reaches the worker before they arrive.",
     "locationHeading": "Service location",
     "addressLabel": "Where is the work?",
@@ -3621,7 +3609,133 @@
     "regionHint": "Taken from the address. Correct it if the rate should follow a different district.",
     "openForBidding": "Open to society bids",
     "openForBiddingHint": "Nearby societies quote for the job and you pick one, instead of it going to the first available member.",
-    "leadTooSoon": "Pick a time at least {minutes} minutes from now."
+    "leadTooSoon": "Pick a time at least {minutes} minutes from now.",
+    "symptoms": {
+      "electrician": {
+        "no_power": "No power in a room",
+        "tripping": "Frequent tripping",
+        "switch_socket": "Switch or socket faulty",
+        "fan_light": "Fan or light not working",
+        "new_point": "New wiring point",
+        "inverter": "Inverter or stabiliser issue"
+      },
+      "plumber": {
+        "tap_leak": "Tap leaking",
+        "drain_blocked": "Drain blocked",
+        "low_pressure": "Low water pressure",
+        "motor": "Motor not working",
+        "fitting": "Bathroom fitting",
+        "pipe_burst": "Pipe burst"
+      },
+      "carpenter": {
+        "door_window": "Door or window repair",
+        "new_furniture": "New furniture",
+        "hinge_lock": "Hinge or lock replacement",
+        "wardrobe": "Wardrobe work",
+        "polishing": "Polishing",
+        "modular_kitchen": "Modular kitchen"
+      },
+      "painter": {
+        "interior": "Interior walls",
+        "exterior": "Exterior walls",
+        "single_room": "One room only",
+        "putty": "Putty and primer",
+        "damp": "Damp or seepage patch",
+        "touch_up": "Touch-up after repair"
+      },
+      "caregiver": {
+        "elderly": "Elderly care",
+        "post_surgery": "Post-surgery support",
+        "bedridden": "Bedridden patient",
+        "child_care": "Child care",
+        "overnight": "Overnight attendance",
+        "mobility": "Companionship and mobility help"
+      },
+      "domestic_helper": {
+        "daily_meals": "Daily meals",
+        "single_occasion": "A single occasion",
+        "regional_cuisine": "Regional cuisine",
+        "dietary": "Dietary requirement",
+        "large_gathering": "Large gathering",
+        "utensils_laundry": "Utensils and laundry"
+      },
+      "cleaner": {
+        "deep_clean": "Deep clean",
+        "bathroom": "Bathroom",
+        "kitchen": "Kitchen",
+        "sofa_carpet": "Sofa or carpet",
+        "post_renovation": "Post-renovation",
+        "regular": "Regular upkeep"
+      },
+      "gardener": {
+        "lawn": "Lawn mowing",
+        "trimming": "Trimming and pruning",
+        "new_planting": "New planting",
+        "watering": "Watering setup",
+        "pests_weeds": "Pests or weeds",
+        "terrace": "Terrace garden"
+      },
+      "driver": {
+        "local": "Local trips in the city",
+        "outstation": "Outstation journey",
+        "airport": "Airport or station run",
+        "monthly": "Monthly engagement",
+        "night": "Night driving",
+        "own_vehicle": "Driving my own vehicle"
+      },
+      "technician": {
+        "ac": "AC service or gas refill",
+        "fridge": "Fridge not cooling",
+        "washing": "Washing machine fault",
+        "tv": "TV or set-top fitting",
+        "purifier": "Water purifier service",
+        "geyser": "Geyser or microwave"
+      },
+      "general_labour": {
+        "loading": "Loading and unloading",
+        "shifting": "Shifting a home",
+        "clearing": "Clearing a site",
+        "digging": "Digging or earthwork",
+        "stairs": "Carrying up stairs",
+        "extra_hands": "Extra hands for a day"
+      },
+      "general_logistics": {
+        "household": "Household shifting",
+        "shop_goods": "Shop or business goods",
+        "construction": "Construction material",
+        "farm": "Farm produce",
+        "single_item": "One large item",
+        "return_load": "Return load"
+      }
+    },
+    "symptomHeading": {
+      "electrician": "What needs attention?",
+      "plumber": "What needs attention?",
+      "carpenter": "What is the job?",
+      "painter": "What needs painting?",
+      "caregiver": "Who needs care?",
+      "domestic_helper": "What kind of help?",
+      "cleaner": "What needs cleaning?",
+      "gardener": "What does the garden need?",
+      "driver": "What kind of driving?",
+      "technician": "What needs attention?",
+      "general_labour": "What is the work?",
+      "general_logistics": "What are you moving?"
+    },
+    "notePlaceholder": {
+      "electrician": "Floor, meter location, access notes…",
+      "plumber": "Floor, water source, access notes…",
+      "carpenter": "Rough measurements, wood type, floor…",
+      "painter": "Rooms, approximate area, floor…",
+      "caregiver": "Age, condition, hours needed…",
+      "domestic_helper": "How many people, timings, preferences…",
+      "cleaner": "Rooms, floor area, timings…",
+      "gardener": "Garden size, plants, access…",
+      "driver": "Vehicle type, pick-up time, route…",
+      "technician": "Make, model, floor, access notes…",
+      "general_labour": "How many hours, what is being moved…",
+      "general_logistics": "Load weight, floor, loading help needed…"
+    }
   },
   "roleNav": {
     "home": "Home",
