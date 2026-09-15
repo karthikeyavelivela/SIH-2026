@@ -190,7 +190,7 @@ export default function HirePage() {
   // ------------------------------------------------------------ worker list
   if (!chosen) {
     return (
-      <div className="min-h-screen bg-fy-bone pb-24">
+      <div className="min-h-screen bg-fy-bone fy-pad-nav">
         <TopBar title={t('title')} showBack onBack={() => router.back()} />
         <main className="pt-16 px-gutter max-w-2xl mx-auto flex flex-col gap-4">
           <div className="flex flex-wrap gap-2">
@@ -277,7 +277,7 @@ export default function HirePage() {
   const selectedUnit = chosen.perUnit.find((u) => u.unitType === unitType);
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-28">
+    <div className="min-h-screen bg-fy-bone fy-pad-nav">
       <TopBar title={chosen.name} showBack onBack={() => setChosen(null)} />
       <main className="pt-16 px-gutter max-w-2xl mx-auto flex flex-col gap-4">
         <Button variant="ghost" size="md" glyph="arrow_back" onClick={() => setChosen(null)}>

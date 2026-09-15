@@ -48,7 +48,12 @@ interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+/**
+ * Exported so tests can supply an auth value directly instead of standing up
+ * a provider that would go to the network. Nothing in the app imports it.
+ */
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export type { AuthContextValue };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);

@@ -86,7 +86,7 @@ export function PwaProvider() {
   if (!visible || !deferred) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 px-gutter pb-3 pointer-events-none">
+    <div className="fixed inset-x-0 fy-above-cta z-50 px-gutter pointer-events-none">
       <div className="max-w-2xl mx-auto pointer-events-auto rounded-card bg-fy-ink text-white shadow-lg px-4 py-3 flex items-center gap-3">
         <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
           <Icon name="install_mobile" size={18} />

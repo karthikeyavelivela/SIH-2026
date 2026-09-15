@@ -90,7 +90,7 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-24">
+    <div className="min-h-screen bg-fy-bone fy-pad-nav">
       <TopBar title={t('title')} showBack onBack={() => router.back()} />
 
       <main className="pt-16 px-gutter max-w-2xl mx-auto flex flex-col gap-5">

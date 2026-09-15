@@ -11,9 +11,16 @@ import { Media } from '@/components/ui/Media';
 
 type Scrim = 'brown' | 'slate' | 'none';
 
+/**
+ * Scrims are deliberately heavier at the foot than the design export's, and
+ * carry a mid-stop. The export's single 45% mid-stop washed out over a light
+ * photograph, which is how "Cooperative verified union labour" came to be
+ * barely readable in production. Overlay text sits in the bottom third, so
+ * that third is where the opacity has to hold.
+ */
 const scrimClass: Record<Scrim, string> = {
-  brown: 'bg-gradient-to-t from-fy-brown via-fy-brown/45 to-transparent',
-  slate: 'bg-gradient-to-t from-fy-slate via-fy-slate/45 to-transparent',
+  brown: 'bg-gradient-to-t from-fy-brown via-fy-brown/70 via-35% to-transparent',
+  slate: 'bg-gradient-to-t from-fy-slate via-fy-slate/70 via-35% to-transparent',
   none: '',
 };
 
@@ -49,12 +56,18 @@ export function PhotoCard({
   media?: ReactNode;
   className?: string;
 }) {
+  // Heights are viewport-relative with hard floors and ceilings, not fixed
+  // pixels. The fixed values read as thin strips on a phone — the hamali
+  // hero was 112px tall on an 850px screen, about an eighth of it, with its
+  // caption jammed into the photograph — while a plain vh value would make
+  // the same image enormous on a desktop. `tile` stays fixed: it sits in a
+  // 190px grid card and must not grow.
   const h = {
     tall: 'h-[480px]',
-    hero: 'h-60',
-    card: 'h-44',
-    banner: 'h-40',
-    strip: 'h-28',
+    hero: 'h-[clamp(240px,34vh,320px)]',
+    card: 'h-[clamp(190px,26vh,240px)]',
+    banner: 'h-[clamp(200px,28vh,280px)]',
+    strip: 'h-[clamp(160px,22vh,210px)]',
     tile: 'h-24',
   }[height];
   return (
@@ -114,9 +127,15 @@ export function PhotoStrip({
   className?: string;
 }) {
   return (
-    <div className={`relative w-full h-28 rounded-card overflow-hidden ${className}`}>
+    <div className={`relative w-full h-[clamp(160px,22vh,210px)] rounded-card overflow-hidden ${className}`}>
       <Media id={id} kind="photo" fill treatment="full-bleed" tint={tint} alt={alt} className="w-full h-full" />
       <div className="absolute inset-0 bg-gradient-to-r from-fy-brown/95 via-fy-brown-soft/85 to-fy-green/70" />
+      {/* The duotone runs left to right, so it thins out exactly where the
+          caption's right-hand badge sits and gives the caption text no
+          contrast floor at all. This second scrim runs bottom to top and is
+          what actually makes the overlay legible, whatever the photograph
+          underneath happens to be. */}
+      {caption && <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-fy-ink/80 via-fy-ink/35 to-transparent" />}
       {caption && (
         <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between gap-2 text-fy-bone z-10">
           {caption}

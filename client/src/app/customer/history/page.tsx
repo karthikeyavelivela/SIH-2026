@@ -130,7 +130,7 @@ export default function CustomerHistoryPage() {
 
       <TopBar eyebrow="FYRO Cooperative" title={th('title')} showBack />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <div className="pt-2">
           <EyebrowLabel>{th('eyebrow')}</EyebrowLabel>
           <h2 className="font-heading text-heading text-fy-ink leading-[1.05]">{th('heading')}</h2>

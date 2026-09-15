@@ -146,7 +146,7 @@ export function WorkerActiveJob({ base, accent }: { base: '/driver' | '/hamali';
         }
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <RouteMap
           pickup={{ lat: booking.pickupLocation.coordinates[1], lng: booking.pickupLocation.coordinates[0] }}
           drop={{ lat: dLat, lng: dLng }}

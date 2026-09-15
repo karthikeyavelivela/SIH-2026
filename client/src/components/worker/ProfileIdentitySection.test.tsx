@@ -19,9 +19,16 @@ const baseUser = {
   createdAt: '2026-01-01T00:00:00.000Z',
 };
 let mockUser: typeof baseUser | null = baseUser;
-vi.mock('@/lib/auth-context', () => ({
-  useAuth: () => ({ user: mockUser, refetch: mockRefetch, loading: false, error: null, logout: vi.fn() }),
-}));
+// Only useAuth is replaced — the rest of the module (AuthContext, which the
+// shared test wrapper provides) has to keep its real exports, or every
+// render through renderWithProviders fails on an undefined provider.
+vi.mock('@/lib/auth-context', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/auth-context')>('@/lib/auth-context');
+  return {
+    ...actual,
+    useAuth: () => ({ user: mockUser, refetch: mockRefetch, loading: false, error: null, logout: vi.fn() }),
+  };
+});
 
 describe('ProfileIdentitySection — Phase 7.1, profile editing flow', () => {
   beforeEach(() => {

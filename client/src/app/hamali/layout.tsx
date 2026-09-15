@@ -22,7 +22,7 @@ export default function HamaliLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-24">
+    <div className="min-h-screen bg-fy-bone fy-pad-nav">
       {children}
       <WorkerTabBar base="/hamali" />
     </div>

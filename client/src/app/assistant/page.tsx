@@ -169,7 +169,7 @@ export default function AssistantPage() {
   const greeting = user?.name ? t('greeting', { name: user.name.split(' ')[0] }) : t('greetingNoName');
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-28">
+    <div className="min-h-screen bg-fy-bone pb-28" style={{ paddingBottom: 'calc(7rem + var(--fy-safe-b))' }}>
       <TopBar title={t('name')} showBack onBack={() => router.back()} />
 
       <main className="pt-16 px-gutter max-w-2xl mx-auto flex flex-col gap-4">
@@ -323,7 +323,7 @@ export default function AssistantPage() {
         )}
       </main>
 
-      <div className="fixed bottom-0 inset-x-0 bg-fy-bone border-t border-fy-brown/12 px-gutter py-3">
+      <div className="fixed bottom-0 inset-x-0 bg-fy-bone border-t border-fy-brown/12 px-gutter py-3" style={{ paddingBottom: 'calc(0.75rem + var(--fy-safe-b))' }}>
         <div className="max-w-2xl mx-auto flex gap-2 items-center">
           <Field
             value={question}

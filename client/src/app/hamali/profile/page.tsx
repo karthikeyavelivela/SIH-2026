@@ -37,7 +37,7 @@ export default function HamaliProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-24">
+    <div className="min-h-screen bg-fy-bone fy-pad-nav">
       <TopBar title={t('pageTitle')} showBack={false} />
       <div className="max-w-lg mx-auto px-gutter pt-4">
 

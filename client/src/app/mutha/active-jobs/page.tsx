@@ -147,7 +147,7 @@ export default function MuthaActiveJobsPage() {
 
       <TopBar eyebrow="FYRO Society" title={t('pageTitle')} />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3 pt-2">
           <EyebrowLabel tone="green">{t('ledgerEyebrow')}</EyebrowLabel>
           <StatusPill tone="lime">{t('passbookVerified')}</StatusPill>

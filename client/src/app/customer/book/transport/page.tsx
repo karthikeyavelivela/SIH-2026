@@ -136,7 +136,7 @@ export default function TransportBookingPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
+          className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
         >
           <div className="flex items-center justify-between gap-3 pt-2 pr-20">
             <EyebrowLabel tone="brown">{t('modeSliver')}</EyebrowLabel>

@@ -89,7 +89,7 @@ export default function MuthaDashboardPage() {
 
       <TopBar eyebrow="FYRO Society" title={t('title')} actions={<NotificationBell href="/mutha/notifications" />} />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <NotificationPrompt accent="secondary" copy={t('notifyPrompt')} />
 
         {state === 'loading' && <div className="h-40 rounded-card bg-fy-field animate-pulse" />}

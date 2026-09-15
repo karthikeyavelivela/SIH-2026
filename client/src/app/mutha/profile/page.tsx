@@ -85,7 +85,7 @@ export default function MuthaLeaderProfilePage() {
         actions={user.accountStatus === 'active' ? <StatusPill tone="lime">{tm('memberPill')}</StatusPill> : undefined}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <Panel className="p-5 flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
             <EyebrowLabel tone="green">{tm('credentialId', { id: user._id.slice(-6).toUpperCase() })}</EyebrowLabel>

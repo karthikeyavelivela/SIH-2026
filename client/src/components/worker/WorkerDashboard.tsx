@@ -136,7 +136,7 @@ export function WorkerDashboard({
         }
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <NotificationPrompt accent={accent} copy={t('notifyPrompt')} />
 
         <div className="flex items-center gap-3.5 pt-2">

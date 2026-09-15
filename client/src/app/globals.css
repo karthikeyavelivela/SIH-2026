@@ -74,6 +74,25 @@
   --fy-inverse: #31302B;
   --fy-on-inverse: #F4F0E7;
 
+  /* ---- Fixed bottom chrome ----
+     The tab bar is position:fixed, so nothing in the document flow knows it
+     is there and every scrollable page has to reserve the space itself.
+     Until now each one guessed — pb-24 (96px) against an 80px bar left 16px
+     for a home indicator that can be 34px, and the two sticky CTA bars sat
+     at bottom-16 (64px) under an 80px bar, so the primary button on the
+     service and hamali screens was clipped by the nav. These are the single
+     source of truth instead.
+
+     --fy-nav-h is overwritten at runtime by BottomTabBar for its compact
+     (64px) shell; the 80px default matches the signed-in shells, so the
+     first server-rendered paint of a customer page is already correct.
+     --fy-cta-h is published by StickyActionBar from its measured height
+     while one is mounted, and is 0px everywhere else. */
+  --fy-nav-h: 5rem;
+  --fy-cta-h: 0px;
+  --fy-safe-b: env(safe-area-inset-bottom, 0px);
+  --fy-nav-total: calc(var(--fy-nav-h) + var(--fy-safe-b));
+
   /* ---- Shape (measured off the rendered cards) ---- */
   --fy-radius-card: 16px;
   --fy-radius-sheet: 24px;
@@ -118,6 +137,26 @@ html[lang='te'] {
 }
 html[lang='hi'] {
   --fy-font-heading: var(--font-noto-serif-devanagari), 'Noto Serif', serif;
+}
+
+/* Bottom clearance for the fixed tab bar and, where one exists, the sticky
+   action bar above it. Use fy-pad-nav on any scrollable page inside a shell
+   that renders a tab bar, and fy-pad-nav-cta when that page also has a
+   StickyActionBar. */
+.fy-pad-nav {
+  padding-bottom: calc(var(--fy-nav-total) + 1rem);
+}
+.fy-pad-nav-cta {
+  padding-bottom: calc(var(--fy-nav-total) + var(--fy-cta-h) + 1.5rem);
+}
+/* Sits directly on top of the tab bar. */
+.fy-above-nav {
+  bottom: var(--fy-nav-total);
+}
+/* Clears the tab bar AND the action bar — the floating search button, which
+   was previously pinned at 96px and landed squarely on top of the CTA. */
+.fy-above-cta {
+  bottom: calc(var(--fy-nav-total) + var(--fy-cta-h) + 0.75rem);
 }
 
 /* Paper-grain overlay — the fine dot texture visible on the design's

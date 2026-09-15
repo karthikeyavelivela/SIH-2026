@@ -403,7 +403,7 @@ export default function MuthaGovernancePage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('title')} showBack />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto flex flex-col gap-3">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto flex flex-col gap-3">
           <div className="h-44 rounded-card bg-fy-field animate-pulse" />
           <div className="h-12 rounded-cell bg-fy-field animate-pulse" />
           <div className="h-64 rounded-card bg-fy-field animate-pulse" />
@@ -417,7 +417,7 @@ export default function MuthaGovernancePage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('title')} showBack />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto">
           <LightCard>
             <Body>{error ?? t('errorLoad')}</Body>
           </LightCard>
@@ -440,7 +440,7 @@ export default function MuthaGovernancePage() {
         actions={<StatusPill tone="lime">{t('societyPill')}</StatusPill>}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         {/* Statutory sub-header — the seal chip carries the real status. */}
         <div className="flex items-center justify-between gap-3 pt-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-tag bg-fy-lime-tint-1 border border-fy-lime/50">

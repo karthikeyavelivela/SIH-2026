@@ -90,7 +90,7 @@ export function LoadBoardPage({ accent = 'primary' }: { accent?: 'primary' | 'se
         actions={user?.accountStatus === 'active' ? <StatusPill tone="lime">{t('memberPill')}</StatusPill> : undefined}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <div className="pt-2">
           <EyebrowLabel tone={accent === 'primary' ? 'brown' : 'green'}>{t('corridorEyebrow')}</EyebrowLabel>
           <h2 className="font-heading text-heading text-fy-ink leading-[1.05]">{t('heading')}</h2>

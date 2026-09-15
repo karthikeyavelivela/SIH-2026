@@ -113,7 +113,7 @@ export default function StyleguidePage() {
         actions={<StatusPill tone="lime">measured</StatusPill>}
       />
 
-      <main className="relative z-10 pt-16 pb-28 px-gutter max-w-2xl mx-auto">
+      <main className="relative z-10 pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto">
         <div className="py-6">
           <EyebrowLabel>Design system</EyebrowLabel>
           <DisplayHeading className="mt-1">

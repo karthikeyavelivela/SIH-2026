@@ -278,7 +278,7 @@ export default function FleetOwnerDashboardPage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('pageTitle')} />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto flex flex-col gap-3">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto flex flex-col gap-3">
           <div className="h-32 rounded-card bg-fy-field animate-pulse" />
           <div className="grid grid-cols-2 gap-3">
             {[0, 1, 2, 3].map((i) => (
@@ -296,7 +296,7 @@ export default function FleetOwnerDashboardPage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('pageTitle')} />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto">
           <LightCard className="flex flex-col gap-3">
             <SectionHeading>{t('couldNotLoad')}</SectionHeading>
             <Body>{error ?? t('noFleetFound')}</Body>
@@ -323,7 +323,7 @@ export default function FleetOwnerDashboardPage() {
         actions={<StatusPill tone="lime">{t('fleetPill')}</StatusPill>}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-3 pt-2">
           <div className="flex flex-col min-w-0">
             <EyebrowLabel>{t('eyebrow')}</EyebrowLabel>

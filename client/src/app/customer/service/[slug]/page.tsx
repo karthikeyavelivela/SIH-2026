@@ -22,7 +22,7 @@ import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill } from '@/components/fy/Status';
 import { Button, Chip, ChipRow, SelectCard, Field, Toggle } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
-import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { TopBar, TabRow, StickyActionBar } from '@/components/fy/Navigation';
 import { useCategoryName } from '@/lib/categoryName';
 import { CATEGORY_SYMPTOMS, symptomSlugFor } from '@/lib/categorySymptoms';
 import Link from 'next/link';
@@ -183,7 +183,7 @@ export default function ServiceDetailPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="pt-16 pb-44 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
+        className="pt-16 fy-pad-nav-cta px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
       >
         <PhotoCard
           id={`household.category.${category.slug}`}
@@ -385,8 +385,7 @@ export default function ServiceDetailPage() {
           <RatingGateNotice message={flow.submitError} bookingId={flow.blockedByUnratedId} />
         )}
 
-        <div className="fixed inset-x-0 bottom-16 z-30 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40">
-          <div className="max-w-2xl mx-auto px-gutter py-3 flex items-center gap-3">
+        <StickyActionBar>
             <div className="min-w-0 flex-1">
               <EyebrowLabel>{flow.fareState === 'ready' ? t('estimated') : t('fareAfterAddress')}</EyebrowLabel>
               {flow.fareState === 'ready' && flow.fare && (
@@ -396,15 +395,14 @@ export default function ServiceDetailPage() {
             <Button type="submit" glyph="bolt" disabled={!flow.readyToQuote || flow.submitting} className="shrink-0">
               {flow.submitting ? t('submitting') : t('submit')}
             </Button>
-          </div>
-        </div>
+        </StickyActionBar>
       </form>
 
       {/* The other way to book this trade: choose the person first and pay
           their own published rate, rather than the region's standard fare.
           Both paths are real, so both are offered rather than one being
           hidden behind the other. */}
-      <div className="px-gutter max-w-2xl mx-auto pb-28">
+      <div className="px-gutter max-w-2xl mx-auto fy-pad-nav-cta">
         <Link href={`/customer/hire/${slug}`}>
           <Button variant="ghost" size="md" glyph="groups" className="w-full">
             {tHire('entryFromService')}

@@ -22,7 +22,7 @@ export default function MuthaMemberLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-24">
+    <div className="min-h-screen bg-fy-bone fy-pad-nav">
       {children}
       <SocietyMemberTabBar />
     </div>

@@ -161,7 +161,7 @@ export function GlobalSearch() {
         type="button"
         aria-label={t('placeholder')}
         onClick={() => setOpen(true)}
-        className="fixed right-4 bottom-24 z-40 w-12 h-12 rounded-full bg-fy-brown text-white shadow-lg flex items-center justify-center hover:bg-fy-brown/90 transition-colors"
+        className="fixed right-4 fy-above-cta z-40 w-12 h-12 rounded-full bg-fy-brown text-white shadow-lg flex items-center justify-center hover:bg-fy-brown/90 transition-colors"
       >
         <Icon name="search" size={22} />
       </button>

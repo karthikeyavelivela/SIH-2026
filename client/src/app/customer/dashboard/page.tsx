@@ -173,7 +173,7 @@ export default function CustomerDashboardPage() {
           }
         />
 
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
           <NotificationPrompt accent="primary" copy={t('notifyPrompt')} />
 
           {/* Right-padded so it never sits under the dial pill at top-16 right-0. */}

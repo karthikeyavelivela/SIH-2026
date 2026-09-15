@@ -197,7 +197,7 @@ export default function WarehouseHubDashboardPage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('pageTitle')} />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto flex flex-col gap-3">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto flex flex-col gap-3">
           <div className="h-24 rounded-card bg-fy-field animate-pulse" />
           <div className="grid grid-cols-2 gap-3">
             {[0, 1, 2, 3].map((i) => (
@@ -215,7 +215,7 @@ export default function WarehouseHubDashboardPage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('pageTitle')} />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto">
           <LightCard className="flex flex-col gap-3">
             <SectionHeading>{t('couldNotLoad')}</SectionHeading>
             <Body>{error ?? t('noHubFound')}</Body>
@@ -239,7 +239,7 @@ export default function WarehouseHubDashboardPage() {
         actions={<StatusPill tone="lime">{t('hubPill')}</StatusPill>}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         {/* Status banner */}
         <div className="bg-fy-slate text-fy-on-slate rounded-sheet p-4 shadow-card flex items-center justify-between gap-3 mt-2">
           <span className="flex items-center gap-3 min-w-0">

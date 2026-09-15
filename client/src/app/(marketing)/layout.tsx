@@ -148,7 +148,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <main className="flex-1 pt-20 md:pt-24 pb-24 md:pb-0">{children}</main>
+      <main className="flex-1 pt-20 md:pt-24 fy-pad-nav md:pb-0">{children}</main>
 
       <div className="md:hidden">
         <BottomTabBar
@@ -163,7 +163,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         />
       </div>
 
-      <footer className="bg-fy-panel border-t border-fy-brown/15 pt-20 pb-28 md:pb-16 px-gutter lg:px-12">
+      <footer className="bg-fy-panel border-t border-fy-brown/15 pt-20 fy-pad-nav md:pb-16 px-gutter lg:px-12">
         <div className="max-w-7xl mx-auto flex flex-col gap-14">
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12 border-b border-fy-brown/12 pb-12">
             <div className="lg:col-span-4 flex flex-col gap-3">

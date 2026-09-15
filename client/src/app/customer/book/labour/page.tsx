@@ -21,7 +21,7 @@ import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, Stepper, SelectCard, Field } from '@/components/fy/Controls';
 import { PhotoStrip } from '@/components/fy/Media';
-import { TopBar } from '@/components/fy/Navigation';
+import { TopBar, StickyActionBar } from '@/components/fy/Navigation';
 
 /* Built against client/public/design/hamali_labour_standard.html.
 
@@ -132,7 +132,7 @@ export default function LabourBookingPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="pt-16 pb-44 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
+          className="pt-16 fy-pad-nav-cta px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
         >
           {/* Guild banner. The design reads "86 certified freight specialists
               ready near you"; nothing counts available workers server-side,
@@ -383,9 +383,10 @@ export default function LabourBookingPage() {
             <RatingGateNotice message={flow.submitError} bookingId={flow.blockedByUnratedId} />
           )}
 
-          {/* Sticky action tray. Offset above the 64px bottom bar. */}
-          <div className="fixed inset-x-0 bottom-16 z-30 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40">
-            <div className="max-w-2xl mx-auto px-gutter py-3 flex items-center gap-3">
+          {/* Sticky action tray. StickyActionBar owns the offset above the
+              tab bar and publishes its own height; this page no longer
+              guesses at either. */}
+          <StickyActionBar>
               <Button
                 type="button"
                 variant="light"
@@ -402,8 +403,7 @@ export default function LabourBookingPage() {
                     ? t('continueWithTotal', { count: flow.hamaliCount, total })
                     : t('continueWithCount', { count: flow.hamaliCount })}
               </Button>
-            </div>
-          </div>
+          </StickyActionBar>
         </form>
 
       </div>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useRef } from 'react';
 import { Icon } from '@/components/ui/Icon';
 
 /* Navigation — anatomy per DESIGN_TOKENS.md §4.
@@ -36,11 +36,24 @@ export function BottomTabBar({
 }) {
   const pathname = usePathname();
   const compact = size === 'compact';
+
+  // Publish the bar's height so pages can reserve exactly the right amount
+  // of bottom padding and sticky CTAs can sit exactly on top of it. Without
+  // this, every page guesses — which is how the primary button on the
+  // service and hamali screens ended up underneath the nav.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--fy-nav-h', compact ? '4rem' : '5rem');
+    return () => {
+      root.style.removeProperty('--fy-nav-h');
+    };
+  }, [compact]);
+
   return (
     <nav
       aria-label="Primary"
       className="fixed bottom-0 inset-x-0 z-40 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      style={{ paddingBottom: 'var(--fy-safe-b)' }}
     >
       <div
         className={`${compact ? 'h-16' : 'h-20'} max-w-2xl mx-auto flex items-center justify-around px-2`}
@@ -72,6 +85,51 @@ export function BottomTabBar({
         })}
       </div>
     </nav>
+  );
+}
+
+/**
+ * The sticky action bar that carries a screen's primary button.
+ *
+ * Every page that had one positioned it by hand at `bottom-16` with `z-30`,
+ * against a tab bar that is 80px tall, sits at `z-40`, and adds the device's
+ * home-indicator inset on top. The result was visible in production: on
+ * /customer/service/[slug] the button read "Request servi…" and on the
+ * hamali screen "Continue with 1 worker" was half behind the nav.
+ *
+ * This sits on top of the tab bar by construction (`fy-above-nav` reads the
+ * height the bar itself published) and shares its stacking level, so the
+ * nav's translucent backdrop can no longer wash over it. It also publishes
+ * its own measured height as --fy-cta-h, which is what keeps the floating
+ * search button and the page's bottom padding clear of it.
+ */
+export function StickyActionBar({ children, className = '' }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Layout effect, not effect: the height has to be published before paint,
+  // otherwise the first frame puts the search button on top of this bar.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty('--fy-cta-h', `${el.offsetHeight}px`);
+    publish();
+    // The bar grows when a fare appears in it, so its height is not fixed.
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(publish) : null;
+    observer?.observe(el);
+    return () => {
+      observer?.disconnect();
+      root.style.setProperty('--fy-cta-h', '0px');
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`fixed inset-x-0 fy-above-nav z-40 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40 ${className}`}
+    >
+      <div className="max-w-2xl mx-auto px-gutter py-3 flex items-center gap-3">{children}</div>
+    </div>
   );
 }
 

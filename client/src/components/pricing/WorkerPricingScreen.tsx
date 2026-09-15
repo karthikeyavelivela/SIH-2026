@@ -229,7 +229,7 @@ export default function WorkerPricingScreen() {
   const availableUnits = guide?.units.map((u) => u.unitType) ?? [];
 
   return (
-    <div className="min-h-screen bg-fy-bone pb-28">
+    <div className="min-h-screen bg-fy-bone fy-pad-nav">
       <TopBar title={t('worker.title')} showBack onBack={() => router.back()} />
 
       <main className="pt-16 px-gutter max-w-2xl mx-auto flex flex-col gap-5">

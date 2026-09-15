@@ -124,7 +124,7 @@ export default function WarehouseHubDocksPage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('docksTitle')} showBack />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto flex flex-col gap-3">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto flex flex-col gap-3">
           <div className="h-24 rounded-card bg-fy-field animate-pulse" />
           <div className="h-56 rounded-card bg-fy-field animate-pulse" />
         </main>
@@ -137,7 +137,7 @@ export default function WarehouseHubDocksPage() {
     return (
       <div className="min-h-screen bg-fy-bone">
         <TopBar eyebrow="FYRO Cooperative" title={t('docksTitle')} showBack />
-        <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto">
+        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto">
           <LightCard className="flex flex-col gap-3">
             <SectionHeading>{t('couldNotLoad')}</SectionHeading>
             <Body>{error ?? t('noHubFound')}</Body>
@@ -162,7 +162,7 @@ export default function WarehouseHubDocksPage() {
         actions={<StatusPill tone="lime">{t('hubPill')}</StatusPill>}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         {formError && (
           <div role="alert" className="mt-2 rounded-card border border-fy-error/25 bg-fy-error-bg px-4 py-3 text-body text-fy-on-error-bg">
             {formError}

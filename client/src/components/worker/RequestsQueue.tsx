@@ -70,7 +70,7 @@ export function RequestsQueue({ base, accent }: { base: '/driver' | '/hamali'; a
         actions={user?.accountStatus === 'active' ? <StatusPill tone="lime">{t('memberPill')}</StatusPill> : undefined}
       />
 
-      <main className="pt-16 pb-28 px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+      <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3 pt-2">
           <span className="flex items-center gap-1.5 min-w-0">
             <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-fy-green animate-pulse" />
