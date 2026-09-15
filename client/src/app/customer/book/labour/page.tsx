@@ -10,6 +10,7 @@ import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { useBookingFlow, MAX_STOPS } from '@/lib/useBookingFlow';
 import { bucketCategories } from '@/lib/categoryBuckets';
 import { AddressField } from '@/components/booking/AddressField';
+import { RegionField } from '@/components/booking/RegionField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
 import { RotaryDial, type DialSector } from '@/components/ui/RotaryDial';
@@ -220,7 +221,11 @@ export default function LabourBookingPage() {
               />
             ) : (
               <Body size="label" className="text-center">
-                {flow.fareState === 'loading' ? t('quoting') : t('fareAfterAddress')}
+                {flow.fareState === 'loading'
+                  ? t('quoting')
+                  : flow.fareState === 'error'
+                    ? (flow.fareError ?? t('errorSubmit'))
+                    : t('fareAfterAddress')}
               </Body>
             )}
           </Panel>
@@ -358,14 +363,7 @@ export default function LabourBookingPage() {
                 {t('addStop')}
               </Button>
             )}
-            <div>
-              <EyebrowLabel>{t('regionLabel')}</EyebrowLabel>
-              <Field
-                value={flow.region}
-                onChange={(e) => flow.setRegion(e.target.value)}
-                placeholder={t('regionPlaceholder')}
-              />
-            </div>
+<RegionField value={flow.region} onChange={flow.setRegion} />
           </Section>
 
           <LightCard className="flex items-center gap-3">
@@ -396,7 +394,7 @@ export default function LabourBookingPage() {
                 onClick={() => router.push('/customer/support')}
                 className="shrink-0"
               />
-              <Button type="submit" variant="green" glyph="group_add" disabled={!flow.readyToQuote || flow.submitting} className="flex-1">
+              <Button type="submit" variant="green" glyph="group_add" disabled={!flow.canSubmit} className="flex-1">
                 {flow.submitting
                   ? t('submitting')
                   : total != null

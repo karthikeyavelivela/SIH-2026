@@ -18,6 +18,26 @@ import { guaranteeStatusFor, claimGuarantee } from '../services/guarantee.servic
 import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { priceWork, UNIT_DECLARATIONS } from '../services/workPricing.service';
 
+/**
+ * The 422 a customer sees when nothing prices their job.
+ *
+ * `region` is allowed to be '' on purpose (see booking.routes.ts), but the
+ * message that produced was "No active fare rule for /vehicle_large" — an
+ * empty slug in front of a slash, which tells the customer nothing and made
+ * a missing region look like a missing tariff. It is not: all 43 seeded
+ * regions carry all four categories. So the blank case gets its own
+ * sentence, naming the thing the customer can actually act on.
+ */
+function noFareRuleError(region: string, category: string): ApiError {
+  if (!region.trim()) {
+    return new ApiError(
+      422,
+      'We could not work out which district this job is in, so there is no rate to price it against. Set the district or city on the form and the fare will appear.'
+    );
+  }
+  return new ApiError(422, `No active fare rule for ${region}/${category}`);
+}
+
 async function findActiveRule(region: string, category: string) {
   // Task 4's partial unique index on {region,category,active:true} means at
   // most one document can ever match this filter — the .sort() below is
@@ -73,7 +93,7 @@ async function priceBooking(input: QuoteInput) {
     // plausible-but-wrong tier instead of being rejected.
     const category = bucketVehicleCategoryFromCapacity(vehicleSpec.capacityKg);
     const rule = await findActiveRule(region, category);
-    if (!rule) throw new ApiError(422, `No active fare rule for ${region}/${category}`);
+    if (!rule) throw noFareRuleError(region, category);
     vehicleRule = rule;
   }
 
@@ -86,7 +106,7 @@ async function priceBooking(input: QuoteInput) {
       throw new ApiError(400, 'requiredHamaliCount must be greater than 0 for hamali/combo bookings');
     }
     const rule = await findActiveRule(region, 'hamali');
-    if (!rule) throw new ApiError(422, `No active fare rule for ${region}/hamali`);
+    if (!rule) throw noFareRuleError(region, 'hamali');
     hamaliRule = rule;
   }
 

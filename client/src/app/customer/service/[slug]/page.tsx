@@ -11,6 +11,7 @@ import { RatingGateNotice } from '@/components/booking/RatingGateNotice';
 import { usePublishedRates } from '@/lib/usePublishedRates';
 import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { AddressField } from '@/components/booking/AddressField';
+import { RegionField } from '@/components/booking/RegionField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
 import { Icon } from '@/components/ui/Icon';
@@ -276,12 +277,7 @@ export default function ServiceDetailPage() {
             currentValue={flow.pickup}
             onSave={(label, point) => saveAddress(label, point.address, point.lat, point.lng)}
           />
-          {flow.region && (
-            <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-fy-well">
-              <Icon name="near_me" size={14} className="text-fy-brown" />
-              <EyebrowLabel>{t('dispatchZone', { region: flow.region })}</EyebrowLabel>
-            </span>
-          )}
+          <RegionField value={flow.region} onChange={flow.setRegion} />
         </Section>
 
         <Section title={<SectionHeading>{t('slotHeading')}</SectionHeading>}>
@@ -342,17 +338,6 @@ export default function ServiceDetailPage() {
                 </div>
               )}
 
-              <div>
-                <EyebrowLabel>{t('regionLabel')}</EyebrowLabel>
-                <Field
-                  value={flow.region}
-                  onChange={(e) => flow.setRegion(e.target.value)}
-                  placeholder={t('regionPlaceholder')}
-                />
-                <Body size="label" className="mt-1">
-                  {t('regionHint')}
-                </Body>
-              </div>
 
               {/* Bidding is never combined with a scheduled booking — the
                   server enforces that too, in createBooking. */}
@@ -387,12 +372,18 @@ export default function ServiceDetailPage() {
 
         <StickyActionBar>
             <div className="min-w-0 flex-1">
-              <EyebrowLabel>{flow.fareState === 'ready' ? t('estimated') : t('fareAfterAddress')}</EyebrowLabel>
+              <EyebrowLabel>
+                {flow.fareState === 'ready'
+                  ? t('estimated')
+                  : flow.fareState === 'error'
+                    ? (flow.fareError ?? t('errorSubmit'))
+                    : t('fareAfterAddress')}
+              </EyebrowLabel>
               {flow.fareState === 'ready' && flow.fare && (
                 <p className="font-heading text-title text-fy-ink leading-none">₹{flow.fare.total}</p>
               )}
             </div>
-            <Button type="submit" glyph="bolt" disabled={!flow.readyToQuote || flow.submitting} className="shrink-0">
+            <Button type="submit" glyph="bolt" disabled={!flow.canSubmit} className="shrink-0">
               {flow.submitting ? t('submitting') : t('submit')}
             </Button>
         </StickyActionBar>

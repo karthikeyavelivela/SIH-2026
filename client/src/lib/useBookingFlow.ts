@@ -83,11 +83,19 @@ export function useBookingFlow({
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setDeviceLocation(loc);
         try {
-          const res = await api.get<{ result: { lat: number; lon: number; displayName: string } | null }>(
+          const res = await api.get<{ result: { lat: number; lon: number; displayName: string; region?: string } | null }>(
             `/api/geocode/reverse?lat=${loc.lat}&lng=${loc.lng}`
           );
           if (res.result) {
-            setPickup((current) => current ?? { lat: res.result!.lat, lng: res.result!.lon, address: res.result!.displayName });
+            // The region comes back on this same response and was being
+            // thrown away, which left the fare lookup keyed on an empty
+            // string for anyone who let the device fill their pickup in.
+            setPickup((current) => current ?? {
+              lat: res.result!.lat,
+              lng: res.result!.lon,
+              address: res.result!.displayName,
+              region: res.result!.region,
+            });
           }
         } catch {
           // Reverse geocode failed — device location is still known for the
@@ -124,6 +132,38 @@ export function useBookingFlow({
   }, [pickup?.region, regionTouched]);
   const region = regionOverride;
 
+  /*
+   * Backfill the region from the pickup's coordinates when whatever set the
+   * pickup did not carry one.
+   *
+   * Only the address-search field and the map pin ever attached a region.
+   * A saved-address chip is stored as label + coordinates and nothing else,
+   * so picking "Home" as the pickup silently blanked it — which is how a
+   * Tirupati booking reached the API as `region: ""` and came back "No
+   * active fare rule for /vehicle_large" with an empty slug. (Every one of
+   * the 43 seeded regions does have all four rules; nothing was missing.)
+   *
+   * Doing it here rather than in each caller means any future path that
+   * sets a pickup — a deep link, a repeat-booking shortcut — is covered by
+   * construction. A hand-edited region is never overwritten.
+   */
+  useEffect(() => {
+    if (regionTouched || !pickup || pickup.region || regionOverride) return;
+    let cancelled = false;
+    api
+      .get<{ result: { region?: string } | null }>(`/api/geocode/reverse?lat=${pickup.lat}&lng=${pickup.lng}`)
+      .then((res) => {
+        if (!cancelled && res.result?.region) setRegionOverride(res.result.region);
+      })
+      .catch(() => {
+        // Leave it blank. The field is visible and editable, and the
+        // customer correcting it is better than a guess that prices wrong.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pickup, regionTouched, regionOverride]);
+
   const [fareState, setFareState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [fare, setFare] = useState<FareBreakdown | null>(null);
   const [fareError, setFareError] = useState<string | null>(null);
@@ -142,6 +182,18 @@ export function useBookingFlow({
   const weightValid = !needsWeight || Number(weightKg) > 0;
   const stopsFilled = stops.every((s) => s.address);
   const readyToQuote = Boolean(pickup && drop && weightValid && stopsFilled && (!needsHamali || hamaliCount > 0));
+
+  /*
+   * Enough to quote is not the same as enough to book.
+   *
+   * When the quote comes back 422 the booking will fail with the identical
+   * message, so pressing submit only reprinted it — which is why the
+   * transport screen showed "No active fare rule for /vehicle_large" twice,
+   * once in the fare card and once as a red banner underneath. Gating the
+   * button on the fare means the message has exactly one home, and the
+   * customer is not invited to submit something that cannot be priced.
+   */
+  const canSubmit = readyToQuote && fareState !== 'error' && !submitting;
 
   function pricingBody() {
     return {
@@ -236,6 +288,7 @@ export function useBookingFlow({
     fareState,
     fareError,
     readyToQuote,
+    canSubmit,
     scheduledFor,
     setScheduledFor,
     openForBidding,

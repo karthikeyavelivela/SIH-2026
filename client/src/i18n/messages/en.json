@@ -3368,8 +3368,6 @@
     "stopLabel": "Stop {n}",
     "stopPlaceholder": "Intermediate stop",
     "addStop": "Add a stop",
-    "regionLabel": "Priced for",
-    "regionPlaceholder": "District or city",
     "mismatchNote": "This pickup is a fair distance from where you are right now. Booking for someone else?",
     "mismatchDismiss": "That's right",
     "welfareTitle": "Cooperative welfare cover",
@@ -3410,8 +3408,6 @@
     "pickupPlaceholder": "Loading site address",
     "dropLabel": "Drop location",
     "dropPlaceholder": "Discharge point address",
-    "regionLabel": "Priced for",
-    "regionPlaceholder": "District or city",
     "mechanicalTitle": "Forklift or crane on site",
     "mechanicalHint": "Adjusts the suggested crew size.",
     "mechanicalYes": "mechanical handling available",
@@ -3496,8 +3492,6 @@
     "stopLabel": "Stop {n}",
     "stopPlaceholder": "Weighbridge or transit stop",
     "addStop": "Add a weighbridge or transit stop",
-    "regionLabel": "Priced for",
-    "regionPlaceholder": "District or city",
     "mismatchNote": "This origin is a fair distance from where you are right now. Booking for someone else?",
     "mismatchDismiss": "That's right",
     "hamaliTitle": "Add loading workers?",
@@ -3581,7 +3575,6 @@
     "locationHeading": "Service location",
     "addressLabel": "Where is the work?",
     "addressPlaceholder": "Flat, building, street",
-    "dispatchZone": "Dispatch zone: {region}",
     "slotHeading": "Preferred slot",
     "now": "Now",
     "later": "Later",
@@ -3604,9 +3597,6 @@
     "moreOptions": "More options",
     "exactTime": "Exact date and time",
     "exactTimeHint": "At least {minutes} minutes from now, and within the next 14 days.",
-    "regionLabel": "Priced for",
-    "regionPlaceholder": "District or city",
-    "regionHint": "Taken from the address. Correct it if the rate should follow a different district.",
     "openForBidding": "Open to society bids",
     "openForBiddingHint": "Nearby societies quote for the job and you pick one, instead of it going to the first available member.",
     "leadTooSoon": "Pick a time at least {minutes} minutes from now.",
@@ -4283,5 +4273,11 @@
     "forgotBody": "There is no automatic password reset yet — FYRO has no SMS or email provider connected, and we would rather say so than send you to a screen that quietly does nothing.",
     "forgotWho": "Ask your society leader, or the FYRO desk, to reset it for you. They will verify who you are first.",
     "forgotBack": "Back to sign in"
+  },
+  "regionField": {
+    "label": "Priced for",
+    "placeholder": "District or city",
+    "hint": "Taken from the pickup address. Correct it if the rate should follow a different district.",
+    "missing": "We could not work out the district from the address. Type it here — the fare cannot be worked out without it."
   }
 }

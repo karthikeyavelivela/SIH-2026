@@ -10,6 +10,7 @@ import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { useBookingFlow, MAX_STOPS } from '@/lib/useBookingFlow';
 import { bucketCategories } from '@/lib/categoryBuckets';
 import { AddressField } from '@/components/booking/AddressField';
+import { RegionField } from '@/components/booking/RegionField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { bucketVehicleCategory } from '@/components/booking/FareCard';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
@@ -372,14 +373,7 @@ export default function TransportBookingPage() {
               onChange={flow.setDrop}
               markerColorClass="text-fy-green"
             />
-            <div>
-              <EyebrowLabel>{t('regionLabel')}</EyebrowLabel>
-              <Field
-                value={flow.region}
-                onChange={(e) => flow.setRegion(e.target.value)}
-                placeholder={t('regionPlaceholder')}
-              />
-            </div>
+<RegionField value={flow.region} onChange={flow.setRegion} />
           </Section>
 
           {/* Hamali cross-sell. Turning this on switches the booking to the
@@ -458,7 +452,7 @@ export default function TransportBookingPage() {
             variant="slate"
             glyph="fact_check"
             trailingGlyph="arrow_forward"
-            disabled={!flow.readyToQuote || flow.submitting}
+            disabled={!flow.canSubmit}
             className="w-full"
           >
             {flow.submitting ? t('submitting') : t('submit')}

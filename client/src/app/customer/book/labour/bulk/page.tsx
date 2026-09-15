@@ -9,6 +9,7 @@ import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { useBookingFlow } from '@/lib/useBookingFlow';
 import { bucketCategories } from '@/lib/categoryBuckets';
 import { AddressField } from '@/components/booking/AddressField';
+import { RegionField } from '@/components/booking/RegionField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
 import { Icon } from '@/components/ui/Icon';
@@ -239,14 +240,7 @@ export default function LabourBulkPage() {
             onChange={flow.setDrop}
             markerColorClass="text-fy-brown"
           />
-          <div>
-            <EyebrowLabel>{t('regionLabel')}</EyebrowLabel>
-            <Field
-              value={flow.region}
-              onChange={(e) => flow.setRegion(e.target.value)}
-              placeholder={t('regionPlaceholder')}
-            />
-          </div>
+<RegionField value={flow.region} onChange={flow.setRegion} />
         </Section>
 
         <LightCard className="flex items-center justify-between gap-3">
@@ -330,7 +324,7 @@ export default function LabourBulkPage() {
           variant="lime"
           glyph="local_shipping"
           trailingGlyph="arrow_forward"
-          disabled={!flow.readyToQuote || flow.submitting}
+          disabled={!flow.canSubmit}
           className="w-full"
         >
           {flow.submitting ? t('submitting') : t('submit')}
