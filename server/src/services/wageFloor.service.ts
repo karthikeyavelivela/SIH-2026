@@ -301,3 +301,88 @@ export async function assertHamaliFareAboveStatutoryFloor(
     label: `A minimum fare of ₹${minimumFare} for ${minutes} minutes of loading work`,
   });
 }
+
+
+/* ------------------------------------------------- the shipped notification */
+
+/**
+ * Andhra Pradesh, Notification G/3186486/2026, effective 1 April 2026.
+ *
+ * See scripts/seedWageFloors.ts for the full sourcing note. In short: the
+ * gazette PDF was not retrievable, these figures come from published
+ * secondary compilations that agree on every anchor, and every row is
+ * stamped so the platform never claims more authority for them than it has.
+ */
+export const AP_NOTIFICATION = {
+  state: 'Andhra Pradesh',
+  scheduledEmployment: 'Shops and Commercial Establishments',
+  notificationNumber: 'G/3186486/2026',
+  notificationDate: new Date('2026-03-23T00:00:00.000Z'),
+  effectiveFrom: new Date('2026-04-01T00:00:00.000Z'),
+  effectiveUntil: new Date('2026-09-30T23:59:59.999Z'),
+  sourceType: 'secondary_compilation' as const,
+  sourceUrl: 'https://academy.salarybox.in/minimum-wages/andhra-pradesh',
+  sourceNote:
+    'Transcribed from a published compilation of Notification G/3186486/2026; ' +
+    'anchors (VDA 8947, Zone I unskilled 12647, Zone II unskilled 12317) cross-checked ' +
+    'against two further independent compilations. The gazette PDF was not retrievable. ' +
+    'Replace with gazette figures when available.',
+};
+
+/** The VDA is the same for every band and zone in this notification. */
+export const AP_VDA = 8947;
+
+export const AP_BASIC: Record<'zone_1' | 'zone_2', Record<SkillBand, number>> = {
+  zone_1: { unskilled: 3700, semi_skilled: 4080, skilled: 4460, highly_skilled: 4940 },
+  zone_2: { unskilled: 3370, semi_skilled: 3750, skilled: 4130, highly_skilled: 4610 },
+};
+
+/**
+ * Seeds any missing floor row, and returns how many it created.
+ *
+ * Called at boot for exactly the reason ensureTrainingModules is: a seed
+ * script only helps if somebody remembers to run it, and the training
+ * curriculum sat unseeded in production for weeks because nobody did. The
+ * consequence here is worse than a short catalogue — an unseeded wage floor
+ * enforces nothing at all while every screen still claims a fair-wage
+ * guarantee, which is the one failure mode this whole feature exists to
+ * prevent.
+ *
+ * Idempotent: an existing ACTIVE row for a state/zone/band is left alone,
+ * so an admin who has published newer figures never has them reverted by a
+ * restart.
+ */
+export async function ensureWageFloors(): Promise<number> {
+  let created = 0;
+  for (const zone of ['zone_1', 'zone_2'] as const) {
+    for (const [skillBand, basic] of Object.entries(AP_BASIC[zone]) as [SkillBand, number][]) {
+      const existing = await GovernmentWageFloor.findOne({
+        state: AP_NOTIFICATION.state,
+        zone,
+        skillBand,
+        active: true,
+      })
+        .select('_id')
+        .lean();
+      if (existing) continue;
+
+      const monthlyRate = basic + AP_VDA;
+      const { dailyRate, hourlyRate } = deriveRates(monthlyRate);
+      await GovernmentWageFloor.create({
+        ...AP_NOTIFICATION,
+        zone,
+        skillBand,
+        monthlyRate,
+        basicComponent: basic,
+        vdaComponent: AP_VDA,
+        dailyRate,
+        hourlyRate,
+        workingDaysPerMonth: DEFAULT_WORKING_DAYS_PER_MONTH,
+        workingHoursPerDay: DEFAULT_WORKING_HOURS_PER_DAY,
+        active: true,
+      });
+      created += 1;
+    }
+  }
+  return created;
+}

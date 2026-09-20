@@ -7,6 +7,7 @@ import { startScheduledBookingReleaser } from './services/scheduledBooking.servi
 import { startScheduledIncentiveRunner } from './services/scheduledIncentiveRunner.service';
 import { describeChain } from './agents/providers';
 import { ensureTrainingModules } from './services/trainingCatalogue';
+import { ensureWageFloors } from './services/wageFloor.service';
 
 async function main() {
   await connectDb();
@@ -25,6 +26,21 @@ async function main() {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Training module seeding failed (continuing):', err);
+  }
+
+  // Same reasoning as the training curriculum above, with a sharper edge: an
+  // unseeded wage floor enforces nothing while every screen still claims a
+  // fair-wage guarantee. Idempotent — an admin's newer figures are never
+  // reverted by a restart — and a failure must never stop the server booting.
+  try {
+    const floors = await ensureWageFloors();
+    if (floors > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`Seeded ${floors} statutory wage floor row(s).`);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Wage floor seeding failed (continuing):', err);
   }
 
   startScheduledBookingReleaser();
