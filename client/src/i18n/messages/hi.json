@@ -225,13 +225,13 @@
       "heroTitleLine3": "ढाँचा",
       "ctaEngage": "सदस्य बुक करें",
       "ctaInspect": "दरें देखें",
-      "commissionChip": "10% कमीशन",
+      "commissionChip": "{pct}% कमीशन",
       "jobsSettledLine": "{count, plural, =0 {अभी कोई काम जमा नहीं} one {# काम जमा} other {# काम जमा}}",
       "societiesLine": "{count, plural, one {# समिति} other {# समितियाँ}}",
       "liveTelemetry": "लाइव",
       "scrollDown": "चार्टर पढ़ें",
       "tickerSettled": "सदस्यों को जमा ₹{amount}",
-      "tickerCommission": "प्लेटफ़ॉर्म कमीशन 10%, प्रकाशित",
+      "tickerCommission": "प्लेटफ़ॉर्म कमीशन {pct}%, प्रकाशित",
       "tickerSocieties": "{districts, plural, one {# ज़िले} other {# ज़िलों}} में {count, plural, one {# समिति} other {# समितियाँ}}",
       "tickerMembers": "{count, plural, one {# सत्यापित सदस्य} other {# सत्यापित सदस्य}}",
       "tickerCategories": "{count, plural, one {# सेवा श्रेणी} other {# सेवा श्रेणियाँ}}",
@@ -240,7 +240,7 @@
       "manifestoHeadline": "श्रम को उसकी अपनी समितियाँ संगठित करती हैं,",
       "manifestoAccent": "कोई दलाल नहीं।",
       "manifestoP1": "फ़ायरो ठेकेदार नहीं है। यह पंजीकृत सहकारी समितियों के लिए बुकिंग और निपटान की परत भर है — सदस्यता, कामगार का सत्यापन और विवाद का निपटारा समिति के पास ही रहता है। हम काम और पैसा पहुँचाते हैं।",
-      "manifestoP2": "किराया <b>काम शुरू होने से पहले तय</b> होता है और कभी बढ़ाया नहीं जाता। उसमें से प्लेटफ़ॉर्म प्रकाशित <rate>10% कमीशन</rate> लेता है और समिति अपनी उपनियम हिस्सेदारी। दोनों हर काम पर कामगार को अलग-अलग दिखाए जाते हैं।",
+      "manifestoP2": "किराया <b>काम शुरू होने से पहले तय</b> होता है और कभी बढ़ाया नहीं जाता। उसमें से प्लेटफ़ॉर्म प्रकाशित <rate>{pct}% कमीशन</rate> लेता है और समिति अपनी उपनियम हिस्सेदारी। दोनों हर काम पर कामगार को अलग-अलग दिखाए जाते हैं।",
       "manifestoQuote": "जो दर कामगार पढ़ न सके, उसे वह ठुकरा भी नहीं सकता।",
       "manifestoQuoteAttr": "संचालन सिद्धांत",
       "manifestoQuoteSeal": "प्रकाशित",
@@ -1147,6 +1147,7 @@
     "noCompletedJobsHint": "पूरे हुए काम और उनका भुगतान यहाँ दिखता है।",
     "grossLabel": "सकल कमाई",
     "platformFee": "प्लेटफ़ॉर्म कमीशन ({pct}%)",
+    "platformFeeMixed": "प्लेटफ़ॉर्म कमीशन, हर काम पर लगे रेट के हिसाब से",
     "societyFee": "समिति कटौती",
     "netLabel": "आपको शुद्ध",
     "deductionNote": "हर काम की हर कटौती, अलग-अलग।"
@@ -1969,7 +1970,8 @@
     "settledCount": "{count, plural, =0 {कोई नहीं} one {# काम} other {# काम}}",
     "noCompletedJobsHint": "सदस्य के समिति काम पूरा करते ही उनका हिस्सा यहाँ दिखेगा।",
     "noRunsInRange": "इस अवधि में कोई निपटा काम नहीं।",
-    "platformFee": "प्लेटफ़ॉर्म कमीशन ({pct}%)"
+    "platformFee": "प्लेटफ़ॉर्म कमीशन ({pct}%)",
+    "platformFeeMixed": "प्लेटफ़ॉर्म कमीशन, हर काम पर लगे रेट के हिसाब से"
   },
   "muthaRequests": {
     "pageTitle": "काम के अनुरोध",

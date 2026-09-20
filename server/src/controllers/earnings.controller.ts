@@ -6,6 +6,7 @@ import { Mutha } from '../models/Mutha';
 import { User } from '../models/User';
 import { Incentive } from '../models/Incentive';
 import { CommissionRecord } from '../models/CommissionRecord';
+import { LedgerEntry } from '../models/LedgerEntry';
 import {
   getPlatformCommissionPct,
   applyPlatformCommission,
@@ -24,7 +25,7 @@ import { netShareForBookings } from '../services/governance.service';
  * TWO deductions can apply to what a role earns, and they are taken on the
  * gross job share rather than compounded on each other:
  *
- *   1. The PLATFORM commission — ₹10 per ₹100 by default, the single rate
+ *   1. The PLATFORM commission — ₹1 per ₹100 by default, the single rate
  *      defined in platformCommission.service.ts. It applies to every
  *      earning role: driver, hamali_solo, mutha_member, mutha_leader,
  *      fleet_owner and warehouse_hub.
@@ -32,7 +33,7 @@ import { netShareForBookings } from '../services/governance.service';
  *      only to a society-affiliated worker on a society-assigned job
  *      (governance.service.ts).
  *
- * So a society member in a 6% + 2% society keeps 100 − 10 − 6 − 2 = 82% of
+ * So a society member in a 6% + 2% society keeps 100 − 1 − 6 − 2 = 91% of
  * gross. Every response below therefore reports `gross`, `platformFee` and
  * the society's `retained` separately — a worker is shown each deduction on
  * its own line rather than one unexplained smaller number.
@@ -72,7 +73,57 @@ interface EarningLine {
   /** Before deductions, so a worker can see what was taken and why. */
   grossAmount?: number;
   platformFee?: number;
+  /** The rate actually charged on THIS job, which is not always today's. */
+  platformRatePct?: number;
   societyFee?: number;
+}
+
+/**
+ * The platform rate that was ACTUALLY charged on each of these bookings.
+ *
+ * Every branch below used to price every past job at today's rate, so the
+ * day the platform commission moved from 10% to 1% every worker's history
+ * would have quietly rewritten itself — a job completed under 10% would
+ * start reading as though ₹9 of a ₹900 share had been taken when ₹90 was.
+ * The society half of the same screen has never had this problem, because
+ * governance.service.ts records a CommissionRecord per job and reads it
+ * back rather than recomputing (see netShareForBookings).
+ *
+ * The platform half has an equivalent permanent record: the 'fee'
+ * LedgerEntry written once at completion. The rate is recovered from it by
+ * division rather than by parsing the percentage out of its description
+ * string, so it stays correct no matter how that text is worded.
+ *
+ * A booking with no fee row — completed before this mechanism existed, or
+ * while the rate was zero — falls back to the live rate, which is the same
+ * thing the code did before and is the only honest answer available.
+ */
+async function chargedPlatformRates(bookings: IBooking[]): Promise<Map<string, number>> {
+  const byId = new Map(bookings.map((b) => [b._id.toString(), b]));
+  const rows = await LedgerEntry.find({
+    type: 'fee',
+    entityType: 'Booking',
+    entityId: { $in: [...byId.keys()] },
+  })
+    .select('entityId amount')
+    .lean();
+
+  const rates = new Map<string, number>();
+  for (const row of rows) {
+    // LedgerEntry.entityId is an ObjectId; the map is keyed on its string.
+    const id = row.entityId.toString();
+    const total = byId.get(id)?.fareBreakdown?.total;
+    if (!total || total <= 0 || typeof row.amount !== 'number') continue;
+    rates.set(id, round2((row.amount / total) * 100));
+  }
+  return rates;
+}
+
+/** The distinct rates behind a set of lines, so a screen can say "10%" when they agree and stay vague when they do not. */
+function ratesApplied(lines: EarningLine[]): number[] {
+  return [...new Set(lines.map((l) => l.platformRatePct).filter((r): r is number => typeof r === 'number'))].sort(
+    (a, b) => a - b
+  );
 }
 
 function statusHistoryCompletedAt(booking: IBooking): Date | undefined {
@@ -96,10 +147,12 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
   if (role === 'driver') {
     const platformRatePct = await getPlatformCommissionPct();
     const bookings = await Booking.find({ status: 'completed', assignedDriverIds: userId });
+    const charged = await chargedPlatformRates(bookings);
     let gross = 0;
     let platformFee = 0;
     const lines: EarningLine[] = bookings.map((b) => {
-      const cut = applyPlatformCommission(vehicleShare(b), platformRatePct);
+      const ratePct = charged.get(b._id.toString()) ?? platformRatePct;
+      const cut = applyPlatformCommission(vehicleShare(b), ratePct);
       gross += cut.grossAmount;
       platformFee += cut.platformAmount;
       return {
@@ -111,6 +164,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
         amount: cut.netAmount,
         grossAmount: cut.grossAmount,
         platformFee: cut.platformAmount,
+        platformRatePct: ratePct,
       };
     });
     res.status(200).json({
@@ -118,6 +172,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       gross: round2(gross),
       platformFee: round2(platformFee),
       platformRatePct,
+      platformRatesApplied: ratesApplied(lines),
       jobCount: lines.length,
       lines,
       incentiveTotal: await incentiveTotalForUser(userId),
@@ -131,10 +186,12 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     // other earning role.
     const platformRatePct = await getPlatformCommissionPct();
     const bookings = await Booking.find({ status: 'completed', assignedHamaliIds: userId });
+    const charged = await chargedPlatformRates(bookings);
     let gross = 0;
     let platformFee = 0;
     const lines: EarningLine[] = bookings.map((b) => {
-      const cut = applyPlatformCommission(perHamaliShare(b), platformRatePct);
+      const ratePct = charged.get(b._id.toString()) ?? platformRatePct;
+      const cut = applyPlatformCommission(perHamaliShare(b), ratePct);
       gross += cut.grossAmount;
       platformFee += cut.platformAmount;
       return {
@@ -145,6 +202,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
         amount: cut.netAmount,
         grossAmount: cut.grossAmount,
         platformFee: cut.platformAmount,
+        platformRatePct: ratePct,
       };
     });
     res.status(200).json({
@@ -152,6 +210,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       gross: round2(gross),
       platformFee: round2(platformFee),
       platformRatePct,
+      platformRatesApplied: ratesApplied(lines),
       jobCount: lines.length,
       lines,
       incentiveTotal: await incentiveTotalForUser(userId),
@@ -167,6 +226,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     const platformRatePct = await getPlatformCommissionPct();
     const bookings = await Booking.find({ status: 'completed', assignedHamaliIds: userId });
     const netByBooking = await netShareForBookings(bookings, userId);
+    const charged = await chargedPlatformRates(bookings);
     let gross = 0;
     let platformFee = 0;
     let societyFee = 0;
@@ -176,8 +236,10 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       const afterSociety = netByBooking.get(b._id.toString()) ?? grossShare;
       const societyCut = round2(grossShare - afterSociety);
       // The platform's cut is taken on the same gross, not compounded on
-      // what the society already took.
-      const cut = applyPlatformCommission(grossShare, platformRatePct);
+      // what the society already took, and at the rate that job was
+      // actually charged rather than today's.
+      const ratePct = charged.get(b._id.toString()) ?? platformRatePct;
+      const cut = applyPlatformCommission(grossShare, ratePct);
       gross += cut.grossAmount;
       platformFee += cut.platformAmount;
       societyFee += societyCut;
@@ -189,6 +251,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
         amount: round2(Math.max(0, grossShare - cut.platformAmount - societyCut)),
         grossAmount: cut.grossAmount,
         platformFee: cut.platformAmount,
+        platformRatePct: ratePct,
         societyFee: societyCut,
       };
     });
@@ -197,6 +260,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       gross: round2(gross),
       platformFee: round2(platformFee),
       platformRatePct,
+      platformRatesApplied: ratesApplied(lines),
       retained: round2(societyFee),
       jobCount: lines.length,
       lines,
@@ -251,8 +315,18 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     }));
 
     const platformRatePct = await getPlatformCommissionPct();
+    // Per booking at its own charged rate, then summed — applying one rate
+    // to the whole pool would misstate it the moment the pool spans a rate
+    // change.
+    const chargedGroup = await chargedPlatformRates(bookings);
+    let groupPlatformFee = 0;
+    for (const line of groupLines) {
+      const ratePct = chargedGroup.get(line.bookingId) ?? platformRatePct;
+      line.platformRatePct = ratePct;
+      groupPlatformFee += applyPlatformCommission(line.amount, ratePct).platformAmount;
+    }
+    groupPlatformFee = round2(groupPlatformFee);
     const groupGross = round2(groupLines.reduce((s, l) => s + l.amount, 0));
-    const groupPlatformFee = applyPlatformCommission(groupGross, platformRatePct).platformAmount;
 
     res.status(200).json({
       // Group total stays the gross pool the Society's hamali arm actually
@@ -265,6 +339,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       retained: round2(retainedTotal),
       platformFee: groupPlatformFee,
       platformRatePct,
+      platformRatesApplied: ratesApplied(groupLines),
       jobCount: groupLines.length,
       lines: groupLines,
       perMember,

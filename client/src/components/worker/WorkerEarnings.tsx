@@ -147,7 +147,18 @@ export function WorkerEarnings({ accent = 'primary' }: { accent?: 'primary' | 's
                 {rangePlatformFee > 0 && (
                   <StatRow
                     className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
-                    label={t('platformFee', { pct: data?.platformRatePct ?? DEFAULT_PLATFORM_COMMISSION_PCT })}
+                    label={
+                      // Naming one percentage over a total that spans a rate
+                      // change would misdescribe part of it.
+                      (data?.platformRatesApplied?.length ?? 0) > 1
+                        ? t('platformFeeMixed')
+                        : t('platformFee', {
+                            pct:
+                              data?.platformRatesApplied?.[0] ??
+                              data?.platformRatePct ??
+                              DEFAULT_PLATFORM_COMMISSION_PCT,
+                          })
+                    }
                     value={`−₹${rangePlatformFee.toLocaleString('en-IN')}`}
                   />
                 )}

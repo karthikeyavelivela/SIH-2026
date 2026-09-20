@@ -24,7 +24,7 @@ const platformSettingSchema = new Schema<IPlatformSetting>(
   {
     _id: { type: String, required: true },
     parametricPayoutsEnabled: { type: Boolean, default: true },
-    platformCommissionPct: { type: Number, min: 0, max: 100, default: 10 },
+    platformCommissionPct: { type: Number, min: 0, max: 100, default: 1 },
   },
   { timestamps: { createdAt: false, updatedAt: true } }
 );

@@ -403,10 +403,10 @@ describe('work-based pricing — what the customer is shown', () => {
     // Both cuts on gross, neither compounding on the other — the same
     // arithmetic the earnings screen and the commission record use.
     expect(d.total).toBe(1000);
-    expect(d.platformFee).toBe(100);
+    expect(d.platformFee).toBe(10);
     expect(d.societyReserve).toBe(60);
     expect(d.societyWelfare).toBe(20);
-    expect(d.workerTakeHome).toBe(820);
+    expect(d.workerTakeHome).toBe(910);
     expect(d.societyName).toBe('Deducting Society');
   });
 

@@ -165,7 +165,15 @@ export interface EarningsResponse {
    */
   gross?: number;
   platformFee?: number;
+  /** The rate NEW jobs are charged at. Past jobs keep the rate they were charged. */
   platformRatePct?: number;
+  /**
+   * The distinct rates actually charged across these lines. One entry means
+   * every job in the range was charged the same and the screen can name it;
+   * more than one means the rate moved during the range, and naming a single
+   * figure would misdescribe some of the jobs in the total.
+   */
+  platformRatesApplied?: number[];
 }
 
 export interface Payment {

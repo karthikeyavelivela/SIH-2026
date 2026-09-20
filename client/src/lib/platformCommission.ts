@@ -7,4 +7,4 @@
  * resolves, or that have no earnings call at all. The server is always the
  * authority on what is actually deducted.
  */
-export const DEFAULT_PLATFORM_COMMISSION_PCT = 10;
+export const DEFAULT_PLATFORM_COMMISSION_PCT = 1;

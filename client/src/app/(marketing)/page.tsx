@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useReducedMotion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { Media } from '@/components/ui/Media';
@@ -24,7 +25,7 @@ import { useReveal } from '@/lib/useReveal';
    Numbers: every figure comes from GET /api/public/stats — aggregate counts
    and one sum of COMPLETED bookings — or from the published fare rules. The
    design's ₹384 crore, 1,42,850 members, 482 societies and "0.00%
-   extraction" are not reproduced: the platform now takes a published 10%
+   extraction" are not reproduced: the platform now takes a published 1%
    commission, and its real totals are small. The register table shows the
    rate schedule rather than invented member payouts, because member ledger
    rows are private and naming fake people beside real rupee amounts is the
@@ -222,7 +223,7 @@ export default function HomePage() {
 
   const tickerItems = [
     t('tickerSettled', { amount: settled ?? '—' }),
-    t('tickerCommission'),
+    t('tickerCommission', { pct: DEFAULT_PLATFORM_COMMISSION_PCT }),
     t('tickerSocieties', { count: stats?.societies ?? 0, districts: stats?.federations ?? 0 }),
     t('tickerMembers', { count: stats?.workers ?? 0 }),
     t('tickerCategories', { count: stats?.categories ?? 0 }),
@@ -349,7 +350,7 @@ export default function HomePage() {
                     </span>
                   </span>
                   <span className="font-mono text-[10px] px-2 py-0.5 rounded-tag bg-fy-lime-tint-1 text-fy-green border border-fy-lime/50 uppercase font-semibold shrink-0">
-                    {t('commissionChip')}
+                    {t('commissionChip', { pct: DEFAULT_PLATFORM_COMMISSION_PCT })}
                   </span>
                 </div>
 
@@ -430,6 +431,7 @@ export default function HomePage() {
               <p>{t('manifestoP1')}</p>
               <p>
                 {t.rich('manifestoP2', {
+                  pct: DEFAULT_PLATFORM_COMMISSION_PCT,
                   b: (c) => <strong className="text-fy-ink font-semibold">{c}</strong>,
                   rate: (c) => (
                     <span className="text-fy-brown font-mono font-semibold bg-fy-well px-1.5 py-0.5 rounded-tag">{c}</span>
@@ -487,7 +489,7 @@ export default function HomePage() {
                 <span className="font-mono text-[10px] text-fy-muted uppercase block font-medium">
                   {t('statCommissionLabel')}
                 </span>
-                <span className="font-heading text-heading text-fy-green font-normal mt-1 block">10%</span>
+                <span className="font-heading text-heading text-fy-green font-normal mt-1 block">{DEFAULT_PLATFORM_COMMISSION_PCT}%</span>
                 <span className="font-mono text-[9px] text-fy-muted">{t('statCommissionSub')}</span>
               </div>
             </div>

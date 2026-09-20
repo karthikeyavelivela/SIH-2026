@@ -4,7 +4,13 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { publicUser } from '../utils/publicUser';
 import { rethrowAsConflict } from '../utils/mongoErrors';
+import { Types } from 'mongoose';
 import { User } from '../models/User';
+import { PlatformSetting, PLATFORM_SETTING_ID } from '../models/PlatformSetting';
+import {
+  DEFAULT_PLATFORM_COMMISSION_PCT,
+  getPlatformCommissionPct,
+} from '../services/platformCommission.service';
 import { writeAuditLog } from '../services/audit.service';
 
 const BCRYPT_COST = 12;
@@ -143,4 +149,58 @@ export const updateUserStatus = asyncHandler(async (req: Request, res: Response)
   });
 
   res.status(200).json({ user: publicUser(user) });
+});
+
+/**
+ * GET /api/admin/platform-commission — what the platform charges today.
+ *
+ * The rate lives in one constant and, optionally, in one PlatformSetting
+ * row that overrides it. Until now nothing could write that row on purpose:
+ * it was only ever created as a side effect of the parametric kill switch's
+ * upsert, which stamped it with whatever the schema default was at the time.
+ * So a deploy that lowered the constant could silently leave the old rate in
+ * force, with nothing in the product able to show or correct it.
+ */
+export const getPlatformCommission = asyncHandler(async (_req: Request, res: Response) => {
+  const [stored, effective] = await Promise.all([
+    PlatformSetting.findById(PLATFORM_SETTING_ID).select('platformCommissionPct').lean(),
+    getPlatformCommissionPct(),
+  ]);
+  res.status(200).json({
+    effectivePct: effective,
+    storedPct: stored?.platformCommissionPct ?? null,
+    defaultPct: DEFAULT_PLATFORM_COMMISSION_PCT,
+  });
+});
+
+/**
+ * PATCH /api/admin/platform-commission — change it, forward only.
+ *
+ * Nothing already recorded moves. Every completed job's platform cut is a
+ * posted 'fee' LedgerEntry and every society deduction is a CommissionRecord;
+ * both are read back rather than recomputed, so a job charged at 10% still
+ * reads as 10% after this runs.
+ */
+export const updatePlatformCommission = asyncHandler(async (req: Request, res: Response) => {
+  const { pct } = req.body as { pct: number };
+  const before = await getPlatformCommissionPct();
+
+  await PlatformSetting.findByIdAndUpdate(
+    PLATFORM_SETTING_ID,
+    { _id: PLATFORM_SETTING_ID, platformCommissionPct: pct },
+    { upsert: true }
+  );
+
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'platform_commission_changed',
+    targetType: 'PlatformSetting',
+    // PlatformSetting._id is the literal 'singleton', not an ObjectId —
+    // same reasoning as updateKillSwitch in insurance.controller.ts.
+    targetId: new Types.ObjectId().toString(),
+    details: { before, after: pct },
+  });
+
+  res.status(200).json({ effectivePct: await getPlatformCommissionPct() });
 });

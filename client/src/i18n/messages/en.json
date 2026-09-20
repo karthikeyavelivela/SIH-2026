@@ -225,13 +225,13 @@
       "heroTitleLine3": "Infrastructure",
       "ctaEngage": "Book a member",
       "ctaInspect": "Inspect the rates",
-      "commissionChip": "10% commission",
+      "commissionChip": "{pct}% commission",
       "jobsSettledLine": "{count, plural, =0 {No jobs settled yet} one {# job settled} other {# jobs settled}}",
       "societiesLine": "{count, plural, one {# society} other {# societies}}",
       "liveTelemetry": "Live",
       "scrollDown": "Read the charter",
       "tickerSettled": "Settled to members ₹{amount}",
-      "tickerCommission": "Platform commission 10%, published",
+      "tickerCommission": "Platform commission {pct}%, published",
       "tickerSocieties": "{count, plural, one {# society} other {# societies}} across {districts, plural, one {# district} other {# districts}}",
       "tickerMembers": "{count, plural, one {# verified member} other {# verified members}}",
       "tickerCategories": "{count, plural, one {# service category} other {# service categories}}",
@@ -240,7 +240,7 @@
       "manifestoHeadline": "Labour organised by its own societies, not by a",
       "manifestoAccent": "middleman.",
       "manifestoP1": "FYRO is not a labour contractor. It is the booking and settlement layer for registered cooperative societies — the society holds the membership, verifies the worker and arbitrates the dispute. We move the job and the money.",
-      "manifestoP2": "The fare is <b>agreed before the job starts</b> and never surged. From it the platform takes a published <rate>10% commission</rate>, and the society takes its bye-law share. Both are shown to the worker, line by line, on every single job.",
+      "manifestoP2": "The fare is <b>agreed before the job starts</b> and never surged. From it the platform takes a published <rate>{pct}% commission</rate>, and the society takes its bye-law share. Both are shown to the worker, line by line, on every single job.",
       "manifestoQuote": "A rate a worker cannot read is a rate a worker cannot refuse.",
       "manifestoQuoteAttr": "Operating principle",
       "manifestoQuoteSeal": "Published",
@@ -1147,6 +1147,7 @@
     "noCompletedJobsHint": "Completed jobs and what they paid appear here.",
     "grossLabel": "Gross earned",
     "platformFee": "Platform commission ({pct}%)",
+    "platformFeeMixed": "Platform commission, at the rate charged on each job",
     "societyFee": "Society deduction",
     "netLabel": "Net to you",
     "deductionNote": "Every deduction on every job, itemised."
@@ -1969,7 +1970,8 @@
     "settledCount": "{count, plural, =0 {None} one {# run} other {# runs}}",
     "noCompletedJobsHint": "Once a member completes a society job, their share appears here.",
     "noRunsInRange": "No settled runs in this range.",
-    "platformFee": "Platform commission ({pct}%)"
+    "platformFee": "Platform commission ({pct}%)",
+    "platformFeeMixed": "Platform commission, at the rate charged on each job"
   },
   "muthaRequests": {
     "pageTitle": "Job requests",

@@ -86,3 +86,13 @@ adminRouter.delete(
   },
   adminController.updateUserStatus
 );
+
+// The platform's own commission. Admin-only with no manager carve-out —
+// same posture as fare rules, which are the other pricing lever.
+adminRouter.get('/platform-commission', adminController.getPlatformCommission);
+adminRouter.patch(
+  '/platform-commission',
+  [body('pct').isFloat({ min: 0, max: 100 })],
+  validate,
+  adminController.updatePlatformCommission
+);

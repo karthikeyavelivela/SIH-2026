@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
+import { DEFAULT_PLATFORM_COMMISSION_PCT } from '@/lib/platformCommission';
 import { EditorialPage, PageHead, Chapter, Plate } from '@/components/marketing/Editorial';
 
 /* The published rate schedule, set as the open register the landing page's
@@ -88,7 +89,7 @@ export default async function PricingPage() {
             <span className="font-mono text-[10px] uppercase tracking-widest text-fy-muted">
               {th('statCommissionLabel')}
             </span>
-            <span className="font-heading text-heading text-fy-green font-normal">10%</span>
+            <span className="font-heading text-heading text-fy-green font-normal">{DEFAULT_PLATFORM_COMMISSION_PCT}%</span>
             <p className="font-body text-body text-fy-ink-soft leading-relaxed">{th('statCommissionSub')}</p>
           </Plate>
           <Plate className="flex flex-col gap-2">

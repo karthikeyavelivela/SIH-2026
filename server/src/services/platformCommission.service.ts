@@ -3,7 +3,7 @@ import { LedgerEntry } from '../models/LedgerEntry';
 import { writeLedgerEntry } from './ledger.service';
 
 /**
- * The platform's own commission — ₹10 retained for every ₹100 a role earns.
+ * The platform's own commission — ₹1 retained for every ₹100 a role earns.
  *
  * This is deliberately the ONLY place the rate is defined or read. Every
  * earnings surface, the ledger writer and the client all derive from here,
@@ -17,11 +17,17 @@ import { writeLedgerEntry } from './ledger.service';
  * Ordering, which matters and is easy to get wrong: the platform rate and a
  * society's own bye-law rates are both taken on the GROSS job share, not
  * compounded on each other. A society that sets 6% commission + 2% welfare
- * therefore sees its members keep 100 − 10 − 6 − 2 = 82% of gross, and each
+ * therefore sees its members keep 100 − 1 − 6 − 2 = 91% of gross, and each
  * deduction is disclosed on its own line rather than folded into one
  * unexplained smaller number.
+ *
+ * Was 10% until this change. Historical records are NOT rewritten: every
+ * CommissionRecord stores the society rate in force when it was written,
+ * and every platform LedgerEntry names its own percentage in its
+ * description, so a job completed under the old rate still reads as one.
+ * Only the forward rate moves.
  */
-export const DEFAULT_PLATFORM_COMMISSION_PCT = 10;
+export const DEFAULT_PLATFORM_COMMISSION_PCT = 1;
 
 /** Every role the commission is taken from. A customer earns nothing. */
 export const EARNING_ROLES = [
