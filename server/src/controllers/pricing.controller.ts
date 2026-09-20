@@ -8,6 +8,7 @@ import { User } from '../models/User';
 import { HamaliProfile } from '../models/HamaliProfile';
 import {
   assertFloorsRespected,
+  assertStatutoryFloorForDraft,
   floorFor,
   priceWork,
   disclosePrice,
@@ -16,6 +17,12 @@ import {
   type ProfileDraft,
 } from '../services/workPricing.service';
 import { getPlatformCommissionPct } from '../services/platformCommission.service';
+import {
+  assertAtOrAboveStatutoryFloor,
+  skillBandForCategory,
+  stateForRegion,
+  zoneForRegion,
+} from '../services/wageFloor.service';
 import { writeAuditLog } from '../services/audit.service';
 import { guideFor } from '../services/taskCatalogue';
 import type { PricingMode, UnitType } from '@fyro/shared';
@@ -40,8 +47,12 @@ export const upsertMyPricing = asyncHandler(async (req: Request, res: Response) 
   const workerId = req.user!.id;
   const draft = req.body as ProfileDraft;
 
-  // Enforced before anything is written. A rate below the society floor never
-  // reaches the database, so there is no window in which it is published.
+  // Both floors are enforced before anything is written, so there is no
+  // window in which an unlawful or below-floor rate is published. The
+  // statutory one goes first: a rate can be above every society's floor and
+  // still be below the minimum wage, and that is the more serious of the
+  // two failures.
+  await assertStatutoryFloorForDraft(workerId, draft);
   await assertFloorsRespected(workerId, draft);
 
   const profile = await WorkerPricingProfile.findOneAndUpdate(
@@ -112,11 +123,30 @@ export const setSocietyFloor = asyncHandler(async (req: Request, res: Response) 
     minimumRate: number;
   };
 
-  const society = await Mutha.findOne({ leaderId }).select('_id').lean();
+  const society = await Mutha.findOne({ leaderId }).select('_id region').lean();
   if (!society) throw new ApiError(404, 'No society found for this leader');
 
   if (mode === 'per_unit' && !unitType) {
     throw new ApiError(400, 'A per-unit floor has to say which unit it applies to');
+  }
+
+  // A society floor is a promise, so it must not be a promise to underpay.
+  // An hourly floor set below the statutory minimum would have every member
+  // publishing a lawful-looking rate that is not, so it is refused here,
+  // before the floor exists. Same limit as the worker check: only the hourly
+  // mode has an honest hourly equivalent.
+  if (mode === 'hourly' && society.region) {
+    const state = await stateForRegion(society.region);
+    if (state) {
+      await assertAtOrAboveStatutoryFloor({
+        state,
+        skillBand: skillBandForCategory(categorySlug),
+        amount: minimumRate,
+        unit: 'per_hour',
+        zone: zoneForRegion(society.region),
+        label: 'That floor',
+      });
+    }
   }
 
   const floor = await SocietyRateFloor.findOneAndUpdate(
@@ -219,7 +249,7 @@ export const quoteWork = asyncHandler(async (req: Request, res: Response) => {
   if (!profile) throw new ApiError(404, 'This worker has not published rates for that service');
 
   const fare = await priceWork({ profile, mode, unitType, quantity, taskName, quotationId });
-  const disclosure = await disclosePrice(fare.total, workerId, await getPlatformCommissionPct());
+  const disclosure = await disclosePrice(fare.total, workerId, await getPlatformCommissionPct(), categorySlug);
 
   res.status(200).json({ fare, disclosure });
 });

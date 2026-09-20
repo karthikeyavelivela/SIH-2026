@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { rethrowAsConflict } from '../utils/mongoErrors';
 import { FareRule } from '../models/FareRule';
+import { assertHamaliFareAboveStatutoryFloor } from '../services/wageFloor.service';
 import { writeAuditLog } from '../services/audit.service';
 
 export const listFareRules = asyncHandler(async (req: Request, res: Response) => {
@@ -17,6 +18,17 @@ export const listFareRules = asyncHandler(async (req: Request, res: Response) =>
 
 export const createFareRule = asyncHandler(async (req: Request, res: Response) => {
   const { region, category, baseFare, perKmRate, minimumFare } = req.body;
+
+  // A hamali rule is the one fare rule that is a wage: its minimumFare is
+  // what a customer pays to engage one worker for the category's default
+  // duration, so it has a real hourly equivalent and is checked against the
+  // statutory floor before it can be published.
+  //
+  // The vehicle rules are not checked, and deliberately so: they pay for a
+  // truck. A lorry's per-kilometre rate is not a driver's wage, and treating
+  // it as one would mean enforcing a minimum wage against a number that has
+  // fuel and depreciation inside it.
+  await assertHamaliFareAboveStatutoryFloor(region, category, minimumFare);
 
   // Task 6's findActiveRule() looks up FareRule.findOne({region, category,
   // active:true}) and assumes at most one intended active rule per

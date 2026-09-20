@@ -100,6 +100,7 @@ export function ProfileIdentitySection() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
+  const [region, setRegion] = useState(user?.region ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,7 +113,7 @@ export function ProfileIdentitySection() {
     setSaving(true);
     setError(null);
     try {
-      await api.patch('/api/auth/me/profile', { name, email });
+      await api.patch('/api/auth/me/profile', { name, email, region });
       await refetch();
       setEditing(false);
     } catch (err) {
@@ -133,6 +134,10 @@ export function ProfileIdentitySection() {
           <div className="flex items-center justify-between text-sm">
             <span className="text-fy-ink-soft">{t('email')}</span>
             <span className="font-medium">{user.email || t('notSet')}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-fy-ink-soft">{t('region')}</span>
+            <span className="font-medium">{user.region || t('notSet')}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-fy-ink-soft">{t('phone')}</span>
@@ -182,6 +187,18 @@ export function ProfileIdentitySection() {
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
             />
+          </label>
+          <label className="block">
+            <span className="text-xs text-fy-ink-soft">{t('region')}</span>
+            <input
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              className="mt-1 w-full min-h-[44px] px-3.5 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm"
+            />
+            {/* This is not cosmetic: it decides which rate card prices your
+                jobs and which state's minimum wage your rates are checked
+                against. */}
+            <span className="mt-1 block font-mono text-[10px] text-fy-muted">{t('regionHint')}</span>
           </label>
           {error && <p className="text-xs text-fy-error">{error}</p>}
           <div className="flex gap-2">

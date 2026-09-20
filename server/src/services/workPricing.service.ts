@@ -1,4 +1,12 @@
 import { ApiError } from '../utils/ApiError';
+import { User } from '../models/User';
+import {
+  assertAtOrAboveStatutoryFloor,
+  skillBandForCategory,
+  stateForRegion,
+  wageFloorFor,
+  zoneForRegion,
+} from './wageFloor.service';
 import { Mutha } from '../models/Mutha';
 import { SocietyRateFloor } from '../models/SocietyRateFloor';
 import { WorkerPricingProfile, IWorkerPricingProfile } from '../models/WorkerPricingProfile';
@@ -112,6 +120,42 @@ export interface ProfileDraft {
   perUnit?: { unitType: UnitType; rate: number; minimumQuantity?: number; description?: string }[];
   perTask?: { taskName: string; description?: string; fixedPrice: number; estimatedDurationMinutes?: number }[];
   quotation?: { accepts: boolean; siteVisitFee: number; siteVisitAdjustable: boolean; typicalTurnaroundHours?: number };
+}
+
+/**
+ * Rejects a draft that prices below the STATUTORY minimum wage.
+ *
+ * This is the floor that is not the cooperative's to set. A society's floor
+ * is a promise its members made each other; this one is the Minimum Wages
+ * Act, and a rate below it is unlawful whatever anyone has agreed.
+ *
+ * Only the hourly mode is checked, and that is a deliberate limit rather
+ * than an oversight. A per-unit or per-task price has no honest hourly
+ * equivalent: ₹400 to replace a hinge is not a ₹400 hourly rate, and it is
+ * not a ₹1,200 one either, and the duration that would settle it is the one
+ * thing nobody has measured. Enforcing against a made-up divisor would mean
+ * refusing lawful rates on the strength of a guess. So the check covers the
+ * mode where the comparison is real, and the disclosure shown to the
+ * customer says which modes it covers rather than implying all of them.
+ *
+ * A worker in a state with no notification entered is not checked at all —
+ * see wageFloor.service.ts.
+ */
+export async function assertStatutoryFloorForDraft(workerId: string, draft: ProfileDraft): Promise<void> {
+  if (!draft.hourly?.rate) return;
+
+  const worker = await User.findById(workerId).select('region').lean();
+  const state = worker?.region ? await stateForRegion(worker.region) : null;
+  if (!state) return;
+
+  await assertAtOrAboveStatutoryFloor({
+    state,
+    skillBand: skillBandForCategory(draft.categorySlug),
+    amount: draft.hourly.rate,
+    unit: 'per_hour',
+    zone: zoneForRegion(worker!.region!),
+    label: 'Your hourly rate',
+  });
 }
 
 /**
@@ -330,6 +374,28 @@ export interface PriceDisclosure {
   welfareRatePct: number;
   workerTakeHome: number;
   societyName?: string;
+  /**
+   * The statutory floor this worker's rate was checked against, when their
+   * state has one published. Present so the customer can see the claim is
+   * attached to an instrument with a number, rather than reading a badge.
+   * Absent for a state whose notification has not been entered — in which
+   * case the screen says nothing rather than implying a check happened.
+   */
+  statutoryFloor?: {
+    state: string;
+    zone: string;
+    skillBand: string;
+    monthlyRate: number;
+    dailyRate: number;
+    hourlyRate: number;
+    workingDaysPerMonth: number;
+    workingHoursPerDay: number;
+    notificationNumber: string;
+    scheduledEmployment: string;
+    sourceType: string;
+    /** Which of this worker's modes the check actually covers. */
+    coversHourlyOnly: true;
+  };
 }
 
 /**
@@ -343,7 +409,8 @@ export interface PriceDisclosure {
 export async function disclosePrice(
   total: number,
   workerId: string,
-  platformRatePct: number
+  platformRatePct: number,
+  categorySlug?: string
 ): Promise<PriceDisclosure> {
   const society = await Mutha.findOne({ $or: [{ leaderId: workerId }, { memberIds: workerId }] })
     .select('name commissionRatePct welfareDeductionRatePct')
@@ -356,6 +423,12 @@ export async function disclosePrice(
   const societyReserve = round2((total * societyRatePct) / 100);
   const societyWelfare = round2((total * welfareRatePct) / 100);
 
+  const worker = await User.findById(workerId).select('region').lean();
+  const state = worker?.region ? await stateForRegion(worker.region) : null;
+  const floor = state
+    ? await wageFloorFor(state, skillBandForCategory(categorySlug), zoneForRegion(worker!.region!))
+    : null;
+
   return {
     total: round2(total),
     platformFee,
@@ -366,5 +439,23 @@ export async function disclosePrice(
     welfareRatePct,
     workerTakeHome: round2(total - platformFee - societyReserve - societyWelfare),
     societyName: society?.name,
+    ...(floor
+      ? {
+          statutoryFloor: {
+            state: floor.state,
+            zone: floor.zone,
+            skillBand: floor.skillBand,
+            monthlyRate: floor.monthlyRate,
+            dailyRate: floor.dailyRate,
+            hourlyRate: floor.hourlyRate,
+            workingDaysPerMonth: floor.workingDaysPerMonth,
+            workingHoursPerDay: floor.workingHoursPerDay,
+            notificationNumber: floor.notificationNumber,
+            scheduledEmployment: floor.scheduledEmployment,
+            sourceType: floor.sourceType,
+            coversHourlyOnly: true as const,
+          },
+        }
+      : {}),
   };
 }

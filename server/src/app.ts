@@ -50,6 +50,7 @@ import { reportsRouter } from './routes/reports.routes';
 import { notificationRouter } from './routes/notification.routes';
 import { loadboardRouter } from './routes/loadboard.routes';
 import { adminFederationRouter, federationRouter } from './routes/federation.routes';
+import { wageFloorRouter, adminWageFloorRouter } from './routes/wageFloor.routes';
 import { governanceRouter } from './routes/governance.routes';
 import { serviceCategoryRouter, adminServiceCategoryRouter } from './routes/serviceCategory.routes';
 import { checkpointRouter, adminCheckpointRouter } from './routes/checkpoint.routes';
@@ -138,7 +139,9 @@ app.use('/api/auth', authRouter);
 // accidentally match a sub-resource path first. Keep this ordering for any
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
+app.use('/api/admin/wage-floors', adminWageFloorRouter);
 app.use('/api/fare-rules', publishedRatesRouter);
+app.use('/api/wage-floors', wageFloorRouter);
 // Unauthenticated, aggregate-only — the public landing page's counters.
 app.use('/api/public', publicRouter);
 app.use('/api/admin/complaints', adminComplaintRouter);

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
+import { StatutoryFloorNote, type StatutoryFloor } from '@/components/pricing/StatutoryFloorNote';
 import { Icon } from '@/components/ui/Icon';
 import { LightCard, Panel, Section } from '@/components/fy/Surfaces';
 import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
@@ -64,6 +65,7 @@ interface Disclosure {
   welfareRatePct: number;
   workerTakeHome: number;
   societyName?: string;
+  statutoryFloor?: StatutoryFloor;
 }
 
 export default function HirePage() {
@@ -481,6 +483,12 @@ export default function HirePage() {
                       strong
                     />
                     <span className="font-mono text-[10px] text-fy-muted">{t('disclosureNote')}</span>
+                    {/* The last line of the breakdown, after the worker's
+                        take-home: the one number on this screen that is not
+                        FYRO's own. Absent for a state whose notification has
+                        not been entered, rather than a badge that implies a
+                        check nobody ran. */}
+                    {disclosure.statutoryFloor && <StatutoryFloorNote floor={disclosure.statutoryFloor} />}
                   </div>
                 </Panel>
               </Section>

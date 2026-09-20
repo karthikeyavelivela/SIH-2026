@@ -7,6 +7,13 @@ import { User } from '../models/User';
 import { Incentive } from '../models/Incentive';
 import { CommissionRecord } from '../models/CommissionRecord';
 import { LedgerEntry } from '../models/LedgerEntry';
+import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
+import {
+  compareToFloor,
+  skillBandForCategory,
+  stateForRegion,
+  zoneForRegion,
+} from '../services/wageFloor.service';
 import {
   getPlatformCommissionPct,
   applyPlatformCommission,
@@ -140,6 +147,58 @@ async function incentiveTotalForMutha(muthaId: string): Promise<number> {
   return round2(incentives.reduce((s, i) => s + i.bonusAmount, 0));
 }
 
+/**
+ * How a worker's own published rate stands against the statutory floor.
+ *
+ * On the earnings screen rather than only on the pricing form, because the
+ * pricing form is where someone goes once and the earnings screen is where
+ * they go every week. Returns null when the worker has published no hourly
+ * rate, or when their state has no notification entered — in both cases the
+ * screen shows nothing rather than a reassurance nobody checked.
+ */
+async function statutoryStandingFor(userId: string) {
+  const [worker, profiles] = await Promise.all([
+    User.findById(userId).select('region').lean(),
+    WorkerPricingProfile.find({ workerId: userId, active: true }).select('categorySlug hourly').lean(),
+  ]);
+  if (!worker?.region) return null;
+
+  const state = await stateForRegion(worker.region);
+  if (!state) return null;
+
+  const zone = zoneForRegion(worker.region);
+  const rows = [];
+  for (const profile of profiles) {
+    const rate = profile.hourly?.rate;
+    if (!rate) continue;
+    const comparison = await compareToFloor(
+      state,
+      skillBandForCategory(profile.categorySlug),
+      rate,
+      'per_hour',
+      zone
+    );
+    if (!comparison) continue;
+    rows.push({
+      categorySlug: profile.categorySlug,
+      yourHourlyRate: rate,
+      floorHourlyRate: comparison.floor.hourlyRate,
+      floorMonthlyRate: comparison.floor.monthlyRate,
+      workingDaysPerMonth: comparison.floor.workingDaysPerMonth,
+      workingHoursPerDay: comparison.floor.workingHoursPerDay,
+      skillBand: comparison.floor.skillBand,
+      meetsFloor: comparison.meetsFloor,
+      // How far above, as a percentage, so the screen can say "38% above
+      // the minimum" rather than only "above".
+      abovePct: Math.round(((rate - comparison.floor.hourlyRate) / comparison.floor.hourlyRate) * 100),
+      notificationNumber: comparison.floor.notificationNumber,
+      state: comparison.floor.state,
+      sourceType: comparison.floor.sourceType,
+    });
+  }
+  return rows.length > 0 ? rows : null;
+}
+
 export const getMyEarnings = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const role = req.user!.role;
@@ -175,6 +234,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       platformRatesApplied: ratesApplied(lines),
       jobCount: lines.length,
       lines,
+      statutoryStanding: await statutoryStandingFor(userId),
       incentiveTotal: await incentiveTotalForUser(userId),
     });
     return;
@@ -213,6 +273,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       platformRatesApplied: ratesApplied(lines),
       jobCount: lines.length,
       lines,
+      statutoryStanding: await statutoryStandingFor(userId),
       incentiveTotal: await incentiveTotalForUser(userId),
     });
     return;
@@ -264,6 +325,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       retained: round2(societyFee),
       jobCount: lines.length,
       lines,
+      statutoryStanding: await statutoryStandingFor(userId),
       incentiveTotal: await incentiveTotalForUser(userId),
     });
     return;

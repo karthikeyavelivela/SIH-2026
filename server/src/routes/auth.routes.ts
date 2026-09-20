@@ -126,6 +126,9 @@ authRouter.patch(
   [
     body('name').optional().isString().trim().isLength({ min: 1, max: 100 }),
     body('email').optional({ checkFalsy: true }).isEmail(),
+    // The district a worker is priced and wage-floored in. Same shape as
+    // the signup field above.
+    body('region').optional({ checkFalsy: true }).isString().trim().isLength({ max: 120 }),
   ],
   validate,
   authController.updateMyProfile

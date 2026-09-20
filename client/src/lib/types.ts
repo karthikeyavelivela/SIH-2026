@@ -174,6 +174,26 @@ export interface EarningsResponse {
    * figure would misdescribe some of the jobs in the total.
    */
   platformRatesApplied?: number[];
+  /**
+   * How this worker's own published hourly rates stand against the statutory
+   * minimum for their state. Null when they have published no hourly rate,
+   * or when their state has no notification entered — in both cases the
+   * screen shows nothing rather than an unearned reassurance.
+   */
+  statutoryStanding?: {
+    categorySlug: string;
+    yourHourlyRate: number;
+    floorHourlyRate: number;
+    floorMonthlyRate: number;
+    workingDaysPerMonth: number;
+    workingHoursPerDay: number;
+    skillBand: 'unskilled' | 'semi_skilled' | 'skilled' | 'highly_skilled';
+    meetsFloor: boolean;
+    abovePct: number;
+    notificationNumber: string;
+    state: string;
+    sourceType: 'gazette' | 'department_website' | 'secondary_compilation';
+  }[] | null;
 }
 
 export interface Payment {

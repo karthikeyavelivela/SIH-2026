@@ -17,6 +17,7 @@ import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
 import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, StatRow } from '@/components/fy/Data';
 import { TopBar, TabRow } from '@/components/fy/Navigation';
+import { useCategoryName } from '@/lib/categoryName';
 
 /* Built against client/public/design/worker_earnings.html.
 
@@ -51,6 +52,8 @@ function startOf(range: Range): number {
 
 export function WorkerEarnings({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
   const t = useTranslations('workerEarnings');
+  const tw = useTranslations('wageFloor');
+  const categoryName = useCategoryName();
   const { user } = useAuth();
   const [range, setRange] = useState<Range>('week');
   const { data, state } = usePolling(() => api.get<EarningsResponse>('/api/earnings/me'), 30000);
@@ -177,6 +180,50 @@ export function WorkerEarnings({ accent = 'primary' }: { accent?: 'primary' | 's
               </div>
             </>
           )}
+
+          {/* Where the worker's own rate sits against the statutory minimum.
+              On this screen rather than only on the pricing form, because
+              the form is somewhere they go once and this is where they come
+              every week. */}
+          {data?.statutoryStanding?.length ? (
+            <>
+              <Divider className="border-fy-bone/15" />
+              <div className="flex flex-col gap-2">
+                <EyebrowLabel tone="on-dark" className="opacity-80">
+                  {tw('title')}
+                </EyebrowLabel>
+                {data.statutoryStanding.map((row) => (
+                  <div key={row.categorySlug} className="flex flex-col gap-0.5">
+                    <StatRow
+                      className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-bone"
+                      label={categoryName({ slug: row.categorySlug, name: row.categorySlug })}
+                      value={`₹${row.yourHourlyRate} / ₹${row.floorHourlyRate}`}
+                    />
+                    <span
+                      className={`font-mono text-[10px] ${row.meetsFloor ? 'text-fy-lime' : 'text-fy-peach'}`}
+                    >
+                      {!row.meetsFloor
+                        ? tw('below')
+                        : row.abovePct <= 0
+                          ? tw('atFloor')
+                          : tw('above', { pct: row.abovePct })}
+                    </span>
+                    <span className="font-mono text-[10px] text-fy-bone/50">
+                      {tw('working', {
+                        monthly: row.floorMonthlyRate.toLocaleString('en-IN'),
+                        days: row.workingDaysPerMonth,
+                        hours: row.workingHoursPerDay,
+                        hourly: row.floorHourlyRate,
+                      })}
+                    </span>
+                    <span className="font-mono text-[10px] text-fy-bone/50">
+                      {tw('band', { band: tw(`bands.${row.skillBand}`) })} · {row.notificationNumber}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : null}
 
           <Divider className="border-fy-bone/15" />
           <span className="flex items-center gap-1.5">

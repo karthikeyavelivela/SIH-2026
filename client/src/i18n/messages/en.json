@@ -1269,6 +1269,8 @@
       "title": "Identity",
       "name": "Name",
       "email": "Email",
+      "region": "District you work in",
+      "regionHint": "Sets the rate card your jobs are priced on, and the state minimum wage your rates are checked against.",
       "notSet": "Not set",
       "phone": "Phone",
       "change": "Change",
@@ -4281,5 +4283,26 @@
     "placeholder": "District or city",
     "hint": "Taken from the pickup address. Correct it if the rate should follow a different district.",
     "missing": "We could not work out the district from the address. Type it here — the fare cannot be worked out without it."
+  },
+  "wageFloor": {
+    "title": "Government minimum wage",
+    "customerLine": "At or above the {state} Government minimum wage (Notification {notification}).",
+    "hourlyOnlyNote": "Checked on hourly rates. Per-unit and per-task prices have no measured duration to check against.",
+    "working": "₹{monthly} a month ÷ {days} working days ÷ {hours} hours = ₹{hourly} an hour",
+    "band": "Counted as {band} work",
+    "bands": {
+      "unskilled": "unskilled",
+      "semi_skilled": "semi-skilled",
+      "skilled": "skilled",
+      "highly_skilled": "highly skilled"
+    },
+    "yourRate": "Your rate",
+    "theFloor": "Statutory minimum",
+    "above": "{pct}% above the statutory minimum",
+    "atFloor": "At the statutory minimum",
+    "below": "Below the statutory minimum — please re-price",
+    "sourceGazette": "From the gazette notification.",
+    "sourceSecondary": "Transcribed from a published compilation of the notification, not from the gazette itself.",
+    "noFloorForState": "No notification has been entered for this state yet, so no statutory floor is enforced here."
   }
 }

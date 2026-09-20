@@ -342,12 +342,24 @@ export const updateMyDocuments = asyncHandler(async (req: Request, res: Response
 // text. Shared across every role's profile page.
 // ═══════════════════════════════════════════════════════════════════
 
-/** PATCH /api/auth/me/profile — name and email. Phone has its own OTP-gated flow below. */
+/**
+ * PATCH /api/auth/me/profile — name, email and the district you work in.
+ * Phone has its own OTP-gated flow below.
+ *
+ * `region` was previously settable only at signup, which meant a worker who
+ * moved district could never correct it. That became a real problem when the
+ * statutory wage floor arrived: the floor that governs someone's rate is
+ * looked up by their region, so a worker with a stale or empty region is a
+ * worker the minimum wage is never checked against. Editable here for the
+ * same reason the booking form's region is editable — the person knows
+ * where they are, and nothing else on the server does.
+ */
 export const updateMyProfile = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email } = req.body as { name?: string; email?: string };
+  const { name, email, region } = req.body as { name?: string; email?: string; region?: string };
   const update: Record<string, unknown> = {};
   if (name !== undefined) update.name = name;
   if (email !== undefined) update.email = email;
+  if (region !== undefined) update.region = region;
 
   const user = await User.findByIdAndUpdate(req.user!.id, update, { new: true });
   if (!user) throw new ApiError(401, 'User not found');
