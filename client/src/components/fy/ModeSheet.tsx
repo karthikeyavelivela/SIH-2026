@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { Overlay } from '@/components/ui/Overlay';
 import { useTranslations } from 'next-intl';
 import { Icon } from '@/components/ui/Icon';
 import { CUSTOMER_MODES, MODE_CHROME, type CustomerMode } from '@/lib/customerMode';
@@ -51,6 +52,10 @@ export function ModeSheet({
   if (!open) return null;
 
   return (
+    // Portalled to <body>. A fixed overlay mounted inside a page's
+    // `relative z-10` wrapper is trapped in that stacking context and
+    // paints under the z-40 chrome — see components/ui/Overlay.tsx.
+    <Overlay>
     <div className="fixed inset-0 z-[70] flex items-end justify-center" role="dialog" aria-modal="true" aria-label={t('title')}>
       <button
         type="button"
@@ -153,5 +158,6 @@ export function ModeSheet({
         <p className="font-mono text-[10px] text-fy-muted text-center mt-4">{t('swapNote')}</p>
       </div>
     </div>
+    </Overlay>
   );
 }

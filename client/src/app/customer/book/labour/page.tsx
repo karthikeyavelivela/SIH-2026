@@ -4,6 +4,7 @@ import { RatingGateNotice } from '@/components/booking/RatingGateNotice';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { fetchServiceCategories } from '@/lib/serviceCategories';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
@@ -87,7 +88,7 @@ export default function LabourBookingPage() {
   const [engagement, setEngagement] = useState<'per_person' | 'full_crew'>('per_person');
 
   const categoriesState = useApiState(
-    () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
+    fetchServiceCategories,
     []
   );
   // `general_labour` is the traditional hamali/loading-crew category.

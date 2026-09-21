@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect, useRef } from 'react';
+import { Overlay } from './Overlay';
 
 interface ModalProps {
   open: boolean;
@@ -50,6 +51,10 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
   if (!open) return null;
 
   return (
+    // Portalled to <body>. A fixed overlay mounted inside a page's
+    // `relative z-10` wrapper is trapped in that stacking context and
+    // paints under the z-40 chrome — see components/ui/Overlay.tsx.
+    <Overlay>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-text-fy-brown/50 backdrop-blur-sm px-4 animate-[fadeIn_150ms_ease-out]"
       onClick={onClose}
@@ -78,5 +83,6 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
         {footer && <div className="flex justify-end gap-3">{footer}</div>}
       </div>
     </div>
+    </Overlay>
   );
 }

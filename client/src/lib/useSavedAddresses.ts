@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { api } from './api';
+import { cachedGet, invalidate, PERSONAL_TTL_MS } from './apiCache';
 
 export interface SavedAddress {
   _id: string;
@@ -19,7 +20,9 @@ export function useSavedAddresses() {
 
   const reload = useCallback(async () => {
     try {
-      const res = await api.get<{ addresses: SavedAddress[] }>('/api/addresses');
+      const res = await cachedGet('addresses', PERSONAL_TTL_MS, () =>
+        api.get<{ addresses: SavedAddress[] }>('/api/addresses')
+      );
       setAddresses(res.addresses);
     } catch {
       // Non-critical — booking form works fine with an empty saved list.
@@ -35,6 +38,9 @@ export function useSavedAddresses() {
   const save = useCallback(
     async (label: string, address: string, lat: number, lng: number) => {
       await api.post('/api/addresses', { label, address, lat, lng });
+      // The cached list is now wrong, and a stale list here is worse than
+      // a slow one: the address they just saved would not appear.
+      invalidate('addresses');
       await reload();
     },
     [reload]
@@ -43,6 +49,7 @@ export function useSavedAddresses() {
   const remove = useCallback(
     async (id: string) => {
       await api.delete(`/api/addresses/${id}`);
+      invalidate('addresses');
       await reload();
     },
     [reload]

@@ -3028,7 +3028,17 @@
     "emptyDesc": "Updates about your bookings, payouts, and account will show up here.",
     "loadError": "Couldn't load your notifications",
     "tryAgain": "Try again",
-    "errorMarkRead": "Could not mark all as read."
+    "errorMarkRead": "Could not mark all as read.",
+    "justNow": "just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago",
+    "unreadCount": "{count} unread",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "earlier": "Earlier"
+    }
   },
   "offline": {
     "offline": "You're offline",
@@ -4332,7 +4342,11 @@
     "seeAll": "See all",
     "fromPrice": "from ₹{amount}",
     "bookAgain": "Book again",
-    "nothingBookedYet": "Pick a trade above to place your first booking."
+    "nothingBookedYet": "Pick a trade above to place your first booking.",
+    "allServices": "All services",
+    "allModes": "Everything",
+    "noServices": "No services are published yet.",
+    "servicesCount": "{count} services across all three modes"
   },
   "customerMode": {
     "eyebrow": "Switch mode",

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
+import { Overlay } from '@/components/ui/Overlay';
 import { Button } from '@/components/fy/Controls';
 import type { GeoPoint } from '@/components/booking/AddressField';
 
@@ -144,7 +145,13 @@ export function MapPinPicker({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-fy-bone">
+    // Portalled to <body>: every booking screen wraps its form in
+    // `relative z-10`, which is a stacking context, so a fixed z-50 child
+    // mounted inside it still painted UNDER the z-40 top bar and tab bar.
+    // That is why the picker's close button disappeared and its confirm
+    // button sat behind the nav. See components/ui/Overlay.tsx.
+    <Overlay>
+    <div className="fixed inset-0 z-[80] flex flex-col bg-fy-bone">
       <header className="flex items-center justify-between gap-3 px-gutter h-16 border-b border-fy-brown/12 shrink-0">
         <span className="flex flex-col min-w-0">
           <span className="font-mono text-[10px] uppercase tracking-widest text-fy-muted">{t('eyebrow')}</span>
@@ -184,5 +191,6 @@ export function MapPinPicker({
         </Button>
       </div>
     </div>
+    </Overlay>
   );
 }

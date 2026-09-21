@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
+import { Overlay } from './Overlay';
 
 interface BottomSheetProps {
   open: boolean;
@@ -32,6 +33,10 @@ export function BottomSheet({ open, onClose, title, children, footer }: BottomSh
   if (!open) return null;
 
   return (
+    // Portalled to <body>. A fixed overlay mounted inside a page's
+    // `relative z-10` wrapper is trapped in that stacking context and
+    // paints under the z-40 chrome — see components/ui/Overlay.tsx.
+    <Overlay>
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-fy-inverse/40 backdrop-blur-[10px] animate-[fadeIn_150ms_ease-out]"
       onClick={onClose}
@@ -49,5 +54,6 @@ export function BottomSheet({ open, onClose, title, children, footer }: BottomSh
         {footer && <div className="mt-6">{footer}</div>}
       </div>
     </div>
+    </Overlay>
   );
 }

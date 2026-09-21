@@ -2,14 +2,14 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { fetchServiceCategories } from '@/lib/serviceCategories';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { bucketCategories } from '@/lib/categoryBuckets';
-import { FYRO_LOGO_URL } from '@/lib/brand';
+import { Wordmark } from '@/components/fy/Wordmark';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 import { LanguageDial } from '@/components/fy/LanguageDial';
@@ -80,7 +80,7 @@ export default function CustomerDashboardPage() {
     []
   );
   const categoriesState = useApiState(
-    () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
+    fetchServiceCategories,
     []
   );
 
@@ -115,8 +115,7 @@ export default function CustomerDashboardPage() {
             <Link href="/customer/profile" aria-label={t('menuAria')} className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-fy-ink hover:bg-fy-well transition-colors shrink-0">
               <Icon name="menu" size={22} />
             </Link>
-            <Image src={FYRO_LOGO_URL} alt="FYRO" width={26} height={26} className="rounded shrink-0" />
-            <span className="font-heading text-title text-fy-ink">FYRO</span>
+            <Wordmark height={20} />
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <LanguageDial size="sm" />
@@ -175,7 +174,16 @@ export default function CustomerDashboardPage() {
         )}
         {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} />}
 
-        {household.length > 0 && <CategoryGrid categories={household} heading={t('householdHeading')} />}
+        {household.length > 0 && (
+          // Capped so the grid stays two rows and the screen stays a
+          // screen; "See all" opens every mode's categories.
+          <CategoryGrid
+            categories={household}
+            cap={8}
+            seeAllHref="/customer/services"
+            heading={t('householdHeading')}
+          />
+        )}
 
         {household.length === 0 && categoriesState.status !== 'loading' && (
           <EmptyState title={tDash('noCategoriesTitle')} />

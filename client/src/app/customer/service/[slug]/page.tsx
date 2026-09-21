@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { fetchServiceCategories } from '@/lib/serviceCategories';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
@@ -87,7 +88,7 @@ export default function ServiceDetailPage() {
   const [leadError, setLeadError] = useState<string | null>(null);
 
   const categoriesState = useApiState(
-    () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
+    fetchServiceCategories,
     []
   );
   const category = useMemo(

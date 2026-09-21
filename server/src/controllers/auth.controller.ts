@@ -298,7 +298,27 @@ export const updateMyPhoto = asyncHandler(async (req: Request, res: Response) =>
   const buffer = Buffer.from(match[2], 'base64');
   if (buffer.byteLength > MAX_PHOTO_BYTES) throw new ApiError(400, 'Photo too large (max 5MB)');
 
-  const { url } = await uploadImage(buffer, `users/${req.user!.id}/avatar`);
+  const { url, mock } = await uploadImage(buffer, `users/${req.user!.id}/avatar`);
+
+  /*
+   * Refuse rather than fake it.
+   *
+   * With no Cloudinary credentials the upload returns a deterministic URL
+   * on a host that does not exist. Saving that produced the worst possible
+   * outcome: a 200, a "saved" toast, and a permanently broken avatar that
+   * the person cannot clear and cannot explain. Reported as "I am unable
+   * to upload a profile picture" — which was true, and the API had been
+   * telling them it worked.
+   *
+   * 503 and a sentence, so the screen can say what is actually missing.
+   */
+  if (mock) {
+    throw new ApiError(
+      503,
+      'Photo storage is not switched on yet, so this picture could not be saved. Nothing has changed on your profile.'
+    );
+  }
+
   const user = await User.findByIdAndUpdate(req.user!.id, { profilePhoto: url }, { new: true });
   if (!user) throw new ApiError(401, 'User not found');
   res.status(200).json({ user: publicUser(user) });

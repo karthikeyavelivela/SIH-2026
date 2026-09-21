@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
+import { cachedGet, CATALOGUE_TTL_MS } from '@/lib/apiCache';
 import type { ServiceCategory } from '@/components/booking/CategoryPicker';
 
 export type FareCategory = 'vehicle_small' | 'vehicle_medium' | 'vehicle_large' | 'hamali';
@@ -28,8 +29,14 @@ export interface PublishedRate {
  * lowest active minimum per category is the honest "from" figure.
  */
 export function usePublishedRates() {
+  // Cached: the rate card changes when an admin publishes a tariff, not
+  // between two screens. This call measured 1.3s against production and
+  // ran on every route change.
   const state = useApiState(
-    () => api.get<{ rates: PublishedRate[] }>('/api/fare-rules/published').then((r) => r.rates),
+    () =>
+      cachedGet('fare-rules/published', CATALOGUE_TTL_MS, () =>
+        api.get<{ rates: PublishedRate[] }>('/api/fare-rules/published').then((r) => r.rates)
+      ),
     []
   );
 

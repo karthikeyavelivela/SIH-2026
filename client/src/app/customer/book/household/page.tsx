@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { fetchServiceCategories } from '@/lib/serviceCategories';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { bucketCategories } from '@/lib/categoryBuckets';
@@ -28,7 +29,7 @@ function HouseholdBookRedirect() {
   const wanted = params.get('category');
 
   const categoriesState = useApiState(
-    () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
+    fetchServiceCategories,
     []
   );
   const household = useMemo(

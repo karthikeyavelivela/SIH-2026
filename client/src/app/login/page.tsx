@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth, AuthUser } from '@/lib/auth-context';
@@ -13,7 +12,7 @@ import { Panel } from '@/components/fy/Surfaces';
 import { Body } from '@/components/fy/Text';
 import { Button } from '@/components/fy/Controls';
 import { LanguageDial } from '@/components/fy/LanguageDial';
-import { FYRO_LOGO_URL } from '@/lib/brand';
+import { Wordmark } from '@/components/fy/Wordmark';
 
 /**
  * Sign in. One screen, one job.
@@ -66,8 +65,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-fy-bone flex flex-col">
       <header className="px-gutter pt-4 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 min-w-0">
-          <Image src={FYRO_LOGO_URL} alt="FYRO" width={28} height={28} className="rounded" />
-          <span className="font-heading text-title text-fy-ink">FYRO</span>
+          <Wordmark height={22} />
         </Link>
         <LanguageDial className="sm:block" />
       </header>

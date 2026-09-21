@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { api, ApiClientError } from './api';
+import { clearApiCache } from './apiCache';
 
 export interface AuthUser {
   _id: string;
@@ -90,6 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function logout() {
     await api.post('/api/auth/logout');
+    // Everything the read-through cache is holding belonged to the person
+    // who just signed out. The next person on this device must not read
+    // their saved addresses out of memory.
+    clearApiCache();
     setUser(null);
   }
 

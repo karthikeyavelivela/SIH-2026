@@ -3028,7 +3028,17 @@
     "emptyDesc": "आपकी बुकिंग, भुगतान और खाते के बारे में अपडेट यहां दिखेंगे।",
     "loadError": "आपकी सूचनाएं लोड नहीं हो पाईं",
     "tryAgain": "फिर कोशिश करें",
-    "errorMarkRead": "सभी को पढ़ा हुआ चिह्नित नहीं हो पाया।"
+    "errorMarkRead": "सभी को पढ़ा हुआ चिह्नित नहीं हो पाया।",
+    "justNow": "अभी",
+    "minutesAgo": "{count} मि. पहले",
+    "hoursAgo": "{count} घं. पहले",
+    "daysAgo": "{count} दिन पहले",
+    "unreadCount": "{count} बिना पढ़े",
+    "groups": {
+      "today": "आज",
+      "yesterday": "कल",
+      "earlier": "उससे पहले"
+    }
   },
   "offline": {
     "offline": "आप ऑफ़लाइन हैं",
@@ -4332,7 +4342,11 @@
     "seeAll": "सभी देखें",
     "fromPrice": "₹{amount} से",
     "bookAgain": "फिर से बुक करें",
-    "nothingBookedYet": "ऊपर से कोई काम चुनकर अपनी पहली बुकिंग करें।"
+    "nothingBookedYet": "ऊपर से कोई काम चुनकर अपनी पहली बुकिंग करें।",
+    "allServices": "सभी सेवाएँ",
+    "allModes": "सब कुछ",
+    "noServices": "अभी कोई सेवा प्रकाशित नहीं है।",
+    "servicesCount": "तीनों मोड मिलाकर {count} सेवाएँ"
   },
   "customerMode": {
     "eyebrow": "मोड बदलें",

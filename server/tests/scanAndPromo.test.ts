@@ -233,3 +233,22 @@ describe('scan and diagnose', () => {
     expect(res.body.diagnosis.selfFix).toBeUndefined();
   });
 });
+
+describe('uploads that cannot actually store anything', () => {
+  const PNG =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+  it('refuses a profile photo rather than saving a URL that does not exist', async () => {
+    const { agent, user } = await agentFor('customer', '9890000040');
+    const res = await agent.patch('/api/auth/me/photo').send({ imageBase64: PNG });
+
+    // Without Cloudinary credentials this used to return 200 and save
+    // https://mock.cloudinary.local/... — a "saved" toast and a
+    // permanently broken avatar the person could neither see nor clear.
+    expect(res.status).toBe(503);
+    expect(res.body.error).toMatch(/not switched on/i);
+
+    const after = await User.findById(user._id).select('profilePhoto').lean();
+    expect(after?.profilePhoto).toBeFalsy();
+  });
+});
