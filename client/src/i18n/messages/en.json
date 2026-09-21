@@ -860,7 +860,6 @@
     "status": "Status",
     "totalFare": "Total fare",
     "waitingRequested": "Confirming your request…",
-    "waitingSearching": "Waiting for a driver or Hamali to respond…",
     "liveLocationUpdated": "Live location — updated {seconds}s ago",
     "waitingForLiveLocation": "Waiting for their live location…",
     "statusTimeline": "Status timeline",
@@ -945,7 +944,11 @@
     "comboTitle": "A truck and a loading crew, on one booking",
     "comboHint": "Driver: {driver} · Loading crew: {crew}. They accept separately, so one may be confirmed before the other.",
     "comboAssigned": "assigned",
-    "comboPending": "still searching"
+    "comboPending": "still searching",
+    "waitingFor": "Waiting for {who} to respond…",
+    "whoDriver": "a driver",
+    "whoCrew": "a loading crew",
+    "whoDriverAndCrew": "a driver and a loading crew"
   },
   "customerHistory": {
     "title": "Booking history",
@@ -3038,7 +3041,9 @@
       "today": "Today",
       "yesterday": "Yesterday",
       "earlier": "Earlier"
-    }
+    },
+    "scopedTo": "Showing {mode} alerts",
+    "inOtherModes": "{count} more in your other modes"
   },
   "offline": {
     "offline": "You're offline",

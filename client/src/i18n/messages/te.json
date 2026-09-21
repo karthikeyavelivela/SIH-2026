@@ -860,7 +860,6 @@
     "status": "స్థితి",
     "totalFare": "మొత్తం చార్జి",
     "waitingRequested": "మీ అభ్యర్థనను నిర్ధారిస్తోంది…",
-    "waitingSearching": "డ్రైవర్ లేదా హమాలీ స్పందన కోసం వేచి ఉంది…",
     "liveLocationUpdated": "లైవ్ లొకేషన్ — {seconds} సెకన్ల క్రితం అప్‌డేట్ అయింది",
     "waitingForLiveLocation": "వారి లైవ్ లొకేషన్ కోసం వేచి ఉంది…",
     "statusTimeline": "స్థితి కాలక్రమం",
@@ -945,7 +944,11 @@
     "comboTitle": "లారీ మరియు లోడింగ్ బృందం, ఒకే బుకింగ్‌లో",
     "comboHint": "డ్రైవర్: {driver} · లోడింగ్ బృందం: {crew}. వీరు విడివిడిగా ఒప్పుకుంటారు, కాబట్టి ఒకరు ముందుగా ఖరారు కావచ్చు.",
     "comboAssigned": "కేటాయించారు",
-    "comboPending": "ఇంకా వెతుకుతోంది"
+    "comboPending": "ఇంకా వెతుకుతోంది",
+    "waitingFor": "{who} స్పందన కోసం ఎదురుచూస్తున్నాం…",
+    "whoDriver": "డ్రైవర్",
+    "whoCrew": "లోడింగ్ బృందం",
+    "whoDriverAndCrew": "డ్రైవర్ మరియు లోడింగ్ బృందం"
   },
   "customerHistory": {
     "title": "బుకింగ్ చరిత్ర",
@@ -3038,7 +3041,9 @@
       "today": "ఈరోజు",
       "yesterday": "నిన్న",
       "earlier": "అంతకుముందు"
-    }
+    },
+    "scopedTo": "{mode} సమాచారం చూపుతోంది",
+    "inOtherModes": "మీ ఇతర మోడ్‌లలో మరో {count}"
   },
   "offline": {
     "offline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",

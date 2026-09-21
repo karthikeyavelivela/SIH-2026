@@ -860,7 +860,6 @@
     "status": "स्थिति",
     "totalFare": "कुल किराया",
     "waitingRequested": "आपका अनुरोध पक्का किया जा रहा है…",
-    "waitingSearching": "ड्राइवर या हमाली के जवाब का इंतज़ार है…",
     "liveLocationUpdated": "लाइव लोकेशन — {seconds} सेकंड पहले अपडेट हुई",
     "waitingForLiveLocation": "उनकी लाइव लोकेशन का इंतज़ार है…",
     "statusTimeline": "स्थिति समयरेखा",
@@ -945,7 +944,11 @@
     "comboTitle": "एक ही बुकिंग में गाड़ी और लोडिंग टीम",
     "comboHint": "ड्राइवर: {driver} · लोडिंग टीम: {crew}। दोनों अलग-अलग स्वीकार करते हैं, इसलिए एक पहले तय हो सकता है।",
     "comboAssigned": "तय हो गया",
-    "comboPending": "अभी खोज जारी"
+    "comboPending": "अभी खोज जारी",
+    "waitingFor": "{who} के जवाब का इंतज़ार…",
+    "whoDriver": "ड्राइवर",
+    "whoCrew": "लोडिंग टीम",
+    "whoDriverAndCrew": "ड्राइवर और लोडिंग टीम"
   },
   "customerHistory": {
     "title": "बुकिंग इतिहास",
@@ -3038,7 +3041,9 @@
       "today": "आज",
       "yesterday": "कल",
       "earlier": "उससे पहले"
-    }
+    },
+    "scopedTo": "{mode} की सूचनाएँ",
+    "inOtherModes": "आपके दूसरे मोड में {count} और"
   },
   "offline": {
     "offline": "आप ऑफ़लाइन हैं",

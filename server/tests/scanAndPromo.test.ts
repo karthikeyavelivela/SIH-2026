@@ -238,6 +238,19 @@ describe('uploads that cannot actually store anything', () => {
   const PNG =
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
+  it('hides an avatar that was saved before the refusal existed', async () => {
+    // Rows written by the old behaviour are real and cannot be un-written
+    // by a code change. Stripped at the read boundary so every screen
+    // falls back to the initial instead of showing a broken image.
+    const { agent, user } = await agentFor('customer', '9890000041');
+    await User.findByIdAndUpdate(user._id, {
+      profilePhoto: 'https://mock.cloudinary.local/users/x/avatar-1.jpg',
+    });
+    const res = await agent.get('/api/auth/me');
+    expect(res.status).toBe(200);
+    expect(res.body.user.profilePhoto).toBeUndefined();
+  });
+
   it('refuses a profile photo rather than saving a URL that does not exist', async () => {
     const { agent, user } = await agentFor('customer', '9890000040');
     const res = await agent.patch('/api/auth/me/photo').send({ imageBase64: PNG });

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { bookingMode } from '@/lib/bookingMode';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -71,13 +72,12 @@ export default function CustomerHistoryPage() {
   );
   const bookings = useMemo(() => state.data ?? [], [state.data]);
 
-  // Bucketed the same way the booking screens are: general_labour is the
-  // hamali crew category, anything vehicle-dispatched is transit, the rest
-  // are household trades.
+  // One shared rule, in lib/bookingMode.ts. The version that lived here
+  // sent every household trade to the Hamali filter, because a plumber
+  // booking dispatches as type:'hamali' — so the Household filter was
+  // permanently empty and Hamali held everything.
   function bucketOf(b: BookingSummary): Filter {
-    if (b.serviceCategorySlug === 'general_labour' || b.type === 'hamali') return 'labour';
-    if (b.type === 'truck' || b.type === 'combo') return 'transport';
-    return 'household';
+    return bookingMode(b);
   }
 
   const startOfMonth = useMemo(() => {

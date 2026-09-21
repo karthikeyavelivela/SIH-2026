@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { usePolling } from '@/lib/usePolling';
+import { useAuth } from '@/lib/auth-context';
+import { useCustomerMode } from '@/lib/customerMode';
 import { api } from '@/lib/api';
 import { BellIcon } from './icons';
 
@@ -18,7 +20,18 @@ interface NotificationBellProps {
 // uses elsewhere in this codebase, paused while the tab is hidden.
 export function NotificationBell({ href, className = '' }: NotificationBellProps) {
   const t = useTranslations('notifications');
-  const { data } = usePolling(() => api.get<{ unreadCount: number }>('/api/notifications/unread-count'), 30000);
+  const { user } = useAuth();
+  // Scoped for the customer, whose three modes each keep their own list.
+  // A badge that disagrees with its own list is worse than no badge.
+  const { mode } = useCustomerMode();
+  const scoped = user?.role === 'customer';
+  const { data } = usePolling(
+    () =>
+      api.get<{ unreadCount: number }>(
+        scoped ? `/api/notifications/unread-count?mode=${mode}` : '/api/notifications/unread-count'
+      ),
+    30000
+  );
   const count = data?.unreadCount ?? 0;
 
   return (

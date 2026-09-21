@@ -27,6 +27,7 @@ import { SearchScanBar } from '@/components/customer/SearchScanBar';
 import { ComboAddOn } from '@/components/booking/ComboAddOn';
 import { bucketVehicleCategory } from '@/components/booking/FareCard';
 import { PromoRail } from '@/components/customer/PromoRail';
+import { ActiveBookingStrip } from '@/components/customer/ActiveBookingStrip';
 
 /* Built against client/public/design/hamali_labour_standard.html.
 
@@ -161,6 +162,9 @@ export default function LabourBookingPage() {
               this mode. */}
           <SearchScanBar mode="labour" />
           <PromoRail mode="labour" />
+          {/* This mode's own running job. Switching mode changes what is
+              on the screen, and a live booking is part of that. */}
+          <ActiveBookingStrip mode="labour" />
           {/* Guild banner. The design reads "86 certified freight specialists
               ready near you"; nothing counts available workers server-side,
               so this carries the category's real dispatch description. */}

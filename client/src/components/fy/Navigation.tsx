@@ -165,9 +165,12 @@ export function StickyActionBar({ children, className = '' }: { children: ReactN
   return (
     <div
       ref={ref}
-      className={`fixed inset-x-0 fy-above-nav z-40 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40 ${className}`}
+      className="fixed inset-x-0 fy-above-nav z-40 bg-fy-bone/92 backdrop-blur-xl border-t border-fy-hairline/40"
     >
-      <div className="max-w-2xl mx-auto px-gutter py-3 flex items-center gap-3">{children}</div>
+      {/* `className` reaches the INNER row, which is the one a caller ever
+          wants to restyle — a screen whose action needs the full width
+          passes flex-col. */}
+      <div className={`max-w-2xl mx-auto px-gutter py-3 flex items-center gap-2.5 ${className}`}>{children}</div>
     </div>
   );
 }

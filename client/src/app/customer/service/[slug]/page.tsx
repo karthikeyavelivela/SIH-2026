@@ -405,9 +405,13 @@ export default function ServiceDetailPage() {
           <RatingGateNotice message={flow.submitError} bookingId={flow.blockedByUnratedId} />
         )}
 
-        <StickyActionBar>
-            <div className="min-w-0 flex-1">
-              <EyebrowLabel>
+        {/* Stacked, not side by side. Side by side the fare and a
+            15-character button competed for 375px and the label lost —
+            "Request servi…". A full-width button cannot clip, and the fare
+            reads better above it than squeezed beside it. */}
+        <StickyActionBar className="flex-col">
+            <div className="w-full flex items-baseline justify-between gap-3">
+              <EyebrowLabel className="min-w-0 truncate">
                 {flow.fareState === 'ready'
                   ? t('estimated')
                   : flow.fareState === 'error'
@@ -415,10 +419,10 @@ export default function ServiceDetailPage() {
                     : t('fareAfterAddress')}
               </EyebrowLabel>
               {flow.fareState === 'ready' && flow.fare && (
-                <p className="font-heading text-title text-fy-ink leading-none">₹{flow.fare.total}</p>
+                <p className="font-heading text-title text-fy-ink leading-none shrink-0">₹{flow.fare.total}</p>
               )}
             </div>
-            <Button type="submit" glyph="bolt" disabled={!flow.canSubmit} className="shrink-0">
+            <Button type="submit" glyph="bolt" disabled={!flow.canSubmit} className="w-full">
               {flow.submitting ? t('submitting') : t('submit')}
             </Button>
         </StickyActionBar>

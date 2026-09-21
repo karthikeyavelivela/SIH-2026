@@ -22,6 +22,7 @@ import { SearchScanBar } from '@/components/customer/SearchScanBar';
 import { PromoRail } from '@/components/customer/PromoRail';
 import { CategoryGrid } from '@/components/customer/CategoryGrid';
 import { RecommendationsRow } from '@/components/customer/RecommendationsRow';
+import { ActiveBookingStrip } from '@/components/customer/ActiveBookingStrip';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
 import { LightCard, IconTile } from '@/components/fy/Surfaces';
 import { EyebrowLabel, Body } from '@/components/fy/Text';
@@ -138,30 +139,7 @@ export default function CustomerDashboardPage() {
           <Icon name="expand_more" size={14} className="shrink-0" />
         </Link>
 
-        {activeBooking && (
-          <Link href={`/customer/track/${activeBooking._id}`} className="block">
-            <LightCard className="p-2.5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden>
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fy-lime opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-fy-green" />
-                </span>
-                <div className="flex flex-col min-w-0">
-                  <EyebrowLabel tone="green">{tDash('activeTracking')}</EyebrowLabel>
-                  <p className="font-body text-label text-fy-ink truncate">
-                    {statusLabel[activeBooking.status] ?? activeBooking.status} ·{' '}
-                    {shortAddress(activeBooking.pickupLocation.address)} →{' '}
-                    {shortAddress(activeBooking.dropLocation.address)}
-                  </p>
-                </div>
-              </div>
-              <IconTile tone="peach" size="sm" className="rounded-full">
-                <Icon name="near_me" size={18} />
-              </IconTile>
-            </LightCard>
-            <ProgressBar value={progressPct} tone="lime" className="mt-1.5 mx-1" />
-          </Link>
-        )}
+        <ActiveBookingStrip mode="household" />
 
         <PromoRail mode="household" />
 

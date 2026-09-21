@@ -27,6 +27,7 @@ import { TopBar } from '@/components/fy/Navigation';
 import { ComboAddOn } from '@/components/booking/ComboAddOn';
 import { SearchScanBar } from '@/components/customer/SearchScanBar';
 import { PromoRail } from '@/components/customer/PromoRail';
+import { ActiveBookingStrip } from '@/components/customer/ActiveBookingStrip';
 
 /* Built against client/public/design/goods_transport.html.
 
@@ -136,6 +137,9 @@ export default function TransportBookingPage() {
               Transit. */}
           <SearchScanBar mode="transport" />
           <PromoRail mode="transport" />
+          {/* This mode's own running job. Switching mode changes what is
+              on the screen, and a live booking is part of that. */}
+          <ActiveBookingStrip mode="transport" />
           <div className="flex items-center justify-between gap-3 pt-2 pr-20">
             <EyebrowLabel tone="brown">{t('modeSliver')}</EyebrowLabel>
             <StatusPill tone="slate" className="shrink-0">

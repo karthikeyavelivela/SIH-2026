@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import { useCategoryName } from '@/lib/categoryName';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useAuth } from '@/lib/auth-context';
@@ -35,6 +36,8 @@ const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false
 interface BookingDetail {
   _id: string;
   type: 'truck' | 'hamali' | 'combo';
+  /** Named trade, when one was booked. Absent on a bare crew or truck dispatch. */
+  serviceCategorySlug?: string;
   status: string;
   fareBreakdown: { baseFare: number; distanceFare: number; hamaliFare: number; total: number };
   pickupLocation: { address: string; coordinates: [number, number] };
@@ -202,6 +205,7 @@ function AssignedRow({ entry, sub }: { entry: AssignedPerson; sub?: 'vehicle' | 
 
 export default function TrackBookingPage() {
   const t = useTranslations('trackBooking');
+  const categoryName = useCategoryName();
   const tSos = useTranslations('sos');
   const { bookingId } = useParams<{ bookingId: string }>();
   const { user } = useAuth();
@@ -320,6 +324,23 @@ export default function TrackBookingPage() {
     }
   }
 
+  /*
+   * Who this booking is actually waiting for.
+   *
+   * A named trade answers it directly. A bare crew or truck dispatch has no
+   * category, so it falls back to the dispatch type — and a combo names
+   * both, because two separate parties have to accept it.
+   */
+  const waitingFor = (() => {
+    const slug = booking?.serviceCategorySlug;
+    if (booking?.type === 'combo') return t('whoDriverAndCrew');
+    if (slug && slug !== 'general_labour' && slug !== 'general_logistics') {
+      return categoryName({ slug, name: slug });
+    }
+    if (booking?.type === 'truck' || slug === 'general_logistics') return t('whoDriver');
+    return t('whoCrew');
+  })();
+
   const assigned = matched?.assigned as Record<string, unknown> | undefined;
   const hasAssigned = assigned != null && Object.keys(assigned).length > 0;
   const chatOpen = !['requested', 'searching'].includes(booking.status);
@@ -414,7 +435,10 @@ export default function TrackBookingPage() {
                     ? t('waitingForBids')
                     : booking.status === 'requested'
                       ? t('waitingRequested')
-                      : t('waitingSearching')}
+                      : // Name whoever was actually booked. "Waiting for a
+                        // driver or Hamali" on an electrician callout reads
+                        // as though the wrong job was placed.
+                        t('waitingFor', { who: waitingFor })}
                 </Body>
               </LightCard>
             )}

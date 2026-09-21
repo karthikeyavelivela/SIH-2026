@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { usePolling } from '@/lib/usePolling';
+import { useAuth } from '@/lib/auth-context';
+import { useCustomerMode, CUSTOMER_MODES } from '@/lib/customerMode';
 import { api } from '@/lib/api';
 import { Icon } from '@/components/ui/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -70,9 +72,25 @@ function bucketFor(iso: string): 'today' | 'yesterday' | 'earlier' {
 
 export function NotificationCenter({ accent = 'primary' }: { accent?: 'primary' | 'secondary' }) {
   const t = useTranslations('notifications');
+  const tMode = useTranslations('customerMode');
   const router = useRouter();
+  /*
+   * The customer's list is scoped to the mode they are in — switching mode
+   * changes everything on screen, and this was the last thing ignoring it.
+   * Every other role has one world and asks for the unscoped list.
+   *
+   * `otherModesCount` is surfaced below rather than swallowed: scoping a
+   * person cannot see past is scoping that loses things.
+   */
+  const { user } = useAuth();
+  const { mode, setMode } = useCustomerMode();
+  const scoped = user?.role === 'customer';
+
   const { data, state, reload } = usePolling(
-    () => api.get<{ notifications: NotificationDoc[]; unreadCount: number }>('/api/notifications'),
+    () =>
+      api.get<{ notifications: NotificationDoc[]; unreadCount: number; otherModesCount?: number }>(
+        scoped ? `/api/notifications?mode=${mode}` : '/api/notifications'
+      ),
     30000
   );
 
@@ -141,10 +159,38 @@ export function NotificationCenter({ accent = 'primary' }: { accent?: 'primary' 
       />
 
       <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
+        {scoped && (
+          <span className="font-mono text-[10px] text-fy-muted">
+            {t('scopedTo', { mode: tMode(`modes.${mode}` as never) })}
+          </span>
+        )}
+
         {unread > 0 && (
           <EyebrowLabel tone={accent === 'primary' ? 'brown' : 'green'}>
             {t('unreadCount', { count: unread })}
           </EyebrowLabel>
+        )}
+
+        {/* What is waiting in the other two modes. Named and reachable, so
+            nothing is hidden by the scoping — only sorted by it. */}
+        {scoped && (data?.otherModesCount ?? 0) > 0 && (
+          <LightCard className="flex items-center justify-between gap-3">
+            <span className="font-body text-label text-fy-ink-soft min-w-0">
+              {t('inOtherModes', { count: data!.otherModesCount! })}
+            </span>
+            <span className="flex gap-2 shrink-0">
+              {CUSTOMER_MODES.filter((m) => m !== mode).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  className="font-body text-label font-semibold text-fy-brown hover:underline"
+                >
+                  {tMode(`modes.${m}` as never)}
+                </button>
+              ))}
+            </span>
+          </LightCard>
         )}
 
         {state === 'loading' && <Skeleton lines={4} className="h-16" />}

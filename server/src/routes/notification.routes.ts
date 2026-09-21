@@ -8,7 +8,19 @@ export const notificationRouter = Router();
 
 notificationRouter.use(verifyJwt);
 
-notificationRouter.get('/', [query('page').optional().isInt({ min: 1 })], validate, notificationController.listMyNotifications);
-notificationRouter.get('/unread-count', notificationController.getUnreadCount);
+const MODES = ['household', 'labour', 'transport'];
+
+notificationRouter.get(
+  '/',
+  [query('page').optional().isInt({ min: 1 }), query('mode').optional().isIn(MODES)],
+  validate,
+  notificationController.listMyNotifications
+);
+notificationRouter.get(
+  '/unread-count',
+  [query('mode').optional().isIn(MODES)],
+  validate,
+  notificationController.getUnreadCount
+);
 notificationRouter.patch('/:id/read', [param('id').isMongoId()], validate, notificationController.markRead);
 notificationRouter.patch('/read-all', notificationController.markAllRead);

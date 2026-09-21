@@ -41,7 +41,7 @@ export function Button({
 }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-control font-body font-semibold transition-all active:translate-y-px disabled:opacity-40 disabled:cursor-not-allowed ${sizeClass[size]} ${variantClass[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-control font-body font-semibold transition-all active:translate-y-px disabled:opacity-40 disabled:cursor-not-allowed ${sizeClass[size]} ${variantClass[variant]} ${className}`}
       {...props}
     >
       {glyph && <Icon name={glyph} size={20} />}

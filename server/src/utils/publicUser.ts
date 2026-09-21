@@ -10,6 +10,24 @@ export function publicUser(user: { toObject: () => Record<string, unknown> }) {
   // detector) — never returned to the user themself or any non-admin caller.
   delete obj.signupIp;
 
+  /*
+   * An avatar that was never actually stored.
+   *
+   * Before the photo endpoint learned to refuse a mocked upload, it saved
+   * the deterministic fake URL the upload service returns when Cloudinary
+   * is not configured. Those rows exist, and every screen that renders one
+   * shows a broken image the person cannot clear.
+   *
+   * Stripped here, at the read boundary, rather than migrated: it fixes
+   * every existing row on the next request without a data change, and it
+   * keeps working if a mocked upload ever slips through again. The field
+   * simply reads as absent, which every avatar component already handles
+   * by falling back to the initial.
+   */
+  if (typeof obj.profilePhoto === 'string' && obj.profilePhoto.startsWith('https://mock.cloudinary.local/')) {
+    delete obj.profilePhoto;
+  }
+
   // pendingPhoneChange.otpHash is exactly as sensitive as passwordHash —
   // never leaves the server. newPhone/expiresAt/attempts are fine (a
   // client needs to know a change is pending and when it expires).
