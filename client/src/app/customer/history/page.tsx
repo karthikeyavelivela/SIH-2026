@@ -191,12 +191,18 @@ export default function CustomerHistoryPage() {
               </div>
               <Body size="label">{dateLine(latest)}</Body>
               <Divider />
-              <div className="flex items-end justify-between gap-3">
-                <div>
+              {/* Stacked. A 36px fare and two nowrap buttons on one row came
+                  to about 420px against 343px of usable width, so the
+                  second button hung off the edge and the whole page
+                  scrolled sideways. */}
+              <div className="flex flex-col gap-3">
+                <div className="min-w-0">
                   <EyebrowLabel>{th('fareLabel')}</EyebrowLabel>
-                  <p className="font-heading text-metric text-fy-brown leading-none">₹{latest.fareBreakdown.total}</p>
+                  <p className="font-heading text-metric text-fy-brown leading-none truncate">
+                    ₹{latest.fareBreakdown.total}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     type="button"
                     variant="light"

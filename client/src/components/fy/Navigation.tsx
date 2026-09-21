@@ -248,9 +248,13 @@ export function TabRow({
   const round = variant === 'segment' ? 'rounded-control' : 'rounded-full';
   const buttonRound = variant === 'segment' ? 'rounded-cell' : 'rounded-full';
   return (
+    // Scrolls rather than overflows. Four tabs with glyphs (Status, Chat,
+    // Payment, Custody) are wider than a 375px phone, and with no overflow
+    // rule the row pushed the whole PAGE sideways — a horizontal scrollbar
+    // on every screen carrying this component.
     <div
       role="tablist"
-      className={`flex items-center gap-1 p-1 ${round} ${
+      className={`flex items-center gap-1 p-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${round} ${
         variant === 'pill' ? 'bg-fy-field' : 'bg-fy-well'
       } ${className}`}
     >
@@ -261,6 +265,7 @@ export function TabRow({
         return (
           <button
             key={t.key}
+            // Never squeezed to illegibility; the row scrolls instead.
             role="tab"
             type="button"
             aria-selected={on}

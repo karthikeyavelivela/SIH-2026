@@ -38,6 +38,12 @@ export interface IPromoBanner {
   /** Lower sorts first. Ties break on createdAt. */
   order: number;
   active: boolean;
+  /**
+   * Set only on a banner this codebase seeded, so the seeder can tell
+   * "already created" from "created and then deleted by an admin" without
+   * matching on the title — which is the field most likely to be edited.
+   */
+  sourceKey?: string;
   createdByAdminId: Types.ObjectId;
 }
 
@@ -54,6 +60,7 @@ const schema = new Schema<IPromoBanner>(
     endsAt: { type: Date },
     order: { type: Number, default: 0 },
     active: { type: Boolean, default: true },
+    sourceKey: { type: String, trim: true, index: true },
     createdByAdminId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }

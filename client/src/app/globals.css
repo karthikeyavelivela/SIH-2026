@@ -159,6 +159,24 @@ html[lang='hi'] {
   bottom: calc(var(--fy-nav-total) + var(--fy-cta-h) + 0.75rem);
 }
 
+/* Nothing may scroll the page sideways.
+ *
+ * A single over-wide row — a 36px fare beside two buttons, a four-tab row
+ * on a 375px phone — used to widen the document and put a horizontal
+ * scrollbar under every screen, which reads as "the app is broken" long
+ * before anyone identifies which element did it.
+ *
+ * This is a backstop and not a licence: an element that needs more width
+ * than the screen still has to say so itself with its own overflow-x-auto,
+ * or its content is simply unreachable. Both known offenders were fixed at
+ * source; this catches the next one.
+ */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* The mode sheet's entrance. Short and eased-out rather than springy: this
    is a switch a customer uses several times a session, and a bouncy sheet
    stops being charming on the fourth use. */

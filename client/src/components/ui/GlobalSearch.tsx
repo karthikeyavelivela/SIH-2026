@@ -96,7 +96,12 @@ export function GlobalSearch() {
   const pathname = usePathname();
   // The three mode home screens render SearchScanBar, so the floating
   // button would be the second search control on the same screen.
-  const onScreenWithSearchBar = CUSTOMER_MODES.some((m) => pathname === MODE_HOME[m]);
+  const onScreenWithSearchBar =
+    CUSTOMER_MODES.some((m) => pathname === MODE_HOME[m]) ||
+    // These carry their own search input. A second, floating one is both
+    // redundant and permanently on top of the content beneath it.
+    pathname === '/customer/services' ||
+    pathname === '/customer/history';
   const inputRef = useRef<HTMLInputElement | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout>>();
   // Guards against an earlier, slower response overwriting a later one.

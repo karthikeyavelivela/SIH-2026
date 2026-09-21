@@ -48,7 +48,8 @@ export function AvatarUpload({ name, photoUrl, accent = 'primary', onUploaded }:
   }
 
   return (
-    <div>
+    // `relative` so the error can be positioned OUT of the layout below.
+    <div className="relative">
       <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
       <button
         type="button"
@@ -62,7 +63,21 @@ export function AvatarUpload({ name, photoUrl, accent = 'primary', onUploaded }:
           <CameraIcon className="w-3.5 h-3.5 text-fy-muted" />
         </span>
       </button>
-      {error && <p className="text-xs text-fy-error mt-1">{error}</p>}
+      {/* Absolutely positioned, and deliberately so.
+          This component is usually dropped into a `shrink-0` box beside a
+          name and a status pill, so a sentence rendered in the normal flow
+          could not wrap and shoved the whole row past the screen edge —
+          "Photo storage is not switched on yet…" ran clean off the right
+          of the profile card. Out of flow, it can be as long as it needs
+          to be without moving anything. */}
+      {error && (
+        <p
+          role="alert"
+          className="absolute left-0 top-full z-10 mt-1.5 w-max max-w-[min(72vw,300px)] rounded-control bg-fy-error-bg px-3 py-2 font-body text-label text-fy-on-error-bg shadow-card"
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 }

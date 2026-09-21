@@ -4414,5 +4414,10 @@
       "vehicle_medium": "Medium vehicle",
       "vehicle_large": "Large vehicle"
     }
+  },
+  "notifyPrompt": {
+    "copy": "Get told the moment your job is accepted or a worker is on the way.",
+    "enable": "Turn on alerts",
+    "dismiss": "Not now"
   }
 }

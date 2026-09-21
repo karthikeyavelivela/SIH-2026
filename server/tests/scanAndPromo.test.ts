@@ -4,6 +4,7 @@ import { app } from '../src/app';
 import { User } from '../src/models/User';
 import { ServiceCategory } from '../src/models/ServiceCategory';
 import { PromoBanner } from '../src/models/PromoBanner';
+import { ensurePromoBanners } from '../src/services/promoBannerSeed';
 import { signAccessToken } from '../src/services/token.service';
 
 /**
@@ -263,5 +264,39 @@ describe('uploads that cannot actually store anything', () => {
 
     const after = await User.findById(user._id).select('profilePhoto').lean();
     expect(after?.profilePhoto).toBeFalsy();
+  });
+});
+
+describe('the starter banners', () => {
+  it('seeds three, and never recreates one an admin deleted', async () => {
+    await User.create({ name: 'Root', phone: '9899000001', passwordHash: 'x', role: 'admin' });
+
+    expect(await ensurePromoBanners()).toBe(3);
+    // Idempotent: a restart must not duplicate them.
+    expect(await ensurePromoBanners()).toBe(0);
+
+    const all = await PromoBanner.find().lean();
+    expect(all).toHaveLength(3);
+
+    // An admin switching one off is a decision, not a gap to fill on the
+    // next boot. (Switching off is the only removal the API offers — there
+    // is no DELETE route, deliberately, so a banner's history survives.)
+    await PromoBanner.updateOne({ sourceKey: 'seed:scan' }, { active: false });
+    expect(await ensurePromoBanners()).toBe(0);
+    expect(await PromoBanner.countDocuments({ active: true })).toBe(2);
+  });
+
+  it('attributes nothing when there is no admin to attribute it to', async () => {
+    expect(await ensurePromoBanners()).toBe(0);
+    expect(await PromoBanner.countDocuments()).toBe(0);
+  });
+
+  it('puts the scan banner on the household home only', async () => {
+    await User.create({ name: 'Root', phone: '9899000002', passwordHash: 'x', role: 'admin' });
+    await ensurePromoBanners();
+    const scan = await PromoBanner.findOne({ sourceKey: 'seed:scan' }).lean();
+    // Scan and Diagnose names household trades; offering it in Transit
+    // would send someone a carpenter for a photo of a pallet.
+    expect(scan?.mode).toBe('household');
   });
 });

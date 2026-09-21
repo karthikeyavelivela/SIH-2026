@@ -1,36 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useNotificationPermission } from '@/lib/useNotificationPermission';
-import { BellIcon, XIcon } from '@/components/ui/icons';
+import { Icon } from '@/components/ui/Icon';
 
 interface NotificationPromptProps {
   accent?: 'primary' | 'secondary';
   copy?: string;
 }
 
-// Real-time-alert opt-in — explicit banner with a clear reason, not a
-// silent native prompt firing on page load. Dismissible per-session
-// (component unmounts on navigation, state doesn't persist to
-// localStorage on purpose: re-showing next visit costs nothing and a
-// user who genuinely doesn't want alerts just dismisses again).
-export function NotificationPrompt({ accent = 'primary', copy = 'Get notified the instant your job status changes.' }: NotificationPromptProps) {
+const DISMISSED_KEY = 'fyro.notifyPrompt.dismissed';
+
+/**
+ * The opt-in banner for browser alerts.
+ *
+ * Deliberately a banner with a stated reason rather than a native prompt
+ * fired on page load — a permission dialog with no explanation in front of
+ * it is the thing people click "Block" on, and a block is permanent.
+ *
+ * Two things were wrong with it:
+ *
+ * Dismissal lived in component state, so it unmounted on every navigation
+ * and the banner came back on the next screen, and the next. Asking once is
+ * a request; asking on every screen is nagging, and it trains people to
+ * dismiss without reading. It is now remembered in localStorage.
+ *
+ * And its two labels were hardcoded English in a trilingual app, so a
+ * Telugu reader got "Enable alerts" in the middle of a Telugu screen.
+ */
+export function NotificationPrompt({ accent = 'primary', copy }: NotificationPromptProps) {
+  const t = useTranslations('notifyPrompt');
   const { permission, request } = useNotificationPermission();
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(true);
+
+  // Starts dismissed and un-dismisses after reading storage, so the banner
+  // never flashes in on first paint and then disappear.
+  useEffect(() => {
+    try {
+      setDismissed(localStorage.getItem(DISMISSED_KEY) === '1');
+    } catch {
+      // Private window or blocked storage: show it, and this session's
+      // dismissal simply will not persist.
+      setDismissed(false);
+    }
+  }, []);
+
+  function dismiss() {
+    setDismissed(true);
+    try {
+      localStorage.setItem(DISMISSED_KEY, '1');
+    } catch {
+      /* see above */
+    }
+  }
 
   if (dismissed || permission !== 'default') return null;
 
   const tint = accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green';
 
   return (
-    <div className={`flex items-center gap-3 rounded-card px-4 py-3 mb-4 ${tint}`}>
-      <BellIcon className="w-4 h-4 flex-shrink-0" />
-      <p className="text-sm flex-1">{copy}</p>
-      <button type="button" onClick={() => request()} className="text-xs font-semibold underline flex-shrink-0">
-        Enable alerts
-      </button>
-      <button type="button" onClick={() => setDismissed(true)} aria-label="Dismiss" className="flex-shrink-0">
-        <XIcon className="w-3.5 h-3.5" />
+    <div className={`flex items-start gap-2.5 rounded-card px-3.5 py-3 ${tint}`}>
+      <Icon name="notifications_active" size={18} className="shrink-0 mt-0.5" />
+
+      {/* Wraps under the text on a narrow screen rather than squeezing the
+          sentence into two words per line. */}
+      <div className="min-w-0 flex-1 flex flex-col gap-1.5">
+        <p className="font-body text-label leading-snug">{copy ?? t('copy')}</p>
+        <button
+          type="button"
+          onClick={() => request()}
+          className="self-start font-body text-label font-semibold underline"
+        >
+          {t('enable')}
+        </button>
+      </div>
+
+      <button type="button" onClick={dismiss} aria-label={t('dismiss')} className="shrink-0 -mr-1 -mt-0.5 p-1">
+        <Icon name="close" size={16} />
       </button>
     </div>
   );

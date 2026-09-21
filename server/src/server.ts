@@ -8,6 +8,7 @@ import { startScheduledIncentiveRunner } from './services/scheduledIncentiveRunn
 import { describeChain } from './agents/providers';
 import { ensureTrainingModules } from './services/trainingCatalogue';
 import { ensureWageFloors } from './services/wageFloor.service';
+import { ensurePromoBanners } from './services/promoBannerSeed';
 
 async function main() {
   await connectDb();
@@ -41,6 +42,19 @@ async function main() {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Wage floor seeding failed (continuing):', err);
+  }
+
+  // The promotional rail's starter content. Ordinary rows an admin can
+  // edit or switch off; never recreated once removed.
+  try {
+    const banners = await ensurePromoBanners();
+    if (banners > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`Seeded ${banners} promotional banner(s).`);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Promo banner seeding failed (continuing):', err);
   }
 
   startScheduledBookingReleaser();
