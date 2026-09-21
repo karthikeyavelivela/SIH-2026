@@ -46,6 +46,41 @@ export const gemini: AiProvider = {
   modelFor: () => TEXT_MODEL,
 
   async generate(input: ProviderCallInput): Promise<string> {
+    return callWithRetry(input);
+  },
+};
+
+/**
+ * One short retry on a transient capacity error.
+ *
+ * Google answers 503 "This model is currently experiencing high demand" and
+ * 429 on a rate limit, and both clear in seconds. Falling straight through
+ * to the next provider on one of those is the wrong trade here: the chain
+ * behind Gemini is an Anthropic account with no credit, so a two-second
+ * blip currently costs every agent its real answer and drops the whole
+ * layer to rule-based output that a user cannot tell apart from a broken
+ * key.
+ *
+ * Deliberately one retry and a short wait. This sits inside an HTTP request
+ * a person is waiting on, and a provider that is genuinely down should be
+ * reported as down rather than held onto — the same reasoning as the
+ * geocoder's single 429 retry.
+ */
+const TRANSIENT_STATUSES = new Set([429, 503]);
+const RETRY_DELAY_MS = 1200;
+
+async function callWithRetry(input: ProviderCallInput): Promise<string> {
+  try {
+    return await callGemini(input);
+  } catch (err) {
+    const status = err instanceof ProviderError ? err.status : undefined;
+    if (!status || !TRANSIENT_STATUSES.has(status)) throw err;
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    return callGemini(input);
+  }
+}
+
+async function callGemini(input: ProviderCallInput): Promise<string> {
     const model = input.image ? VISION_MODEL : TEXT_MODEL;
     const parts: Record<string, unknown>[] = [];
     if (input.image) {
@@ -97,5 +132,4 @@ export const gemini: AiProvider = {
       throw new ProviderError('gemini', `empty response (finish: ${body.candidates?.[0]?.finishReason ?? 'unknown'})`);
     }
     return text;
-  },
-};
+}
