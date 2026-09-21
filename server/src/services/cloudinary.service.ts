@@ -3,6 +3,16 @@ import { env } from '../config/env';
 export interface UploadResult {
   url: string;
   publicId: string;
+  /**
+   * True when nothing was actually stored and `url` points at the
+   * deterministic fake host.
+   *
+   * Callers that merely record the URL can ignore this. Callers that will
+   * RENDER it to someone must not: a mock URL shown as an image is a broken
+   * image, and a broken image is a worse answer than no image. Scan and
+   * Diagnose checks it before attaching a photo to a booking.
+   */
+  mock: boolean;
 }
 
 /**
@@ -24,7 +34,7 @@ export async function uploadImage(
   if (env.MOCK_EXTERNAL_SERVICES || !env.CLOUDINARY_CLOUD_NAME) {
     const fakeId = `${folder}-${Date.now()}`;
     const ext = resourceType === 'raw' ? 'pdf' : 'jpg';
-    return { url: `https://mock.cloudinary.local/${fakeId}.${ext}`, publicId: fakeId };
+    return { url: `https://mock.cloudinary.local/${fakeId}.${ext}`, publicId: fakeId, mock: true };
   }
   // Real integration point — wired once CLOUDINARY_* env vars are supplied.
   const cloudinary = await import('cloudinary');
@@ -40,5 +50,5 @@ export async function uploadImage(
     });
     stream.end(buffer);
   });
-  return { url: result.secure_url, publicId: result.public_id };
+  return { url: result.secure_url, publicId: result.public_id, mock: false };
 }

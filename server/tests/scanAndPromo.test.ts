@@ -195,6 +195,18 @@ describe('scan and diagnose', () => {
     expect(res.body.diagnosis.suggestion).toBeUndefined();
   });
 
+  it('attaches no photo URL when nothing was actually stored', async () => {
+    // Without Cloudinary credentials the upload returns a deterministic
+    // fake URL. Carrying that onto a booking would put a broken image on
+    // the assigned worker's screen — worse than no image, because it looks
+    // like the customer sent one and it failed to load.
+    const { agent } = await agentFor('customer', '9890000034');
+    const res = await agent
+      .post('/api/assistant/diagnose-photo')
+      .send({ imageBase64: TINY_PNG, mediaType: 'image/png' });
+    expect(res.body.photoUrl).toBeUndefined();
+  });
+
   it('still routes from the note when the photo cannot be analysed', async () => {
     const { agent } = await agentFor('customer', '9890000032');
     const res = await agent.post('/api/assistant/diagnose-photo').send({

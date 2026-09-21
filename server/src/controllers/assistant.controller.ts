@@ -234,7 +234,12 @@ export const diagnosePhotoEndpoint = asyncHandler(async (req: Request, res: Resp
   let photoUrl: string | undefined;
   try {
     const upload = await uploadImage(Buffer.from(imageBase64, 'base64'), 'fyro/diagnose');
-    photoUrl = upload.url;
+    // Without Cloudinary credentials the upload returns a deterministic
+    // fake URL. Attaching that to a booking would put a broken image on the
+    // assigned worker's screen, which is worse than no image: it looks like
+    // the customer sent something and it failed to load. So a mocked
+    // upload carries no photo at all, and the booking keeps the note.
+    photoUrl = upload.mock ? undefined : upload.url;
   } catch (err) {
     // The diagnosis is still worth returning. The booking simply carries
     // the note without the picture, which the screen says plainly.
