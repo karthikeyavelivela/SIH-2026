@@ -38,6 +38,38 @@ export function anyProviderConfigured(forVision = false): boolean {
   return providerChain(forVision).length > 0;
 }
 
+/**
+ * The last failure each provider reported, and when.
+ *
+ * A key being PRESENT and a key WORKING are different facts, and until now
+ * only the first was observable: /api/health reported "gemini -> anthropic"
+ * while every call to both was failing and every agent was quietly serving
+ * its rule-based fallback. The reason existed — it was logged — but only
+ * somebody with the Render dashboard open could read it, and the endpoint
+ * whose entire job is to say whether the AI is live was saying the opposite
+ * of the truth.
+ *
+ * Held in memory only. It is a diagnosis of the running process, not a
+ * record, and a restart clearing it is correct: the question is always
+ * "is it working NOW".
+ */
+const lastFailure = new Map<ProviderName, { reason: string; at: string }>();
+
+/** Cleared on success, so a provider that recovers stops being reported as broken. */
+function noteOutcome(name: ProviderName, reason?: string) {
+  if (reason) lastFailure.set(name, { reason: reason.slice(0, 200), at: new Date().toISOString() });
+  else lastFailure.delete(name);
+}
+
+export function providerHealth(): { name: ProviderName; configured: boolean; supportsVision: boolean; lastFailure?: { reason: string; at: string } }[] {
+  return ALL.map((p) => ({
+    name: p.name,
+    configured: p.configured(),
+    supportsVision: p.supportsVision,
+    lastFailure: lastFailure.get(p.name),
+  }));
+}
+
 /** Human-readable chain, for the startup log and the health payload. */
 export function describeChain(): string {
   const chain = providerChain();
@@ -64,10 +96,12 @@ export async function generate(input: ProviderCallInput): Promise<GenerationOutc
   for (const provider of chain) {
     try {
       const text = await provider.generate(input);
+      noteOutcome(provider.name);
       return { text, provider: provider.name, model: provider.modelFor(input) };
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
-      failures.push(reason);
+      noteOutcome(provider.name, reason);
+      failures.push(`${provider.name}: ${reason}`);
       // eslint-disable-next-line no-console
       console.error(`agent provider ${provider.name} failed — ${reason}`);
     }

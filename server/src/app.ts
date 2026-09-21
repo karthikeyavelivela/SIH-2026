@@ -59,7 +59,7 @@ import { ApiError } from './utils/ApiError';
 import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
 import { resolveLocale } from './i18n/resolveLocale';
-import { describeChain } from './agents/providers';
+import { describeChain, providerHealth } from './agents/providers';
 
 export const app = express();
 
@@ -127,7 +127,23 @@ app.use('/api', (_req, res, next) => {
 // `ai` names the provider chain the agent layer would use right now — the
 // one honest way to answer "is the AI live in production?" without reading
 // the dashboard's env vars. It reports configuration, never a key.
-app.get('/api/health', (_req, res) => res.status(200).json({ ok: true, ai: describeChain() }));
+/*
+ * Health, including WHY the AI is not answering.
+ *
+ * `ai` alone said "gemini -> anthropic" while every call to both was
+ * failing — it reported which keys were present, which is not the question
+ * anybody asks a health endpoint. `aiProviders` carries each provider's
+ * last failure so "is the AI live?" has a real answer.
+ *
+ * The reasons are vendor error strings (an HTTP status and the first part
+ * of the body). They never contain the key: it travels in a header, and no
+ * provider echoes it back. This stays unauthenticated for the same reason
+ * the rest of /api/health does — it is the endpoint you need when you
+ * cannot get in.
+ */
+app.get('/api/health', (_req, res) =>
+  res.status(200).json({ ok: true, ai: describeChain(), aiProviders: providerHealth() })
+);
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before
 // the general /api/admin router below. Express's app.use() matches by path
