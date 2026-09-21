@@ -1,7 +1,7 @@
 'use client';
 
 import { RatingGateNotice } from '@/components/booking/RatingGateNotice';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
@@ -13,7 +13,6 @@ import { AddressField } from '@/components/booking/AddressField';
 import { RegionField } from '@/components/booking/RegionField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
-import { RotaryDial, type DialSector } from '@/components/ui/RotaryDial';
 import { Icon } from '@/components/ui/Icon';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -23,6 +22,10 @@ import { MetricBlock } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, Stepper, SelectCard, Field } from '@/components/fy/Controls';
 import { PhotoStrip } from '@/components/fy/Media';
 import { TopBar, StickyActionBar } from '@/components/fy/Navigation';
+import { SearchScanBar } from '@/components/customer/SearchScanBar';
+import { ComboAddOn } from '@/components/booking/ComboAddOn';
+import { bucketVehicleCategory } from '@/components/booking/FareCard';
+import { PromoRail } from '@/components/customer/PromoRail';
 
 /* Built against client/public/design/hamali_labour_standard.html.
 
@@ -58,12 +61,6 @@ const MATERIALS: { key: string; goodsType: string; glyph: string }[] = [
   { key: 'other', goodsType: 'other', glyph: 'more_horiz' },
 ];
 
-const DIAL_SECTORS: DialSector[] = [
-  { key: 'household', label: 'Household', glyph: 'home_repair_service' },
-  { key: 'labour', label: 'Hamali', glyph: 'engineering' },
-  { key: 'transport', label: 'Transit', glyph: 'local_shipping' },
-];
-
 /**
  * Past this many requested workers a single society's crew almost certainly
  * cannot cover the job. There is no multi-society dispatch endpoint (checked
@@ -73,8 +70,16 @@ const DIAL_SECTORS: DialSector[] = [
  */
 const LARGE_CREW_THRESHOLD = 15;
 
+/**
+ * Where the load slider starts when a customer adds a truck to a crew
+ * booking. Half a tonne is a small-vehicle load — the common case for
+ * someone who came here for hands and realised they also need a vehicle.
+ */
+const DEFAULT_COMBO_LOAD_KG = 500;
+
 export default function LabourBookingPage() {
   const t = useTranslations('labourBooking');
+  const tCombo = useTranslations('combo');
   const router = useRouter();
   const { addresses: savedAddresses, save: saveAddress } = useSavedAddresses();
   const [materials, setMaterials] = useState<string[]>([]);
@@ -91,17 +96,32 @@ export default function LabourBookingPage() {
     [categoriesState.data]
   );
 
+  /*
+   * The mirror image of the transit screen's "add loading workers".
+   *
+   * A customer who came here for a crew often needs the lorry too, and
+   * discovering that after booking means two bookings, two arrival times
+   * and nobody responsible for the gap between them. Turning this on
+   * switches the booking to the server's real 'combo' type — the SAME
+   * record the transit screen produces from the other direction.
+   */
+  const [addTruck, setAddTruck] = useState(false);
+  const [truckWeightKg, setTruckWeightKg] = useState(DEFAULT_COMBO_LOAD_KG);
+
   const flow = useBookingFlow({
-    type: 'hamali',
+    type: addTruck ? 'combo' : 'hamali',
     serviceCategorySlug: category?.slug,
-    needsWeight: false,
+    needsWeight: addTruck,
     needsHamali: true,
+    initialWeightKg: DEFAULT_COMBO_LOAD_KG,
   });
 
-  function handleDialChange(key: string) {
-    if (key === 'household') router.push('/customer/dashboard');
-    else if (key === 'transport') router.push('/customer/book/transport');
-  }
+  // The slider owns the weight; the flow's own field is what gets quoted
+  // and posted, so the two are kept in step rather than read from twice.
+  useEffect(() => {
+    if (addTruck) flow.setWeightKg(String(truckWeightKg));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addTruck, truckWeightKg]);
 
   function toggleMaterial(key: string) {
     setMaterials((m) => (m.includes(key) ? m.filter((x) => x !== key) : [...m, key]));
@@ -125,7 +145,6 @@ export default function LabourBookingPage() {
   const total = flow.fare?.total;
 
   return (
-    <RotaryDial sectors={DIAL_SECTORS} activeKey="labour" onChange={handleDialChange}>
       <div className="min-h-screen bg-fy-bone relative">
         <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
@@ -135,10 +154,16 @@ export default function LabourBookingPage() {
           onSubmit={handleSubmit}
           className="pt-16 fy-pad-nav-cta px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
         >
+          {/* Same shell as the household home. Search is scoped to this
+              mode — see the leak audit in customerMode.ts — and the
+              promotional slot renders nothing unless something is live for
+              this mode. */}
+          <SearchScanBar mode="labour" />
+          <PromoRail mode="labour" />
           {/* Guild banner. The design reads "86 certified freight specialists
               ready near you"; nothing counts available workers server-side,
               so this carries the category's real dispatch description. */}
-          <div className="pt-2 pr-20">
+          <div className="pt-2">
             <EyebrowLabel tone="green">{t('guildEyebrow')}</EyebrowLabel>
             <h2 className="font-heading text-heading text-fy-ink leading-[1.05] whitespace-pre-line">
               {t('headline')}
@@ -288,6 +313,20 @@ export default function LabourBookingPage() {
             </div>
           </Section>
 
+          {/* Also need a truck? Same combo booking the transit screen
+              produces from the other side — one record, two parties,
+              tracked together. */}
+          <ComboAddOn
+            side="truck"
+            enabled={addTruck}
+            onToggle={setAddTruck}
+            crewSize={flow.hamaliCount}
+            onCrewSize={flow.setHamaliCount}
+            weightKg={truckWeightKg}
+            onWeightKg={setTruckWeightKg}
+            vehicleClassLabel={tCombo(`vehicleClass.${bucketVehicleCategory(truckWeightKg)}` as never)}
+          />
+
           <Section
             title={<SectionHeading>{t('pickupHeading')}</SectionHeading>}
             aside={
@@ -405,6 +444,5 @@ export default function LabourBookingPage() {
         </form>
 
       </div>
-    </RotaryDial>
   );
 }

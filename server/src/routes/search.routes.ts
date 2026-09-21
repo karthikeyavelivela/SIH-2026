@@ -12,7 +12,10 @@ export const searchRouter = Router();
 searchRouter.get(
   '/',
   verifyJwt,
-  [query('q').optional().isString().isLength({ max: 100 })],
+  [
+    query('q').optional().isString().isLength({ max: 100 }),
+    query('mode').optional().isIn(['household', 'labour', 'transport', 'all']),
+  ],
   validate,
   searchController.search
 );

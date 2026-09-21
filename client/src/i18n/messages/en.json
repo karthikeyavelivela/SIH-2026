@@ -941,7 +941,11 @@
     "bookingDetails": "Booking details",
     "chatAfterMatch": "Chat opens once a cooperative member accepts the job.",
     "paymentAfterCompletion": "Payment options appear once the job is completed.",
-    "stepOf": "Step {step} of {total}"
+    "stepOf": "Step {step} of {total}",
+    "comboTitle": "A truck and a loading crew, on one booking",
+    "comboHint": "Driver: {driver} · Loading crew: {crew}. They accept separately, so one may be confirmed before the other.",
+    "comboAssigned": "assigned",
+    "comboPending": "still searching"
   },
   "customerHistory": {
     "title": "Booking history",
@@ -1762,7 +1766,8 @@
         "documents_parcels": "Parcels",
         "other": "Other"
       },
-      "pickupLabel": "Pickup point"
+      "pickupLabel": "Pickup point",
+      "customerPhoto": "What the customer photographed"
     },
     "driver": {
       "stepInTransit": "In transit",
@@ -3309,11 +3314,11 @@
     "heading": "What do you need?"
   },
   "customerNav": {
-    "household": "Household",
-    "hamali": "Hamali",
-    "transit": "Transit",
-    "passbook": "Passbook",
-    "profile": "Profile"
+    "home": "Home",
+    "bookings": "Bookings",
+    "notifications": "Alerts",
+    "profile": "Profile",
+    "switchMode": "Switch mode"
   },
   "labourBooking": {
     "title": "Hamali labour",
@@ -3729,7 +3734,9 @@
       "technician": "Make, model, floor, access notes…",
       "general_labour": "How many hours, what is being moved…",
       "general_logistics": "Load weight, floor, loading help needed…"
-    }
+    },
+    "fromScanTitle": "From your photo",
+    "fromScanNote": "This photo and what TARA said go with the booking — the worker sees them before they arrive."
   },
   "roleNav": {
     "home": "Home",
@@ -3896,7 +3903,11 @@
       "members": "Members",
       "people": "People",
       "vehicles": "Vehicles"
-    }
+    },
+    "scopeMode": "Showing {mode} results only",
+    "scopeAll": "Showing results from all three modes",
+    "scopeWiden": "Search all modes",
+    "scopeNarrow": "This mode only"
   },
   "sos": {
     "title": "Emergency",
@@ -4304,5 +4315,85 @@
     "sourceGazette": "From the gazette notification.",
     "sourceSecondary": "Transcribed from a published compilation of the notification, not from the gazette itself.",
     "noFloorForState": "No notification has been entered for this state yet, so no statutory floor is enforced here."
+  },
+  "customerHome": {
+    "menuAria": "Menu and profile",
+    "searchPlaceholder": {
+      "household": "Search a trade, a worker, a past job",
+      "labour": "Search crews, loading jobs, past jobs",
+      "transport": "Search vehicles, routes, past trips"
+    },
+    "scanAria": "Photograph a problem and get it diagnosed",
+    "promoAria": "Offers",
+    "promoDismiss": "Dismiss this offer",
+    "householdHeading": "Household services",
+    "labourHeading": "Loading and crew work",
+    "transportHeading": "Goods transport",
+    "seeAll": "See all",
+    "fromPrice": "from ₹{amount}",
+    "bookAgain": "Book again",
+    "nothingBookedYet": "Pick a trade above to place your first booking."
+  },
+  "customerMode": {
+    "eyebrow": "Switch mode",
+    "title": "What do you need?",
+    "close": "Close",
+    "swapNote": "Changing mode changes the whole screen, not just a filter.",
+    "modes": {
+      "household": "Household",
+      "labour": "Hamali",
+      "transport": "Transit"
+    },
+    "hints": {
+      "household": "A trade at your home",
+      "labour": "A loading crew",
+      "transport": "A lorry for goods"
+    }
+  },
+  "scan": {
+    "title": "Scan and diagnose",
+    "intro": "Photograph the problem. TARA will say what it looks like and who fixes it — and whether it is something you can safely sort out yourself.",
+    "takePhoto": "Take a photo",
+    "orChoose": "or choose one from your phone",
+    "previewAlt": "The problem you photographed",
+    "retake": "Remove this photo",
+    "noteLabel": "Anything to add? (optional)",
+    "notePlaceholder": "e.g. the water will not stop",
+    "analyse": "See what it is",
+    "analysing": "Looking at it…",
+    "tooLarge": "That photo is too large — please pick one under 6 MB.",
+    "couldNotRead": "That file could not be read. Try another photo.",
+    "failed": "The photo could not be checked just now.",
+    "privacyNote": "The photo is stored with your booking and shown to the worker who takes the job. Nobody else sees it.",
+    "taraSays": "TARA",
+    "tryFirst": "You could try this first",
+    "whoFixesThis": "Who fixes this",
+    "bookThisTrade": "Book this service",
+    "stillNeedHelp": "Still need help? Book this service",
+    "photoTravels": "Your photo and note go with the booking, so the worker sees them before they arrive.",
+    "pickYourself": "Pick the service yourself",
+    "pickYourselfHint": "TARA could not tell from this photo, and a guess would send you the wrong tradesperson.",
+    "browseServices": "Browse all services",
+    "scanAnother": "Scan something else"
+  },
+  "combo": {
+    "crew": {
+      "title": "Add loading workers to this trip?",
+      "hint": "A cooperative crew loads at the origin and unloads at the destination."
+    },
+    "truck": {
+      "title": "Also need a truck for this job?",
+      "hint": "One booking, one price — the lorry and the crew arrive together."
+    },
+    "crewSize": "How many workers",
+    "handlers": "handlers",
+    "loadWeight": "How heavy is the load?",
+    "kg": "{kg} kg",
+    "oneBooking": "This becomes one booking with two parties — a driver and a crew — tracked together on one screen. It cannot be put out for bidding.",
+    "vehicleClass": {
+      "vehicle_small": "Small vehicle",
+      "vehicle_medium": "Medium vehicle",
+      "vehicle_large": "Large vehicle"
+    }
   }
 }

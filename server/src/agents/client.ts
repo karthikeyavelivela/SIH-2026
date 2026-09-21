@@ -18,6 +18,17 @@ export interface AgentCallInput {
   context: Record<string, unknown>;
   /** Caller's preferredLocale (User.preferredLocale) — 'en' or omitted needs no special handling. See locale.ts's localeInstruction. */
   locale?: AgentLocale;
+  /**
+   * One image, for an agent that looks at something.
+   *
+   * Passing it here rather than calling providers.generate() directly is
+   * what keeps a vision agent inside the same guarded path as every text
+   * one: the same JSON parsing, the same every-provider-failed fallback,
+   * the same locale instruction, the same mock discipline. (The KYC
+   * pre-check still calls generate() itself — it predates this field and
+   * is left alone rather than refactored in passing.)
+   */
+  image?: { mediaType: string; data: string };
 }
 
 interface ParsedModelOutput {
@@ -99,6 +110,7 @@ export async function callAgent(
       userPrompt: input.userPrompt,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       json: true,
+      ...(input.image ? { image: input.image } : {}),
     });
 
     const parsed = parseModelJson(text);

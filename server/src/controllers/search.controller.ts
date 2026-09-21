@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
-import { searchForRole } from '../services/search.service';
+import { searchForRole, type SearchMode } from '../services/search.service';
 import type { Role } from '@fyro/shared';
 
 /**
@@ -20,6 +20,9 @@ export const search = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  const groups = await searchForRole(req.user!.id, req.user!.role as Role, q.slice(0, 100));
+  // 'all' when absent, so an older client or a non-customer role behaves
+  // exactly as before.
+  const mode = (req.query.mode as SearchMode | undefined) ?? 'all';
+  const groups = await searchForRole(req.user!.id, req.user!.role as Role, q.slice(0, 100), mode);
   res.status(200).json({ groups });
 });

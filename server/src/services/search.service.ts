@@ -155,11 +155,38 @@ async function myComplaints(userId: string, q: string): Promise<SearchHit[]> {
   }));
 }
 
-/** Public catalogue — the one group that is not scoped to a person, because
- *  the service list is the same for everyone and is already a public route. */
-async function serviceCategories(q: string): Promise<SearchHit[]> {
+/**
+ * Which of the three customer worlds a category belongs to.
+ *
+ * The same split the client's categoryBuckets.ts uses, and deliberately the
+ * same rule: `general_labour` is the hamali crew even though it dispatches
+ * like every other household trade, so the slug decides it rather than
+ * dispatchType alone.
+ */
+export type SearchMode = 'household' | 'labour' | 'transport' | 'all';
+
+function categoryFilterForMode(mode: SearchMode): Record<string, unknown> {
+  if (mode === 'labour') return { slug: 'general_labour' };
+  if (mode === 'transport') return { dispatchType: 'truck' };
+  if (mode === 'household') return { dispatchType: { $ne: 'truck' }, slug: { $ne: 'general_labour' } };
+  return {};
+}
+
+/**
+ * Public catalogue — the one group that is not scoped to a person, because
+ * the service list is the same for everyone and is already a public route.
+ *
+ * It IS scoped to the customer's current mode, though. Before this, typing
+ * "truck" on the household home returned Cargo & Logistics, and tapping it
+ * threw the person into Transit with no warning — the category grid on that
+ * screen had been carefully filtered and search was handing back everything
+ * behind it. `mode: 'all'` is only ever reached because the customer asked
+ * for it explicitly in the search UI.
+ */
+async function serviceCategories(q: string, mode: SearchMode): Promise<SearchHit[]> {
+  const scope = categoryFilterForMode(mode);
   const rows = await withTextFallback(
-    (match) => ServiceCategory.find({ $and: [{ active: true }, match] }).limit(PER_GROUP).lean(),
+    (match) => ServiceCategory.find({ $and: [{ active: true }, scope, match] }).limit(PER_GROUP).lean(),
     q,
     ['name', 'slug']
   );
@@ -257,7 +284,17 @@ const BOOKING_BASE: Record<string, string> = {
   mutha_member: '/mutha-member/job',
 };
 
-export async function searchForRole(userId: string, role: Role, q: string): Promise<SearchGroup[]> {
+export async function searchForRole(
+  userId: string,
+  role: Role,
+  q: string,
+  /**
+   * The customer's current mode. Only the customer branch uses it — every
+   * other role has one world, not three — and it defaults to 'all' so a
+   * caller that does not know about modes is unchanged.
+   */
+  mode: SearchMode = 'all'
+): Promise<SearchGroup[]> {
   const groups: SearchGroup[] = [];
   const add = (key: string, hits: SearchHit[]) => {
     if (hits.length) groups.push({ key, hits });
@@ -267,7 +304,7 @@ export async function searchForRole(userId: string, role: Role, q: string): Prom
     const [bookings, complaints, categories, addresses] = await Promise.all([
       myBookings(userId, q, BOOKING_BASE.customer),
       myComplaints(userId, q),
-      serviceCategories(q),
+      serviceCategories(q, mode),
       mySavedAddresses(userId, q),
     ]);
     add('services', categories);

@@ -460,6 +460,28 @@ export default function TrackBookingPage() {
               </Panel>
             )}
 
+            {/* A combo booking has two parties on one record — a driver and
+                a crew — and they accept independently. Saying so up front
+                is what stops "the truck is here but nobody is loading" from
+                reading like a bug. */}
+            {booking.type === 'combo' && (
+              <LightCard className="flex items-start gap-2.5 border-l-2 border-fy-green">
+                <Icon name="link" size={16} className="text-fy-green shrink-0 mt-0.5" />
+                <span className="min-w-0">
+                  <span className="block font-body text-label font-semibold text-fy-ink">{t('comboTitle')}</span>
+                  <Body size="label">
+                    {t('comboHint', {
+                      driver: 'driver' in (assigned ?? {}) && assigned?.driver != null ? t('comboAssigned') : t('comboPending'),
+                      crew:
+                        Array.isArray(assigned?.hamalis) && (assigned!.hamalis as unknown[]).length > 0
+                          ? t('comboAssigned')
+                          : t('comboPending'),
+                    })}
+                  </Body>
+                </span>
+              </LightCard>
+            )}
+
             {hasAssigned && assigned && (
               <Section title={<SectionHeading>{t('assignedToYou')}</SectionHeading>}>
                 <Panel>

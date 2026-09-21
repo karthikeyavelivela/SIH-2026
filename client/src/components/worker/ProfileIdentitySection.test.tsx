@@ -65,7 +65,15 @@ describe('ProfileIdentitySection — Phase 7.1, profile editing flow', () => {
     fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() =>
-      expect(mockPatch).toHaveBeenCalledWith('/api/auth/me/profile', { name: 'Updated Name', email: 'original@example.com' })
+      // `region` rides along with name and email now: it decides which
+      // rate card prices this worker's jobs and which state's minimum wage
+      // their rates are checked against, and it was previously settable
+      // only at signup. The fixture user has none, so it posts as ''.
+      expect(mockPatch).toHaveBeenCalledWith('/api/auth/me/profile', {
+        name: 'Updated Name',
+        email: 'original@example.com',
+        region: '',
+      })
     );
     await waitFor(() => expect(mockRefetch).toHaveBeenCalledTimes(1));
   });

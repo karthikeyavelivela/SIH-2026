@@ -137,6 +137,22 @@ export interface IBooking {
   // feature per PRODUCT.md's real-world feature spec, cheap to build on
   // top of the existing cloudinary.service upload path.
   proofPhotos: { pickup?: string; delivery?: string };
+  /**
+   * The photograph the customer took of the problem, from Scan and
+   * Diagnose, and what TARA made of it.
+   *
+   * Separate from proofPhotos, which the WORKER captures at pickup and
+   * delivery. This one goes the other way: it is the customer's evidence,
+   * attached before anyone is assigned, and the assigned worker sees it
+   * before they set out. A plumber who has seen the leak brings the right
+   * part.
+   *
+   * `diagnosisSummary` is stored alongside it deliberately. It is what the
+   * customer was told, and an answer they were given that nobody can look
+   * up afterwards is not much of an answer.
+   */
+  diagnosisPhotoUrl?: string;
+  diagnosisSummary?: string;
   // Phase 6 — scheduled (vs. instant) booking. Absent = instant, matching
   // starts immediately at creation (unchanged existing behaviour). Present
   // = the booking is created with status 'scheduled' and matching is
@@ -220,6 +236,8 @@ const bookingSchema = new Schema<IBooking>(
     },
     // Plain nested object (like pickupLocation/dropLocation above), not an
     // array — mongoose doesn't add its own _id to a single embedded object.
+    diagnosisPhotoUrl: { type: String, trim: true },
+    diagnosisSummary: { type: String, trim: true, maxlength: 500 },
     proofPhotos: {
       pickup: { type: String },
       delivery: { type: String },

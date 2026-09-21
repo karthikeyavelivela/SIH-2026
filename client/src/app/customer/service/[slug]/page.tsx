@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
@@ -57,10 +57,24 @@ export default function ServiceDetailPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const slug = params?.slug;
+
+  /*
+   * Arrived from Scan and Diagnose.
+   *
+   * The photo URL and TARA's summary travel in the query string because
+   * that is what survives a navigation into a route the scan screen does
+   * not own. They are shown back to the customer here — evidence they
+   * cannot see is evidence they cannot correct — and posted onto the
+   * booking, where the assigned worker reads them before setting out.
+   */
+  const searchParams = useSearchParams();
+  const scanPhoto = searchParams?.get('photo') ?? undefined;
+  const scanDiagnosis = searchParams?.get('diagnosis') ?? undefined;
+  const scanNote = searchParams?.get('note') ?? undefined;
   const { addresses: savedAddresses, save: saveAddress } = useSavedAddresses();
   const { rateFor } = usePublishedRates();
   const [issues, setIssues] = useState<string[]>([]);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(scanNote ?? '');
   const [when, setWhen] = useState<'now' | 'later'>('now');
   const [slot, setSlot] = useState(0);
   // The legacy /customer/book/household form carried an exact date-time
@@ -132,7 +146,14 @@ export default function ServiceDetailPage() {
       }
       flow.setScheduledFor(picked.toISOString().slice(0, 16));
     }
-    await flow.submit({ description: description || undefined }, t('errorSubmit'));
+    await flow.submit(
+      {
+        description: description || undefined,
+        diagnosisPhotoUrl: scanPhoto,
+        diagnosisSummary: scanDiagnosis,
+      },
+      t('errorSubmit')
+    );
   }
 
   const rate = category ? rateFor(category) : undefined;
@@ -215,6 +236,19 @@ export default function ServiceDetailPage() {
           <Icon name="verified" size={18} className="text-fy-green shrink-0 mt-px" />
           <Body size="label">{t('directToPassbook', { pct: DEFAULT_PLATFORM_COMMISSION_PCT })}</Body>
         </LightCard>
+
+        {(scanPhoto || scanDiagnosis) && (
+          <Section title={<SectionHeading>{t('fromScanTitle')}</SectionHeading>}>
+            <LightCard className="flex flex-col gap-2.5">
+              {scanPhoto && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={scanPhoto} alt="" className="w-full max-h-48 object-contain rounded-cell bg-fy-panel" />
+              )}
+              {scanDiagnosis && <Body size="label">{scanDiagnosis}</Body>}
+              <span className="font-mono text-[10px] text-fy-muted">{t('fromScanNote')}</span>
+            </LightCard>
+          </Section>
+        )}
 
         <Section
           title={<SectionHeading>{t(`symptomHeading.${symptomSlug}` as never)}</SectionHeading>}

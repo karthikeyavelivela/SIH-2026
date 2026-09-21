@@ -43,3 +43,19 @@ assistantRouter.post(
   validate,
   assistantController.escalate
 );
+
+/**
+ * Scan and Diagnose. Same rate limiter as every other TARA route — a
+ * vision call is a model call, and photographing things must not become a
+ * way around the budget.
+ */
+assistantRouter.post(
+  '/diagnose-photo',
+  [
+    body('imageBase64').isString().isLength({ min: 100 }),
+    body('mediaType').isIn(['image/jpeg', 'image/png', 'image/webp', 'image/heic']),
+    body('note').optional({ checkFalsy: true }).isString().trim().isLength({ max: 300 }),
+  ],
+  validate,
+  assistantController.diagnosePhotoEndpoint
+);

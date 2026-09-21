@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useCustomerMode, CUSTOMER_MODES, MODE_HOME } from '@/lib/customerMode';
 import { Icon } from '@/components/ui/Icon';
 import { EyebrowLabel, Body } from '@/components/fy/Text';
 
@@ -61,8 +62,24 @@ function writeRecent(list: string[]) {
   }
 }
 
+/**
+ * Opens the search overlay from anywhere.
+ *
+ * A custom event rather than a context, because the overlay is mounted once
+ * in the root layout and the callers are scattered across route segments
+ * that do not share a provider. It replaces a synthetic Ctrl-K KeyboardEvent
+ * that the old button dispatched at `window` — which worked, but broke the
+ * moment anything else listened for that chord.
+ */
+const OPEN_EVENT = 'fyro:open-search';
+
+export function openGlobalSearch() {
+  window.dispatchEvent(new CustomEvent(OPEN_EVENT));
+}
+
 export function GlobalSearch() {
   const t = useTranslations('search');
+  const tMode = useTranslations('customerMode');
   const router = useRouter();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -71,6 +88,15 @@ export function GlobalSearch() {
   const [loading, setLoading] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
   const [cursor, setCursor] = useState(0);
+  // Opt-in, never the default. Silently mixing three modes' results is the
+  // behaviour this replaces; making it a visible toggle means a customer who
+  // genuinely wants everything can ask for it and knows that they did.
+  const [allModes, setAllModes] = useState(false);
+  const { mode } = useCustomerMode();
+  const pathname = usePathname();
+  // The three mode home screens render SearchScanBar, so the floating
+  // button would be the second search control on the same screen.
+  const onScreenWithSearchBar = CUSTOMER_MODES.some((m) => pathname === MODE_HOME[m]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout>>();
   // Guards against an earlier, slower response overwriting a later one.
@@ -86,8 +112,13 @@ export function GlobalSearch() {
       }
       if (e.key === 'Escape') setOpen(false);
     }
+    const onOpen = () => setOpen(true);
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener(OPEN_EVENT, onOpen);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -108,7 +139,15 @@ export function GlobalSearch() {
     const mine = ++seq.current;
     debounce.current = setTimeout(async () => {
       try {
-        const res = await api.get<{ groups: Group[] }>(`/api/search?q=${encodeURIComponent(q.trim())}`);
+        // Scoped to the mode the person is actually in. Without this a
+        // customer searching "truck" inside Household mode got Transit
+        // categories back, which is the leak this whole audit was for.
+        // `scope=all` is offered explicitly in the footer below rather than
+        // silently mixing the three.
+        const scope = allModes ? 'all' : mode;
+        const res = await api.get<{ groups: Group[] }>(
+          `/api/search?q=${encodeURIComponent(q.trim())}&mode=${scope}`
+        );
         if (mine === seq.current) {
           setGroups(res.groups);
           setCursor(0);
@@ -120,7 +159,7 @@ export function GlobalSearch() {
       }
     }, DEBOUNCE_MS);
     return () => clearTimeout(debounce.current);
-  }, [q]);
+  }, [q, mode, allModes]);
 
   const flat = groups.flatMap((g) => g.hits);
 
@@ -156,6 +195,7 @@ export function GlobalSearch() {
   // above the role nav rather than inside it: the nav's five destinations are
   // fixed per role and search is not a destination.
   if (!open) {
+    if (onScreenWithSearchBar) return null;
     return (
       <button
         type="button"
@@ -236,6 +276,24 @@ export function GlobalSearch() {
             </div>
           )}
 
+          {/* Scope, stated rather than assumed. Results are this mode's by
+              default; widening is a deliberate tap, and the label always
+              says which of the two is in force. */}
+          {q.trim().length >= MIN_CHARS && (
+            <div className="px-4 py-2 border-t border-fy-brown/8 flex items-center justify-between gap-3">
+              <span className="font-mono text-[10px] text-fy-muted">
+                {allModes ? t('scopeAll') : t('scopeMode', { mode: tMode(`modes.${mode}`) })}
+              </span>
+              <button
+                type="button"
+                onClick={() => setAllModes((v) => !v)}
+                className="font-body text-label font-semibold text-fy-brown hover:underline shrink-0"
+              >
+                {allModes ? t('scopeNarrow') : t('scopeWiden')}
+              </button>
+            </div>
+          )}
+
           {groups.map((group) => (
             <div key={group.key} className="py-2 border-t border-fy-brown/8 first:border-t-0">
               <EyebrowLabel className="px-4">{t(`groups.${group.key}` as never)}</EyebrowLabel>
@@ -275,7 +333,7 @@ export function GlobalSearchButton({ className = '' }: { className?: string }) {
     <button
       type="button"
       aria-label={t('placeholder')}
-      onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+      onClick={openGlobalSearch}
       className={`w-10 h-10 rounded-full flex items-center justify-center hover:bg-fy-field transition-colors ${className}`}
     >
       <Icon name="search" size={20} className="text-fy-ink" />

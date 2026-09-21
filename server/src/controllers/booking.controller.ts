@@ -220,6 +220,12 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     scheduledFor,
     openForBidding,
     serviceCategorySlug,
+    // Scan and Diagnose. The photo URL is one this server produced and
+    // returned from /api/assistant/diagnose-photo — a client-supplied URL
+    // pointing anywhere else is just a string in a field nobody renders as
+    // a link, so it carries no more trust than the description does.
+    diagnosisPhotoUrl,
+    diagnosisSummary,
     // Work-based pricing. Present together or not at all: a customer either
     // hires a named worker at that worker's own published rate, or raises an
     // ordinary dispatch priced by the region's fare rules.
@@ -354,6 +360,10 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     statusHistory: [{ status: initialStatus, timestamp: new Date() }],
     scheduledFor: scheduledForDate,
     openForBidding: !!openForBidding,
+    // Carried from Scan and Diagnose, when the customer came that way.
+    // The assigned worker sees both before they set out.
+    diagnosisPhotoUrl: diagnosisPhotoUrl || undefined,
+    diagnosisSummary: diagnosisSummary || undefined,
   });
 
   // A scheduled booking's matching is deliberately deferred —

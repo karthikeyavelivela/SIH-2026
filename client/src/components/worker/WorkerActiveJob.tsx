@@ -207,6 +207,27 @@ export function WorkerActiveJob({ base, accent }: { base: '/driver' | '/hamali';
               <StatRow label={t('ewayBill')} value={booking.cargoDetails.ewayBillNumber} />
             )}
           </div>
+
+          {/* What the customer photographed, before you leave. The whole
+              point of Scan and Diagnose carrying its evidence forward is
+              that the worker arrives having seen the same thing. */}
+          {(booking.diagnosisPhotoUrl || booking.diagnosisSummary) && (
+            <>
+              <Divider />
+              <div className="flex flex-col gap-2">
+                <EyebrowLabel>{t('customerPhoto')}</EyebrowLabel>
+                {booking.diagnosisPhotoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={booking.diagnosisPhotoUrl}
+                    alt=""
+                    className="w-full max-h-52 object-contain rounded-cell bg-fy-panel"
+                  />
+                )}
+                {booking.diagnosisSummary && <Body size="label">{booking.diagnosisSummary}</Body>}
+              </div>
+            </>
+          )}
         </Panel>
 
         {booking.customer && (

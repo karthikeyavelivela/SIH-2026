@@ -45,6 +45,10 @@ const pricingRules = [
   // always get '' rather than undefined, which Mongo would otherwise treat
   // as "match any region" in a query.
   body('region').isString().trim(),
+  // Scan and Diagnose evidence, carried into the booking the customer
+  // placed from the diagnosis screen.
+  body('diagnosisPhotoUrl').optional({ checkFalsy: true }).isString().trim().isLength({ max: 500 }),
+  body('diagnosisSummary').optional({ checkFalsy: true }).isString().trim().isLength({ max: 500 }),
   // SIH26089 Phase C — optional. When present, the server derives the
   // real dispatch `type` from the category's own dispatchType and ignores
   // whatever `type` the client sent alongside it (booking.controller.ts) —

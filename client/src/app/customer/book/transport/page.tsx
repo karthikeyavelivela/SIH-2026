@@ -14,7 +14,6 @@ import { RegionField } from '@/components/booking/RegionField';
 import { AddressChips } from '@/components/booking/AddressChips';
 import { bucketVehicleCategory } from '@/components/booking/FareCard';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
-import { RotaryDial, type DialSector } from '@/components/ui/RotaryDial';
 import { Icon } from '@/components/ui/Icon';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -24,6 +23,9 @@ import { StatRow, MetricBlock } from '@/components/fy/Data';
 import { Button, Chip, ChipRow, Slider, SelectCard, Field, Stepper } from '@/components/fy/Controls';
 import { PhotoCard } from '@/components/fy/Media';
 import { TopBar } from '@/components/fy/Navigation';
+import { ComboAddOn } from '@/components/booking/ComboAddOn';
+import { SearchScanBar } from '@/components/customer/SearchScanBar';
+import { PromoRail } from '@/components/customer/PromoRail';
 
 /* Built against client/public/design/goods_transport.html.
 
@@ -59,12 +61,6 @@ const CARGO: { key: string; goodsType: string; glyph: string }[] = [
 
 /** CGST Rules, rule 138 — the real e-way bill threshold. */
 const EWAY_BILL_THRESHOLD_RUPEES = 50000;
-
-const DIAL_SECTORS: DialSector[] = [
-  { key: 'household', label: 'Household', glyph: 'home_repair_service' },
-  { key: 'labour', label: 'Hamali', glyph: 'engineering' },
-  { key: 'transport', label: 'Transit', glyph: 'local_shipping' },
-];
 
 /** The four stops on the design's load slider, in kilograms. */
 const LOAD_STOPS = [500, 15000, 40000, 120000];
@@ -109,11 +105,6 @@ export default function TransportBookingPage() {
   const vehicleClass = bucketVehicleCategory(weightKg);
   const ewayRequired = Number(estimatedValue) >= EWAY_BILL_THRESHOLD_RUPEES;
 
-  function handleDialChange(key: string) {
-    if (key === 'household') router.push('/customer/dashboard');
-    else if (key === 'labour') router.push('/customer/book/labour');
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await flow.submit(
@@ -129,7 +120,6 @@ export default function TransportBookingPage() {
   const fare = flow.fare;
 
   return (
-    <RotaryDial sectors={DIAL_SECTORS} activeKey="transport" onChange={handleDialChange}>
       <div className="min-h-screen bg-fy-bone relative">
         <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
@@ -139,6 +129,12 @@ export default function TransportBookingPage() {
           onSubmit={handleSubmit}
           className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
         >
+          {/* Same shell as the household home. Search is scoped to this
+              mode — see the leak audit in customerMode.ts — and the
+              promotional slot renders nothing unless something is live for
+              Transit. */}
+          <SearchScanBar mode="transport" />
+          <PromoRail mode="transport" />
           <div className="flex items-center justify-between gap-3 pt-2 pr-20">
             <EyebrowLabel tone="brown">{t('modeSliver')}</EyebrowLabel>
             <StatusPill tone="slate" className="shrink-0">
@@ -376,34 +372,18 @@ export default function TransportBookingPage() {
 <RegionField value={flow.region} onChange={flow.setRegion} />
           </Section>
 
-          {/* Hamali cross-sell. Turning this on switches the booking to the
-              server's real 'combo' dispatch type — a truck and a loading
-              crew on one booking — and the quote below updates with it. */}
-          <button
-            type="button"
-            onClick={() => setAddHamali((v) => !v)}
-            aria-pressed={addHamali}
-            className={`w-full rounded-card p-4 flex items-center justify-between gap-3 text-left transition-colors ${
-              addHamali ? 'bg-fy-lime text-fy-on-lime' : 'bg-fy-lime-tint-2 text-fy-ink'
-            }`}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <IconTile tone="green">
-                <Icon name="engineering" size={20} />
-              </IconTile>
-              <div className="min-w-0">
-                <p className="font-body text-body font-semibold">{t('hamaliTitle')}</p>
-                <p className="font-body text-label text-fy-green">{t('hamaliHint')}</p>
-              </div>
-            </div>
-            <Icon name={addHamali ? 'check_circle' : 'add_circle'} size={22} className="shrink-0 text-fy-green" />
-          </button>
-          {addHamali && (
-            <Panel className="flex flex-col gap-2">
-              <EyebrowLabel>{t('crewSize')}</EyebrowLabel>
-              <Stepper value={flow.hamaliCount} onChange={flow.setHamaliCount} min={1} max={20} label={t('handlers')} />
-            </Panel>
-          )}
+          {/* Add loading workers to this trip. Turning it on switches the
+              booking to the server's real 'combo' type — a truck and a
+              crew on one record — and the quote below updates with it. The
+              hamali screen offers the mirror image of this, and both
+              produce the same record; see ComboAddOn. */}
+          <ComboAddOn
+            side="crew"
+            enabled={addHamali}
+            onToggle={setAddHamali}
+            crewSize={flow.hamaliCount}
+            onCrewSize={flow.setHamaliCount}
+          />
 
           {/* Fare plate — every line comes from POST /api/bookings/quote. */}
           <div className="rounded-sheet bg-fy-slate text-fy-on-slate p-5 shadow-card flex flex-col gap-3">
@@ -463,6 +443,5 @@ export default function TransportBookingPage() {
         </form>
 
       </div>
-    </RotaryDial>
   );
 }

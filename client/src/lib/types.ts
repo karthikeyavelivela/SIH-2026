@@ -33,6 +33,13 @@ export interface Booking {
   // It reaches the worker on the request feed and the pushed offer, so a
   // 3.8T machinery haul reads differently from a parcel run.
   cargoDetails: { weightKg: number; description?: string; goodsType?: string; estimatedValueRupees?: number; ewayBillNumber?: string };
+  /**
+   * The customer's own photograph of the problem, from Scan and Diagnose,
+   * and what TARA made of it. Shown to the assigned worker BEFORE they set
+   * out — a plumber who has seen the leak brings the right part.
+   */
+  diagnosisPhotoUrl?: string;
+  diagnosisSummary?: string;
   pickupLocation: GeoPoint;
   dropLocation: GeoPoint;
   // Phase 6.3 — multi-stop routing. Ordered intermediate waypoints.

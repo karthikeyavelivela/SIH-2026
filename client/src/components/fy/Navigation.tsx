@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useEffect, useLayoutEffect, useRef } from 'react';
+import { Fragment, ReactNode, useEffect, useLayoutEffect, useRef } from 'react';
 import { Icon } from '@/components/ui/Icon';
 
 /* Navigation — anatomy per DESIGN_TOKENS.md §4.
@@ -24,8 +24,19 @@ export interface TabItem {
 export function BottomTabBar({
   items,
   size = 'default',
+  centre,
 }: {
   items: TabItem[];
+  /**
+   * A raised action button in the middle of the bar, with the tabs split
+   * around it. Not a destination — it opens something (for the customer
+   * shell, the mode switch), so it is a button and never carries
+   * aria-current.
+   *
+   * `items` must have an even length when this is set, or the split is
+   * lopsided; the customer shell passes four.
+   */
+  centre?: { label: string; glyph: string; onPress: () => void };
   /**
    * The design set has exactly two bars, and they are consistent within each
    * shell rather than in conflict: the signed-in customer shell is 80px with
@@ -58,12 +69,12 @@ export function BottomTabBar({
       <div
         className={`${compact ? 'h-16' : 'h-20'} max-w-2xl mx-auto flex items-center justify-around px-2`}
       >
-        {items.map((item) => {
+        {items.map((item, i) => {
           const active =
             item.href === '/'
               ? pathname === '/'
               : pathname === item.href || pathname?.startsWith(item.href + '/');
-          return (
+          const tab = (
             <Link
               key={item.href}
               href={item.href}
@@ -82,6 +93,34 @@ export function BottomTabBar({
               </span>
             </Link>
           );
+
+          // The raised button sits between the two halves of the bar. It
+          // overflows the bar upwards, which is the whole point of the
+          // shape — so the bar itself must not clip it.
+          if (centre && i === Math.floor(items.length / 2)) {
+            return (
+              <Fragment key="centre-and-tab">
+                <button
+                  type="button"
+                  onClick={centre.onPress}
+                  aria-label={centre.label}
+                  className="relative -mt-7 w-14 h-14 shrink-0 rounded-full bg-fy-brown text-fy-on-brown shadow-float flex items-center justify-center ring-4 ring-fy-bone transition-transform active:scale-95"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 50% 30%, var(--fy-brown-soft) 0%, var(--fy-brown) 62%, var(--fy-ink) 100%)',
+                    }}
+                  />
+                  <Icon name={centre.glyph} size={24} className="relative text-fy-lime" />
+                </button>
+                {tab}
+              </Fragment>
+            );
+          }
+          return tab;
         })}
       </div>
     </nav>

@@ -5,7 +5,13 @@ import { AssistantConversation, MAX_TURNS } from '../models/AssistantConversatio
 import { Complaint } from '../models/Complaint';
 import { Booking } from '../models/Booking';
 import { User } from '../models/User';
+import { Types } from 'mongoose';
 import { askTara } from '../agents/tara';
+import { diagnosePhoto } from '../agents/tara/diagnose';
+import { uploadImage } from '../services/cloudinary.service';
+
+/** 6 MB of actual image. Phones produce 2-4 MB; this leaves headroom without inviting a 12 MB upload. */
+const MAX_DIAGNOSE_BYTES = 6 * 1024 * 1024;
 import { writeAuditLog } from '../services/audit.service';
 import { cached } from '../agents/cache';
 import type { Role } from '@fyro/shared';
@@ -177,4 +183,80 @@ export const escalate = asyncHandler(async (req: Request, res: Response) => {
   });
 
   res.status(201).json({ complaintId: complaint._id.toString() });
+});
+
+/**
+ * POST /api/assistant/diagnose-photo
+ *
+ * Scan and Diagnose. The customer sends one photograph and an optional
+ * note; TARA says what she sees, whether there is a safe thing to try
+ * first, and which trade it belongs to.
+ *
+ * The photo is stored, not just looked at. A diagnosis that ends in a
+ * booking has to carry its evidence forward — the worker should see the
+ * same picture the customer did before they set out, rather than arriving
+ * to a description of it. Storage happens whether or not the model could
+ * classify the image, because the picture is useful to the worker even
+ * when it was not useful to the model.
+ *
+ * Nothing is booked here. The response is a suggestion with a path on it,
+ * and the customer has to take it — the same rule as every other thing
+ * TARA does.
+ */
+export const diagnosePhotoEndpoint = asyncHandler(async (req: Request, res: Response) => {
+  const { imageBase64, mediaType, note } = req.body as {
+    imageBase64: string;
+    mediaType: string;
+    note?: string;
+  };
+
+  // Guard the decoded size, not the base64 length: base64 inflates by a
+  // third, so a 8MB cap on the encoded string is really a 6MB cap on the
+  // file, and saying "8MB" while enforcing 6 is the kind of small lie that
+  // produces a bug report nobody can reproduce.
+  const approxBytes = Math.floor((imageBase64.length * 3) / 4);
+  if (approxBytes > MAX_DIAGNOSE_BYTES) {
+    throw new ApiError(413, 'That photo is too large — please send one under 6 MB.');
+  }
+
+  const user = await User.findById(req.user!.id).select('preferredLocale region').lean();
+  const locale = (user?.preferredLocale ?? 'en') as AgentLocale;
+
+  const diagnosis = await diagnosePhoto({
+    image: { mediaType, data: imageBase64 },
+    note,
+    region: user?.region,
+    locale,
+  });
+
+  // Stored after the analysis rather than before it, so a rejected or
+  // oversized image never reaches the media store at all.
+  let photoUrl: string | undefined;
+  try {
+    const upload = await uploadImage(Buffer.from(imageBase64, 'base64'), 'fyro/diagnose');
+    photoUrl = upload.url;
+  } catch (err) {
+    // The diagnosis is still worth returning. The booking simply carries
+    // the note without the picture, which the screen says plainly.
+    // eslint-disable-next-line no-console
+    console.error('diagnose-photo: could not store the image —', err);
+  }
+
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'photo_diagnosed',
+    targetType: 'AssistantConversation',
+    targetId: new Types.ObjectId().toString(),
+    details: {
+      categorySlug: diagnosis.suggestion?.categorySlug ?? null,
+      confidence: diagnosis.confidence,
+      inconclusive: diagnosis.inconclusive,
+      selfFixOffered: !!diagnosis.selfFix,
+      safetySuppressed: !!diagnosis.safetyNote,
+      mock: diagnosis.mock,
+    },
+  });
+
+  res.status(200).json({ diagnosis, photoUrl });
 });

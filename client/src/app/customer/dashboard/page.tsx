@@ -2,54 +2,61 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { useSavedAddresses } from '@/lib/useSavedAddresses';
-import { usePublishedRates } from '@/lib/usePublishedRates';
 import { bucketCategories } from '@/lib/categoryBuckets';
+import { FYRO_LOGO_URL } from '@/lib/brand';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 import { LanguageDial } from '@/components/fy/LanguageDial';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { PermissionDeniedState } from '@/components/ui/PermissionDeniedState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { RotaryDial, type DialSector } from '@/components/ui/RotaryDial';
 import { Icon } from '@/components/ui/Icon';
 import { TaraEntry } from '@/components/ui/TaraEntry';
+import { SearchScanBar } from '@/components/customer/SearchScanBar';
+import { PromoRail } from '@/components/customer/PromoRail';
+import { CategoryGrid } from '@/components/customer/CategoryGrid';
+import { RecommendationsRow } from '@/components/customer/RecommendationsRow';
 import { type ServiceCategory } from '@/components/booking/CategoryPicker';
-import { LightCard, Panel, Section, IconTile } from '@/components/fy/Surfaces';
-import { EyebrowLabel, SectionHeading, Body } from '@/components/fy/Text';
-import { StatusPill } from '@/components/fy/Status';
-import { DataList, DataRow, ProgressBar } from '@/components/fy/Data';
-import { PhotoCard } from '@/components/fy/Media';
-import { TopBar } from '@/components/fy/Navigation';
-import { bookingStatusTone } from '@/components/ui/StatusPill';
-import { useCategoryName } from '@/lib/categoryName';
+import { LightCard, IconTile } from '@/components/fy/Surfaces';
+import { EyebrowLabel, Body } from '@/components/fy/Text';
+import { ProgressBar } from '@/components/fy/Data';
 
-/* Built against client/public/design/household_home.html.
-
-   Section order there, top to bottom: fixed 64px brand bar (eyebrow +
-   serif "Explore Services", receipt action, avatar) -> the dial pill
-   pinned top-right -> location / language / notifications row -> active
-   dispatch strip -> "Household services" display heading with a live
-   count -> 240px hero photo card under a brown scrim -> "Cooperative
-   Guilds" bento grid of category tiles -> specialists carousel ->
-   cooperative-guarantee strip -> 4-tab bottom bar.
-
-   Largest element: the "Household services" heading. Dark surfaces: the
-   hero scrim and the wide AC-repair tile. Everything else light on bone.
-
-   Two slots carry no honest data and are handled explicitly below: the
-   "142 verified members near you" count, and the specialists carousel. */
+/**
+ * The customer's Household home.
+ *
+ * Rebuilt to a simpler structure: brand bar, one search field with the scan
+ * action docked beside it, a promotional slot, the trades as a four-across
+ * grid, then what this person has booked before.
+ *
+ * What went, and why:
+ *
+ *   - The corner rotary dial. It never rendered correctly, and its trigger
+ *     is now the bottom bar's raised centre button (see CustomerTabBar).
+ *     This page no longer wraps itself in a mode control at all.
+ *   - The 240px hero photograph and the two-column bento beneath it. Between
+ *     them they pushed the ninth trade three scrolls down; nine tiles at four
+ *     across fit above the fold instead.
+ *   - The "cooperative guarantee" strip and the recent-bookings list, which
+ *     are both real but are not what a person opens this screen to do. The
+ *     guarantee is on every category page where it actually applies, and
+ *     bookings have their own tab in the bar.
+ *
+ * Everything on this screen is this mode's. The grid is bucketed to
+ * household trades, search is scoped to household, and the "book again" row
+ * only offers trades bookable here — see the leak audit in customerMode.ts.
+ */
 
 interface BookingSummary {
   _id: string;
   type: 'truck' | 'hamali' | 'combo';
   status: string;
+  serviceCategorySlug?: string;
   fareBreakdown: { total: number };
   pickupLocation: { address: string };
   dropLocation: { address: string };
@@ -62,30 +69,11 @@ function shortAddress(address: string): string {
   return address.split(',')[0];
 }
 
-// Which glyph each category gets in the bento grid. Keyed by the real
-// `icon` value the ServiceCategory documents carry.
-const CATEGORY_GLYPH: Record<string, string> = {
-  electrician: 'bolt',
-  plumber: 'plumbing',
-  carpenter: 'carpenter',
-  painter: 'format_paint',
-  domestic_helper: 'home_work',
-  caregiver: 'volunteer_activism',
-  gardener: 'potted_plant',
-  cleaner: 'cleaning_services',
-  technician: 'build',
-  driver: 'local_taxi',
-  general_logistics: 'local_shipping',
-  general_labour: 'engineering',
-};
-
 export default function CustomerDashboardPage() {
-  const t = useTranslations('customerDashboard');
-  const categoryName = useCategoryName();
-  const { user } = useAuth();
+  const t = useTranslations('customerHome');
+  const tDash = useTranslations('customerDashboard');
   const router = useRouter();
   const { addresses: savedAddresses } = useSavedAddresses();
-  const { rateFor } = usePublishedRates();
 
   const bookingsState = useApiState(
     () => api.get<{ bookings: BookingSummary[] }>('/api/bookings').then((r) => r.bookings),
@@ -95,343 +83,119 @@ export default function CustomerDashboardPage() {
     () => api.get<{ categories: ServiceCategory[] }>('/api/service-categories').then((r) => r.categories),
     []
   );
-  const buckets = useMemo(() => bucketCategories(categoriesState.data ?? []), [categoriesState.data]);
 
-  const statusLabel: Record<string, string> = {
-    scheduled: t('status.scheduled'),
-    requested: t('status.requested'),
-    searching: t('status.searching'),
-    matched: t('status.matched'),
-    accepted: t('status.accepted'),
-    in_progress: t('status.in_progress'),
-    completed: t('status.completed'),
-    cancelled: t('status.cancelled'),
-  };
+  const buckets = useMemo(() => bucketCategories(categoriesState.data ?? []), [categoriesState.data]);
+  const household = buckets.household;
 
   const bookings = bookingsState.data ?? [];
   const activeBooking = bookings.find((b) => !['completed', 'cancelled'].includes(b.status));
-  const recent = bookings.filter((b) => b._id !== activeBooking?._id).slice(0, 5);
   const activeStepIndex = activeBooking ? PROGRESS_STEPS.indexOf(activeBooking.status) : -1;
   const progressPct = activeStepIndex >= 0 ? Math.round((activeStepIndex / (PROGRESS_STEPS.length - 1)) * 100) : 0;
 
-  const sectors: DialSector[] = [
-    { key: 'household', label: t('dialHousehold'), glyph: 'home_repair_service' },
-    { key: 'labour', label: t('dialLabour'), glyph: 'engineering' },
-    { key: 'transport', label: t('dialTransport'), glyph: 'local_shipping' },
-  ];
-  function handleDialChange(key: string) {
-    if (key === 'labour') router.push('/customer/book/labour');
-    else if (key === 'transport') router.push('/customer/book/transport');
-  }
-
-  const household = buckets.household;
-  const [heroCategory, ...gridCategories] = household;
-
-  function priceLine(c: ServiceCategory) {
-    const rate = rateFor(c);
-    if (!rate) return null;
-    return (
-      <span className="flex items-baseline gap-1">
-        <span className="font-heading text-title text-fy-brown">₹{rate.minimumFare}</span>
-        <EyebrowLabel>{t(`pricingUnit.${c.pricingUnit}` as never)}</EyebrowLabel>
-      </span>
-    );
-  }
+  const statusLabel: Record<string, string> = {
+    scheduled: tDash('status.scheduled'),
+    requested: tDash('status.requested'),
+    searching: tDash('status.searching'),
+    matched: tDash('status.matched'),
+    accepted: tDash('status.accepted'),
+    in_progress: tDash('status.in_progress'),
+    completed: tDash('status.completed'),
+    cancelled: tDash('status.cancelled'),
+  };
 
   return (
-    <RotaryDial sectors={sectors} activeKey="household" onChange={handleDialChange}>
-      <div className="min-h-screen bg-fy-bone relative">
-        <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
+    <div className="min-h-screen bg-fy-bone relative">
+      <div aria-hidden className="fixed inset-0 pointer-events-none fy-grain z-0 opacity-40" />
 
-        <TopBar
-          eyebrow="FYRO Cooperative"
-          title={t('exploreServices')}
-          actions={
-            <>
-              <Link
-                href="/customer/history"
-                aria-label={t('bookingHistory')}
-                className="w-11 h-11 rounded-full flex items-center justify-center text-fy-ink-soft hover:text-fy-ink transition-colors"
-              >
-                <Icon name="receipt_long" size={22} />
-              </Link>
-              <Link
-                href="/customer/profile"
-                aria-label={t('yourProfile')}
-                className="w-8 h-8 rounded-full bg-fy-well flex items-center justify-center overflow-hidden"
-              >
-                {user?.profilePhoto ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={user.profilePhoto} alt="" className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  <span className="font-heading font-bold text-fy-brown text-sm">
-                    {(user?.name ?? '?')[0]?.toUpperCase()}
-                  </span>
-                )}
-              </Link>
-            </>
-          }
-        />
-
-        <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
-          <NotificationPrompt accent="primary" copy={t('notifyPrompt')} />
-
-          {/* Right-padded so it never sits under the dial pill at top-16 right-0. */}
-          <div className="flex items-center justify-between gap-2 pr-20 pt-2">
-            <Link
-              href="/customer/profile"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-fy-edge text-fy-ink-soft font-body text-label shadow-card min-w-0"
-            >
-              <Icon name="location_on" size={14} className="text-fy-brown shrink-0" />
-              <span className="truncate max-w-[130px]">{savedAddresses[0]?.label ?? t('setYourArea')}</span>
-              <Icon name="expand_more" size={14} className="shrink-0" />
+      {/* Brand bar. The wordmark is the real logo asset, not type set to
+          look like one. */}
+      <header className="sticky top-0 z-30 bg-fy-bone/92 backdrop-blur-xl">
+        <div className="h-14 max-w-2xl mx-auto px-gutter flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Link href="/customer/profile" aria-label={t('menuAria')} className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-fy-ink hover:bg-fy-well transition-colors shrink-0">
+              <Icon name="menu" size={22} />
             </Link>
-            <div className="flex items-center gap-2.5 shrink-0">
-              {/* Was a static "EN / తె / हि" label that only linked to the
-                  profile page — it looked like a control and switched
-                  nothing. This is the real dial: slide it, or tap a
-                  position, and the locale changes here. */}
-              <LanguageDial size="sm" />
-              <NotificationBell href="/customer/notifications" />
-            </div>
+            <Image src={FYRO_LOGO_URL} alt="FYRO" width={26} height={26} className="rounded shrink-0" />
+            <span className="font-heading text-title text-fy-ink">FYRO</span>
           </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <LanguageDial size="sm" />
+            <NotificationBell href="/customer/notifications" />
+          </div>
+        </div>
+      </header>
 
-          {activeBooking && (
-            <Link href={`/customer/track/${activeBooking._id}`} className="block">
-              <LightCard className="p-2.5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden>
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fy-lime opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-fy-green" />
-                  </span>
-                  <div className="flex flex-col min-w-0">
-                    <EyebrowLabel tone="green">{t('activeTracking')}</EyebrowLabel>
-                    <p className="font-body text-label text-fy-ink truncate">
-                      {statusLabel[activeBooking.status] ?? activeBooking.status} ·{' '}
-                      {shortAddress(activeBooking.pickupLocation.address)} →{' '}
-                      {shortAddress(activeBooking.dropLocation.address)}
-                    </p>
-                  </div>
+      <main className="fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5 pt-1">
+        <NotificationPrompt accent="primary" copy={tDash('notifyPrompt')} />
+
+        <SearchScanBar mode="household" />
+
+        <Link
+          href="/customer/profile"
+          className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-fy-edge text-fy-ink-soft font-body text-label min-w-0"
+        >
+          <Icon name="location_on" size={14} className="text-fy-brown shrink-0" />
+          <span className="truncate max-w-[180px]">{savedAddresses[0]?.label ?? tDash('setYourArea')}</span>
+          <Icon name="expand_more" size={14} className="shrink-0" />
+        </Link>
+
+        {activeBooking && (
+          <Link href={`/customer/track/${activeBooking._id}`} className="block">
+            <LightCard className="p-2.5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fy-lime opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-fy-green" />
+                </span>
+                <div className="flex flex-col min-w-0">
+                  <EyebrowLabel tone="green">{tDash('activeTracking')}</EyebrowLabel>
+                  <p className="font-body text-label text-fy-ink truncate">
+                    {statusLabel[activeBooking.status] ?? activeBooking.status} ·{' '}
+                    {shortAddress(activeBooking.pickupLocation.address)} →{' '}
+                    {shortAddress(activeBooking.dropLocation.address)}
+                  </p>
                 </div>
-                <IconTile tone="peach" size="sm" className="rounded-full">
-                  <Icon name="near_me" size={18} />
-                </IconTile>
-              </LightCard>
-              <ProgressBar value={progressPct} tone="lime" className="mt-1.5 mx-1" />
-            </Link>
-          )}
-
-          <div className="max-w-[78%]">
-            <h2 className="font-heading text-heading text-fy-ink leading-[1.05] whitespace-pre-line">
-              {t('householdHeadline')}
-            </h2>
-            {/* The design reads "142 verified cooperative members near you".
-                Nothing server-side counts nearby available workers, so this
-                shows the one live figure that does exist. */}
-            <Body className="mt-1.5 flex items-center gap-1.5">
-              <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full bg-fy-green" />
-              {t('categoriesAvailableCount', { count: household.length })}
-            </Body>
-          </div>
-
-          {categoriesState.status === 'loading' && <div className="w-full h-60 rounded-card bg-fy-field animate-pulse" />}
-          {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} />}
-
-          {heroCategory && (
-            <Link href={`/customer/service/${heroCategory.slug}`} className="block">
-              <PhotoCard
-                id={`household.category.${heroCategory.slug}`}
-                alt={categoryName(heroCategory)}
-                height="hero"
-                scrim="brown"
-                className="shadow-card"
-                overlay={
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      {/* `guaranteeEligible` is a real per-category flag. The
-                          design's "Most Booked" would need booking-frequency
-                          stats that nothing computes, so this shows the one
-                          claim the category document actually supports. */}
-                      {heroCategory.guaranteeEligible ? (
-                        <StatusPill tone="lime">{t('workmanshipGuarantee')}</StatusPill>
-                      ) : (
-                        <span />
-                      )}
-                      <EyebrowLabel tone="on-dark" className="opacity-80">
-                        {t('householdGuild')}
-                      </EyebrowLabel>
-                    </div>
-                    <div className="flex items-end justify-between gap-2">
-                      <div className="min-w-0">
-                        <SectionHeading as="h3" tone="on-dark">
-                          {categoryName(heroCategory)}
-                        </SectionHeading>
-                        <Body tone="on-dark" size="label" className="opacity-80">
-                          {t(`pricingUnit.${heroCategory.pricingUnit}` as never)}
-                        </Body>
-                      </div>
-                      {rateFor(heroCategory) && (
-                        <div className="text-right shrink-0">
-                          <EyebrowLabel tone="on-dark" className="opacity-80">
-                            {t('from')}
-                          </EyebrowLabel>
-                          <p className="font-heading text-metric text-fy-bone leading-none">
-                            ₹{rateFor(heroCategory)!.minimumFare}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                }
-              />
-            </Link>
-          )}
-
-          {gridCategories.length > 0 && (
-            <Section
-              title={<SectionHeading>{t('cooperativeGuilds')}</SectionHeading>}
-              aside={<EyebrowLabel>{t('fixedFairRate')}</EyebrowLabel>}
-            >
-              <div className="grid grid-cols-2 gap-3">
-                {gridCategories.map((c, i) => {
-                  // One wide tile mid-grid, matching the reference's rhythm.
-                  const wide = i === 2;
-                  return (
-                    <Link
-                      key={c._id}
-                      href={`/customer/service/${c.slug}`}
-                      className={wide ? 'col-span-2' : ''}
-                    >
-                      {wide ? (
-                        <div className="flex items-center justify-between gap-3 p-4 rounded-card bg-fy-brown text-fy-on-brown shadow-card">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <IconTile tone="brown" size="lg" className="bg-fy-brown-soft">
-                              <Icon name={CATEGORY_GLYPH[c.slug] ?? 'handyman'} size={24} />
-                            </IconTile>
-                            <div className="min-w-0">
-                              <h4 className="font-body text-body font-semibold truncate">{categoryName(c)}</h4>
-                              <p className="font-body text-label text-fy-on-brown-soft truncate">
-                                {t(`pricingUnit.${c.pricingUnit}` as never)}
-                              </p>
-                            </div>
-                          </div>
-                          {rateFor(c) && (
-                            <div className="text-right shrink-0">
-                              <p className="font-heading text-title text-fy-lime leading-none">₹{rateFor(c)!.minimumFare}</p>
-                              <EyebrowLabel tone="on-dark" className="opacity-80">
-                                {t('from')}
-                              </EyebrowLabel>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <LightCard className="h-full flex flex-col justify-between p-3.5 min-h-[190px]">
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <IconTile tone="peach" size="sm" className="bg-fy-well text-fy-brown">
-                                <Icon name={CATEGORY_GLYPH[c.slug] ?? 'handyman'} size={20} />
-                              </IconTile>
-                              {c.guaranteeEligible && (
-                                <StatusPill tone="neutral">{t('guaranteed')}</StatusPill>
-                              )}
-                            </div>
-                            <PhotoCard
-                              id={`household.category.${c.slug}`}
-                              alt={categoryName(c)}
-                              height="tile"
-                              scrim="none"
-                              className="mb-2"
-                            />
-                            <h4 className="font-body text-body font-semibold text-fy-ink leading-tight">{categoryName(c)}</h4>
-                          </div>
-                          <div className="mt-2 pt-2">{priceLine(c)}</div>
-                        </LightCard>
-                      )}
-                    </Link>
-                  );
-                })}
               </div>
-            </Section>
-          )}
-
-          {household.length === 0 && categoriesState.status !== 'loading' && (
-            <EmptyState title={t('noCategoriesTitle')} />
-          )}
-
-          {/* The design carries a "Specialists Near You" carousel of named
-              member-owners with ratings. Ratings exist (the Rating model),
-              but nothing exposes a browsable directory of workers to a
-              customer and no endpoint returns nearby available members, so
-              there is no honest way to populate it. Deliberately omitted
-              rather than filled with invented people — flagged in the
-              report so it can be built properly. */}
-
-          <Panel className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <IconTile tone="brown" className="rounded-full">
-                <Icon name="verified_user" size={18} />
+              <IconTile tone="peach" size="sm" className="rounded-full">
+                <Icon name="near_me" size={18} />
               </IconTile>
-              <div className="min-w-0">
-                <p className="font-body text-label font-semibold text-fy-ink">{t('guaranteeTitle')}</p>
-                <Body size="label">{t('guaranteeHint')}</Body>
-              </div>
-            </div>
-            <Icon name="arrow_forward" size={18} className="text-fy-muted shrink-0" />
-          </Panel>
+            </LightCard>
+            <ProgressBar value={progressPct} tone="lime" className="mt-1.5 mx-1" />
+          </Link>
+        )}
 
-          <Section
-            title={<SectionHeading>{t('recentBookings')}</SectionHeading>}
-            aside={
-              <Link href="/customer/history" className="font-body text-label font-semibold text-fy-brown hover:underline">
-                {t('seeAll')}
-              </Link>
-            }
-          >
-            {bookingsState.status === 'loading' && <Skeleton lines={3} className="h-16" />}
-            {bookingsState.status === 'error' && <ErrorState onRetry={bookingsState.reload} />}
-            {bookingsState.status === 'forbidden' && <PermissionDeniedState />}
-            {bookingsState.status === 'empty' && (
-              <EmptyState
-                title={t('noBookingsTitle')}
-                description={t('noBookingsDescription')}
-                action={
-                  <Link href="/customer/book/household" className="font-body text-label font-semibold text-fy-brown hover:underline">
-                    {t('bookFirst')}
-                  </Link>
-                }
-              />
-            )}
-            {bookingsState.status === 'success' && recent.length === 0 && (
-              <Body className="text-center py-6">{t('onlyActiveNote')}</Body>
-            )}
-            {recent.length > 0 && (
-              <DataList>
-                {recent.map((b) => (
-                  <DataRow
-                    key={b._id}
-                    lead={
-                      <IconTile tone="peach" size="md" className="bg-fy-edge text-fy-ink-soft rounded-full">
-                        <Icon name={b.type === 'hamali' ? 'engineering' : 'local_shipping'} size={18} />
-                      </IconTile>
-                    }
-                    title={`${shortAddress(b.pickupLocation.address)} → ${shortAddress(b.dropLocation.address)}`}
-                    meta={`₹${b.fareBreakdown.total}`}
-                    trailing={
-                      <StatusPill tone={bookingStatusTone(b.status) === 'success' ? 'lime' : 'neutral'}>
-                        {statusLabel[b.status] ?? b.status}
-                      </StatusPill>
-                    }
-                    onClick={() => router.push(`/customer/track/${b._id}`)}
-                  />
-                ))}
-              </DataList>
-            )}
-          </Section>
+        <PromoRail mode="household" />
 
-          <TaraEntry accent="primary" />
-        </main>
+        {categoriesState.status === 'loading' && (
+          <div className="grid grid-cols-4 gap-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="aspect-square rounded-card bg-fy-field animate-pulse" />
+            ))}
+          </div>
+        )}
+        {categoriesState.status === 'error' && <ErrorState onRetry={categoriesState.reload} />}
 
-      </div>
-    </RotaryDial>
+        {household.length > 0 && <CategoryGrid categories={household} heading={t('householdHeading')} />}
+
+        {household.length === 0 && categoriesState.status !== 'loading' && (
+          <EmptyState title={tDash('noCategoriesTitle')} />
+        )}
+
+        {bookingsState.status === 'loading' && <Skeleton lines={2} className="h-20" />}
+        {bookingsState.status === 'success' && (
+          <RecommendationsRow bookings={bookings} categories={household} />
+        )}
+
+        {/* Nothing booked yet, and nothing to re-book. One line and a way in,
+            rather than a row of arbitrary categories dressed as suggestions. */}
+        {bookingsState.status === 'empty' && household.length > 0 && (
+          <Body size="label" className="text-center">
+            {t('nothingBookedYet')}
+          </Body>
+        )}
+
+        <TaraEntry accent="primary" />
+      </main>
+    </div>
   );
 }

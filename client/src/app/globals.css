@@ -159,6 +159,17 @@ html[lang='hi'] {
   bottom: calc(var(--fy-nav-total) + var(--fy-cta-h) + 0.75rem);
 }
 
+/* The mode sheet's entrance. Short and eased-out rather than springy: this
+   is a switch a customer uses several times a session, and a bouncy sheet
+   stops being charming on the fourth use. */
+@keyframes fy-sheet-in {
+  from { transform: translateY(12%); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[fy-sheet-in_260ms_var\(--fy-ease-out\)\] { animation: none; }
+}
+
 /* Paper-grain overlay — the fine dot texture visible on the design's
    substrate. Drop onto any page root. */
 .fy-grain {
