@@ -138,9 +138,38 @@ describe('AI provider chain', () => {
 
     const res = await callAgent(INPUT, MOCK);
 
-    expect(hosts).toHaveLength(2);
+    // Three calls, not two: Gemini is tried, retried once because 429 is a
+    // transient capacity error that usually clears in seconds, and only
+    // then handed over. Falling through on the first 429 would drop every
+    // agent to its rule-based answer over a blip.
+    expect(hosts).toEqual([
+      'generativelanguage.googleapis.com',
+      'generativelanguage.googleapis.com',
+      'api.groq.com',
+    ]);
     expect(res.provider).toBe('groq');
     expect(res.mock).toBe(false);
+  });
+
+  it('does not retry a failure that retrying cannot fix', async () => {
+    // A 404 means the model is gone and a 401 means the key is wrong.
+    // Retrying either wastes a second of somebody's wait for the same
+    // answer, so only 429 and 503 get a second attempt.
+    reloadEnv({ GEMINI_API_KEY: 'k', GROQ_API_KEY: 'k2' });
+    const { callAgent } = await import('../src/agents/client');
+    const hosts: string[] = [];
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    global.fetch = (async (url: string) => {
+      const host = new URL(String(url)).host;
+      hosts.push(host);
+      if (host.includes('googleapis')) return httpFail(404);
+      return groqOk({ summary: 'Groq answer.', confidence: 'moderate', evidence: [{ label: 'Rows', value: '3' }] });
+    }) as unknown as typeof fetch;
+
+    const res = await callAgent(INPUT, MOCK);
+
+    expect(hosts).toEqual(['generativelanguage.googleapis.com', 'api.groq.com']);
+    expect(res.provider).toBe('groq');
   });
 
   it('pins the chain to one provider when AI_PROVIDER names it', async () => {
