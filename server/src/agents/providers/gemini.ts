@@ -16,8 +16,28 @@ import { AiProvider, ProviderCallInput, ProviderError, PROVIDER_TIMEOUT_MS } fro
  * agent's prompt structurally true, which is why client.ts's fence-stripping
  * parser now almost never has to do any work on this provider.
  */
-const TEXT_MODEL = 'gemini-2.0-flash';
-const VISION_MODEL = 'gemini-2.0-flash';
+/*
+ * The model name, and why it is overridable.
+ *
+ * gemini-2.0-flash was hardcoded here and Google has since retired it: every
+ * call came back 404 "This model is no longer available. Please update your
+ * code to use models/gemini-3.6-flash". The key was fine, the account was
+ * fine, and /api/health still cheerfully reported "gemini -> anthropic"
+ * because it only ever checked whether a key was present.
+ *
+ * A vendor retiring a model is not a bug to be fixed once. GEMINI_MODEL
+ * makes the next retirement an environment variable rather than a deploy,
+ * which matters when the only symptom is every agent silently falling back
+ * to its rule-based answer.
+ *
+ * One name for both paths: Gemini's flash models are multimodal, so the
+ * text and vision calls differ only in whether an inline_data part is
+ * attached.
+ */
+const DEFAULT_MODEL = 'gemini-3.6-flash';
+const MODEL = env.GEMINI_MODEL || DEFAULT_MODEL;
+const TEXT_MODEL = MODEL;
+const VISION_MODEL = MODEL;
 
 export const gemini: AiProvider = {
   name: 'gemini',

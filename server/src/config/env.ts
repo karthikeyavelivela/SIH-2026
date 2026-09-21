@@ -49,6 +49,13 @@ const envSchema = z.object({
   // in the order AI_PROVIDER selects. With none present every agent falls
   // back to its rule-based mock, labelled as such, exactly as before.
   GEMINI_API_KEY: z.string().optional(),
+  /**
+   * Overrides the Gemini model name. Set it when Google retires the current
+   * one — the failure mode is a 404 on every call and every agent silently
+   * falling back to its rule-based answer, which is worth being able to fix
+   * without a deploy.
+   */
+  GEMINI_MODEL: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
   // 'auto' (the default) tries Gemini, then Groq, then Anthropic, skipping
   // any without a key. Naming one provider pins the chain to it alone —
