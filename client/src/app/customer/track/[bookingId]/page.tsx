@@ -534,6 +534,13 @@ export default function TrackBookingPage() {
               </Section>
             )}
 
+            {/* A cancelled or completed booking keeps its tracking screen —
+                the route, the history and the fare are all still worth
+                reading back. The SHARE link goes: it invites someone to
+                watch a journey that is not happening, and whoever opened
+                it would sit on a map waiting for a worker who is never
+                coming. */}
+            {!['cancelled', 'completed'].includes(booking.status) && (
             <LightCard className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <IconTile tone="peach" size="sm">
@@ -550,6 +557,7 @@ export default function TrackBookingPage() {
                 {linkCopied ? t('copied') : t('copy')}
               </button>
             </LightCard>
+            )}
 
             <Section title={<SectionHeading>{t('bookingDetails')}</SectionHeading>}>
               <Panel className="flex flex-col gap-2">
