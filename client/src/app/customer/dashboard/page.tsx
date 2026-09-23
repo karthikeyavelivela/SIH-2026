@@ -12,7 +12,7 @@ import { bucketCategories } from '@/lib/categoryBuckets';
 import { Wordmark } from '@/components/fy/Wordmark';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
-import { LanguageDial } from '@/components/fy/LanguageDial';
+import { LanguageMenu } from '@/components/fy/LanguageMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -116,10 +116,10 @@ export default function CustomerDashboardPage() {
             <Link href="/customer/profile" aria-label={t('menuAria')} className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-fy-ink hover:bg-fy-well transition-colors shrink-0">
               <Icon name="menu" size={22} />
             </Link>
-            <Wordmark height={20} />
+            <Wordmark height={28} />
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <LanguageDial size="sm" />
+            <LanguageMenu />
             <NotificationBell href="/customer/notifications" />
           </div>
         </div>

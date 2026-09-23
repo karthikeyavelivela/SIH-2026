@@ -37,24 +37,24 @@ export function SearchScanBar({
   const router = useRouter();
 
   return (
-    <div className="flex items-center gap-1.5 rounded-control bg-fy-card border border-fy-hairline/50 shadow-card pl-3.5 pr-1.5 py-1.5">
+    <div className="flex items-center gap-1.5 rounded-control bg-fy-card border border-fy-hairline/50 shadow-card pl-3.5 pr-1.5 py-1">
       <Icon name="search" size={18} className="text-fy-muted shrink-0" />
       <button
         type="button"
         onClick={openGlobalSearch}
-        className="flex-1 min-w-0 text-left min-h-[40px] font-body text-body text-fy-muted truncate"
+        className="flex-1 min-w-0 text-left min-h-[48px] font-body text-body text-fy-muted truncate"
       >
         {t(`searchPlaceholder.${mode}` as never)}
       </button>
 
       {showScan && (
         <>
-          <span aria-hidden className="w-px self-stretch my-2 bg-fy-hairline/60" />
+          <span aria-hidden className="w-px self-stretch my-2.5 bg-fy-hairline/60" />
           <button
             type="button"
             onClick={() => router.push('/customer/scan')}
             aria-label={t('scanAria')}
-            className="shrink-0 w-10 h-10 rounded-control bg-fy-lime-tint-2 text-fy-green flex items-center justify-center transition-transform active:scale-95"
+            className="shrink-0 w-12 h-12 rounded-control bg-fy-lime-tint-2 text-fy-green flex items-center justify-center transition-transform active:scale-95"
           >
             <Icon name="photo_camera" size={20} />
           </button>
