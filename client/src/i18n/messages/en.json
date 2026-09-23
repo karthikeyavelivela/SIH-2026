@@ -4419,5 +4419,19 @@
     "copy": "Get told the moment your job is accepted or a worker is on the way.",
     "enable": "Turn on alerts",
     "dismiss": "Not now"
+  },
+  "locationChip": {
+    "close": "Close",
+    "deniedHint": "Location is blocked for this site. Search for your area below, or allow location in your browser settings.",
+    "locating": "Finding you…",
+    "lookupFailed": "Could not work out your area. Please search for it below.",
+    "noGps": "This device cannot share its location. Please search for your area below.",
+    "orType": "Or search for your area",
+    "saved": "Saved addresses",
+    "searchPlaceholder": "Area, landmark or pin code",
+    "setArea": "Set your area",
+    "title": "Where do you need help?",
+    "useMyLocation": "Use my current location",
+    "whyNote": "We use your area only to find workers near you."
   }
 }

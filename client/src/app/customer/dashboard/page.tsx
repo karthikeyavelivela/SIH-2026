@@ -7,7 +7,6 @@ import { useTranslations } from 'next-intl';
 import { fetchServiceCategories } from '@/lib/serviceCategories';
 import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
-import { useSavedAddresses } from '@/lib/useSavedAddresses';
 import { bucketCategories } from '@/lib/categoryBuckets';
 import { Wordmark } from '@/components/fy/Wordmark';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
@@ -19,6 +18,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Icon } from '@/components/ui/Icon';
 import { TaraEntry } from '@/components/ui/TaraEntry';
 import { SearchScanBar } from '@/components/customer/SearchScanBar';
+import { LocationChip } from '@/components/customer/LocationChip';
 import { PromoRail } from '@/components/customer/PromoRail';
 import { CategoryGrid } from '@/components/customer/CategoryGrid';
 import { RecommendationsRow } from '@/components/customer/RecommendationsRow';
@@ -74,7 +74,6 @@ export default function CustomerDashboardPage() {
   const t = useTranslations('customerHome');
   const tDash = useTranslations('customerDashboard');
   const router = useRouter();
-  const { addresses: savedAddresses } = useSavedAddresses();
 
   const bookingsState = useApiState(
     () => api.get<{ bookings: BookingSummary[] }>('/api/bookings').then((r) => r.bookings),
@@ -130,14 +129,7 @@ export default function CustomerDashboardPage() {
 
         <SearchScanBar mode="household" />
 
-        <Link
-          href="/customer/profile"
-          className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-fy-edge text-fy-ink-soft font-body text-label min-w-0"
-        >
-          <Icon name="location_on" size={14} className="text-fy-brown shrink-0" />
-          <span className="truncate max-w-[180px]">{savedAddresses[0]?.label ?? tDash('setYourArea')}</span>
-          <Icon name="expand_more" size={14} className="shrink-0" />
-        </Link>
+        <LocationChip />
 
         <ActiveBookingStrip mode="household" />
 
