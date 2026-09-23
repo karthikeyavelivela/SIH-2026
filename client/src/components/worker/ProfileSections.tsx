@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { LanguagePill, type LanguageCode } from '@/components/ui/LanguagePill';
 import { setLocaleAction } from '@/i18n/setLocale';
+import { useNotificationPermission } from '@/lib/useNotificationPermission';
 import { StarIcon, LockIcon, EyeIcon, TrashIcon, BankIcon, SwitchIcon, ChevronRightIcon } from '@/components/ui/icons';
 
 // ═══════════════════════════════════════════════════════════════════
@@ -463,6 +464,53 @@ export function HamaliSkillsSection() {
 
 const NOTIF_CATEGORY_KEYS = ['jobUpdates', 'payments', 'promotions'] as const;
 
+/**
+ * The state of the browser's own permission, and the only honest set of
+ * controls for it.
+ *
+ * The per-category toggles below decide what FYRO would like to send. This
+ * row is about whether the browser will deliver any of it, which is a
+ * separate question the toggles cannot answer and were silently failing to
+ * mention: every push category could read "on" while the browser was
+ * dropping the lot.
+ *
+ * There is no button for the denied case on purpose. Once a site is
+ * blocked, requestPermission() resolves 'denied' without showing anything,
+ * so a "Turn on alerts" button there would do nothing at all, twice. The
+ * only route back is the browser's own site settings, so that is what it
+ * says — this is the re-enable path, and it is a sentence rather than a
+ * control because a control would be a lie.
+ */
+function BrowserAlertsRow() {
+  const t = useTranslations('profile.notifications');
+  const { permission, request } = useNotificationPermission();
+
+  const copy = {
+    granted: t('browser.granted'),
+    denied: t('browser.denied'),
+    default: t('browser.default'),
+    unsupported: t('browser.unsupported'),
+  }[permission];
+
+  return (
+    <div className="flex items-start justify-between gap-3 pb-4 border-b border-fy-hairline/60">
+      <div className="min-w-0">
+        <p className="text-sm font-semibold">{t('browser.title')}</p>
+        <p className="text-xs text-fy-ink-soft mt-0.5 leading-snug">{copy}</p>
+      </div>
+      {permission === 'default' && (
+        <button
+          type="button"
+          onClick={() => request()}
+          className="shrink-0 min-h-[40px] px-3.5 rounded-control bg-fy-brown text-fy-on-brown text-sm font-semibold"
+        >
+          {t('browser.enable')}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function NotificationPreferencesSection() {
   const t = useTranslations('profile.notifications');
   const { user, refetch } = useAuth();
@@ -483,6 +531,7 @@ export function NotificationPreferencesSection() {
 
   return (
     <SectionCard title={t('title')}>
+      <BrowserAlertsRow />
       {(['push', 'sms'] as const).map((channel) => (
         <div key={channel}>
           <p className="text-xs font-semibold uppercase tracking-wide text-fy-ink-soft mb-2">{t(channel)}</p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
+import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
+import { notifyBookingStatus } from '@/lib/bookingAlerts';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PaymentSection } from '@/components/booking/PaymentSection';
@@ -123,6 +125,12 @@ function BidsReviewSection({ bookingId, onAccepted }: { bookingId: string; onAcc
 }
 
 const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
+
+// Confirmation, in the sense that matters to a customer: somebody has
+// taken the job. Before this the answer to "tell you when they're on the
+// way?" is "on the way to what?"; after in_progress they are already on
+// the way and the offer has expired.
+const NOTIFY_ASK_AT = ['matched', 'accepted'];
 
 const statusTone: Record<string, 'success' | 'secondary' | 'muted' | 'danger'> = {
   completed: 'success',
@@ -260,6 +268,29 @@ export default function TrackBookingPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveStatus]);
+
+  /*
+   * Spend the permission the moment it is worth something.
+   *
+   * The first status this page ever sees is the one it loaded with, so it
+   * is recorded without firing anything — otherwise opening the screen
+   * would announce the state the customer is already reading. Every
+   * transition after that is a real event, and notifyBookingStatus itself
+   * declines to fire while the tab is in front of them.
+   */
+  const lastNotified = useRef<string | null>(null);
+  useEffect(() => {
+    const status = booking?.status;
+    if (!status) return;
+    if (lastNotified.current === null) {
+      lastNotified.current = status;
+      return;
+    }
+    if (lastNotified.current === status) return;
+    lastNotified.current = status;
+    notifyBookingStatus(bookingId, t('notifyTitle'), t(`historyStatus.${status}` as never) ?? status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booking?.status, bookingId]);
 
   if (error) {
     return (
@@ -427,6 +458,18 @@ export default function TrackBookingPage() {
 
         {tab === 'status' && (
           <>
+            {/* THE ASK.
+                Not on app load, where a permission dialog arrives before
+                the customer has any reason to want one and gets blocked
+                reflexively. Here: a worker has just taken their job, the
+                question "shall we tell you when they set off?" answers
+                itself, and they are one tap from the browser's own prompt.
+                The banner hides itself once the permission is decided
+                either way. */}
+            {NOTIFY_ASK_AT.includes(booking.status) && (
+              <NotificationPrompt accent="primary" scope="booking" copy={t('notifyOnTheWay')} />
+            )}
+
             {(booking.status === 'requested' || booking.status === 'searching') && (
               <LightCard className="flex items-center gap-3">
                 <span className="w-3.5 h-3.5 rounded-full border-2 border-fy-brown/30 border-t-fy-brown animate-spin shrink-0" />

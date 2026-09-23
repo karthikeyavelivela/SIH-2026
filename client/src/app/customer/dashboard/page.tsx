@@ -9,7 +9,6 @@ import { api } from '@/lib/api';
 import { useApiState } from '@/lib/useApiState';
 import { bucketCategories } from '@/lib/categoryBuckets';
 import { Wordmark } from '@/components/fy/Wordmark';
-import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 import { LanguageMenu } from '@/components/fy/LanguageMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -125,8 +124,6 @@ export default function CustomerDashboardPage() {
       </header>
 
       <main className="fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5 pt-1">
-        <NotificationPrompt accent="primary" copy={tDash('notifyPrompt')} />
-
         <SearchScanBar mode="household" />
 
         <LocationChip />

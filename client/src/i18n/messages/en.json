@@ -948,7 +948,9 @@
     "waitingFor": "Waiting for {who} to respond…",
     "whoDriver": "a driver",
     "whoCrew": "a loading crew",
-    "whoDriverAndCrew": "a driver and a loading crew"
+    "whoDriverAndCrew": "a driver and a loading crew",
+    "notifyOnTheWay": "Want to be told the moment your worker sets off, even if this screen is closed?",
+    "notifyTitle": "Your FYRO booking"
   },
   "customerHistory": {
     "title": "Booking history",
@@ -1343,6 +1345,14 @@
         "jobUpdates": "Job updates",
         "payments": "Payments",
         "promotions": "Promotions"
+      },
+      "browser": {
+        "default": "Your browser has not been asked yet. Nothing below can reach you until it is.",
+        "denied": "This browser is blocking FYRO alerts. To turn them back on, open this site's permissions in your browser settings and allow notifications.",
+        "enable": "Turn on",
+        "granted": "This browser is allowed to show FYRO alerts.",
+        "title": "Browser alerts",
+        "unsupported": "This browser cannot show alerts. You will still see updates inside the app."
       }
     },
     "privacy": {

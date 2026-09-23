@@ -8,6 +8,13 @@ import { Icon } from '@/components/ui/Icon';
 interface NotificationPromptProps {
   accent?: 'primary' | 'secondary';
   copy?: string;
+  /**
+   * Which ask this is. Dismissals are remembered per scope, because the
+   * app asks at more than one moment and they are not the same request:
+   * waving away a worker-dashboard banner should not also silence the
+   * "your worker is on the way" ask on a customer's first booking.
+   */
+  scope?: string;
 }
 
 const DISMISSED_KEY = 'fyro.notifyPrompt.dismissed';
@@ -29,7 +36,8 @@ const DISMISSED_KEY = 'fyro.notifyPrompt.dismissed';
  * And its two labels were hardcoded English in a trilingual app, so a
  * Telugu reader got "Enable alerts" in the middle of a Telugu screen.
  */
-export function NotificationPrompt({ accent = 'primary', copy }: NotificationPromptProps) {
+export function NotificationPrompt({ accent = 'primary', copy, scope }: NotificationPromptProps) {
+  const storageKey = scope ? `${DISMISSED_KEY}.${scope}` : DISMISSED_KEY;
   const t = useTranslations('notifyPrompt');
   const { permission, request } = useNotificationPermission();
   const [dismissed, setDismissed] = useState(true);
@@ -38,23 +46,27 @@ export function NotificationPrompt({ accent = 'primary', copy }: NotificationPro
   // never flashes in on first paint and then disappear.
   useEffect(() => {
     try {
-      setDismissed(localStorage.getItem(DISMISSED_KEY) === '1');
+      setDismissed(localStorage.getItem(storageKey) === '1');
     } catch {
       // Private window or blocked storage: show it, and this session's
       // dismissal simply will not persist.
       setDismissed(false);
     }
-  }, []);
+  }, [storageKey]);
 
   function dismiss() {
     setDismissed(true);
     try {
-      localStorage.setItem(DISMISSED_KEY, '1');
+      localStorage.setItem(storageKey, '1');
     } catch {
       /* see above */
     }
   }
 
+  // 'granted' needs no banner and 'denied' must not produce one: the
+  // browser will not show its prompt again, so re-offering the button
+  // would be a control that does nothing. Re-enabling after a denial is
+  // only possible in browser settings, and the profile screen says that.
   if (dismissed || permission !== 'default') return null;
 
   const tint = accent === 'primary' ? 'bg-fy-brown/10 text-fy-brown' : 'bg-fy-green/10 text-fy-green';
