@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
+import { useRoleGuard } from '@/lib/useRoleGuard';
+import { SessionGate } from '@/components/auth/SessionGate';
 import { SidebarNav } from '@/components/admin/SidebarNav';
 import { TruckIcon, HomeIcon, UsersIcon } from '@/components/ui/icons';
 import { NotificationBell } from '@/components/ui/NotificationBell';
@@ -20,27 +22,18 @@ export default function FleetOwnerLayout({ children }: { children: React.ReactNo
     { href: '/fleet-owner/profile', label: t('profile'), icon: <UsersIcon className="w-5 h-5" /> },
   ];
   const { user, loading, logout } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  useEffect(() => {
-    if (!loading && (!user || user.role !== 'fleet_owner')) {
-      router.replace('/login');
-    }
-  }, [loading, user, router]);
+  // Signed out -> /login; signed in as another role -> that role's home.
+  useRoleGuard(['fleet_owner']);
 
   useEffect(() => {
     setMobileNavOpen(false);
   }, [pathname]);
 
   if (loading || !user || user.role !== 'fleet_owner') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-fy-ink-soft bg-fy-bone">
-        <div className="w-8 h-8 rounded-full border-2 border-fy-hairline border-t-fy-brown animate-spin" aria-hidden="true" />
-        <p className="text-sm">{t('loading')}</p>
-      </div>
-    );
+    return <SessionGate />;
   }
 
   return (

@@ -29,7 +29,7 @@ export function renderWithProviders(
   return render(
     <NextIntlClientProvider locale="en" messages={enMessages}>
       <AuthContext.Provider
-        value={{ user, loading: false, error: null, refetch: async () => {}, logout: async () => {} }}
+        value={{ user, loading: false, error: null, refetch: async () => user, logout: async () => {} }}
       >
         {ui}
       </AuthContext.Provider>

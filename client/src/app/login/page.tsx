@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -35,7 +35,7 @@ import { Wordmark } from '@/components/fy/Wordmark';
  */
 export default function LoginPage() {
   const router = useRouter();
-  const { refetch } = useAuth();
+  const { refetch, user, loading: authLoading } = useAuth();
   const t = useTranslations('signIn');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -43,14 +43,29 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Already signed in: this form has nothing to offer. Sending the person
+  // on to their own home is what stops any guard that lands a signed-in
+  // user here from turning into a sign-in loop.
+  useEffect(() => {
+    if (!authLoading && user) router.replace(roleHome(user.role));
+  }, [authLoading, user, router]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
       const res = await api.post<{ user: AuthUser }>('/api/auth/login', { phone, password });
-      await refetch();
-      router.push(roleHome(res.user.role));
+      // The password was right. Whether the SESSION stuck is a separate
+      // question: a browser that refuses the cookie makes /me say "signed
+      // out" a moment later, and pushing on into the app from there lands
+      // straight back on this page. Ask, and say so instead of looping.
+      const me = await refetch();
+      if (!me) {
+        setError(t('sessionNotKept'));
+        return;
+      }
+      router.push(roleHome(me.role ?? res.user.role));
     } catch (err) {
       // The server's message is specific and safe to show ("Invalid
       // credentials" never says which of the two was wrong), so it is shown

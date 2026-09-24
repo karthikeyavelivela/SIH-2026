@@ -4312,7 +4312,8 @@
     "forgotHeading": "Forgot your password?",
     "forgotBody": "There is no automatic password reset yet — FYRO has no SMS or email provider connected, and we would rather say so than send you to a screen that quietly does nothing.",
     "forgotWho": "Ask your society leader, or the FYRO desk, to reset it for you. They will verify who you are first.",
-    "forgotBack": "Back to sign in"
+    "forgotBack": "Back to sign in",
+    "sessionNotKept": "Your password was correct, but this browser did not keep you signed in. Turn off blocking of site data for this site, or open FYRO in Chrome, and try again."
   },
   "regionField": {
     "label": "Priced for",
@@ -4444,5 +4445,10 @@
     "title": "Where do you need help?",
     "useMyLocation": "Use my current location",
     "whyNote": "We use your area only to find workers near you."
+  },
+  "session": {
+    "checking": "Checking your session…",
+    "retry": "Try again",
+    "unreachable": "We could not reach FYRO just now. You are still signed in — check your connection and try again."
   }
 }

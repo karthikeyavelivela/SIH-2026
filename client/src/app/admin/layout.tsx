@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
+import { useRoleGuard } from '@/lib/useRoleGuard';
+import { SessionGate } from '@/components/auth/SessionGate';
 import { SidebarNav, SidebarNavItem } from '@/components/admin/SidebarNav';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 import {
@@ -95,15 +97,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const tNav = useTranslations('adminLayout.nav');
   const tLayout = useTranslations('consoleLayout');
   const { user, loading, logout } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  useEffect(() => {
-    if (!loading && (!user || (user.role !== 'admin' && user.role !== 'manager'))) {
-      router.replace('/login');
-    }
-  }, [loading, user, router]);
+  // Signed out -> /login; signed in as another role -> that role's home.
+  useRoleGuard(['admin', 'manager']);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -115,15 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   if (loading || !user || (user.role !== 'admin' && user.role !== 'manager')) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-fy-ink-soft bg-fy-bone">
-        <div
-          className="w-8 h-8 rounded-full border-2 border-fy-hairline border-t-fy-brown animate-spin"
-          aria-hidden="true"
-        />
-        <p className="text-sm">{tLayout('loading')}</p>
-      </div>
-    );
+    return <SessionGate />;
   }
 
   return (
