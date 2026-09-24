@@ -1,10 +1,22 @@
 import { Schema, model, Types } from 'mongoose';
 import type { AvailabilityStatus } from '@fyro/shared';
 
+/**
+ * Which kind of work this person signed up for. All three run on the same
+ * hamali dispatch pipeline; the kind decides which jobs reach them (see
+ * services/workerEligibility.ts) and which worker area they land in.
+ *   hamali  — loading / general labour (the original meaning)
+ *   skilled — household trades: electrician, plumber, carpenter, ...
+ *   agri    — farm labour
+ */
+export const WORKER_KINDS = ['hamali', 'skilled', 'agri'] as const;
+export type WorkerKind = (typeof WORKER_KINDS)[number];
+
 export interface IHamaliProfile {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   type: 'solo' | 'mutha_member';
+  workerKind: WorkerKind;
   muthaId?: Types.ObjectId;
   // Existed on the schema with zero endpoint ever exposing it — the exact
   // same "real field, no way to actually set it" pattern AUDIT_REPORT.md
@@ -30,6 +42,9 @@ const hamaliProfileSchema = new Schema<IHamaliProfile>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     type: { type: String, enum: ['solo', 'mutha_member'], required: true },
+    // Absent on every profile created before kinds existed; those were all
+    // loading workers, which is exactly what the default says.
+    workerKind: { type: String, enum: WORKER_KINDS, default: 'hamali' },
     muthaId: { type: Schema.Types.ObjectId, ref: 'Mutha' },
     skills: { type: [String], default: [] },
     physicalCapacityKg: { type: Number, min: 0 },

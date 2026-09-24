@@ -1,5 +1,6 @@
 'use client';
 
+import type { WorkerBase } from '@/lib/workerArea';
 import { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -54,7 +55,7 @@ const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false
 
 const STEP_STATUSES = ['accepted', 'in_progress', 'completed'] as const;
 
-export function WorkerActiveJob({ base, accent }: { base: '/driver' | '/hamali'; accent: 'primary' | 'secondary' }) {
+export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'primary' | 'secondary' }) {
   const role = base === '/driver' ? 'driver' : 'hamali';
   const t = useTranslations('activeJob.common');
   const tSos = useTranslations('sos');

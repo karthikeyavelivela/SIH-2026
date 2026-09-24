@@ -1,3 +1,4 @@
+import { isEligible, requiredSkillsFor } from './workerEligibility';
 import { Booking, IBooking } from '../models/Booking';
 import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
@@ -103,6 +104,13 @@ export async function acceptAsHamaliSolo(userId: string, bookingId: string): Pro
   const profile = await HamaliProfile.findOne({ userId, type: 'solo' });
   if (!profile) throw new ApiError(404, 'No hamali profile found for this user');
   if (profile.availabilityStatus !== 'online') throw new ApiError(400, 'Go online before accepting a job');
+
+  // The feed and the offer engine already filter by skill; this is the
+  // backstop for a stale screen or a hand-made request.
+  const target = await Booking.findById(bookingId).select('serviceCategorySlug').lean();
+  if (target && !isEligible(profile, await requiredSkillsFor(target.serviceCategorySlug))) {
+    throw new ApiError(403, 'This job needs a trade or kind of work that is not on your profile');
+  }
 
   const booking = await Booking.findOneAndUpdate(
     {

@@ -61,6 +61,8 @@ authRouter.post(
     body('joinType').isIn(['solo', 'leader', 'member']),
     body('muthaName').if(body('joinType').equals('leader')).isString().notEmpty(),
     body('inviteCode').if(body('joinType').equals('member')).isString().notEmpty(),
+    body('workerKind').optional().isIn(['hamali', 'skilled', 'agri']),
+    body('skills').optional().isArray({ max: 20 }),
   ],
   validate,
   authController.signupHamali

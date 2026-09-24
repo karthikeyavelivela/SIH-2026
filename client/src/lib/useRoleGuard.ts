@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { roleHome } from '@/lib/roleHome';
+import type { WorkerKind } from '@/lib/workerArea';
 
 /**
  * Keeps a role's area for that role, without ever sending a signed-in
@@ -20,18 +21,20 @@ import { roleHome } from '@/lib/roleHome';
  *   - session, wrong area   -> that role's own home
  *   - session check failed  -> stay put; SessionGate offers a retry
  */
-export function useRoleGuard(allowed: readonly string[]) {
+export function useRoleGuard(allowed: readonly string[], workerKind?: WorkerKind) {
   const { user, loading, error } = useAuth();
   const router = useRouter();
-  const permitted = !!user && allowed.includes(user.role);
+  // The three solo-worker areas share one role; the kind tells them apart.
+  const kindOk = !workerKind || (user?.workerKind ?? 'hamali') === workerKind;
+  const permitted = !!user && allowed.includes(user.role) && kindOk;
 
   useEffect(() => {
     if (loading || error) return;
     if (!user) router.replace('/login');
-    else if (!allowed.includes(user.role)) router.replace(roleHome(user.role));
+    else if (!allowed.includes(user.role) || !kindOk) router.replace(roleHome(user.role, user.workerKind));
     // `allowed` is a literal at every call site.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, error, user, router]);
+  }, [loading, error, user, router, kindOk]);
 
   return { user, permitted };
 }

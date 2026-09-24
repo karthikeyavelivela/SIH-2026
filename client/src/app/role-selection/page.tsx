@@ -10,6 +10,10 @@ import { OnboardingShell, OptionRow } from '@/components/auth/OnboardingShell';
 const ROLES = [
   { key: 'customer', href: '/signup/customer', glyph: 'person' },
   { key: 'driver', href: '/signup/driver', glyph: 'local_shipping' },
+  // Household trades, farm work and loading work are three different
+  // enrolments. "Skilled worker" used to open the loading-crew signup.
+  { key: 'skilledWorker', href: '/signup/skilled-worker', glyph: 'home_repair_service' },
+  { key: 'agriWorker', href: '/signup/agri-worker', glyph: 'agriculture' },
   { key: 'hamali', href: '/signup/hamali', glyph: 'engineering' },
   { key: 'fleetOwner', href: '/signup/fleet-owner', glyph: 'inventory' },
   { key: 'warehouseHub', href: '/signup/warehouse-hub', glyph: 'warehouse' },

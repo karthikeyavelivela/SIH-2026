@@ -1,3 +1,4 @@
+import { bookingFilterFor } from '../services/workerEligibility';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
@@ -130,7 +131,10 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       res.status(200).json({ requests: [] });
       return;
     }
+    // Only the work this person does — see workerEligibility.ts.
+    const eligibility = await bookingFilterFor(profile);
     const hamaliBase = {
+      $and: [eligibility],
       status: openStatus,
       type: { $in: ['hamali', 'combo'] as const },
       rejectedByUserIds: { $ne: userId },

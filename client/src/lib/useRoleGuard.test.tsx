@@ -6,12 +6,16 @@ import { useRoleGuard } from '@/lib/useRoleGuard';
 const replace = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace, push: vi.fn() }) }));
 
-function Probe({ allowed }: { allowed: string[] }) {
-  useRoleGuard(allowed);
+function Probe({ allowed, kind }: { allowed: string[]; kind?: 'hamali' | 'skilled' | 'agri' }) {
+  useRoleGuard(allowed, kind);
   return null;
 }
 
-function mount(value: { user: Partial<AuthUser> | null; loading?: boolean; error?: string | null }, allowed = ['customer']) {
+function mount(
+  value: { user: Partial<AuthUser> | null; loading?: boolean; error?: string | null },
+  allowed = ['customer'],
+  kind?: 'hamali' | 'skilled' | 'agri'
+) {
   render(
     <AuthContext.Provider
       value={{
@@ -22,7 +26,7 @@ function mount(value: { user: Partial<AuthUser> | null; loading?: boolean; error
         logout: async () => {},
       }}
     >
-      <Probe allowed={allowed} />
+      <Probe allowed={allowed} kind={kind} />
     </AuthContext.Provider>
   );
 }
@@ -58,5 +62,23 @@ describe('useRoleGuard', () => {
   it('leaves a permitted user alone', () => {
     mount({ user: { role: 'manager' } }, ['admin', 'manager']);
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('sends a skilled worker who opens the loading area to their own area', () => {
+    mount({ user: { role: 'hamali_solo', workerKind: 'skilled' } }, ['hamali_solo'], 'hamali');
+    expect(replace).toHaveBeenCalledWith('/skilled/dashboard');
+  });
+
+  it('keeps a farm worker in the farm area', () => {
+    mount({ user: { role: 'hamali_solo', workerKind: 'agri' } }, ['hamali_solo'], 'agri');
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('treats a worker from before kinds existed as a loading worker', () => {
+    mount({ user: { role: 'hamali_solo' } }, ['hamali_solo'], 'hamali');
+    expect(replace).not.toHaveBeenCalled();
+    replace.mockReset();
+    mount({ user: { role: 'hamali_solo' } }, ['hamali_solo'], 'skilled');
+    expect(replace).toHaveBeenCalledWith('/hamali/dashboard');
   });
 });

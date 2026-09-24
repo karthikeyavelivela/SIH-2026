@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { api, ApiClientError } from './api';
 import { clearApiCache } from './apiCache';
+import type { WorkerKind } from './workerArea';
 
 export interface AuthUser {
   _id: string;
@@ -10,6 +11,8 @@ export interface AuthUser {
   email?: string;
   phone: string;
   role: string;
+  // Solo workers only: which worker area they belong in. See lib/workerArea.ts.
+  workerKind?: WorkerKind;
   // Every role this phone number holds — drives the role switcher
   // (Phase 6.1). Always contains `role`.
   roles: string[];

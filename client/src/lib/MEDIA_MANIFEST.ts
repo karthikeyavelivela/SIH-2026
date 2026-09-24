@@ -52,6 +52,13 @@ export const MEDIA_MANIFEST: Record<string, MediaManifestEntry> = {
     subject: 'Goods vehicles on a regional freight corridor',
     usedOn: ['/ guild cards'],
   },
+  'agri.hero': {
+    kind: 'photo',
+    aspect: 1.5,
+    dims: '1200x800',
+    subject: 'A tractor carrying harvested fodder along a village road at dusk',
+    usedOn: ['/signup/agri-worker', 'customer farm-labour booking'],
+  },
   'login.hero': {
     kind: 'photo',
     aspect: 2.4,
@@ -210,6 +217,7 @@ const REAL_ASSETS: Partial<Record<string, string>> = {
   'landing.guild.hamali': CL.scene('v1788766592/bc01a6f6-cd1f-487f-9559-a1912a888a67.png'),
   'landing.guild.transport': CL.place('20.Convoy_of_three_Indian_goods'),
   'login.hero': CL.place('24.Cooperative_Society_Office'),
+  'agri.hero': CL.place('18.Tractor'),
   'transport.hero': CL.scene('v1788767119/10434285-8f80-48c2-8dc4-38353c793d44.png'),
   'labour.crew': CL.scene('v1788766588/8fe31472-e9a7-4935-983a-eceb918ac674.png'),
   'labour.crew.loading': CL.scene('v1788766611/72d62d1c-0623-4d94-addf-603bf8927449.png'),

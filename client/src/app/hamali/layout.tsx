@@ -11,9 +11,9 @@ export default function HamaliLayout({ children }: { children: React.ReactNode }
   const t = useTranslations('nav');
 
   // Signed out -> /login; signed in as another role -> that role's home.
-  useRoleGuard(['hamali_solo']);
+  useRoleGuard(['hamali_solo'], 'hamali');
 
-  if (loading || !user || user.role !== 'hamali_solo') {
+  if (loading || !user || user.role !== 'hamali_solo' || (user.workerKind ?? 'hamali') !== 'hamali') {
     return <SessionGate />;
   }
 

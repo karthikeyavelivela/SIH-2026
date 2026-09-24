@@ -17,7 +17,8 @@ export function bucketCategories(categories: ServiceCategory[]) {
   const labour: ServiceCategory[] = [];
   const transport: ServiceCategory[] = [];
   for (const c of categories) {
-    if (c.slug === 'general_labour') labour.push(c);
+    // Farm labour is hands for a field, booked like a crew — Labour mode.
+    if (c.slug === 'general_labour' || c.slug === 'agri_labour') labour.push(c);
     else if (c.dispatchType === 'truck') transport.push(c);
     else household.push(c);
   }

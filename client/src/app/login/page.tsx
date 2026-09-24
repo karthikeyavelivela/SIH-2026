@@ -47,7 +47,7 @@ export default function LoginPage() {
   // on to their own home is what stops any guard that lands a signed-in
   // user here from turning into a sign-in loop.
   useEffect(() => {
-    if (!authLoading && user) router.replace(roleHome(user.role));
+    if (!authLoading && user) router.replace(roleHome(user.role, user.workerKind));
   }, [authLoading, user, router]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -65,7 +65,7 @@ export default function LoginPage() {
         setError(t('sessionNotKept'));
         return;
       }
-      router.push(roleHome(me.role ?? res.user.role));
+      router.push(roleHome(me.role ?? res.user.role, me.workerKind));
     } catch (err) {
       // The server's message is specific and safe to show ("Invalid
       // credentials" never says which of the two was wrong), so it is shown

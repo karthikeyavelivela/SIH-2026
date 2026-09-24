@@ -91,11 +91,23 @@ export default function LabourBookingPage() {
     fetchServiceCategories,
     []
   );
-  // `general_labour` is the traditional hamali/loading-crew category.
-  const category = useMemo(
-    () => bucketCategories(categoriesState.data ?? []).labour[0],
-    [categoriesState.data]
-  );
+  /*
+   * Two kinds of hands are booked here: a loading crew (general_labour) and
+   * farm labour (agri_labour). This used to take `labour[0]` — the first
+   * labour category, whichever that was — so the kind of work is now an
+   * explicit choice, and it decides who the job can reach: farm work goes
+   * only to workers who signed up for farm work.
+   */
+  const [work, setWork] = useState<'crew' | 'farm'>('crew');
+  useEffect(() => {
+    // Deep link from the farm-labour tile. Read once, client-side.
+    if (new URLSearchParams(window.location.search).get('work') === 'farm') setWork('farm');
+  }, []);
+  const category = useMemo(() => {
+    const labour = bucketCategories(categoriesState.data ?? []).labour;
+    const slug = work === 'farm' ? 'agri_labour' : 'general_labour';
+    return labour.find((c) => c.slug === slug) ?? (work === 'crew' ? labour[0] : undefined);
+  }, [categoriesState.data, work]);
 
   /*
    * The mirror image of the transit screen's "add loading workers".
@@ -173,8 +185,30 @@ export default function LabourBookingPage() {
             <Body className="mt-1.5">{t('subhead')}</Body>
           </div>
 
+          {/* What kind of hands. Decides which workers the job can reach. */}
+          <Section title={<SectionHeading>{t('workKindHeading')}</SectionHeading>}>
+            <div className="grid grid-cols-2 gap-3">
+              <SelectCard
+                selected={work === 'crew'}
+                glyph="engineering"
+                title={t('workKindCrew')}
+                description={t('workKindCrewHint')}
+                accent="green"
+                onClick={() => setWork('crew')}
+              />
+              <SelectCard
+                selected={work === 'farm'}
+                glyph="agriculture"
+                title={t('workKindFarm')}
+                description={t('workKindFarmHint')}
+                accent="green"
+                onClick={() => setWork('farm')}
+              />
+            </div>
+          </Section>
+
           <PhotoStrip
-            id="labour.crew"
+            id={work === 'farm' ? 'agri.hero' : 'labour.crew'}
             alt=""
             tint="labour"
             caption={
@@ -278,6 +312,8 @@ export default function LabourBookingPage() {
             </div>
           </Section>
 
+          {/* Materials describe a load. A field job has none. */}
+          {work === 'crew' && (
           <Section
             title={<SectionHeading>{t('materialsHeading')}</SectionHeading>}
             aside={<EyebrowLabel>{t('selectAll')}</EyebrowLabel>}
@@ -298,6 +334,7 @@ export default function LabourBookingPage() {
               ))}
             </ChipRow>
           </Section>
+          )}
 
           <Section title={<SectionHeading>{t('durationHeading')}</SectionHeading>}>
             <div className="grid grid-cols-3 gap-2">

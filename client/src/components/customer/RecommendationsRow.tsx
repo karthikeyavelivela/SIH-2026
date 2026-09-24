@@ -1,5 +1,6 @@
 'use client';
 
+import { hrefFor } from '@/components/customer/CategoryGrid';
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -65,7 +66,7 @@ export function RecommendationsRow({
         {rebookable.map((category) => (
           <Link
             key={category.slug}
-            href={`/customer/service/${category.slug}`}
+            href={hrefFor(category.slug)}
             className="shrink-0 w-[132px] rounded-card overflow-hidden bg-fy-card border border-fy-hairline/40 shadow-card"
           >
             <span className="relative block w-full h-[74px]">

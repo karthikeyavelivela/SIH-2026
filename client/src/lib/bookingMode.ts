@@ -28,7 +28,7 @@ export interface ModeBookingShape {
 
 export function bookingMode(booking: ModeBookingShape): CustomerMode {
   const slug = booking.serviceCategorySlug;
-  if (slug === 'general_labour') return 'labour';
+  if (slug === 'general_labour' || slug === 'agri_labour') return 'labour';
   if (slug === 'general_logistics') return 'transport';
   if (booking.type === 'truck' || booking.type === 'combo') return 'transport';
   if (!slug && booking.type === 'hamali') return 'labour';

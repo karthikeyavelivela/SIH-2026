@@ -22,12 +22,14 @@ const CATEGORY_GLYPH: Record<string, string> = {
   driver: 'local_taxi',
   general_logistics: 'local_shipping',
   general_labour: 'engineering',
+  agri_labour: 'agriculture',
 };
 
 /** Where tapping a category goes. Two of the twelve are whole modes, not trades. */
-function hrefFor(slug: string): string {
+export function hrefFor(slug: string): string {
   if (slug === 'general_logistics') return '/customer/book/transport';
   if (slug === 'general_labour') return '/customer/book/labour';
+  if (slug === 'agri_labour') return '/customer/book/labour?work=farm';
   return `/customer/service/${slug}`;
 }
 

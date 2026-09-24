@@ -1,3 +1,4 @@
+import { ensureServiceCategories } from './services/serviceCategorySeed';
 import http from 'http';
 import { app } from './app';
 import { connectDb } from './config/db';
@@ -18,6 +19,19 @@ async function main() {
   // been sitting unseeded in production — seven modules in the repo, three in
   // the database — because the seed script had never been run there.
   // Idempotent, and a failure here must never stop the server booting.
+  // Service categories, same reasoning: a category added in code (farm
+  // labour was) must exist in production without anyone running a script.
+  try {
+    const cats = await ensureServiceCategories();
+    if (cats > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`Seeded ${cats} missing service categor${cats === 1 ? 'y' : 'ies'}.`);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Service category seeding failed (continuing):', err);
+  }
+
   try {
     const created = await ensureTrainingModules();
     if (created > 0) {

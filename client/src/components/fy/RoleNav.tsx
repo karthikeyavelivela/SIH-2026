@@ -1,5 +1,6 @@
 'use client';
 
+import type { WorkerBase } from '@/lib/workerArea';
 import { useTranslations } from 'next-intl';
 import { BottomTabBar, type TabItem } from './Navigation';
 
@@ -21,7 +22,7 @@ function useNav() {
 }
 
 /** Driver and hamali share one shell; only the route prefix differs. */
-export function WorkerTabBar({ base }: { base: '/driver' | '/hamali' }) {
+export function WorkerTabBar({ base }: { base: WorkerBase }) {
   const t = useNav();
   const items: TabItem[] = [
     { href: `${base}/dashboard`, label: t('home'), glyph: 'home' },

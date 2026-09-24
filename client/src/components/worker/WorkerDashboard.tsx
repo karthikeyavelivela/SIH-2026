@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import type { WorkerBase } from '@/lib/workerArea';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
@@ -49,10 +50,13 @@ export function WorkerDashboard({
   base,
   accent,
   radiusKm,
+  intro,
 }: {
-  base: '/driver' | '/hamali';
+  base: WorkerBase;
   accent: 'primary' | 'secondary';
   radiusKm: number;
+  /** Shown under the greeting — what kind of worker this area is for. */
+  intro?: ReactNode;
 }) {
   const t = useTranslations('workerDashboard');
   const { user } = useAuth();
@@ -154,6 +158,8 @@ export function WorkerDashboard({
             </Body>
           </div>
         </div>
+
+        {intro}
 
         {/* Today's ledger — the screen's largest element. Real earnings
             lines from /api/earnings/me, never a projected or padded figure. */}

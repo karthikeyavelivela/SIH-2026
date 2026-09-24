@@ -1,4 +1,5 @@
 import { Booking, IBooking } from '../models/Booking';
+import { isEligible, requiredSkillsFor } from '../services/workerEligibility';
 import { Mutha } from '../models/Mutha';
 import {
   findCandidateVehicles,
@@ -154,7 +155,11 @@ export async function startHamaliOffers(booking: IBooking): Promise<void> {
     pickup: booking.pickupLocation.coordinates,
     maxDistanceKm: SEARCH_RADIUS_KM,
   });
+  // Only people who do this kind of work. Nearest-first used to mean a
+  // plumbing job went to whichever loader was closest.
+  const requiredSkills = await requiredSkillsFor(booking.serviceCategorySlug);
   const queue = soloCandidates
+    .filter((p) => isEligible(p, requiredSkills))
     .map((p) => p.userId.toString())
     .filter((id) => !booking.rejectedByUserIds.some((r) => r.toString() === id));
 
@@ -184,7 +189,11 @@ async function advanceHamaliOffer(state: OfferState): Promise<void> {
 
   let nextCandidateId = state.queue.shift();
 
-  if (!nextCandidateId && state.phase === 'solo') {
+  // A society is a loading crew. A trade or farm job that no individual
+  // could take stays open honestly rather than being handed to a crew.
+  const needsSpecificSkill = ((await requiredSkillsFor(booking.serviceCategorySlug)) ?? []).length > 0;
+
+  if (!nextCandidateId && state.phase === 'solo' && !needsSpecificSkill) {
     // Solo pool exhausted — move to Mutha leaders for the rest.
     state.phase = 'mutha';
     const muthas = await findCandidateMuthas({

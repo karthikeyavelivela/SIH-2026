@@ -11,7 +11,8 @@ import { Booking } from '../models/Booking';
 import { Payout } from '../models/Payout';
 import { uploadImage } from '../services/cloudinary.service';
 import { generateOtp, sendOtpSms, verifyOtp, OTP_MAX_ATTEMPTS } from '../services/otp.service';
-import { HamaliProfile } from '../models/HamaliProfile';
+import { HamaliProfile, WORKER_KINDS, type WorkerKind } from '../models/HamaliProfile';
+import { TRADE_SKILLS, AGRI_SKILL } from '../services/workerEligibility';
 import { Mutha } from '../models/Mutha';
 import { Fleet } from '../models/Fleet';
 import { WarehouseHub } from '../models/WarehouseHub';
@@ -121,13 +122,27 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
 
   if (joinType === 'solo') {
+    // Which kind of solo worker, and — for a skilled worker — which trades.
+    // Trades decide which jobs reach them (workerEligibility.ts), so a
+    // skilled worker with none would sign up to a dashboard that can never
+    // receive work; that is refused here rather than discovered later.
+    const workerKind: WorkerKind = WORKER_KINDS.includes(req.body.workerKind) ? req.body.workerKind : 'hamali';
+    let skills: string[] = [];
+    if (workerKind === 'skilled') {
+      const asked: unknown[] = Array.isArray(req.body.skills) ? req.body.skills : [];
+      skills = [...new Set(asked.filter((x): x is string => TRADE_SKILLS.includes(x as never)))];
+      if (skills.length === 0) throw new ApiError(400, 'Choose at least one trade you work in');
+    } else if (workerKind === 'agri') {
+      skills = [AGRI_SKILL];
+    }
+
     let user;
     try {
       user = await User.create({ name, phone, passwordHash, role: 'hamali_solo', signupIp: req.ip });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
-    await HamaliProfile.create({ userId: user._id, type: 'solo' });
+    await HamaliProfile.create({ userId: user._id, type: 'solo', workerKind, skills });
     detectRapidAccountCreation(user._id, req.ip).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res.status(201).json({ user: publicUser(user) });
@@ -288,7 +303,14 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
   // req.user.id comes only from the verified JWT, never from a param/query.
   const user = await User.findById(req.user!.id);
   if (!user) throw new ApiError(401, 'User not found');
-  res.status(200).json({ user: publicUser(user) });
+  // A solo worker's kind decides which worker area the client routes them
+  // to (/hamali, /skilled or /agri), so it travels with the session.
+  let workerKind: WorkerKind | undefined;
+  if (user.role === 'hamali_solo') {
+    const profile = await HamaliProfile.findOne({ userId: user._id }).select('workerKind').lean();
+    workerKind = profile?.workerKind ?? 'hamali';
+  }
+  res.status(200).json({ user: { ...publicUser(user), ...(workerKind ? { workerKind } : {}) } });
 });
 
 // ---- PATCH /api/auth/me/photo ----

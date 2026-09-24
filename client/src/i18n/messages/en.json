@@ -103,7 +103,8 @@
         "cleaner": "Cleaner",
         "technician": "Technician",
         "general_logistics": "Cargo & Logistics",
-        "general_labour": "General Labour"
+        "general_labour": "General Labour",
+        "agri_labour": "Farm Labour"
       },
       "states": {
         "andhraPradesh": "Andhra Pradesh",
@@ -650,9 +651,17 @@
           "title": "Truck Driver",
           "body": "I own or operate a vehicle and want to find loads."
         },
+        "skilledWorker": {
+          "title": "Skilled Worker",
+          "body": "Electrician, plumber, carpenter, painter, technician, cleaner, domestic help, caregiver or gardener — household jobs near you."
+        },
+        "agriWorker": {
+          "title": "Farm Labour",
+          "body": "Sowing, transplanting, weeding, harvest and threshing work on farms near you."
+        },
         "hamali": {
-          "title": "Skilled Worker / Cooperative Member",
-          "body": "Electrician, plumber, carpenter, painter, domestic help, caregiver, gardener, cleaner, technician, or loading/unloading labour."
+          "title": "Loading Worker / Cooperative Member",
+          "body": "Loading, unloading and shifting work — alone, or as part of a Mutha society."
         },
         "fleetOwner": {
           "title": "Fleet Owner",
@@ -3411,7 +3420,12 @@
     "continueWithTotal": "Continue · {count, plural, one {# worker} other {# workers}} · ₹{total}",
     "submitting": "Requesting…",
     "errorSubmit": "Could not create the booking.",
-    "rateLastJob": "Rate your last job to continue"
+    "rateLastJob": "Rate your last job to continue",
+    "workKindHeading": "Kind of work",
+    "workKindCrew": "Loading crew",
+    "workKindCrewHint": "Loading, unloading, shifting",
+    "workKindFarm": "Farm labour",
+    "workKindFarmHint": "Sowing, weeding, harvest"
   },
   "labourBulk": {
     "title": "Bulk consignment",
@@ -4450,5 +4464,52 @@
     "checking": "Checking your session…",
     "retry": "Try again",
     "unreachable": "We could not reach FYRO just now. You are still signed in — check your connection and try again."
+  },
+  "workerSignup": {
+    "loginPrompt": "Already registered?",
+    "loginLink": "Sign in",
+    "name": "Full name",
+    "phone": "Mobile number",
+    "password": "Create a password",
+    "submit": "Create my worker account",
+    "submitting": "Creating account…",
+    "genericError": "Could not create your account. Please try again.",
+    "pickTrade": "Choose at least one trade — jobs are sent to you by trade.",
+    "skilled": {
+      "eyebrow": "Skilled worker",
+      "title": "Join as a skilled worker",
+      "subtitle": "Get household jobs for the trades you do, from customers near you. Paid the fair rate, every time.",
+      "tradesLegend": "Your trades",
+      "tradesHint": "You will only be offered jobs for the trades you choose. You can change them later."
+    },
+    "agri": {
+      "eyebrow": "Farm labour",
+      "title": "Join as a farm worker",
+      "subtitle": "Get farm work from growers near you, paid at or above the statutory minimum wage.",
+      "workHint": "You will be offered farm jobs only: sowing, transplanting, weeding, harvest and threshing."
+    }
+  },
+  "workerKinds": {
+    "trades": {
+      "electrical": "Electrician",
+      "plumbing": "Plumber",
+      "carpentry": "Carpenter",
+      "painting": "Painter",
+      "technician": "Appliance technician",
+      "cleaning": "Cleaner",
+      "domestic_help": "Domestic help",
+      "caregiving": "Caregiver",
+      "gardening": "Gardener"
+    },
+    "skilled": {
+      "yourTrades": "Your trades",
+      "edit": "Edit",
+      "none": "No trade is on your profile, so no job can reach you yet. Add one in Profile.",
+      "note": "Jobs are offered only for these trades."
+    },
+    "agri": {
+      "title": "Farm labour",
+      "body": "You receive farm jobs only — sowing, transplanting, weeding, harvest and threshing — from growers near you."
+    }
   }
 }

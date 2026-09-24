@@ -1,5 +1,6 @@
 'use client';
 
+import type { WorkerBase } from '@/lib/workerArea';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -31,7 +32,7 @@ import { TopBar } from '@/components/fy/Navigation';
    id rather than an invented one, and the telemetry line reflects the
    actual poll rather than claiming a corridor lock that nothing tracks. */
 
-export function RequestsQueue({ base, accent }: { base: '/driver' | '/hamali'; accent: 'primary' | 'secondary' }) {
+export function RequestsQueue({ base, accent }: { base: WorkerBase; accent: 'primary' | 'secondary' }) {
   const t = useTranslations('workerRequests');
   const { user } = useAuth();
   const { data, state, reload, setData } = usePolling(() => api.get<{ requests: Booking[] }>('/api/requests'), 6000);
