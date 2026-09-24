@@ -109,14 +109,15 @@ export default function CustomerDashboardPage() {
       {/* Brand bar. The wordmark is the real logo asset, not type set to
           look like one. */}
       <header className="sticky top-0 z-30 bg-fy-bone/92 backdrop-blur-xl">
-        <div className="h-14 max-w-2xl mx-auto px-gutter flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <Link href="/customer/profile" aria-label={t('menuAria')} className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-fy-ink hover:bg-fy-well transition-colors shrink-0">
-              <Icon name="menu" size={22} />
-            </Link>
-            <Wordmark height={28} />
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+        {/* Three columns with equal outer tracks, so the wordmark sits on the
+            screen's true centre line. With flex and justify-between it was
+            pushed wherever the menu button ended, which read as off-centre. */}
+        <div className="h-14 max-w-2xl mx-auto px-gutter grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+          <Link href="/customer/profile" aria-label={t('menuAria')} className="justify-self-start w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-fy-ink hover:bg-fy-well transition-colors">
+            <Icon name="menu" size={22} />
+          </Link>
+          <Wordmark height={28} />
+          <div className="justify-self-end flex items-center gap-1 -mr-1">
             <LanguageMenu />
             <NotificationBell href="/customer/notifications" />
           </div>

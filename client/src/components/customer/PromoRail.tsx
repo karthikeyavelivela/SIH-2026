@@ -5,12 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
+import { Icon } from '@/components/ui/Icon';
 import type { CustomerMode } from '@/lib/customerMode';
 
 interface Banner {
   _id: string;
   title: string;
   body?: string;
+  ctaLabel?: string;
   ctaHref?: string;
   imageUrl?: string;
 }
@@ -21,21 +23,20 @@ const AUTOPLAY_MS = 5000;
 const RESUME_AFTER_TOUCH_MS = 9000;
 
 /**
- * The promotional carousel on the customer home — pictures only.
+ * The promotional carousel on the customer home.
  *
- * It was a row of brown text cards, each carrying a heading, a sentence and
- * a call to action over a darkened photo. On a home screen that already has
- * a search bar, a category grid and a booking strip, that was a fourth
- * block of text competing for the same eye. Now each slide is a photograph
- * and nothing else; the banner's title becomes the slide's accessible name,
- * so a screen reader still hears what the picture is for.
+ * Photograph first, words second. It began as brown text cards (a heading,
+ * a sentence and a call to action over a darkened photo), went to
+ * pictures only, and settles here: the photograph fills the card and a
+ * single line of headline plus a small call-to-action pill sits on a soft
+ * shade at the foot of it. The banner's longer body text is not printed —
+ * a carousel is glanced at, not read.
  *
- * A banner without a photograph is skipped: with no words printed, it
- * would be an empty rounded rectangle.
+ * Household home only; the Labour and Transit homes do not carry it.
  *
- * Moves on its own every five seconds, and stops: while the tab is hidden,
- * for a while after the person touches it, and entirely when they have
- * asked their device for reduced motion.
+ * A banner without a photograph is skipped. Moves on its own every five
+ * seconds, and stops while the tab is hidden, for a while after the person
+ * touches it, and entirely under reduced motion.
  *
  * Content comes from GET /api/promo-banners, which evaluates the live
  * window server-side, and the rail renders nothing when nothing is live.
@@ -143,11 +144,21 @@ export function PromoRail({ mode }: { mode: CustomerMode }) {
                   isActive ? 'scale-100' : 'scale-[1.06]'
                 }`}
               />
-              {/* A hairline inside the edge and a faint floor shade: the
-                  difference between a photo pasted on a page and a card
-                  that sits on it. */}
+              {/* Shade only where the words are, so the photograph keeps its
+                  own light everywhere else. */}
+              <span aria-hidden className="absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
               <span aria-hidden className="absolute inset-0 rounded-[22px] ring-1 ring-inset ring-black/[0.06]" />
-              <span aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/15 to-transparent" />
+              <span className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between gap-3">
+                <span className="min-w-0 font-heading text-[17px] leading-[1.2] font-semibold text-white line-clamp-2 [text-shadow:0_1px_12px_rgba(0,0,0,0.35)]">
+                  {banner.title}
+                </span>
+                {banner.ctaLabel && banner.ctaHref && (
+                  <span className="shrink-0 inline-flex items-center gap-1 h-8 pl-3 pr-2 rounded-full bg-white/90 text-fy-ink font-body text-[12px] font-semibold backdrop-blur-sm">
+                    {banner.ctaLabel}
+                    <Icon name="arrow_forward" size={14} />
+                  </span>
+                )}
+              </span>
             </>
           );
           const frame = `relative block w-full h-full overflow-hidden rounded-[22px] bg-fy-field transition-[transform,opacity] duration-500 ease-out motion-reduce:transition-none ${
@@ -163,13 +174,11 @@ export function PromoRail({ mode }: { mode: CustomerMode }) {
               className="relative shrink-0 snap-center w-[88%] max-w-[590px] aspect-[2/1] rounded-[22px] shadow-[0_14px_32px_-16px_rgba(58,34,18,0.45)]"
             >
               {banner.ctaHref ? (
-                <Link href={banner.ctaHref} aria-label={banner.title} className={frame}>
+                <Link href={banner.ctaHref} className={frame}>
                   {picture}
                 </Link>
               ) : (
-                <div role="img" aria-label={banner.title} className={frame}>
-                  {picture}
-                </div>
+                <div className={frame}>{picture}</div>
               )}
             </div>
           );

@@ -26,7 +26,6 @@ import { PhotoCard } from '@/components/fy/Media';
 import { TopBar } from '@/components/fy/Navigation';
 import { ComboAddOn } from '@/components/booking/ComboAddOn';
 import { SearchScanBar } from '@/components/customer/SearchScanBar';
-import { PromoRail } from '@/components/customer/PromoRail';
 import { ActiveBookingStrip } from '@/components/customer/ActiveBookingStrip';
 
 /* Built against client/public/design/goods_transport.html.
@@ -132,11 +131,9 @@ export default function TransportBookingPage() {
           className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
         >
           {/* Same shell as the household home. Search is scoped to this
-              mode — see the leak audit in customerMode.ts — and the
-              promotional slot renders nothing unless something is live for
-              Transit. */}
+              mode — see the leak audit in customerMode.ts. No promotional
+              carousel here: it belongs to the household home only. */}
           <SearchScanBar mode="transport" />
-          <PromoRail mode="transport" />
           {/* This mode's own running job. Switching mode changes what is
               on the screen, and a live booking is part of that. */}
           <ActiveBookingStrip mode="transport" />

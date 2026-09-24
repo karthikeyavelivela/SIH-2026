@@ -204,7 +204,9 @@ const REAL_ASSETS: Partial<Record<string, string>> = {
 
   // --- marketing and booking heroes -------------------------------------
   'landing.hero': CL.scene('v1788766757/703b998b-55c2-484d-9e0e-c1bc5b484318.png'),
-  'landing.guild.household': CL.place('30.Woman_with_toolbag'),
+  // A painter at work in a home. (The tool-bag portrait that stood here
+  // is withdrawn from the product and used nowhere.)
+  'landing.guild.household': CL.scene('v1788766529/fcc06865-14fd-4e8c-98fc-c97bc26abb41.png'),
   'landing.guild.hamali': CL.scene('v1788766592/bc01a6f6-cd1f-487f-9559-a1912a888a67.png'),
   'landing.guild.transport': CL.place('20.Convoy_of_three_Indian_goods'),
   'login.hero': CL.place('24.Cooperative_Society_Office'),
@@ -249,7 +251,6 @@ const PORTRAITS = [
   CL.place('27.Indian_woman'),
   CL.place('28.Young_Indian_man'),
   CL.place('29.Older_truck_driver'),
-  CL.place('30.Woman_with_toolbag'),
 ];
 
 export function assetUrl(id: string): string | undefined {

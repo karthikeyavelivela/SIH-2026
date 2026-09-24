@@ -311,6 +311,24 @@ describe('the starter banners', () => {
     );
   });
 
+  it('withdraws a retired photograph from every banner still using it', async () => {
+    const admin = await User.create({ name: 'Root', phone: '9899000004', passwordHash: 'x', role: 'admin' });
+    await ensurePromoBanners();
+    const retired = 'https://res.cloudinary.com/blewsamc/image/upload/c_fill,g_auto,ar_2:1,w_1200,f_auto,q_auto/30.Woman_with_toolbag';
+    await PromoBanner.updateOne({ sourceKey: 'seed:wage-floor' }, { imageUrl: retired });
+    const custom = await PromoBanner.create({
+      title: 'Admin banner', mode: 'all', order: 9, active: true, imageUrl: retired, createdByAdminId: admin._id,
+    });
+
+    await ensurePromoBanners();
+
+    const seeded = await PromoBanner.findOne({ sourceKey: 'seed:wage-floor' }).lean();
+    expect(seeded?.imageUrl).not.toContain('Woman_with_toolbag');
+    expect(seeded?.imageUrl).toMatch(/c_fill,g_auto,ar_2:1/);
+    expect((await PromoBanner.findById(custom._id).lean())?.imageUrl).toBeUndefined();
+    expect(await PromoBanner.countDocuments({ imageUrl: /Woman_with_toolbag/ })).toBe(0);
+  });
+
   it('puts the scan banner on the household home only', async () => {
     await User.create({ name: 'Root', phone: '9899000002', passwordHash: 'x', role: 'admin' });
     await ensurePromoBanners();

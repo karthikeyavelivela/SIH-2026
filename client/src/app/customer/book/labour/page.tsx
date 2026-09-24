@@ -26,7 +26,6 @@ import { TopBar, StickyActionBar } from '@/components/fy/Navigation';
 import { SearchScanBar } from '@/components/customer/SearchScanBar';
 import { ComboAddOn } from '@/components/booking/ComboAddOn';
 import { bucketVehicleCategory } from '@/components/booking/FareCard';
-import { PromoRail } from '@/components/customer/PromoRail';
 import { ActiveBookingStrip } from '@/components/customer/ActiveBookingStrip';
 
 /* Built against client/public/design/hamali_labour_standard.html.
@@ -157,11 +156,9 @@ export default function LabourBookingPage() {
           className="pt-16 fy-pad-nav-cta px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-5"
         >
           {/* Same shell as the household home. Search is scoped to this
-              mode — see the leak audit in customerMode.ts — and the
-              promotional slot renders nothing unless something is live for
-              this mode. */}
+              mode — see the leak audit in customerMode.ts. No promotional
+              carousel here: it belongs to the household home only. */}
           <SearchScanBar mode="labour" />
-          <PromoRail mode="labour" />
           {/* This mode's own running job. Switching mode changes what is
               on the screen, and a live booking is part of that. */}
           <ActiveBookingStrip mode="labour" />

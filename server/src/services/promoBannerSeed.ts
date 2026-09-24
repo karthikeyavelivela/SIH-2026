@@ -45,8 +45,8 @@ const SEED = [
   },
   {
     key: 'wage-floor',
-    // A tradeswoman with her tool bag — the person the wage floor protects.
-    imageUrl: crop('blewsamc', '30.Woman_with_toolbag'),
+    // A carpenter fitting a door frame — the work the wage floor prices.
+    imageUrl: crop('xwtckfcl', 'v1788766516/62871032-5ef6-4bf5-b940-a3efdadf7b43.png'),
     title: 'Every rate meets the AP minimum wage',
     body: 'Checked against Government of Andhra Pradesh Notification G/3186486/2026 before a worker can publish it.',
     ctaLabel: 'How it works',
@@ -79,7 +79,30 @@ const SEED = [
  * route, deliberately: a banner that was live is a statement the platform
  * made, and "when did we stop saying that" is worth being able to answer.
  */
+/*
+ * Photographs withdrawn from use. Any banner still pointing at one loses it
+ * on the next boot: a seeded banner gets its current picture back, anything
+ * else has the image cleared (and so drops out of the image-only rail)
+ * rather than keep showing a picture the product no longer uses.
+ */
+const RETIRED_IMAGES = ['30.Woman_with_toolbag'];
+
+async function retireImages(): Promise<void> {
+  for (const needle of RETIRED_IMAGES) {
+    const rows = await PromoBanner.find({ imageUrl: { $exists: true } }).select('_id sourceKey imageUrl').lean();
+    for (const row of rows.filter((r) => r.imageUrl?.includes(needle))) {
+      const seeded = SEED.find((b) => `seed:${b.key}` === row.sourceKey);
+      await PromoBanner.updateOne(
+        { _id: row._id },
+        seeded ? { imageUrl: seeded.imageUrl } : { $unset: { imageUrl: 1 } }
+      );
+    }
+  }
+}
+
 export async function ensurePromoBanners(): Promise<number> {
+  await retireImages();
+
   const admin = await User.findOne({ role: 'admin' }).select('_id').lean();
   // Nothing to attribute them to yet. The admin seeder runs first in every
   // real deployment; skipping is correct rather than inventing an author.
