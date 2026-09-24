@@ -106,7 +106,7 @@ export function WorkerSignupForm({ kind }: { kind: 'skilled' | 'agri' }) {
                     }`}
                   >
                     <Icon name={TRADE_GLYPH[s]} size={18} className={on ? 'text-fy-brown' : 'text-fy-muted'} />
-                    <span className="flex-1 min-w-0 font-body text-label font-semibold text-fy-ink truncate">
+                    <span className="flex-1 min-w-0 py-1.5 font-body text-label font-semibold text-fy-ink leading-tight">
                       {tk(`trades.${s}`)}
                     </span>
                     {on && <Icon name="check_circle" size={16} className="text-fy-brown shrink-0" />}
