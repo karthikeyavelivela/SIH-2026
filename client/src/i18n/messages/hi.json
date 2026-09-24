@@ -4361,7 +4361,8 @@
     "allServices": "सभी सेवाएँ",
     "allModes": "सब कुछ",
     "noServices": "अभी कोई सेवा प्रकाशित नहीं है।",
-    "servicesCount": "तीनों मोड मिलाकर {count} सेवाएँ"
+    "servicesCount": "तीनों मोड मिलाकर {count} सेवाएँ",
+    "promoSlide": "{total} में से स्लाइड {n}"
   },
   "customerMode": {
     "eyebrow": "मोड बदलें",

@@ -291,6 +291,26 @@ describe('the starter banners', () => {
     expect(await PromoBanner.countDocuments()).toBe(0);
   });
 
+  it('gives every seeded banner a photograph, and backfills ones seeded before it had one', async () => {
+    await User.create({ name: 'Root', phone: '9899000003', passwordHash: 'x', role: 'admin' });
+    await ensurePromoBanners();
+    for (const b of await PromoBanner.find().lean()) {
+      expect(b.imageUrl).toMatch(/^https:\/\/res\.cloudinary\.com\/.+c_fill,g_auto,ar_2:1/);
+    }
+
+    // A row from before the rail went image-only: no picture.
+    await PromoBanner.updateOne({ sourceKey: 'seed:itemised' }, { $unset: { imageUrl: 1 } });
+    // And one an admin has given their own picture.
+    await PromoBanner.updateOne({ sourceKey: 'seed:scan' }, { imageUrl: 'https://res.cloudinary.com/x/admin-chosen.jpg' });
+
+    expect(await ensurePromoBanners()).toBe(0); // backfill is not creation
+    expect((await PromoBanner.findOne({ sourceKey: 'seed:itemised' }).lean())?.imageUrl).toMatch(/c_fill/);
+    // Never overwrites a picture somebody chose.
+    expect((await PromoBanner.findOne({ sourceKey: 'seed:scan' }).lean())?.imageUrl).toBe(
+      'https://res.cloudinary.com/x/admin-chosen.jpg'
+    );
+  });
+
   it('puts the scan banner on the household home only', async () => {
     await User.create({ name: 'Root', phone: '9899000002', passwordHash: 'x', role: 'admin' });
     await ensurePromoBanners();

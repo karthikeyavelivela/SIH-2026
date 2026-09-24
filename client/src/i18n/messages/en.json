@@ -4361,7 +4361,8 @@
     "allServices": "All services",
     "allModes": "Everything",
     "noServices": "No services are published yet.",
-    "servicesCount": "{count} services across all three modes"
+    "servicesCount": "{count} services across all three modes",
+    "promoSlide": "Slide {n} of {total}"
   },
   "customerMode": {
     "eyebrow": "Switch mode",

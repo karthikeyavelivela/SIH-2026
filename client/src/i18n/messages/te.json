@@ -4361,7 +4361,8 @@
     "allServices": "అన్ని సేవలు",
     "allModes": "అన్నీ",
     "noServices": "ఇంకా ఏ సేవా ప్రచురించలేదు.",
-    "servicesCount": "మూడు మోడ్‌లలో కలిపి {count} సేవలు"
+    "servicesCount": "మూడు మోడ్‌లలో కలిపి {count} సేవలు",
+    "promoSlide": "{total}లో {n}వ స్లైడ్"
   },
   "customerMode": {
     "eyebrow": "మోడ్ మార్చండి",
