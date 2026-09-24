@@ -75,13 +75,17 @@ export const app = express();
 // trusts exactly one hop, matching Render's/most PaaS's single reverse
 // proxy — not a wildcard trust of the whole X-Forwarded-For chain.
 //
-// In production the web client's REST traffic now arrives through its own
-// origin's /api rewrite (Vercel), which overwrites X-Forwarded-For with the
-// real caller before Render's balancer appends Vercel's address — two hops.
-// Configurable because the count is a property of the deployment, not the
-// code; login brute-force does not depend on it (loginAccountLimiter is
-// keyed on the account).
-app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? (process.env.NODE_ENV === 'production' ? 2 : 1)));
+// MEASURED, not assumed (2026-09-24): with 1 hop, and with 2, six failed
+// logins from one machine never tripped authLimiter's 5/min — either
+// direct (Render sits behind Cloudflare, CF-RAY on every response) or
+// through the web origin's Vercel proxy. So req.ip here is an edge
+// address that changes per request, and the per-IP limiters are weaker
+// than their comments claim. That predates the proxy. Fixing it properly
+// means reading the real forwarded chain from Render's logs and choosing
+// the right header, not guessing a hop count; until then login is
+// protected by loginAccountLimiter, which is keyed on the account and
+// was confirmed working in production (RateLimit-Remaining 9 -> 3).
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 1));
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
