@@ -90,12 +90,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function logout() {
-    await api.post('/api/auth/logout');
-    // Everything the read-through cache is holding belonged to the person
-    // who just signed out. The next person on this device must not read
-    // their saved addresses out of memory.
-    clearApiCache();
-    setUser(null);
+    try {
+      await api.post('/api/auth/logout');
+    } finally {
+      // Signed out on this device even if the server call failed — a
+      // sign-out button that leaves you signed in because the network
+      // blinked is worse than a stale server-side token that expires alone.
+      // Everything the read-through cache is holding belonged to the person
+      // who just signed out; the next person on this device must not read
+      // their saved addresses out of memory.
+      clearApiCache();
+      setUser(null);
+    }
   }
 
   return (

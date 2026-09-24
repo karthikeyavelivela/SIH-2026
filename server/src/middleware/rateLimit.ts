@@ -18,6 +18,25 @@ export const authLimiter = rateLimit({
   keyGenerator: (req) => `${req.ip}:${req.path}`,
 });
 
+// Password guessing against ONE account, from anywhere.
+//
+// authLimiter is per-IP, and the web client now reaches this server through
+// its own origin's proxy, so req.ip depends on trusting forwarded headers —
+// the more hops trusted, the easier it is for a caller hitting this host
+// directly to forge a fresh address per attempt. Keying on the phone number
+// being tried makes that irrelevant: ten wrong passwords for one account in
+// fifteen minutes is the limit however many addresses they come from.
+// Generous enough that a person mistyping their own password never meets it.
+export const loginAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  message: { error: 'Too many attempts for this account. Try again in 15 minutes.' },
+  keyGenerator: (req) => `login:${String(req.body?.phone ?? '').replace(/\D/g, '').slice(-10) || req.ip}`,
+});
+
 // Geocode proxy — auth-gated (verifyJwt runs before this middleware in
 // geocode.routes.ts), but keying by IP alone would undermine the reason
 // auth was required: a JWT cookie isn't IP-bound, so one account replayed

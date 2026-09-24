@@ -31,4 +31,26 @@ const nextConfig = {
   },
 };
 
+/*
+ * The API is served from this origin, and forwarded to Render from here.
+ *
+ * WHY: the session cookie used to be set by sih-2026-f63s.onrender.com
+ * while every page lived on fyro.vercel.app. Those are different sites
+ * (both vercel.app and onrender.com are on the Public Suffix List), so to
+ * the browser the session was a THIRD-PARTY cookie. WebKit blocks those
+ * outright — which is every browser on an iPhone, and every home-screen
+ * PWA there — and Brave, Samsung Internet and strict Firefox do too. On
+ * those devices login returned 200, the cookie was silently dropped, the
+ * next /api/auth/me came back 401, and the person landed on the sign-in
+ * page again with the right password. Proxied through this origin the
+ * cookie is first-party, and nothing blocks it.
+ *
+ * Only the socket still talks to Render directly (a rewrite cannot carry a
+ * WebSocket); it authenticates with a short-lived token instead of the
+ * cookie — see lib/socket.ts.
+ */
+const API_ORIGIN = process.env.API_PROXY_TARGET || 'https://sih-2026-f63s.onrender.com';
+
+nextConfig.rewrites = async () => [{ source: '/api/:path*', destination: `${API_ORIGIN}/api/:path*` }];
+
 module.exports = withNextIntl(nextConfig);

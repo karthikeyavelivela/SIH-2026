@@ -74,7 +74,14 @@ export const app = express();
 // every real, distinct signup) as coming from one shared address. `1`
 // trusts exactly one hop, matching Render's/most PaaS's single reverse
 // proxy — not a wildcard trust of the whole X-Forwarded-For chain.
-app.set('trust proxy', 1);
+//
+// In production the web client's REST traffic now arrives through its own
+// origin's /api rewrite (Vercel), which overwrites X-Forwarded-For with the
+// real caller before Render's balancer appends Vercel's address — two hops.
+// Configurable because the count is a property of the deployment, not the
+// code; login brute-force does not depend on it (loginAccountLimiter is
+// keyed on the account).
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? (process.env.NODE_ENV === 'production' ? 2 : 1)));
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { api } from '@/lib/api';
+import { api, API_BASE } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { DataTable } from '@/components/admin/DataTable';
@@ -61,8 +61,7 @@ export default function AdminLedgerPage() {
   function exportCsv() {
     const params = new URLSearchParams();
     if (type) params.set('type', type);
-    const base = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:4000';
-    window.open(`${base}/api/admin/ledger/export?${params.toString()}`, '_blank');
+    window.open(`${API_BASE}/api/admin/ledger/export?${params.toString()}`, '_blank');
   }
 
   return (

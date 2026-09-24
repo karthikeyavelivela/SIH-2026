@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { BoxIcon } from '@/components/ui/icons';
+import { API_BASE } from '@/lib/api';
 
 const SOURCE_VALUES = ['ledger', 'bookings'] as const;
 
@@ -29,8 +30,7 @@ export default function AdminReportsPage() {
     if (from) params.set('from', new Date(from).toISOString());
     if (to) params.set('to', new Date(to).toISOString());
     if (region) params.set('region', region);
-    const base = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:4000';
-    window.open(`${base}/api/admin/reports/export?${params.toString()}`, '_blank');
+    window.open(`${API_BASE}/api/admin/reports/export?${params.toString()}`, '_blank');
   }
 
   return (

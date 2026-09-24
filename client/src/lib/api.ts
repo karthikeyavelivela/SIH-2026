@@ -1,4 +1,18 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:4000';
+/*
+ * Same origin whenever the app is deployed.
+ *
+ * Deployed pages reach the API through this site's own /api rewrite (see
+ * next.config.js) so the session cookie is first-party. This is decided in
+ * code rather than by leaving NEXT_PUBLIC_API_BASE empty, because a
+ * dashboard variable of that name overrides the committed .env file — and
+ * one pointing straight at Render would quietly bring back the iPhone
+ * login loop this exists to end. Local development still talks to the
+ * local server directly.
+ */
+const ENV_API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:4000';
+const onDeployedOrigin =
+  typeof window !== 'undefined' && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+export const API_BASE = onDeployedOrigin ? '' : ENV_API_BASE;
 
 /* The localhost default is right for a developer machine and catastrophic
    anywhere else: a deployed build that falls back to it points every request
@@ -31,7 +45,36 @@ export class ApiClientError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+/*
+ * Silent session renewal.
+ *
+ * The access cookie lives 15 minutes; the refresh cookie lives 7 days. The
+ * server has always had /api/auth/refresh, and nothing ever called it — so
+ * every session ended at minute 15, and a PWA reopened after lunch opened
+ * on the sign-in page. Now a 401 triggers one refresh and one retry.
+ *
+ * Single-flight, because refresh ROTATES the token: two parallel refreshes
+ * would present the same refresh token twice, the second would be
+ * rejected as a replay, and the person would be signed out by the very
+ * mechanism meant to keep them in. Every request that 401s while a
+ * refresh is in flight waits on that one.
+ */
+const NO_RETRY = ['/api/auth/refresh', '/api/auth/login', '/api/auth/signup'];
+let refreshing: Promise<boolean> | null = null;
+
+function refreshSession(): Promise<boolean> {
+  if (!refreshing) {
+    refreshing = fetch(`${API_BASE}/api/auth/refresh`, { method: 'POST', credentials: 'include', cache: 'no-store' })
+      .then((r) => r.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshing = null;
+      });
+  }
+  return refreshing;
+}
+
+async function request<T>(path: string, options: RequestInit = {}, retried = false): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     credentials: 'include',
@@ -48,6 +91,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   const isJson = res.headers.get('content-type')?.includes('application/json');
   const body = isJson ? await res.json() : undefined;
+
+  if (res.status === 401 && !retried && !NO_RETRY.some((p) => path.startsWith(p))) {
+    if (await refreshSession()) return request<T>(path, options, true);
+  }
 
   if (!res.ok) {
     throw new ApiClientError(res.status, body?.error ?? res.statusText, body?.details);

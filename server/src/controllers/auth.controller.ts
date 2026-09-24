@@ -23,6 +23,7 @@ import {
   verifyRefreshToken,
   ACCESS_TOKEN_MAX_AGE_MS,
   REFRESH_TOKEN_MAX_AGE_MS,
+  signSocketToken,
 } from '../services/token.service';
 
 const BCRYPT_COST = 12;
@@ -249,6 +250,11 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
 
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(200).json({ ok: true });
+});
+
+// A two-minute credential for the realtime handshake. See signSocketToken.
+export const socketToken = asyncHandler(async (req: Request, res: Response) => {
+  res.status(200).json({ token: signSocketToken({ id: req.user!.id, role: req.user!.role }) });
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {

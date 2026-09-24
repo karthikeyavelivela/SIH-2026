@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { validate } from '../middleware/validate';
-import { authLimiter } from '../middleware/rateLimit';
+import { authLimiter, loginAccountLimiter } from '../middleware/rateLimit';
 import { verifyJwt } from '../middleware/auth';
 import * as authController from '../controllers/auth.controller';
 
@@ -85,12 +85,14 @@ authRouter.post(
 authRouter.post(
   '/login',
   authLimiter,
+  loginAccountLimiter,
   [phoneRule, body('password').isString().notEmpty()],
   validate,
   authController.login
 );
 
 authRouter.post('/refresh', authController.refresh);
+authRouter.post('/socket-token', verifyJwt, authController.socketToken);
 authRouter.post('/logout', verifyJwt, authController.logout);
 authRouter.get('/me', verifyJwt, authController.me);
 authRouter.patch(

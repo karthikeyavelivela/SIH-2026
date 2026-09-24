@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import { parse as parseCookie } from 'cookie';
-import { verifyAccessToken } from '../services/token.service';
+import { verifyAccessToken, verifySocketToken } from '../services/token.service';
 import type { Role } from '@fyro/shared';
 
 export interface SocketUser {
@@ -27,6 +27,19 @@ declare module 'socket.io' {
  */
 export function socketAuthMiddleware(socket: Socket, next: (err?: Error) => void): void {
   try {
+    // Preferred: the short-lived socket token from POST /api/auth/socket-token.
+    // The web client's session cookie belongs to its own origin now, so it
+    // no longer reaches this handshake at all.
+    const handshakeToken = (socket.handshake.auth as { token?: unknown } | undefined)?.token;
+    if (typeof handshakeToken === 'string' && handshakeToken) {
+      const payload = verifySocketToken(handshakeToken);
+      socket.data.user = { id: payload.id, role: payload.role };
+      next();
+      return;
+    }
+
+    // Kept for any client still holding a cookie on this host (a PWA running
+    // a build cached from before the proxy).
     const cookieHeader = socket.handshake.headers.cookie;
     if (!cookieHeader) {
       next(new Error('Not authenticated'));
