@@ -7,6 +7,8 @@ import type { Payment } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/lib/auth-context';
+import { loadCheckout, openCheckout } from '@/lib/razorpay';
 
 // Extracted out of customer/track/[bookingId]/page.tsx (a Next.js App
 // Router page.tsx may only export `default` plus a small fixed allow-list
@@ -18,6 +20,7 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
   const [payment, setPayment] = useState<Payment | null | undefined>(undefined); // undefined = loading
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     api
@@ -30,11 +33,55 @@ export function PaymentSection({ bookingId }: { bookingId: string }) {
     setPending(true);
     setError(null);
     try {
-      const orderRes = await api.post<{ payment: Payment }>(`/api/payments/order/${bookingId}`);
-      // Mock mode only — a real deployment redirects into Razorpay's
-      // Checkout here instead and lets the webhook confirm success async.
-      const captured = await api.post<{ payment: Payment }>(`/api/payments/${bookingId}/mock-capture`);
-      setPayment(captured.payment ?? orderRes.payment);
+      const orderRes = await api.post<{
+        payment: Payment;
+        order?: { id: string; amount: number };
+        mock?: boolean;
+        keyId?: string | null;
+      }>(`/api/payments/order/${bookingId}`);
+
+      if (orderRes.payment.status === 'success' || !orderRes.order) {
+        setPayment(orderRes.payment);
+        return;
+      }
+
+      if (orderRes.mock) {
+        // Mock payments only (MOCK_PAYMENTS=true): no money moves; the
+        // server marks the order paid so the rest of the flow can be seen.
+        const captured = await api.post<{ payment: Payment }>(`/api/payments/${bookingId}/mock-capture`);
+        setPayment(captured.payment ?? orderRes.payment);
+        return;
+      }
+
+      if (!orderRes.keyId) {
+        setError(t('checkoutUnavailable'));
+        return;
+      }
+      try {
+        await loadCheckout();
+      } catch {
+        setError(t('checkoutLoadFailed'));
+        return;
+      }
+      const outcome = await openCheckout({
+        keyId: orderRes.keyId,
+        orderId: orderRes.order.id,
+        amountPaise: orderRes.order.amount,
+        description: t('checkoutDescription'),
+        prefill: { name: user?.name, contact: user?.phone },
+      });
+      if (outcome.kind === 'dismissed') {
+        setError(t('paymentCancelled'));
+        return;
+      }
+      if (outcome.kind === 'failed') {
+        setError(outcome.reason ? `${t('paymentFailed')} (${outcome.reason})` : t('paymentFailed'));
+        return;
+      }
+      // The browser's word is not enough: the server checks Razorpay's
+      // signature before anything is recorded as paid.
+      const verified = await api.post<{ payment: Payment }>(`/api/payments/${bookingId}/verify`, outcome.response);
+      setPayment(verified.payment);
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : t('errorPayment'));
     } finally {

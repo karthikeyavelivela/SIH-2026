@@ -959,7 +959,12 @@
     "whoCrew": "a loading crew",
     "whoDriverAndCrew": "a driver and a loading crew",
     "notifyOnTheWay": "Want to be told the moment your worker sets off, even if this screen is closed?",
-    "notifyTitle": "Your FYRO booking"
+    "notifyTitle": "Your FYRO booking",
+    "checkoutUnavailable": "Online payment is not set up right now. Please choose cash on delivery.",
+    "checkoutLoadFailed": "Could not open the payment window. Check your connection and try again.",
+    "checkoutDescription": "Payment for your FYRO booking",
+    "paymentCancelled": "Payment was cancelled. Nothing was charged.",
+    "paymentFailed": "The payment did not go through."
   },
   "customerHistory": {
     "title": "Booking history",
@@ -2445,7 +2450,8 @@
       "incentives": "Incentives",
       "regions": "Regions",
       "auditLog": "Audit log",
-      "profile": "Profile"
+      "profile": "Profile",
+      "codReconciliation": "Cash reconciliation"
     },
     "adminConsole": "Admin console",
     "managerConsole": "Manager console",
@@ -4511,5 +4517,27 @@
       "title": "Farm labour",
       "body": "You receive farm jobs only — sowing, transplanting, weeding, harvest and threshing — from growers near you."
     }
+  },
+  "codReconciliation": {
+    "eyebrow": "Payments",
+    "title": "Cash on delivery reconciliation",
+    "subtitle": "Every cash payment in the period, and whether the cash a worker confirmed reached the ledger.",
+    "exportCsv": "Export CSV",
+    "from": "From",
+    "to": "To",
+    "withWorkers": "Cash still with workers",
+    "confirmedPosted": "Confirmed and posted",
+    "confirmedNotPosted": "Confirmed, not posted",
+    "mismatchAlert": "{count} confirmed cash payment(s) have no ledger entry. Investigate the rows marked red.",
+    "empty": "No cash payments in this period.",
+    "created": "Created",
+    "booking": "Booking",
+    "region": "Region",
+    "amount": "Amount",
+    "status": "Status",
+    "confirmedAt": "Confirmed",
+    "statusPending": "With worker",
+    "statusPosted": "Posted",
+    "statusNotPosted": "Not posted"
   }
 }
