@@ -22,9 +22,13 @@ import {
 import { emitBookingMatched, emitBookingStatus } from '../realtime/emitters';
 import { notifyMuthaOfferSettled } from '../realtime/offerEngine';
 import { uploadImage } from '../services/cloudinary.service';
-import { detectZeroDistanceFullFare } from '../services/fraudDetection.service';
-import { recordSocietyDeductionsForBooking } from '../services/governance.service';
-import { recordPlatformCommissionForBooking } from '../services/platformCommission.service';
+import {
+  assignCompletionCode,
+  checkCompletionCode,
+  finalizeCompletion,
+  markWorkDone,
+} from '../services/completion.service';
+import { stripCompletionSecrets } from '../utils/completionSecrets';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
@@ -280,9 +284,12 @@ export const startJob = asyncHandler(async (req: Request, res: Response) => {
   }
   booking.status = 'in_progress';
   booking.statusHistory.push({ status: 'in_progress', timestamp: new Date() });
+  // The customer's completion code. Shown only to them (GET /api/bookings/:id);
+  // never in this response, which goes to the worker.
+  assignCompletionCode(booking);
   await booking.save();
   emitBookingStatus(booking);
-  res.status(200).json({ booking });
+  res.status(200).json({ booking: stripCompletionSecrets(booking) });
 });
 
 // ---- POST /api/requests/:id/complete (in_progress -> completed) ----
@@ -290,6 +297,7 @@ export const startJob = asyncHandler(async (req: Request, res: Response) => {
 export const completeJob = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const role = req.user!.role;
+  const code = typeof req.body?.code === 'string' ? req.body.code : undefined;
   const booking = await Booking.findById(req.params.id);
   if (!booking) throw new ApiError(404, 'Booking not found');
 
@@ -303,43 +311,27 @@ export const completeJob = asyncHandler(async (req: Request, res: Response) => {
   if (booking.status !== 'in_progress') {
     throw new ApiError(400, `Cannot complete a job that is ${booking.status}`);
   }
-  booking.status = 'completed';
-  booking.statusHistory.push({ status: 'completed', timestamp: new Date() });
-  await booking.save();
 
-  // Free the worker(s) back up for their next job — nothing else transitions
-  // availabilityStatus off 'on_job' once a job finishes.
-  if (booking.assignedDriverIds.length > 0) {
-    await Vehicle.updateMany({ ownerId: { $in: booking.assignedDriverIds } }, { availabilityStatus: 'online' });
+  // With the customer's code (and a delivery photo) the job is complete on
+  // the spot: the customer handed the code over, so they were there. Without
+  // it the job waits for the customer — see completion.service.ts.
+  if (code) {
+    if (!booking.proofPhotos?.delivery) {
+      throw new ApiError(400, 'Upload a photo of the finished work before entering the completion code');
+    }
+    const result = await checkCompletionCode(booking._id.toString(), code);
+    if (result === 'wrong') throw new ApiError(400, 'That completion code is not right. Check it with the customer.');
+    if (result === 'locked') {
+      throw new ApiError(400, 'Too many wrong codes. Mark the job done without a code; the customer will confirm it.');
+    }
+    const completed = await finalizeCompletion(booking._id.toString(), 'code', { id: userId, role });
+    if (!completed) throw new ApiError(409, 'This job was already completed');
+    res.status(200).json({ booking: stripCompletionSecrets(completed) });
+    return;
   }
-  if (booking.assignedHamaliIds.length > 0) {
-    await HamaliProfile.updateMany(
-      { userId: { $in: booking.assignedHamaliIds } },
-      { availabilityStatus: 'online' }
-    );
-  }
 
-  // Fire-and-forget — a fraud-detection hiccup never blocks a legitimate completion.
-  detectZeroDistanceFullFare(booking._id.toString()).catch(() => {});
-  // Same fire-and-forget posture — a Society-assigned booking's cooperative
-  // commission/welfare deduction is recorded here, exactly once, the
-  // instant the job completes (see governance.service.ts's doc comment on
-  // why this is the one correct call site rather than computing it at
-  // read time).
-  recordSocietyDeductionsForBooking(booking).catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error('recordSocietyDeductionsForBooking failed:', err);
-  });
-  // The platform's own commission, posted to the append-only ledger at the
-  // same moment and with the same posture: recorded once, at completion,
-  // never recomputed at read time.
-  recordPlatformCommissionForBooking(booking).catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error('recordPlatformCommissionForBooking failed:', err);
-  });
-
-  emitBookingStatus(booking);
-  res.status(200).json({ booking });
+  const waiting = await markWorkDone(booking);
+  res.status(200).json({ booking: stripCompletionSecrets(waiting) });
 });
 
 // ---- POST /api/requests/:id/proof-photo ----

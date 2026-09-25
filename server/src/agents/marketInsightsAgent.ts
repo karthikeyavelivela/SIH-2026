@@ -23,7 +23,7 @@ async function windowStats(region: string | undefined, from: Date, to: Date): Pr
     ]),
     Booking.countDocuments({
       ...regionFilter,
-      status: { $in: ['requested', 'searching', 'matched', 'accepted', 'in_progress'] },
+      status: { $in: ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation'] },
       createdAt: { $gte: from, $lt: to },
     }),
   ]);

@@ -83,7 +83,11 @@ describe('End-to-end money chain (Phase 0.2 manual proof, now automated)', () =>
     expect(start.status).toBe(200);
     const complete = await driverAgent.post(`/api/requests/${booking._id}/complete`);
     expect(complete.status).toBe(200);
-    expect(complete.body.booking.status).toBe('completed');
+    // P0.2: the worker's word alone no longer settles the job.
+    expect(complete.body.booking.status).toBe('awaiting_confirmation');
+    const confirm = await customerAgent.post(`/api/bookings/${booking._id}/confirm-completion`);
+    expect(confirm.status).toBe(200);
+    expect(confirm.body.booking.status).toBe('completed');
 
     // 4. The customer pays the exact server-computed total — real Payment
     //    record, real mock-capture (the deployed stand-in for the real

@@ -27,6 +27,10 @@ export type BookingStatus =
   | 'matched'
   | 'accepted'
   | 'in_progress'
+  // The worker says the job is done; the customer has not confirmed it.
+  // Nothing is settled from here — settlement, earnings, the ledger, the
+  // guarantee window and the rating gate all wait for 'completed'.
+  | 'awaiting_confirmation'
   | 'completed'
   | 'cancelled';
 
@@ -138,6 +142,23 @@ export interface IBooking {
   // top of the existing cloudinary.service upload path.
   proofPhotos: { pickup?: string; delivery?: string };
   /**
+   * Customer-confirmed completion (P0.2).
+   *
+   * A 4-digit code is generated when the job starts. Only the customer can
+   * see it. A worker who enters it (with a delivery proof photo) completes
+   * the job on the spot; without it the job waits in awaiting_confirmation
+   * for the customer's "Confirm job done", a reported problem, or the
+   * auto-confirm window. Hash and encrypted copy are select:false — they
+   * never leave the server except as the plain code to the customer.
+   */
+  completionCodeHash?: string;
+  completionCodeCipher?: string;
+  completionCodeAttempts?: number;
+  workDoneAt?: Date;
+  completedVia?: 'code' | 'customer' | 'auto';
+  /** True while a reported problem holds settlement and auto-confirm. */
+  settlementHeld?: boolean;
+  /**
    * The photograph the customer took of the problem, from Scan and
    * Diagnose, and what TARA made of it.
    *
@@ -219,7 +240,17 @@ const bookingSchema = new Schema<IBooking>(
     rejectedByUserIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     status: {
       type: String,
-      enum: ['scheduled', 'requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed', 'cancelled'],
+      enum: [
+        'scheduled',
+        'requested',
+        'searching',
+        'matched',
+        'accepted',
+        'in_progress',
+        'awaiting_confirmation',
+        'completed',
+        'cancelled',
+      ],
       default: 'requested',
     },
     fareBreakdown: {
@@ -242,6 +273,12 @@ const bookingSchema = new Schema<IBooking>(
       pickup: { type: String },
       delivery: { type: String },
     },
+    completionCodeHash: { type: String, select: false },
+    completionCodeCipher: { type: String, select: false },
+    completionCodeAttempts: { type: Number, default: 0 },
+    workDoneAt: { type: Date },
+    completedVia: { type: String, enum: ['code', 'customer', 'auto'] },
+    settlementHeld: { type: Boolean, default: false },
     scheduledFor: { type: Date },
     openForBidding: { type: Boolean, default: false },
   },
@@ -253,6 +290,7 @@ bookingSchema.index({ dropLocation: '2dsphere' });
 bookingSchema.index({ customerId: 1, status: 1 });
 bookingSchema.index({ region: 1, status: 1 }); // surge.service's searching-count query
 bookingSchema.index({ status: 1, scheduledFor: 1 }); // scheduledBooking.service's due-for-release poll
+bookingSchema.index({ status: 1, workDoneAt: 1 }); // completion.service's auto-confirm poll
 // Global search (Job 4). A booking is found by where it went, not by its id
 // — people search "Gajuwaka", never "6aa552328ecbb689a5cfb736". Weighted so
 // a pickup match outranks a drop match, since a person recalling one address

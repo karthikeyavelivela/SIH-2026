@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import { z } from 'zod';
+import { validateZod, objectId } from '../middleware/zod';
 import { body, param } from 'express-validator';
 import { verifyJwt } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
 import { validate } from '../middleware/validate';
-import { bookingCreateLimiter, bookingQuoteLimiter } from '../middleware/rateLimit';
+import { bookingCreateLimiter, bookingQuoteLimiter, requestsLimiter } from '../middleware/rateLimit';
 import { GOODS_TYPES } from '../models/Booking';
 import * as bookingController from '../controllers/booking.controller';
 import { PRICING_MODES, UNIT_TYPES } from '@fyro/shared';
@@ -127,6 +129,20 @@ bookingRouter.get('/', bookingController.listMyBookings);
 // confusing 400 instead of ever reaching this handler.
 bookingRouter.get('/frequent-routes', bookingController.getMyFrequentRoutes);
 bookingRouter.get('/:id', [param('id').isMongoId()], validate, bookingController.getMyBooking);
+bookingRouter.post(
+  '/:id/confirm-completion',
+  validateZod({ params: z.object({ id: objectId }) }),
+  bookingController.confirmCompletion
+);
+bookingRouter.post(
+  '/:id/report-problem',
+  requestsLimiter,
+  validateZod({
+    params: z.object({ id: objectId }),
+    body: z.object({ description: z.string().trim().min(10).max(1000) }),
+  }),
+  bookingController.reportProblem
+);
 // Phase 6.4 — a distinct two-segment path ('/:id/tax-invoice'), so there's
 // no route-ordering ambiguity with the single-segment '/:id' above the way
 // '/frequent-routes' has with it (that one has to be registered first —

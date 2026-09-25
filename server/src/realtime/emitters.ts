@@ -101,6 +101,19 @@ export async function emitBookingStatus(booking: IBooking): Promise<void> {
     );
   }
 
+  // The customer has something to do: confirm the job or report a problem.
+  // Nothing settles until they (or the auto-confirm window) do, so this one
+  // is persisted for them alone.
+  if (booking.status === 'awaiting_confirmation') {
+    const bookingId = booking._id.toString();
+    await createNotification(
+      booking.customerId.toString(),
+      'booking_status',
+      { status: booking.status },
+      `/customer/track/${bookingId}`
+    );
+  }
+
   const io = tryGetIo();
   if (!io) return;
   io.to(bookingRoom(booking._id.toString())).emit('booking:status', {

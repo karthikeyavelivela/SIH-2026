@@ -15,9 +15,18 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     hi: () => ({ title: 'मैच हो गया!', body: 'आपकी बुकिंग के लिए कोई रास्ते में है।' }),
   },
   booking_status: {
-    en: (v) => ({ title: 'Booking update', body: `Your booking is now ${v.status}.` }),
-    te: (v) => ({ title: 'బుకింగ్ అప్‌డేట్', body: `మీ బుకింగ్ ఇప్పుడు ${v.status}.` }),
-    hi: (v) => ({ title: 'बुकिंग अपडेट', body: `आपकी बुकिंग अब ${v.status} है।` }),
+    en: (v) =>
+      v.status === 'awaiting_confirmation'
+        ? { title: 'Confirm your job', body: 'The worker has marked your job done. Confirm it, or report a problem.' }
+        : { title: 'Booking update', body: `Your booking is now ${v.status}.` },
+    te: (v) =>
+      v.status === 'awaiting_confirmation'
+        ? { title: 'మీ పనిని నిర్ధారించండి', body: 'కార్మికుడు మీ పని పూర్తయిందని గుర్తించారు. దానిని నిర్ధారించండి, లేదా సమస్యను తెలియజేయండి.' }
+        : { title: 'బుకింగ్ అప్‌డేట్', body: `మీ బుకింగ్ ఇప్పుడు ${v.status}.` },
+    hi: (v) =>
+      v.status === 'awaiting_confirmation'
+        ? { title: 'अपने काम की पुष्टि करें', body: 'कामगार ने आपका काम पूरा बताया है। पुष्टि करें, या समस्या बताएँ।' }
+        : { title: 'बुकिंग अपडेट', body: `आपकी बुकिंग अब ${v.status} है।` },
   },
   kyc_decision: {
     en: (v) => ({

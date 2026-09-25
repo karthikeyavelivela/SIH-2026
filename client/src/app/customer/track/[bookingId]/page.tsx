@@ -1,5 +1,6 @@
 'use client';
 
+import { CompletionPanel } from '@/components/booking/CompletionPanel';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -124,7 +125,7 @@ function BidsReviewSection({ bookingId, onAccepted }: { bookingId: string; onAcc
   );
 }
 
-const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
+const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation', 'completed'];
 
 // Confirmation, in the sense that matters to a customer: somebody has
 // taken the job. Before this the answer to "tell you when they're on the
@@ -227,6 +228,8 @@ export default function TrackBookingPage() {
   // The design's four-tab row: Status / Chat / Payment / Custody.
   const [tab, setTab] = useState<'status' | 'chat' | 'payment' | 'custody'>('status');
   const [linkCopied, setLinkCopied] = useState(false);
+  const [completionCode, setCompletionCode] = useState<string | null>(null);
+  const [autoConfirmHours, setAutoConfirmHours] = useState<number | null>(null);
 
   useEffect(() => {
     if (booking?.status !== 'completed') return;
@@ -241,8 +244,12 @@ export default function TrackBookingPage() {
 
     async function load() {
       try {
-        const res = await api.get<{ booking: BookingDetail }>(`/api/bookings/${bookingId}`);
-        if (!cancelled) setBooking(res.booking);
+        const res = await api.get<{ booking: BookingDetail; completionCode?: string | null; autoConfirmHours?: number }>(`/api/bookings/${bookingId}`);
+        if (!cancelled) {
+          setBooking(res.booking);
+          setCompletionCode(res.completionCode ?? null);
+          setAutoConfirmHours(res.autoConfirmHours ?? null);
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof ApiClientError ? err.message : t('loadError'));
       }
@@ -469,6 +476,13 @@ export default function TrackBookingPage() {
             {NOTIFY_ASK_AT.includes(booking.status) && (
               <NotificationPrompt accent="primary" scope="booking" copy={t('notifyOnTheWay')} />
             )}
+
+            <CompletionPanel
+              booking={booking}
+              code={completionCode}
+              autoConfirmHours={autoConfirmHours}
+              onChanged={(b) => setBooking(b as BookingDetail)}
+            />
 
             {(booking.status === 'requested' || booking.status === 'searching') && (
               <LightCard className="flex items-center gap-3">

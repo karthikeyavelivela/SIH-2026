@@ -767,7 +767,8 @@
       "accepted": "Accepted",
       "inProgress": "On the way",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "awaitingConfirmation": "Awaiting customer"
     },
     "bookingNotify": {
       "statusUpdate": "Your booking is now {status}.",
@@ -880,7 +881,8 @@
       "in_progress": "Picked up — on the way",
       "completed": "Delivered",
       "cancelled": "Cancelled",
-      "scheduled": "Scheduled"
+      "scheduled": "Scheduled",
+      "awaiting_confirmation": "Done — waiting for your confirmation"
     },
     "assignedToYou": "Assigned to you",
     "muthaGroup": "Mutha group",
@@ -1794,7 +1796,12 @@
         "other": "Other"
       },
       "pickupLabel": "Pickup point",
-      "customerPhoto": "What the customer photographed"
+      "customerPhoto": "What the customer photographed",
+      "codeLabel": "Customer's completion code (optional)",
+      "codeHint": "Ask the customer for their 4-digit code when they are happy with the work. Without it, the job waits for their confirmation.",
+      "completeWithCode": "Complete with code",
+      "awaitingTitle": "Waiting for the customer to confirm",
+      "awaitingBody": "You are free for your next job. You will be paid once the customer confirms, or automatically after the waiting period if they raise no problem."
     },
     "driver": {
       "stepInTransit": "In transit",
@@ -1920,7 +1927,8 @@
       "accepted": "Accepted",
       "in_progress": "In Transit",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "awaiting_confirmation": "Confirm the job"
     },
     "exploreServices": "Explore Services",
     "bookingHistory": "Booking history",
@@ -4539,5 +4547,22 @@
     "statusPending": "With worker",
     "statusPosted": "Posted",
     "statusNotPosted": "Not posted"
+  },
+  "completion": {
+    "codeTitle": "Your completion code",
+    "codeBody": "Give this code to the worker only when you are happy with the work. It completes the job.",
+    "codeAria": "Completion code {code}",
+    "confirmTitle": "The worker has marked this job done",
+    "confirmBody": "Check the work, then confirm. If something is wrong, report it and payment to the worker is held until it is sorted out.",
+    "confirmDone": "Confirm job done",
+    "reportProblem": "Report a problem",
+    "reportLabel": "What is wrong?",
+    "reportPlaceholder": "For example: the tap still leaks",
+    "reportSubmit": "Send report",
+    "back": "Back",
+    "heldTitle": "Problem reported",
+    "heldBody": "Payment to the worker is on hold while this is looked into. You will be told when it is resolved.",
+    "autoNote": "If you do nothing, the job is confirmed automatically after {hours} hours.",
+    "error": "Something went wrong. Please try again."
   }
 }

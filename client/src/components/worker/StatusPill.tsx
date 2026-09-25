@@ -9,6 +9,7 @@ const toneClasses: Record<BookingStatus, string> = {
   matched: 'bg-fy-brown/10 text-fy-brown',
   accepted: 'bg-fy-green/10 text-fy-green',
   in_progress: 'bg-fy-green/10 text-fy-green',
+  awaiting_confirmation: 'bg-fy-lime/30 text-fy-green',
   completed: 'bg-fy-lime/30 text-fy-green',
   cancelled: 'bg-fy-error-bg text-fy-on-error-bg',
 };
@@ -19,6 +20,7 @@ const STATUS_KEY: Record<BookingStatus, string> = {
   matched: 'matched',
   accepted: 'accepted',
   in_progress: 'inProgress',
+  awaiting_confirmation: 'awaitingConfirmation',
   completed: 'completed',
   cancelled: 'cancelled',
 };

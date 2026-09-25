@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { releaseSettlementHoldIfClear } from '../services/completion.service';
 import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
@@ -173,6 +174,9 @@ export const resolveDispute = asyncHandler(async (req: Request, res: Response) =
     targetId: dispute._id.toString(),
     details: { resolutionAction: action, note, amount: amount ?? null, resultingStatus: dispute.status },
   });
+  if (dispute.status === 'resolved') {
+    await releaseSettlementHoldIfClear(dispute.bookingId.toString());
+  }
 
   res.status(200).json({ dispute });
 });

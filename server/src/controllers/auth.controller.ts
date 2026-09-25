@@ -634,7 +634,7 @@ export const updateMyBusinessProfile = asyncHandler(async (req: Request, res: Re
  */
 export const deleteMyAccount = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
-  const openStatus = { $in: ['requested', 'searching', 'matched', 'accepted', 'in_progress'] };
+  const openStatus = { $in: ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation'] };
 
   const [openAsCustomer, openAsWorker, pendingPayout] = await Promise.all([
     Booking.exists({ customerId: userId, status: openStatus }),

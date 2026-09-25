@@ -12,6 +12,7 @@ const STATUS_KEY: Record<BookingStatus, string> = {
   matched: 'matched',
   accepted: 'accepted',
   in_progress: 'inProgress',
+  awaiting_confirmation: 'awaitingConfirmation',
   completed: 'completed',
   cancelled: 'cancelled',
 };
@@ -60,7 +61,7 @@ export function useBookingSocket(bookingId: string | undefined) {
     function onStatus(payload: { bookingId: string; status: BookingStatus }) {
       if (payload.bookingId === bookingId) {
         setStatus(payload.status);
-        if (payload.status === 'in_progress' || payload.status === 'completed') {
+        if (payload.status === 'in_progress' || payload.status === 'awaiting_confirmation' || payload.status === 'completed') {
           notifyUser('FYRO', tNotify('statusUpdate', { status: tStatus(STATUS_KEY[payload.status]) }));
         }
       }

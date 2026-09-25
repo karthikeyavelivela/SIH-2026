@@ -83,6 +83,9 @@ const envSchema = z.object({
   // elsewhere in this file.
   PLATFORM_GSTIN: z.string().optional(),
   PLATFORM_LEGAL_NAME: z.string().default('FYRO Logistics Platform'),
+  // P0.2 — hours a job waits in awaiting_confirmation before it is
+  // confirmed automatically (unless the customer reported a problem).
+  AUTO_CONFIRM_HOURS: z.coerce.number().positive().max(24 * 30).default(24),
 });
 
 const parsed = envSchema.safeParse(process.env);

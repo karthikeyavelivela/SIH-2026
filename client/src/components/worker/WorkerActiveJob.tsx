@@ -54,6 +54,7 @@ import { TopBar } from '@/components/fy/Navigation';
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), { ssr: false });
 
 const STEP_STATUSES = ['accepted', 'in_progress', 'completed'] as const;
+// awaiting_confirmation is shown on the last step: the work is done.
 
 export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'primary' | 'secondary' }) {
   const role = base === '/driver' ? 'driver' : 'hamali';
@@ -66,6 +67,9 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [showRating, setShowRating] = useState(false);
+  // The customer's 4-digit completion code, if they have handed it over.
+  // Optional: without it the job waits for the customer's confirmation.
+  const [code, setCode] = useState('');
 
   const { data, reload } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 6000, [bookingId]);
   const booking = data?.bookings.find((b) => b._id === bookingId);
@@ -78,10 +82,14 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
     setError(null);
     try {
       const action = booking.status === 'accepted' ? 'start' : 'complete';
-      await api.post(`/api/requests/${booking._id}/${action}`);
-      if (action === 'complete') {
+      const res = await api.post<{ booking: Booking }>(
+        `/api/requests/${booking._id}/${action}`,
+        action === 'complete' && code.trim() ? { code: code.trim() } : undefined
+      );
+      if (action === 'complete' && res.booking?.status === 'completed') {
         setShowRating(true); // mandatory-rating prompt before leaving this screen
       } else {
+        // Started, or done-but-unconfirmed: the screen shows the new state.
         await reload();
       }
     } catch (err) {
@@ -102,7 +110,10 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
     );
   }
 
-  const stepIndex = STEP_STATUSES.indexOf(booking.status as (typeof STEP_STATUSES)[number]);
+  const stepIndex =
+    booking.status === 'awaiting_confirmation'
+      ? STEP_STATUSES.length - 1
+      : STEP_STATUSES.indexOf(booking.status as (typeof STEP_STATUSES)[number]);
   const pickupConfirmed = !!booking.proofPhotos?.pickup;
   const deliveryConfirmed = !!booking.proofPhotos?.delivery;
   const photosFiled = (pickupConfirmed ? 1 : 0) + (deliveryConfirmed ? 1 : 0);
@@ -353,8 +364,31 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
           </div>
         )}
 
-        {booking.status !== 'completed' && (
+        {booking.status === 'awaiting_confirmation' && (
+          <div role="status" className="rounded-card bg-fy-lime-tint-1 border border-fy-green/15 px-4 py-3">
+            <p className="font-body text-body font-semibold text-fy-ink">{t('awaitingTitle')}</p>
+            <Body size="label" className="mt-0.5">{t('awaitingBody')}</Body>
+          </div>
+        )}
+
+        {(booking.status === 'accepted' || booking.status === 'in_progress') && (
           <>
+            {booking.status === 'in_progress' && (
+              <label className="flex flex-col gap-1.5">
+                <span className="font-body text-label font-semibold text-fy-ink">{t('codeLabel')}</span>
+                <input
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={4}
+                  autoComplete="one-time-code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
+                  placeholder="••••"
+                  className="h-12 rounded-control border border-fy-hairline bg-fy-card px-4 text-center font-mono text-title tracking-[0.5em] text-fy-ink"
+                />
+                <span className="font-body text-label text-fy-ink-soft">{t('codeHint')}</span>
+              </label>
+            )}
             {!pending && !stageReady && (
               <Body size="label" className="text-center">
                 {t('takePhotoToContinue', {
@@ -369,7 +403,13 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
               disabled={pending || !stageReady}
               onClick={advance}
             >
-              {pending ? t('updating') : booking.status === 'accepted' ? tRole('startTrip') : tRole('markDelivered')}
+              {pending
+                ? t('updating')
+                : booking.status === 'accepted'
+                  ? tRole('startTrip')
+                  : code.length === 4
+                    ? t('completeWithCode')
+                    : tRole('markDelivered')}
             </Button>
           </>
         )}

@@ -50,12 +50,23 @@ async function makeSocietyWithInProgressJob(commissionRatePct: number, welfareDe
   return { leaderAgent, leader, member, mutha, booking };
 }
 
+
+/** Worker marks done, then the booking's customer confirms (P0.2). */
+async function completeAndConfirm(leaderAgent: ReturnType<typeof request.agent>, booking: { _id: unknown; customerId: unknown }) {
+  const done = await leaderAgent.post(`/api/requests/${booking._id}/complete`);
+  const customer = request.agent(app);
+  customer.jar.setCookie(`accessToken=${signAccessToken({ id: String(booking.customerId), role: 'customer' })}`);
+  const confirmed = await customer.post(`/api/bookings/${booking._id}/confirm-completion`);
+  return { done, confirmed };
+}
+
 describe('cooperative commission deduction — recorded on real job completion', () => {
   it('a nonzero-rate society deducts commission+welfare, records a real CommissionRecord, and posts real ledger entries', async () => {
     const { leaderAgent, member, mutha, booking } = await makeSocietyWithInProgressJob(10, 5);
 
-    const completeRes = await leaderAgent.post(`/api/requests/${booking._id}/complete`);
-    expect(completeRes.status).toBe(200);
+    const { done, confirmed } = await completeAndConfirm(leaderAgent, booking);
+    expect(done.status).toBe(200);
+    expect(confirmed.status).toBe(200);
 
     // Fire-and-forget write — poll briefly for it to land rather than
     // asserting immediately after the response returns.
@@ -91,7 +102,7 @@ describe('cooperative commission deduction — recorded on real job completion',
 
   it("the member's own earnings view reflects the real net-of-commission amount, not the gross", async () => {
     const { leaderAgent, member, booking } = await makeSocietyWithInProgressJob(10, 5);
-    await leaderAgent.post(`/api/requests/${booking._id}/complete`);
+    await completeAndConfirm(leaderAgent, booking);
     for (let i = 0; i < 20; i++) {
       if (await CommissionRecord.findOne({ bookingId: booking._id, workerId: member._id })) break;
       await new Promise((r) => setTimeout(r, 50));
@@ -153,7 +164,7 @@ describe('member shares (equity)', () => {
 describe('surplus computation and distribution', () => {
   it('computes real surplus from posted commission+welfare ledger entries and distributes it proportional to shares', async () => {
     const { leaderAgent, leader, member, mutha, booking } = await makeSocietyWithInProgressJob(10, 5);
-    await leaderAgent.post(`/api/requests/${booking._id}/complete`);
+    await completeAndConfirm(leaderAgent, booking);
     for (let i = 0; i < 20; i++) {
       if (await LedgerEntry.findOne({ type: 'commission', entityId: mutha._id })) break;
       await new Promise((r) => setTimeout(r, 50));

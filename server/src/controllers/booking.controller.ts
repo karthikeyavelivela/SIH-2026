@@ -1,4 +1,9 @@
 import { Request, Response } from 'express';
+import { env } from '../config/env';
+import { emitBookingStatus } from '../realtime/emitters';
+import { revealCompletionCode, finalizeCompletion, hasActiveDispute } from '../services/completion.service';
+import { Dispute } from '../models/Dispute';
+import { writeAuditLog } from '../services/audit.service';
 import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
@@ -438,7 +443,70 @@ export const getMyBooking = asyncHandler(async (req: Request, res: Response) => 
   // customer can never fetch another's booking by guessing/enumerating ids.
   const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
   if (!booking) throw new ApiError(404, 'Booking not found');
-  res.status(200).json({ booking });
+  // The completion code is the customer's to hand over; it appears only
+  // here, only to the booking's own customer, only while work is under way.
+  const completionCode = booking.status === 'in_progress' ? await revealCompletionCode(booking._id.toString()) : null;
+  res.status(200).json({ booking, completionCode, autoConfirmHours: env.AUTO_CONFIRM_HOURS });
+});
+
+/**
+ * POST /api/bookings/:id/confirm-completion — the customer says the job is
+ * done. Moves awaiting_confirmation -> completed and settles.
+ */
+export const confirmCompletion = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id }).select('status settlementHeld');
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  if (booking.status !== 'awaiting_confirmation') {
+    throw new ApiError(400, `There is nothing to confirm on a booking that is ${booking.status}`);
+  }
+  if (booking.settlementHeld || (await hasActiveDispute(booking._id.toString()))) {
+    throw new ApiError(409, 'A problem is open on this job. It will be settled when that is resolved.');
+  }
+  const completed = await finalizeCompletion(booking._id.toString(), 'customer', { id: req.user!.id, role: req.user!.role });
+  if (!completed) throw new ApiError(409, 'This job was already completed');
+  res.status(200).json({ booking: completed });
+});
+
+/**
+ * POST /api/bookings/:id/report-problem — the customer says the job is NOT
+ * done properly. Opens a dispute with the system's own record attached and
+ * holds settlement (and auto-confirm) until it is resolved.
+ */
+export const reportProblem = asyncHandler(async (req: Request, res: Response) => {
+  const { description } = req.body as { description: string };
+  const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  if (booking.status !== 'awaiting_confirmation') {
+    throw new ApiError(400, 'A problem can be reported here while the job is waiting for your confirmation');
+  }
+  const dispute = await Dispute.create({
+    bookingId: booking._id,
+    raisedBy: req.user!.id,
+    claim: description,
+    priority: 'high',
+    status: 'open',
+    systemRecord: {
+      status: booking.status,
+      fareTotal: booking.fareBreakdown.total,
+      distanceKm: booking.distanceKm,
+      pickupAddress: booking.pickupLocation.address,
+      dropAddress: booking.dropLocation.address,
+      statusHistory: booking.statusHistory,
+    },
+    communicationLog: [],
+  });
+  booking.settlementHeld = true;
+  await booking.save();
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'completion_disputed',
+    targetType: 'Booking',
+    targetId: booking._id.toString(),
+    details: { disputeId: dispute._id.toString() },
+  });
+  emitBookingStatus(booking);
+  res.status(201).json({ booking, dispute });
 });
 
 /**
@@ -470,6 +538,11 @@ export const cancelMyBooking = asyncHandler(async (req: Request, res: Response) 
   if (!booking) throw new ApiError(404, 'Booking not found');
   if (['completed', 'cancelled'].includes(booking.status)) {
     throw new ApiError(400, `Cannot cancel a booking that is already ${booking.status}`);
+  }
+  // The work is done; cancelling now would walk away from paying for it.
+  // A customer who is unhappy reports a problem instead.
+  if (booking.status === 'awaiting_confirmation') {
+    throw new ApiError(400, 'The worker has finished this job. Confirm it or report a problem instead of cancelling.');
   }
 
   booking.status = 'cancelled';

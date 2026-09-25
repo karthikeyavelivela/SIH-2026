@@ -9,6 +9,7 @@ export type BookingStatus =
   | 'matched'
   | 'accepted'
   | 'in_progress'
+  | 'awaiting_confirmation'
   | 'completed'
   | 'cancelled';
 
@@ -97,6 +98,7 @@ export const STATUS_LABEL: Record<BookingStatus, string> = {
   matched: 'Matched',
   accepted: 'Accepted',
   in_progress: 'On the way',
+  awaiting_confirmation: 'Waiting for your confirmation',
   completed: 'Completed',
   cancelled: 'Cancelled',
 };
