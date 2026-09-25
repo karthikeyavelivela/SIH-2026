@@ -20,7 +20,10 @@ export type NotificationType =
   | 'complaint_update'
   | 'unplanned_halt'
   | 'emergency_alert'
-  | 'quotation_update';
+  | 'quotation_update'
+  // Operational alerts to admins, federation and society officers, keyed by
+  // `kind` in the template (stale wage floor, SLA breach, welfare trigger).
+  | 'system_alert';
 
 export interface INotification {
   _id: Types.ObjectId;
@@ -47,6 +50,13 @@ const notificationSchema = new Schema<INotification>({
       'dispute_update',
       'complaint_update',
       'unplanned_halt',
+      // These two were in the TypeScript union but missing here, so every
+      // emergency and quotation notification failed validation and was
+      // swallowed by createNotification's best-effort catch — none was
+      // ever stored.
+      'emergency_alert',
+      'quotation_update',
+      'system_alert',
     ],
     required: true,
   },

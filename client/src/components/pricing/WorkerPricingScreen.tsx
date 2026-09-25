@@ -1,5 +1,6 @@
 'use client';
 
+import { StatutoryFloorNote, type StatutoryFloor } from '@/components/pricing/StatutoryFloorNote';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -34,6 +35,8 @@ interface UnitRow {
   unitType: UnitType | null;
   rate: string;
   minimumQuantity: string;
+  /** Optional. With it, the minimum-wage check converts the rate exactly. */
+  minutesPerUnit: string;
   description: string;
 }
 
@@ -56,7 +59,7 @@ interface Profile {
   categorySlug: string;
   modesOffered: Mode[];
   hourly?: { rate: number; minimumBlockHours: number; travelIncluded: boolean };
-  perUnit: { unitType: UnitType; rate: number; minimumQuantity: number; description?: string }[];
+  perUnit: { unitType: UnitType; rate: number; minimumQuantity: number; minutesPerUnit?: number; description?: string }[];
   perTask: { taskSlug?: string; taskName: string; fixedPrice: number; estimatedDurationMinutes?: number }[];
   quotation?: { accepts: boolean; siteVisitFee: number; siteVisitAdjustable: boolean; typicalTurnaroundHours?: number };
   societyFloorRespected: boolean;
@@ -96,6 +99,22 @@ export default function WorkerPricingScreen() {
       .catch(() => {});
   }, []);
 
+  // The statutory minimum for this worker's region and this trade, shown
+  // where rates are set rather than discovered as a refusal.
+  const [statutory, setStatutory] = useState<{ floor: StatutoryFloor | null; stale?: boolean; source?: string } | null>(null);
+  useEffect(() => {
+    if (!categorySlug || !user?.region) {
+      setStatutory(null);
+      return;
+    }
+    api
+      .get<{ floor: StatutoryFloor | null; stale?: boolean; source?: string }>(
+        `/api/wage-floors/applicable?region=${encodeURIComponent(user.region)}&categorySlug=${categorySlug}`
+      )
+      .then(setStatutory)
+      .catch(() => setStatutory(null));
+  }, [categorySlug, user?.region]);
+
   useEffect(() => {
     if (!categorySlug) return;
     setSaved(false);
@@ -121,6 +140,7 @@ export default function WorkerPricingScreen() {
               unitType: u.unitType,
               rate: String(u.rate),
               minimumQuantity: String(u.minimumQuantity),
+              minutesPerUnit: u.minutesPerUnit ? String(u.minutesPerUnit) : '',
               description: u.description ?? '',
             }))
           );
@@ -189,6 +209,7 @@ export default function WorkerPricingScreen() {
                 unitType: r.unitType,
                 rate: Number(r.rate),
                 minimumQuantity: Number(r.minimumQuantity) || 1,
+                ...(Number(r.minutesPerUnit) > 0 ? { minutesPerUnit: Math.round(Number(r.minutesPerUnit)) } : {}),
                 ...(r.description ? { description: r.description } : {}),
               }))
           : [],
@@ -260,6 +281,10 @@ export default function WorkerPricingScreen() {
             ))}
           </div>
         </Section>
+
+        {statutory?.floor && (
+          <StatutoryFloorNote floor={{ ...statutory.floor, stale: statutory.stale, source: statutory.source }} />
+        )}
 
         <Section title={<SectionHeading>{t('worker.openSection')}</SectionHeading>}>
           <div className="flex flex-col gap-2">
@@ -369,6 +394,20 @@ export default function WorkerPricingScreen() {
                       />
                     </label>
                     <label className="flex flex-col gap-1">
+                      <EyebrowLabel>{t('worker.minutesPerUnit')}</EyebrowLabel>
+                      <Field
+                        type="number"
+                        inputMode="numeric"
+                        placeholder={t('worker.minutesPerUnitPlaceholder')}
+                        value={row.minutesPerUnit}
+                        onChange={(e) =>
+                          setUnitRows((rows) =>
+                            rows.map((r, j) => (j === i ? { ...r, minutesPerUnit: e.target.value } : r))
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
                       <EyebrowLabel>{t('worker.unitDescription')}</EyebrowLabel>
                       <Field
                         value={row.description}
@@ -397,7 +436,7 @@ export default function WorkerPricingScreen() {
                 onClick={() =>
                   setUnitRows((rows) => [
                     ...rows,
-                    { unitType: null, rate: '', minimumQuantity: '1', description: '' },
+                    { unitType: null, rate: '', minimumQuantity: '1', minutesPerUnit: '', description: '' },
                   ])
                 }
               >

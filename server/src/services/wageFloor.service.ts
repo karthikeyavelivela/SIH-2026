@@ -121,16 +121,60 @@ export function deriveRates(
  * so nothing is enforced there and the UI says so, rather than borrowing
  * another state's figures.
  */
+export type FloorWithStatus = IGovernmentWageFloor & {
+  /**
+   * True when the notification's own effectiveUntil has passed and no newer
+   * one has been entered. The last notified rate is still enforced — a
+   * lapsed notification does not make underpayment lawful, and dropping the
+   * floor would be the worse failure — but every message says it is stale.
+   */
+  stale: boolean;
+};
+
+function inForce(f: IGovernmentWageFloor, at: Date): boolean {
+  return f.effectiveFrom <= at && (!f.effectiveUntil || f.effectiveUntil >= at);
+}
+
 export async function wageFloorFor(
   state: string,
   skillBand: SkillBand,
-  zone: WageZone = 'zone_1'
-): Promise<IGovernmentWageFloor | null> {
-  return GovernmentWageFloor.findOne({ state, zone, skillBand, active: true }).lean();
+  zone: WageZone = 'zone_1',
+  at: Date = new Date()
+): Promise<FloorWithStatus | null> {
+  const active = await GovernmentWageFloor.findOne({ state, zone, skillBand, active: true }).lean();
+  if (!active) return null;
+
+  if (inForce(active, at)) return { ...active, stale: false };
+  if (active.effectiveFrom <= at) return { ...active, stale: true }; // lapsed, nothing newer
+
+  // The active row is a notification that has not started yet (it retired
+  // the previous one when it was entered). Until it starts, the previous
+  // notification is still the law.
+  const previous = await GovernmentWageFloor.findOne({ state, zone, skillBand, effectiveFrom: { $lte: at } })
+    .sort({ effectiveFrom: -1 })
+    .lean();
+  if (!previous) return null;
+  return { ...previous, stale: !inForce(previous, at) };
 }
 
+/** "Notification G/3186486/2026 dated 23 Mar 2026 — secondary compilation (url)". */
+export function sourceLine(floor: IGovernmentWageFloor): string {
+  const date = floor.notificationDate
+    ? new Date(floor.notificationDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
+    : 'date not recorded';
+  const kind =
+    floor.sourceType === 'gazette'
+      ? 'from the gazette'
+      : floor.sourceType === 'department_website'
+        ? "from the department's website"
+        : 'transcribed from a secondary compilation, not the gazette';
+  return `Notification ${floor.notificationNumber} dated ${date}, ${kind}${floor.sourceUrl ? ` (${floor.sourceUrl})` : ''}`;
+}
+
+export const STALE_PREFIX = 'Last notified rate — update pending. ';
+
 export interface FloorComparison {
-  floor: IGovernmentWageFloor;
+  floor: FloorWithStatus;
   /** The rate being checked, expressed per hour so it is comparable. */
   hourlyEquivalent: number;
   meetsFloor: boolean;
@@ -172,15 +216,15 @@ export async function compareToFloor(
 }
 
 /**
- * Refuses a rate below the statutory floor, naming the notification.
+ * Checks a rate against the statutory floor and returns the refusal
+ * sentence, or null when it passes (or no floor applies).
  *
- * Refuses rather than clamps, for the same reason the society floor
- * refuses: silently raising someone's published rate puts a number on the
- * board they never chose, and they would find out when a customer booked
- * it. A message that names the notification is also the only version of
- * this a worker can check, or dispute.
+ * The sentence names the notification, its date and what kind of source
+ * the figure came from, so a worker can check it — and, when the rate was
+ * not hourly, shows the conversion that turned it into an hourly figure,
+ * so the refusal can be argued with rather than just obeyed.
  */
-export async function assertAtOrAboveStatutoryFloor(opts: {
+export async function statutoryFloorProblem(opts: {
   state: string;
   skillBand: SkillBand;
   amount: number;
@@ -188,26 +232,36 @@ export async function assertAtOrAboveStatutoryFloor(opts: {
   zone?: WageZone;
   /** Named in the message so the worker knows WHICH of their rates is wrong. */
   label?: string;
-}): Promise<void> {
-  const comparison = await compareToFloor(
-    opts.state,
-    opts.skillBand,
-    opts.amount,
-    opts.unit,
-    opts.zone ?? 'zone_1'
-  );
-  // No published floor for this state is not a failure — see wageFloorFor.
-  if (!comparison || comparison.meetsFloor) return;
+  /** How a per-task or per-unit price became an hourly one, shown verbatim. */
+  conversion?: string;
+}): Promise<string | null> {
+  const comparison = await compareToFloor(opts.state, opts.skillBand, opts.amount, opts.unit, opts.zone ?? 'zone_1');
+  if (!comparison || comparison.meetsFloor) return null;
 
   const { floor, hourlyEquivalent } = comparison;
   const what = opts.label ? `${opts.label} works out at` : 'That rate works out at';
-  throw new ApiError(
-    422,
-    `${what} ₹${hourlyEquivalent} an hour, below the ₹${floor.hourlyRate} an hour statutory minimum for ` +
-      `${bandLabel(floor.skillBand)} work in ${floor.state} ` +
-      `(₹${floor.monthlyRate} a month ÷ ${floor.workingDaysPerMonth} days ÷ ${floor.workingHoursPerDay} hours, ` +
-      `Notification ${floor.notificationNumber}).`
+  return (
+    (floor.stale ? STALE_PREFIX : '') +
+    `${what} ₹${hourlyEquivalent} an hour${opts.conversion ? ` (${opts.conversion})` : ''}, ` +
+    `below the ₹${floor.hourlyRate} an hour statutory minimum for ${bandLabel(floor.skillBand)} work in ${floor.state} ` +
+    `(₹${floor.monthlyRate} a month ÷ ${floor.workingDaysPerMonth} days ÷ ${floor.workingHoursPerDay} hours; ` +
+    `${sourceLine(floor)}).`
   );
+}
+
+/**
+ * Refuses a rate below the statutory floor. Refuses rather than clamps:
+ * silently raising someone's published rate puts a number on the board
+ * they never chose.
+ */
+export async function assertAtOrAboveStatutoryFloor(opts: Parameters<typeof statutoryFloorProblem>[0]): Promise<void> {
+  const problem = await statutoryFloorProblem(opts);
+  if (problem) throw new ApiError(422, problem, { reason: 'below_statutory_floor' });
+}
+
+/** Hourly equivalent of a fixed price for work that takes `minutes`. */
+export function perMinutesToHourly(price: number, minutes: number): number {
+  return Math.round(((price * 60) / minutes) * 100) / 100;
 }
 
 export function bandLabel(band: SkillBand): string {
@@ -356,11 +410,12 @@ export async function ensureWageFloors(): Promise<number> {
   let created = 0;
   for (const zone of ['zone_1', 'zone_2'] as const) {
     for (const [skillBand, basic] of Object.entries(AP_BASIC[zone]) as [SkillBand, number][]) {
+      // ANY row for this notification, active or not. An admin who retired
+      // or superseded it made a decision; a restart must not undo it.
       const existing = await GovernmentWageFloor.findOne({
         state: AP_NOTIFICATION.state,
         zone,
         skillBand,
-        active: true,
       })
         .select('_id')
         .lean();

@@ -2459,7 +2459,8 @@
       "regions": "Regions",
       "auditLog": "Audit log",
       "profile": "Profile",
-      "codReconciliation": "Cash reconciliation"
+      "codReconciliation": "Cash reconciliation",
+      "wageFloors": "Wage floors"
     },
     "adminConsole": "Admin console",
     "managerConsole": "Manager console",
@@ -4131,7 +4132,9 @@
       "removeRow": "Remove",
       "error": "Could not save your rates.",
       "openSection": "Set your rates",
-      "noModes": "Pick at least one way of charging."
+      "noModes": "Pick at least one way of charging.",
+      "minutesPerUnit": "Minutes per unit (optional)",
+      "minutesPerUnitPlaceholder": "e.g. 15"
     },
     "floors": {
       "intro": "A floor is the least any member of {society} will work for. It binds every member, and the federation's cap bounds it in turn.",
@@ -4352,7 +4355,7 @@
   "wageFloor": {
     "title": "Government minimum wage",
     "customerLine": "At or above the {state} Government minimum wage (Notification {notification}).",
-    "hourlyOnlyNote": "Checked on hourly rates. Per-unit and per-task prices have no measured duration to check against.",
+    "hourlyOnlyNote": "Every rate is checked. Per-task and per-unit prices are converted to an hourly equivalent using the time the work takes.",
     "working": "₹{monthly} a month ÷ {days} working days ÷ {hours} hours = ₹{hourly} an hour",
     "band": "Counted as {band} work",
     "bands": {
@@ -4368,7 +4371,10 @@
     "below": "Below the statutory minimum — please re-price",
     "sourceGazette": "From the gazette notification.",
     "sourceSecondary": "Transcribed from a published compilation of the notification, not from the gazette itself.",
-    "noFloorForState": "No notification has been entered for this state yet, so no statutory floor is enforced here."
+    "noFloorForState": "No notification has been entered for this state yet, so no statutory floor is enforced here.",
+    "staleBanner": "Last notified rate — update pending",
+    "notifiedOn": "Notification {notification}, dated {date}",
+    "sourceLink": "Where this figure comes from"
   },
   "customerHome": {
     "menuAria": "Menu and profile",
@@ -4564,5 +4570,57 @@
     "heldBody": "Payment to the worker is on hold while this is looked into. You will be told when it is resolved.",
     "autoNote": "If you do nothing, the job is confirmed automatically after {hours} hours.",
     "error": "Something went wrong. Please try again."
+  },
+  "adminWageFloors": {
+    "eyebrow": "Statutory",
+    "title": "Government minimum wage floors",
+    "subtitle": "Every notification ever entered. A new notification replaces the old one; a row entered in error is deactivated with a reason. Hourly figures are derived on the server from the monthly rate.",
+    "staleAlert": "The notification for {states} has passed its end date. Its rate is still enforced. Enter the new notification.",
+    "empty": "No wage floors entered yet.",
+    "state": "State",
+    "zone": "Zone",
+    "band": "Skill band",
+    "monthly": "Monthly rate (₹)",
+    "hourly": "Hourly",
+    "period": "In force",
+    "source": "Source",
+    "status": "Status",
+    "deactivate": "Deactivate",
+    "deactivatePrompt": "Why is this row being withdrawn? (recorded in the audit log)",
+    "newTitle": "Enter a new notification",
+    "newHint": "Copy the figures exactly as notified. Say where they come from; a gazette figure and a compilation are not the same kind of fact.",
+    "scheduledEmployment": "Scheduled employment",
+    "notificationNumber": "Notification number",
+    "notificationDate": "Notification date",
+    "effectiveFrom": "Effective from",
+    "effectiveUntil": "Effective until (optional)",
+    "sourceType": "Source type",
+    "sourceUrl": "Source link",
+    "sourceNote": "Source note",
+    "publish": "Publish floor",
+    "published": "Published. The previous row for this state, zone and band was retired.",
+    "error": "Could not save. Please check the fields.",
+    "zones": {
+      "zone_1": "Zone I",
+      "zone_2": "Zone II",
+      "zone_3": "Zone III"
+    },
+    "bands": {
+      "unskilled": "Unskilled",
+      "semi_skilled": "Semi-skilled",
+      "skilled": "Skilled",
+      "highly_skilled": "Highly skilled"
+    },
+    "sources": {
+      "gazette": "Gazette",
+      "department_website": "Department website",
+      "secondary_compilation": "Secondary compilation"
+    },
+    "statuses": {
+      "in_force": "In force",
+      "stale": "Stale — still enforced",
+      "scheduled": "Starts later",
+      "retired": "Retired"
+    }
   }
 }

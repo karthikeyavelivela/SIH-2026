@@ -1,13 +1,15 @@
 import { ApiError } from '../utils/ApiError';
 import { User } from '../models/User';
 import {
-  assertAtOrAboveStatutoryFloor,
   skillBandForCategory,
   stateForRegion,
   wageFloorFor,
   zoneForRegion,
+  statutoryFloorProblem,
+  perMinutesToHourly,
 } from './wageFloor.service';
 import { Mutha } from '../models/Mutha';
+import { ServiceCategory } from '../models/ServiceCategory';
 import { SocietyRateFloor } from '../models/SocietyRateFloor';
 import { WorkerPricingProfile, IWorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { Quotation } from '../models/Quotation';
@@ -117,7 +119,7 @@ export interface ProfileDraft {
   categorySlug: string;
   modesOffered: PricingMode[];
   hourly?: { rate: number; minimumBlockHours: number; travelIncluded: boolean };
-  perUnit?: { unitType: UnitType; rate: number; minimumQuantity?: number; description?: string }[];
+  perUnit?: { unitType: UnitType; rate: number; minimumQuantity?: number; minutesPerUnit?: number; description?: string }[];
   perTask?: { taskName: string; description?: string; fixedPrice: number; estimatedDurationMinutes?: number }[];
   quotation?: { accepts: boolean; siteVisitFee: number; siteVisitAdjustable: boolean; typicalTurnaroundHours?: number };
 }
@@ -142,20 +144,68 @@ export interface ProfileDraft {
  * see wageFloor.service.ts.
  */
 export async function assertStatutoryFloorForDraft(workerId: string, draft: ProfileDraft): Promise<void> {
-  if (!draft.hourly?.rate) return;
-
   const worker = await User.findById(workerId).select('region').lean();
   const state = worker?.region ? await stateForRegion(worker.region) : null;
   if (!state) return;
 
-  await assertAtOrAboveStatutoryFloor({
-    state,
-    skillBand: skillBandForCategory(draft.categorySlug),
-    amount: draft.hourly.rate,
-    unit: 'per_hour',
-    zone: zoneForRegion(worker!.region!),
-    label: 'Your hourly rate',
-  });
+  const skillBand = skillBandForCategory(draft.categorySlug);
+  const zone = zoneForRegion(worker!.region!);
+  const category = await ServiceCategory.findOne({ slug: draft.categorySlug }).select('defaultDurationMinutes').lean();
+  const defaultMinutes = category?.defaultDurationMinutes && category.defaultDurationMinutes > 0 ? category.defaultDurationMinutes : 60;
+  const check = (amount: number, label: string, conversion?: string) =>
+    statutoryFloorProblem({ state, skillBand, zone, amount, unit: 'per_hour', label, conversion });
+
+  const problems: (string | null)[] = [];
+
+  if (draft.hourly?.rate) {
+    problems.push(await check(draft.hourly.rate, 'Your hourly rate'));
+  }
+
+  // A fixed-price task is paid for the time it takes: the worker's own
+  // estimate when they gave one, otherwise the category's default duration.
+  for (const task of draft.perTask ?? []) {
+    const minutes = task.estimatedDurationMinutes ?? defaultMinutes;
+    const whose = task.estimatedDurationMinutes ? 'your estimate' : "this service's standard duration";
+    problems.push(
+      await check(
+        perMinutesToHourly(task.fixedPrice, minutes),
+        `"${task.taskName}" at ₹${task.fixedPrice}`,
+        `₹${task.fixedPrice} for ${minutes} minutes, ${whose}`
+      )
+    );
+  }
+
+  // A per-unit rate needs a time per unit to be a wage at all. With the
+  // worker's declared minutes per unit it converts directly; without it, the
+  // smallest job they accept (minimum quantity × rate) is spread over the
+  // service's standard duration — the least a customer can book them for.
+  for (const line of draft.perUnit ?? []) {
+    const label = `${UNIT_DECLARATIONS[line.unitType].label} rate ₹${line.rate}`;
+    if (line.minutesPerUnit && line.minutesPerUnit > 0) {
+      problems.push(
+        await check(
+          perMinutesToHourly(line.rate, line.minutesPerUnit),
+          label,
+          `₹${line.rate} per unit at your ${line.minutesPerUnit} minutes per unit`
+        )
+      );
+    } else {
+      const qty = line.minimumQuantity && line.minimumQuantity > 0 ? line.minimumQuantity : 1;
+      const smallestJob = Math.round(line.rate * qty * 100) / 100;
+      problems.push(
+        await check(
+          perMinutesToHourly(smallestJob, defaultMinutes),
+          label,
+          `smallest job ${qty} × ₹${line.rate} = ₹${smallestJob} over this service's standard ${defaultMinutes} minutes; declare minutes per unit for an exact check`
+        )
+      );
+    }
+  }
+
+  const failures = problems.filter((x): x is string => !!x);
+  if (failures.length > 0) {
+    throw new ApiError(422, failures.join(' '), { reason: 'below_statutory_floor', failures });
+  }
 }
 
 /**
@@ -393,8 +443,10 @@ export interface PriceDisclosure {
     notificationNumber: string;
     scheduledEmployment: string;
     sourceType: string;
-    /** Which of this worker's modes the check actually covers. */
-    coversHourlyOnly: true;
+    sourceUrl?: string;
+    notificationDate?: Date;
+    /** The notification has lapsed; its rate is still enforced until a new one is entered. */
+    stale: boolean;
   };
 }
 
@@ -453,7 +505,9 @@ export async function disclosePrice(
             notificationNumber: floor.notificationNumber,
             scheduledEmployment: floor.scheduledEmployment,
             sourceType: floor.sourceType,
-            coversHourlyOnly: true as const,
+            sourceUrl: floor.sourceUrl,
+            notificationDate: floor.notificationDate,
+            stale: floor.stale,
           },
         }
       : {}),

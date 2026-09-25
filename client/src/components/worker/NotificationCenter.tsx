@@ -56,6 +56,9 @@ const TYPE_CHROME: Record<string, { glyph: string; tone: 'brown' | 'green' | 'pe
   dispute_update: { glyph: 'gavel', tone: 'peach' },
   complaint_update: { glyph: 'support_agent', tone: 'brown' },
   unplanned_halt: { glyph: 'warning', tone: 'peach' },
+  emergency_alert: { glyph: 'emergency', tone: 'peach' },
+  quotation_update: { glyph: 'request_quote', tone: 'brown' },
+  system_alert: { glyph: 'notification_important', tone: 'brown' },
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;

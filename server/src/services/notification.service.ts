@@ -82,6 +82,30 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'కోటేషన్ నవీకరణ', body: `మీ కోటేషన్ స్థితి: ${String(v.event ?? 'updated').replace(/_/g, ' ')}.` }),
     hi: (v) => ({ title: 'कोटेशन अपडेट', body: `आपका कोटेशन अब: ${String(v.event ?? 'updated').replace(/_/g, ' ')}।` }),
   },
+  // Operational alerts, one template keyed by `kind`.
+  system_alert: {
+    en: (v) =>
+      v.kind === 'wage_floor_stale'
+        ? {
+            title: 'Wage floor needs updating',
+            body: `The minimum-wage notification for ${v.states} has passed its end date. The last notified rate is still being enforced. Enter the new notification.`,
+          }
+        : { title: 'System alert', body: String(v.message ?? '') },
+    te: (v) =>
+      v.kind === 'wage_floor_stale'
+        ? {
+            title: 'కనీస వేతనం నవీకరించాలి',
+            body: `${v.states} కనీస వేతన నోటిఫికేషన్ గడువు ముగిసింది. చివరిగా ప్రకటించిన రేటు ఇంకా అమలులో ఉంది. కొత్త నోటిఫికేషన్‌ను నమోదు చేయండి.`,
+          }
+        : { title: 'సిస్టమ్ హెచ్చరిక', body: String(v.message ?? '') },
+    hi: (v) =>
+      v.kind === 'wage_floor_stale'
+        ? {
+            title: 'न्यूनतम मज़दूरी अपडेट करें',
+            body: `${v.states} की न्यूनतम मज़दूरी अधिसूचना की अवधि समाप्त हो गई है। अंतिम अधिसूचित दर अभी भी लागू है। नई अधिसूचना दर्ज करें।`,
+          }
+        : { title: 'सिस्टम अलर्ट', body: String(v.message ?? '') },
+  },
 };
 
 /**

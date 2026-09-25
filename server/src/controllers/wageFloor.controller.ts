@@ -16,7 +16,9 @@ import {
   skillBandForCategory,
   stateForRegion,
   zoneForRegion,
+  sourceLine,
 } from '../services/wageFloor.service';
+import { staleFloorStates } from '../services/wageFloorAlerts.service';
 import { writeAuditLog } from '../services/audit.service';
 
 /**
@@ -77,7 +79,55 @@ export const getApplicableFloor = asyncHandler(async (req: Request, res: Respons
     return;
   }
 
-  res.status(200).json({ floor: comparison.floor, state, skillBand, zone });
+  res.status(200).json({
+    floor: comparison.floor,
+    stale: comparison.floor.stale,
+    source: sourceLine(comparison.floor),
+    state,
+    skillBand,
+    zone,
+  });
+});
+
+/**
+ * GET /api/admin/wage-floors — every row, retired ones included, each with
+ * whether it is in force today. History matters here: "what was the floor
+ * last April" is the question a wage dispute turns on.
+ */
+export const adminListWageFloors = asyncHandler(async (_req: Request, res: Response) => {
+  const now = new Date();
+  const rows = await GovernmentWageFloor.find({}).sort({ state: 1, zone: 1, skillBand: 1, effectiveFrom: -1 }).lean();
+  const floors = rows.map((f) => ({
+    ...f,
+    source: sourceLine(f),
+    status: !f.active
+      ? 'retired'
+      : f.effectiveFrom > now
+        ? 'scheduled'
+        : f.effectiveUntil && f.effectiveUntil < now
+          ? 'stale'
+          : 'in_force',
+  }));
+  res.status(200).json({ floors, staleStates: await staleFloorStates(now) });
+});
+
+/**
+ * PATCH /api/admin/wage-floors/:id/deactivate — withdraw a floor entered in
+ * error. Retired, never deleted; audited with the reason.
+ */
+export const deactivateWageFloor = asyncHandler(async (req: Request, res: Response) => {
+  const { reason } = req.body as { reason: string };
+  const floor = await GovernmentWageFloor.findOneAndUpdate({ _id: req.params.id, active: true }, { active: false }, { new: true });
+  if (!floor) throw new ApiError(404, 'No active wage floor with that id');
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'wage_floor_deactivated',
+    targetType: 'GovernmentWageFloor',
+    targetId: floor._id.toString(),
+    details: { state: floor.state, zone: floor.zone, skillBand: floor.skillBand, notificationNumber: floor.notificationNumber, reason },
+  });
+  res.status(200).json({ floor });
 });
 
 interface FloorBody {

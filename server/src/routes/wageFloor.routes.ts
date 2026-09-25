@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { z } from 'zod';
+import { validateZod, objectId } from '../middleware/zod';
 import { body, query } from 'express-validator';
 import { verifyJwt } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
@@ -62,4 +64,14 @@ adminWageFloorRouter.post(
   ],
   validate,
   wageFloorController.createWageFloor
+);
+
+adminWageFloorRouter.get('/', wageFloorController.adminListWageFloors);
+adminWageFloorRouter.patch(
+  '/:id/deactivate',
+  validateZod({
+    params: z.object({ id: objectId }),
+    body: z.object({ reason: z.string().trim().min(5).max(500) }),
+  }),
+  wageFloorController.deactivateWageFloor
 );

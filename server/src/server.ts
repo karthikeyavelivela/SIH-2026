@@ -1,3 +1,4 @@
+import { startWageFloorAlertRunner } from './services/wageFloorAlerts.service';
 import { startAutoConfirmRunner } from './services/completion.service';
 import { ensureServiceCategories } from './services/serviceCategorySeed';
 import http from 'http';
@@ -75,6 +76,7 @@ async function main() {
   startScheduledBookingReleaser();
   startScheduledIncentiveRunner();
   startAutoConfirmRunner();
+  startWageFloorAlertRunner();
   httpServer.listen(env.PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`FYRO server (HTTP + Socket.io) listening on port ${env.PORT}`);

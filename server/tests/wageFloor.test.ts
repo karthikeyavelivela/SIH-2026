@@ -173,16 +173,26 @@ describe('publishing a rate below the statutory minimum', () => {
     expect(await WorkerPricingProfile.countDocuments({ workerId: user._id })).toBe(0);
   });
 
-  it('does not check a per-task price against an invented hourly rate', async () => {
-    // ₹400 to replace a hinge is not a ₹400 hourly rate and not a ₹50 one;
-    // the duration that would settle it is the thing nobody has measured.
+  it('checks a per-task price as the wage it is, over the time the task takes', async () => {
+    // P0.3: a fixed price is a wage for the time the task takes — the
+    // worker's own estimate, or the service's standard duration when they
+    // gave none. The refusal shows that conversion so it can be argued with.
     const { agent } = await agentFor('hamali_solo', '9880000004', { region: 'Visakhapatnam' });
-    const res = await agent.put('/api/pricing/mine').send({
+    const cheap = await agent.put('/api/pricing/mine').send({
       categorySlug: 'electrician',
       modesOffered: ['per_task'],
       perTask: [{ taskName: 'Switch replacement', fixedPrice: 40 }],
     });
-    expect(res.status).toBe(200);
+    expect(cheap.status).toBe(422);
+    expect(cheap.body.error).toMatch(/₹40 for 60 minutes, this service's standard duration/);
+    expect(cheap.body.error).toMatch(/Notification G\/3186486\/2026 dated 23 Mar 2026/);
+
+    const quick = await agent.put('/api/pricing/mine').send({
+      categorySlug: 'electrician',
+      modesOffered: ['per_task'],
+      perTask: [{ taskName: 'Switch replacement', fixedPrice: 40, estimatedDurationMinutes: 20 }],
+    });
+    expect(quick.status).toBe(200); // ₹40 for 20 minutes = ₹120 an hour
   });
 
   it('leaves a worker in a state with no notification alone', async () => {
