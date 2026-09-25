@@ -31,7 +31,7 @@ export async function generateOtp(): Promise<GeneratedOtp> {
   const code = crypto.randomInt(100000, 999999).toString();
   const hash = await bcrypt.hash(code, BCRYPT_COST);
   const expiresAt = new Date(Date.now() + OTP_TTL_MS);
-  return { code, hash, expiresAt, devCode: env.MOCK_EXTERNAL_SERVICES ? code : undefined };
+  return { code, hash, expiresAt, devCode: env.MOCK_OTP ? code : undefined };
 }
 
 /**
@@ -43,10 +43,10 @@ export async function generateOtp(): Promise<GeneratedOtp> {
  * receives a code they were told to expect.
  */
 export async function sendOtpSms(phone: string, code: string): Promise<void> {
-  if (env.MOCK_EXTERNAL_SERVICES) return;
+  if (env.MOCK_OTP) return;
   void phone;
   void code;
-  throw new Error('No SMS provider is configured — set MOCK_EXTERNAL_SERVICES=true for development, or wire a real gateway here before enabling this in production.');
+  throw new Error('No SMS provider is configured — set MOCK_OTP=true for development, or wire a real gateway here before enabling this in production.');
 }
 
 export async function verifyOtp(code: string, hash: string): Promise<boolean> {

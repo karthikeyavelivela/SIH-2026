@@ -18,6 +18,8 @@ export interface IPayment {
   // self-report having paid cash, same custody discipline as
   // HaltEvent.sealIntact never defaulting to true.
   codConfirmedBy?: Types.ObjectId;
+  /** When the payment became 'success' — the Checkout verify, the webhook, or the worker's COD confirmation. */
+  capturedAt?: Date;
   createdAt: Date;
 }
 
@@ -30,10 +32,12 @@ const paymentSchema = new Schema<IPayment>(
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
     codConfirmedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    capturedAt: { type: Date },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
 paymentSchema.index({ bookingId: 1 });
+paymentSchema.index({ method: 1, createdAt: 1 }); // COD reconciliation by date range
 
 export const Payment = model<IPayment>('Payment', paymentSchema);

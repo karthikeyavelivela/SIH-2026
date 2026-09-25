@@ -55,6 +55,7 @@ function navItems(
     { href: '/admin/payouts', label: t('payouts'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
     { href: '/admin/insurance', label: t('insurance'), icon: <ShieldIcon className="w-5 h-5" />, show: isAdmin },
     { href: '/admin/ledger', label: t('ledger'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/cod-reconciliation', label: t('codReconciliation'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
     {
       href: '/admin/surge-zones',
       label: t('surgeZones'),

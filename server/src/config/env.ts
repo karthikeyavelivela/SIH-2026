@@ -3,6 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const optionalFlag = z
+  .string()
+  .optional()
+  .transform((v) => (v === undefined || v === '' ? undefined : v === 'true'));
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().default(4000),
@@ -16,6 +21,14 @@ const envSchema = z.object({
     .string()
     .default('true')
     .transform((v) => v === 'true'),
+  // Per-integration mock switches. Each one falls back to
+  // MOCK_EXTERNAL_SERVICES when unset, so an existing deployment behaves
+  // exactly as before until someone sets them. They exist because one flag
+  // could not describe the real production state: real uploads (needs the
+  // flag off) and test-mode payments (needed it on) at the same time.
+  MOCK_PAYMENTS: optionalFlag,
+  MOCK_UPLOADS: optionalFlag,
+  MOCK_OTP: optionalFlag,
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
@@ -79,4 +92,38 @@ if (!parsed.success) {
   throw new Error('Invalid environment variables');
 }
 
-export const env = parsed.data;
+const raw = parsed.data;
+
+export const env = {
+  ...raw,
+  MOCK_PAYMENTS: raw.MOCK_PAYMENTS ?? raw.MOCK_EXTERNAL_SERVICES,
+  MOCK_UPLOADS: raw.MOCK_UPLOADS ?? raw.MOCK_EXTERNAL_SERVICES,
+  MOCK_OTP: raw.MOCK_OTP ?? raw.MOCK_EXTERNAL_SERVICES,
+};
+
+export type Env = typeof env;
+
+/**
+ * Refuses to boot a production server whose payments are real but whose
+ * Razorpay configuration is incomplete.
+ *
+ * Without the webhook secret, a real deployment would accept any request
+ * claiming "payment.captured" — anyone who guessed an order id could mark it
+ * paid and post revenue to the ledger. Without the key pair, orders silently
+ * fall back to fake ones. Both are worse than not starting, so neither is
+ * left to be discovered at the first real payment.
+ */
+export function paymentConfigProblems(e: Pick<Env, 'NODE_ENV' | 'MOCK_PAYMENTS' | 'RAZORPAY_KEY_ID' | 'RAZORPAY_KEY_SECRET' | 'RAZORPAY_WEBHOOK_SECRET'>): string[] {
+  if (e.NODE_ENV !== 'production' || e.MOCK_PAYMENTS) return [];
+  const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const).filter((k) => !e[k]);
+  return missing.length
+    ? [`MOCK_PAYMENTS is false in production but ${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} not set. Set them (Razorpay dashboard -> Settings -> API keys / Webhooks), or set MOCK_PAYMENTS=true.`]
+    : [];
+}
+
+const bootProblems = paymentConfigProblems(env);
+if (bootProblems.length) {
+  // eslint-disable-next-line no-console
+  console.error(bootProblems.join(' '));
+  throw new Error(bootProblems[0]);
+}

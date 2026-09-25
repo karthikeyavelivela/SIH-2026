@@ -143,3 +143,15 @@ export const globalMutationLimiter = rateLimit({
   // value.
   skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || process.env.NODE_ENV === 'test',
 });
+
+// Payment order creation, Checkout verification and COD selection — per
+// account. A real customer makes a handful of these per booking; the cap
+// stops a script hammering signature verification.
+export const paymentLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many payment attempts, try again in a minute.' },
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+});
