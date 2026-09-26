@@ -13,8 +13,8 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P0.1 | Split mock flags; real Razorpay test mode; verify endpoint; webhook hardening; COD reconciliation | DONE | 038be8a | Checkout+verify, webhook hardening, boot guard, COD reconciliation |
 | P0.2 | Customer confirms completion (awaiting_confirmation, code, auto-confirm) | DONE | 1384719 | code + confirm/report + auto-confirm; single finalize path |
 | P0.3 | Wage floor dates, staleness, per-task/unit conversion, source display, admin screen | DONE | 18dae72 | dates+stale, per-task/unit conversion, source citations, admin screen |
-| P0.4 | Security: private KYC + signed URLs + migration, masked Aadhaar, OTP devCode, CF IP keying, headers | TODO | | |
-| PHASE-0-TESTS | Full server + client suites | TODO | | |
+| P0.4 | Security: private KYC + signed URLs + migration, masked Aadhaar, OTP devCode, CF IP keying, headers | DONE | b86b8de | private KYC + signed links + migration, CF IP keying, headers |
+| PHASE-0-TESTS | Full server + client suites | DONE |  | server 662/664 full run: sessionTransport timeout under load (fixed, 90s) + 1 not reproduced on re-run; client 66/66 |
 | P1.1 | Fee split: rate + 10% (5/3/1/1), settlement, ledger, invoice | TODO | | |
 | P1.2 | Demand-indexed welfare pool | TODO | | |
 | P1.3 | Workmanship guarantee loop | TODO | | |
