@@ -16,7 +16,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P0.4 | Security: private KYC + signed URLs + migration, masked Aadhaar, OTP devCode, CF IP keying, headers | DONE | b86b8de | private KYC + signed links + migration, CF IP keying, headers |
 | PHASE-0-TESTS | Full server + client suites | DONE |  | server 662/664 full run: sessionTransport timeout under load (fixed, 90s) + 1 not reproduced on re-run; client 66/66 |
 | P1.1 | Fee split: rate + 10% (5/3/1/1), settlement, ledger, invoice | DONE | f154c26 | fee on top, 4-way ledger split, worker keeps 100%, admin screen |
-| P1.2 | Demand-indexed welfare pool | TODO | | |
+| P1.2 | Demand-indexed welfare pool | DONE | 6800f64 | weekly demand index, district pools, capped pro-rata payouts |
 | P1.3 | Workmanship guarantee loop | TODO | | |
 | P1.4 | Urgent booking | TODO | | |
 | P1.5 | Dispute routing by level with SLA | TODO | | |
