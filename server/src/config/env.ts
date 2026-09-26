@@ -104,6 +104,12 @@ const envSchema = z.object({
   // The old individual trigger (one worker's own earnings below a threshold)
   // is off: it paid people for having a slow month regardless of demand.
   // Kept behind this flag only so its tests still run.
+  // P1.4 — urgent bookings: the search rings (km) and the shorter offer countdown.
+  URGENT_RADII_KM: z
+    .string()
+    .default('3,6,10')
+    .transform((v) => v.split(',').map((n) => Number(n.trim())).filter((n) => Number.isFinite(n) && n > 0)),
+  URGENT_OFFER_TIMEOUT_MS: z.coerce.number().int().min(5000).max(60000).default(12000),
   INDIVIDUAL_EARNINGS_TRIGGER: z
     .string()
     .default('false')

@@ -1,5 +1,6 @@
 'use client';
 
+import { UrgentToggle } from '@/components/booking/UrgentToggle';
 import { FeeNote } from '@/components/booking/FeeNote';
 import { useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -342,6 +343,7 @@ export default function ServiceDetailPage() {
             </div>
           )}
           {when === 'now' && <Body size="label">{t('nowHint')}</Body>}
+          {when === 'now' && <UrgentToggle checked={flow.urgent} onChange={flow.setUrgent} />}
 
           <button
             type="button"

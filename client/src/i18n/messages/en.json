@@ -4714,5 +4714,10 @@
     "saveFailed": "Could not save the materials. Try again.",
     "materialsFinal": "Materials charged to the customer: ₹{amount}",
     "leaderBadge": "Guarantee re-work: you can reassign it to another member before it starts."
+  },
+  "urgent": {
+    "toggle": "Urgent — I need someone now",
+    "toggleHint": "Offered first to the nearest workers, then a wider area. No extra charge.",
+    "badge": "Urgent"
   }
 }

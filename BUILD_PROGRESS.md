@@ -58,6 +58,8 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | WELFARE_MIN_ACTIVE_DAYS | Render API | 8 | Days available/working in 28 to count as active |
 | WELFARE_MIN_HISTORY_WEEKS | Render API | 4 | Weeks of history needed before an index is computed |
 | INDIVIDUAL_EARNINGS_TRIGGER | Render API | false | Old per-worker earnings trigger (tests only) |
+| URGENT_RADII_KM | Render API | 3,6,10 | Urgent search rings in km (then the ordinary 25 km) |
+| URGENT_OFFER_TIMEOUT_MS | Render API | 12000 | Countdown for an urgent offer (ordinary: 20000) |
 
 ## Migrations needed
 

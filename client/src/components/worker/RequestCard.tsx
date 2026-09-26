@@ -1,5 +1,6 @@
 'use client';
 
+import { UrgentBadge } from '@/components/booking/UrgentToggle';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Booking, workerRateOf } from '@/lib/types';
@@ -95,6 +96,7 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
               {booking.pickupLocation.address.split(',')[0]} → {booking.dropLocation.address.split(',')[0]}
             </p>
             {meta.length > 0 && <Body size="label">{meta.join(' · ')}</Body>}
+            {booking.urgent && <UrgentBadge />}
           </div>
         </div>
         <div className="text-right shrink-0">

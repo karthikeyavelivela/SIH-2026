@@ -40,6 +40,8 @@ export interface Booking {
   _id: string;
   /** P1.3 — a workmanship-guarantee re-work: the customer pays materials only. */
   isRework?: boolean;
+  /** P1.4 — the customer needs someone now; offered first, no extra fee. */
+  urgent?: boolean;
   reworkOfBookingId?: string;
   materialsCost?: number;
   materialsNote?: string;

@@ -11,6 +11,7 @@ import { ApiError } from '../utils/ApiError';
 import { emitBookingOffer, emitOfferClosed, emitBookingMatched } from './emitters';
 import { SEARCH_RADIUS_KM } from '../controllers/requests.controller';
 import { workerRateOf } from '../services/serviceFee.service';
+import { env } from '../config/env';
 
 /** Spec: "~20 seconds (configurable constant)". */
 export const OFFER_TIMEOUT_MS = 20_000;
@@ -25,6 +26,12 @@ interface OfferState {
   timer: ReturnType<typeof setTimeout> | null;
   /** hamali only: once the solo queue is exhausted, further offers go to Mutha leaders instead (see module doc comment). */
   phase: 'solo' | 'mutha';
+  /** P1.4 — urgent: widening rings and a shorter countdown. */
+  urgent: boolean;
+  radii: number[];
+  ring: number;
+  /** Everyone already offered this booking, so a wider ring never repeats them. */
+  offered: Set<string>;
 }
 
 // In-memory, single-instance — same documented tradeoff as this codebase's
@@ -42,30 +49,106 @@ function clearState(state: OfferState): void {
   activeOffers.delete(key(state.bookingId, state.component));
 }
 
+/**
+ * P1.4 — an urgent booking searches 3 km, then 6, then 10 (URGENT_RADII_KM),
+ * then the ordinary radius, so it is never stranded; each ring adds only
+ * people not yet offered. An ordinary booking has the one ordinary ring.
+ */
+function ringsFor(urgent: boolean): number[] {
+  if (!urgent) return [SEARCH_RADIUS_KM];
+  const rings = env.URGENT_RADII_KM.filter((r) => r < SEARCH_RADIUS_KM);
+  return [...rings, SEARCH_RADIUS_KM];
+}
+
+function timeoutFor(state: OfferState): number {
+  return state.urgent ? env.URGENT_OFFER_TIMEOUT_MS : OFFER_TIMEOUT_MS;
+}
+
+function newState(booking: IBooking, component: Component): OfferState {
+  const urgent = !!booking.urgent;
+  return {
+    bookingId: booking._id.toString(),
+    component,
+    queue: [],
+    currentCandidateId: null,
+    timer: null,
+    phase: 'solo',
+    urgent,
+    radii: ringsFor(urgent),
+    ring: 0,
+    offered: new Set(),
+  };
+}
+
+function notYetAsked(booking: IBooking, state: OfferState, ids: string[]): string[] {
+  return ids.filter((id) => !state.offered.has(id) && !booking.rejectedByUserIds.some((r) => r.toString() === id));
+}
+
+async function vehicleQueue(booking: IBooking, state: OfferState): Promise<string[]> {
+  const requiredCapacityKg = booking.requiredVehicles[0]?.capacityKg;
+  if (!requiredCapacityKg) return [];
+  const candidates = await findCandidateVehicles({
+    pickup: booking.pickupLocation.coordinates,
+    requiredCapacityKg,
+    maxDistanceKm: state.radii[state.ring],
+  });
+  return notYetAsked(booking, state, candidates.map((v) => v.ownerId.toString()));
+}
+
+async function hamaliSoloQueue(booking: IBooking, state: OfferState): Promise<string[]> {
+  const soloCandidates = await findCandidateHamaliSolos({
+    pickup: booking.pickupLocation.coordinates,
+    maxDistanceKm: state.radii[state.ring],
+  });
+  // Only people who do this kind of work. Nearest-first used to mean a
+  // plumbing job went to whichever loader was closest.
+  const requiredSkills = await requiredSkillsFor(booking.serviceCategorySlug);
+  return notYetAsked(
+    booking,
+    state,
+    soloCandidates.filter((p) => isEligible(p, requiredSkills)).map((p) => p.userId.toString())
+  );
+}
+
+/** Widens a search by one ring at a time until someone new is found; false when there is no wider ring. */
+async function widen(
+  booking: IBooking,
+  state: OfferState,
+  next: (b: IBooking, s: OfferState) => Promise<string[]>
+): Promise<boolean> {
+  while (state.ring < state.radii.length - 1) {
+    state.ring += 1;
+    state.queue = await next(booking, state);
+    if (state.queue.length > 0) return true;
+  }
+  return false;
+}
+
+function offerPayload(booking: IBooking, state: OfferState) {
+  return {
+    bookingId: state.bookingId,
+    type: booking.type,
+    pickupAddress: booking.pickupLocation.address,
+    dropAddress: booking.dropLocation.address,
+    distanceKm: booking.distanceKm,
+    // What the worker earns: their rate, not the customer's total with the service fee.
+    total: workerRateOf(booking.fareBreakdown),
+    expiresAt: Date.now() + timeoutFor(state),
+    urgent: state.urgent,
+    weightKg: booking.cargoDetails?.weightKg,
+    goodsType: booking.cargoDetails?.goodsType,
+    hamaliCount: booking.requiredHamaliCount,
+  };
+}
+
 // ---- Vehicle (truck/combo) sequential offer ----
 
 export async function startVehicleOffers(booking: IBooking): Promise<void> {
   if (booking.assignedDriverIds.length > 0) return; // already filled (e.g. accepted via browse before this ran)
-  const requiredCapacityKg = booking.requiredVehicles[0]?.capacityKg;
-  if (!requiredCapacityKg) return;
+  if (!booking.requiredVehicles[0]?.capacityKg) return;
 
-  const candidates = await findCandidateVehicles({
-    pickup: booking.pickupLocation.coordinates,
-    requiredCapacityKg,
-    maxDistanceKm: SEARCH_RADIUS_KM,
-  });
-  const queue = candidates
-    .map((v) => v.ownerId.toString())
-    .filter((id) => !booking.rejectedByUserIds.some((r) => r.toString() === id));
-
-  const state: OfferState = {
-    bookingId: booking._id.toString(),
-    component: 'vehicle',
-    queue,
-    currentCandidateId: null,
-    timer: null,
-    phase: 'solo',
-  };
+  const state = newState(booking, 'vehicle');
+  state.queue = await vehicleQueue(booking, state);
   activeOffers.set(key(state.bookingId, 'vehicle'), state);
   await advanceVehicleOffer(state);
 }
@@ -77,7 +160,8 @@ async function advanceVehicleOffer(state: OfferState): Promise<void> {
     return;
   }
 
-  const nextCandidateId = state.queue.shift();
+  let nextCandidateId = state.queue.shift();
+  if (!nextCandidateId && (await widen(booking, state, vehicleQueue))) nextCandidateId = state.queue.shift();
   if (!nextCandidateId) {
     // Queue exhausted, nobody accepted — booking stays 'searching', honest
     // per the product principle: no fake match, customer keeps waiting.
@@ -86,23 +170,12 @@ async function advanceVehicleOffer(state: OfferState): Promise<void> {
   }
 
   state.currentCandidateId = nextCandidateId;
-  emitBookingOffer(nextCandidateId, {
-    bookingId: state.bookingId,
-    type: booking.type,
-    pickupAddress: booking.pickupLocation.address,
-    dropAddress: booking.dropLocation.address,
-    distanceKm: booking.distanceKm,
-    // What the worker earns: their rate, not the customer's total with the service fee.
-    total: workerRateOf(booking.fareBreakdown),
-    expiresAt: Date.now() + OFFER_TIMEOUT_MS,
-    weightKg: booking.cargoDetails?.weightKg,
-    goodsType: booking.cargoDetails?.goodsType,
-    hamaliCount: booking.requiredHamaliCount,
-  });
+  state.offered.add(nextCandidateId);
+  emitBookingOffer(nextCandidateId, offerPayload(booking, state));
 
   state.timer = setTimeout(() => {
     void handleVehicleOfferTimeout(state);
-  }, OFFER_TIMEOUT_MS);
+  }, timeoutFor(state));
 }
 
 async function handleVehicleOfferTimeout(state: OfferState): Promise<void> {
@@ -153,26 +226,8 @@ export async function startHamaliOffers(booking: IBooking): Promise<void> {
   const remaining = booking.requiredHamaliCount - booking.assignedHamaliIds.length;
   if (remaining <= 0) return;
 
-  const soloCandidates = await findCandidateHamaliSolos({
-    pickup: booking.pickupLocation.coordinates,
-    maxDistanceKm: SEARCH_RADIUS_KM,
-  });
-  // Only people who do this kind of work. Nearest-first used to mean a
-  // plumbing job went to whichever loader was closest.
-  const requiredSkills = await requiredSkillsFor(booking.serviceCategorySlug);
-  const queue = soloCandidates
-    .filter((p) => isEligible(p, requiredSkills))
-    .map((p) => p.userId.toString())
-    .filter((id) => !booking.rejectedByUserIds.some((r) => r.toString() === id));
-
-  const state: OfferState = {
-    bookingId: booking._id.toString(),
-    component: 'hamali',
-    queue,
-    currentCandidateId: null,
-    timer: null,
-    phase: 'solo',
-  };
+  const state = newState(booking, 'hamali');
+  state.queue = await hamaliSoloQueue(booking, state);
   activeOffers.set(key(state.bookingId, 'hamali'), state);
   await advanceHamaliOffer(state);
 }
@@ -190,6 +245,9 @@ async function advanceHamaliOffer(state: OfferState): Promise<void> {
   }
 
   let nextCandidateId = state.queue.shift();
+  if (!nextCandidateId && state.phase === 'solo' && (await widen(booking, state, hamaliSoloQueue))) {
+    nextCandidateId = state.queue.shift();
+  }
 
   // A society is a loading crew. A trade or farm job that no individual
   // could take stays open honestly rather than being handed to a crew.
@@ -219,23 +277,12 @@ async function advanceHamaliOffer(state: OfferState): Promise<void> {
   }
 
   state.currentCandidateId = nextCandidateId;
-  emitBookingOffer(nextCandidateId, {
-    bookingId: state.bookingId,
-    type: booking.type,
-    pickupAddress: booking.pickupLocation.address,
-    dropAddress: booking.dropLocation.address,
-    distanceKm: booking.distanceKm,
-    // What the worker earns: their rate, not the customer's total with the service fee.
-    total: workerRateOf(booking.fareBreakdown),
-    expiresAt: Date.now() + OFFER_TIMEOUT_MS,
-    weightKg: booking.cargoDetails?.weightKg,
-    goodsType: booking.cargoDetails?.goodsType,
-    hamaliCount: booking.requiredHamaliCount,
-  });
+  state.offered.add(nextCandidateId);
+  emitBookingOffer(nextCandidateId, offerPayload(booking, state));
 
   state.timer = setTimeout(() => {
     void handleHamaliOfferTimeout(state);
-  }, OFFER_TIMEOUT_MS);
+  }, timeoutFor(state));
 }
 
 async function handleHamaliOfferTimeout(state: OfferState): Promise<void> {
@@ -319,6 +366,20 @@ export async function notifyMuthaOfferSettled(bookingId: string, userId: string,
   } else {
     await advanceHamaliOffer(state);
   }
+}
+
+/** Test hook: the rings and countdown a booking would get. */
+export function _offerPlanFor(urgent: boolean): { radii: number[]; timeoutMs: number } {
+  return { radii: ringsFor(urgent), timeoutMs: urgent ? env.URGENT_OFFER_TIMEOUT_MS : OFFER_TIMEOUT_MS };
+}
+
+/** Test hook: who is being offered a booking right now, and at which ring. */
+export function _currentOfferFor(
+  bookingId: string,
+  component: Component
+): { candidate: string | null; ring: number; radiusKm: number } | null {
+  const st = activeOffers.get(key(bookingId, component));
+  return st ? { candidate: st.currentCandidateId, ring: st.ring, radiusKm: st.radii[st.ring] } : null;
 }
 
 /** Test/debug hook — not used by production code paths. */

@@ -220,6 +220,11 @@ export interface IBooking {
   // a genuinely different multi-party acceptance flow, out of scope here
   // and left as a documented follow-up, not silently half-supported.
   openForBidding?: boolean;
+  /**
+   * P1.4 — the customer needs someone now. Offered first, in widening rings
+   * with a shorter countdown, and shown first in workers' feeds. No extra fee.
+   */
+  urgent?: boolean;
   createdAt: Date;
 }
 
@@ -326,6 +331,7 @@ const bookingSchema = new Schema<IBooking>(
     settlementHeld: { type: Boolean, default: false },
     scheduledFor: { type: Date },
     openForBidding: { type: Boolean, default: false },
+    urgent: { type: Boolean, default: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

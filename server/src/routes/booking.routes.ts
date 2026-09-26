@@ -117,6 +117,7 @@ bookingRouter.post(
     // existing behaviour; the combo/scheduled scope restriction is
     // enforced in the controller (needs both fields together to check).
     body('openForBidding').optional().isBoolean(),
+    body('urgent').optional().isBoolean(),
   ],
   validate,
   bookingController.createBooking

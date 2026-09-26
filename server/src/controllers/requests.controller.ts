@@ -40,6 +40,11 @@ import { markAvailableToday } from '../services/activity.service';
 // constant for its own candidate search.
 export const SEARCH_RADIUS_KM = 25;
 
+/** P1.4 — urgent bookings first; otherwise the existing order (stable sort). */
+export function urgentFirst<T extends { urgent?: boolean }>(list: T[]): T[] {
+  return [...list].sort((a, b) => Number(!!b.urgent) - Number(!!a.urgent));
+}
+
 // How many of the most-recently-created open bookings a Mutha leader's feed
 // will consider. findCandidateMuthas answers "which groups qualify for THIS
 // booking" (correct and already used by the vehicle/solo-hamali matching
@@ -126,7 +131,7 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
           }).limit(20)
         : Promise.resolve([]),
     ]);
-    res.status(200).json({ requests: dedupeById([live, willing]).slice(0, 20) });
+    res.status(200).json({ requests: urgentFirst(dedupeById([live, willing])).slice(0, 20) });
     return;
   }
 
@@ -171,7 +176,7 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
           }).limit(20)
         : Promise.resolve([]),
     ]);
-    res.status(200).json({ requests: dedupeById([live, willing]).slice(0, 20) });
+    res.status(200).json({ requests: urgentFirst(dedupeById([live, willing])).slice(0, 20) });
     return;
   }
 
@@ -202,7 +207,7 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
         qualifying.push(booking);
       }
     }
-    res.status(200).json({ requests: qualifying.slice(0, 20) });
+    res.status(200).json({ requests: urgentFirst(qualifying).slice(0, 20) });
     return;
   }
 

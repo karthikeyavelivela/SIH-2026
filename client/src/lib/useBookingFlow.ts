@@ -177,6 +177,8 @@ export function useBookingFlow({
   const [submitting, setSubmitting] = useState(false);
   const [scheduledFor, setScheduledFor] = useState('');
   const [openForBidding, setOpenForBidding] = useState(false);
+  // P1.4 — only meaningful for a booking for now, never scheduled or bid.
+  const [urgent, setUrgent] = useState(false);
   const quoteDebounce = useRef<ReturnType<typeof setTimeout>>();
 
   const weightValid = !needsWeight || Number(weightKg) > 0;
@@ -251,6 +253,7 @@ export function useBookingFlow({
         // Bidding is never combined with a scheduled booking — enforced
         // again server-side in createBooking.
         openForBidding: !scheduledFor ? openForBidding : undefined,
+        urgent: !scheduledFor && !openForBidding && urgent ? true : undefined,
       });
       router.push(`/customer/track/${res.booking._id}`);
     } catch (err) {
@@ -293,6 +296,8 @@ export function useBookingFlow({
     setScheduledFor,
     openForBidding,
     setOpenForBidding,
+    urgent,
+    setUrgent,
     submit,
     submitting,
     submitError,

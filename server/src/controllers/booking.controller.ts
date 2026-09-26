@@ -225,6 +225,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     requiredHamaliCount,
     scheduledFor,
     openForBidding,
+    urgent,
     serviceCategorySlug,
     // Scan and Diagnose. The photo URL is one this server produced and
     // returned from /api/assistant/diagnose-photo — a client-supplied URL
@@ -265,6 +266,10 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   if (openForBidding) {
     if (type === 'combo') throw new ApiError(400, 'Bidding is not available for combo bookings yet');
     if (scheduledFor) throw new ApiError(400, 'Bidding is not available for scheduled bookings');
+  }
+  // P1.4 — urgent means now: it cannot be scheduled for later or put out to bids.
+  if (urgent && (scheduledFor || openForBidding)) {
+    throw new ApiError(400, 'An urgent booking is for now — it cannot be scheduled or put out for bids');
   }
 
   // Phase 6 — scheduled booking. scheduledFor is optional; when present it
@@ -363,6 +368,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     statusHistory: [{ status: initialStatus, timestamp: new Date() }],
     scheduledFor: scheduledForDate,
     openForBidding: !!openForBidding,
+    urgent: !!urgent,
     // Carried from Scan and Diagnose, when the customer came that way.
     // The assigned worker sees both before they set out.
     diagnosisPhotoUrl: diagnosisPhotoUrl || undefined,

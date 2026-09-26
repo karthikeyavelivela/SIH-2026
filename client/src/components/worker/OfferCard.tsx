@@ -1,5 +1,6 @@
 'use client';
 
+import { UrgentBadge } from '@/components/booking/UrgentToggle';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { IncomingOffer } from '@/lib/useIncomingOffer';
@@ -44,6 +45,8 @@ interface OfferCardProps {
 
 /** Matches the server's OFFER_TIMEOUT_MS. Visual only; the server is authoritative on the real expiry. */
 const TOTAL_SECONDS = 20;
+/** P1.4 — URGENT_OFFER_TIMEOUT_MS. */
+const URGENT_TOTAL_SECONDS = 12;
 
 export function OfferCard({ offer, accent = 'primary', responding, onAccept, onReject, acceptLabel }: OfferCardProps) {
   const t = useTranslations('offerCard');
@@ -77,10 +80,11 @@ export function OfferCard({ offer, accent = 'primary', responding, onAccept, onR
           </IconTile>
           <span className="min-w-0">
             <EyebrowLabel tone="lime">{t('liveMandate')}</EyebrowLabel>
+            {offer.urgent && <UrgentBadge />}
             <p className="font-body text-label text-fy-bone/80">{t('secondsToDecide', { seconds: secondsLeft })}</p>
           </span>
         </span>
-        <CountdownRing secondsLeft={secondsLeft} totalSeconds={TOTAL_SECONDS} size={44} accent={accent}>
+        <CountdownRing secondsLeft={secondsLeft} totalSeconds={offer.urgent ? URGENT_TOTAL_SECONDS : TOTAL_SECONDS} size={44} accent={accent}>
           <span className="font-body text-label font-bold text-fy-bone">{secondsLeft}</span>
         </CountdownRing>
       </div>

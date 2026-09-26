@@ -134,6 +134,8 @@ export function emitBookingOffer(
     distanceKm: number;
     total: number;
     expiresAt: number;
+    /** P1.4 — an urgent booking: shown with a badge and a shorter countdown. */
+    urgent?: boolean;
     // What the job actually is. All three are real Booking fields that a
     // worker needs to judge an offer in the ~20s they have — a 3.8T
     // machinery haul and a 200kg parcel run are not the same decision —
