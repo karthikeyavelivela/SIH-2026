@@ -78,4 +78,5 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P1.1: confirm with a tax professional that 18% GST applies to the FYRO service fee (taxInvoice.service.ts SERVICE_FEE_RATE, shown inclusive), alongside the existing 5% GTA and 18% labour rates.
 - P1.1: society commissionRatePct / welfareDeductionRatePct are deprecated (no longer deducted from members). District federation caps on them now only matter for bookings priced before the fee; decide whether federations should instead cap society rate floors.
 - P1.2: the welfare parameters (trigger 0.6, 40% pool cap, Rs 1,000 per member per week, 8 active days in 28, 5-member societies, 4 weeks minimum history) are the build brief's defaults, not federation decisions. Confirm or change them (env vars) before the pool pays real money.
+- P1.6: contract visits are billed monthly (statement + consolidated GST invoice), but collecting the monthly payment still uses the per-visit Pay now / cash flow. A single monthly online payment for a contract is not built yet.
 

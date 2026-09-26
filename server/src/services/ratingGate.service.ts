@@ -13,7 +13,11 @@ import { RatingDeferral } from '../models/RatingDeferral';
 export async function findUnratedCompletedBooking(userId: string): Promise<string | null> {
   const completedBookingIds = await Booking.find({
     status: 'completed',
-    $or: [{ customerId: userId }, { assignedDriverIds: userId }, { assignedHamaliIds: userId }],
+    $or: [
+      { customerId: userId, contractId: { $exists: false } },
+      { assignedDriverIds: userId },
+      { assignedHamaliIds: userId },
+    ],
   })
     .select('_id')
     .lean();

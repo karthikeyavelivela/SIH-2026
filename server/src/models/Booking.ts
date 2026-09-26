@@ -153,6 +153,9 @@ export interface IBooking {
    * materials the worker records; the worker's labour is paid at the base
    * rate from the platform's guarantee reserve (guarantee.service.ts).
    */
+  /** P1.6 — a visit generated from an institution's contract. Billed monthly. */
+  contractId?: Types.ObjectId;
+  contractVisitDate?: string;
   isRework?: boolean;
   reworkOfBookingId?: Types.ObjectId;
   guaranteeComplaintId?: Types.ObjectId;
@@ -305,6 +308,8 @@ const bookingSchema = new Schema<IBooking>(
     },
     distanceKm: { type: Number, default: 0 },
     isVerification: { type: Boolean, default: false, index: true },
+    contractId: { type: Schema.Types.ObjectId, ref: 'Contract', index: true },
+    contractVisitDate: { type: String },
     isRework: { type: Boolean, default: false },
     reworkOfBookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
     guaranteeComplaintId: { type: Schema.Types.ObjectId, ref: 'Complaint' },

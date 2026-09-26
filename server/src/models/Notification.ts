@@ -27,7 +27,8 @@ export type NotificationType =
   | 'welfare_payout'
   | 'guarantee_rework'
   | 'training_assigned'
-  | 'dispute_assigned';
+  | 'dispute_assigned'
+  | 'contract_update';
 
 export interface INotification {
   _id: Types.ObjectId;
@@ -65,6 +66,7 @@ const notificationSchema = new Schema<INotification>({
       'guarantee_rework',
       'training_assigned',
       'dispute_assigned',
+      'contract_update',
     ],
     required: true,
   },

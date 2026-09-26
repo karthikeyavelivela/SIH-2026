@@ -140,6 +140,7 @@ function Statutory({
 export function FederationDashboardView() {
   const t = useTranslations('federation');
   const tDisputes = useTranslations('disputeRouting');
+  const tContracts = useTranslations('contracts');
   const { data, state, reload } = usePolling(() => api.get<FederationDashboardResponse>('/api/federation/me'), 30000);
   const { data: needsData } = usePolling(() => api.get<TrainingNeedsResponse>('/api/federation/training-needs'), 60000);
   const [requests, setRequests] = useState<AffiliationRequest[] | null>(null);
@@ -581,6 +582,15 @@ export function FederationDashboardView() {
             className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
           >
             {tDisputes('openQueue')}
+          </Link>
+        )}
+        {/* P1.6 — contracts held by this federation's societies. */}
+        {data && (
+          <Link
+            href={isDistrict ? '/federation-district/contracts' : '/federation-state/contracts'}
+            className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
+          >
+            {tContracts('openList')}
           </Link>
         )}
       </main>

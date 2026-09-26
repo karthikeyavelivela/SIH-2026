@@ -52,6 +52,11 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'ఇన్సూరెన్స్ పేఅవుట్ ట్రిగ్గర్ అయింది', body: `₹${v.amount} ఆటోమేటిక్‌గా చెల్లించబడింది — మీ ఆదాయం కవర్ చేసిన థ్రెషోల్డ్ కంటే తక్కువగా ఉంది.` }),
     hi: (v) => ({ title: 'बीमा भुगतान ट्रिगर हुआ', body: `₹${v.amount} अपने आप भुगतान हुआ — आपकी कमाई कवर की गई सीमा से कम थी।` }),
   },
+  contract_update: {
+    en: (v) => ({ title: 'Contract update', body: `${v.org}: the contract for ${v.category} is now ${v.status}.` }),
+    te: (v) => ({ title: 'ఒప్పందం అప్‌డేట్', body: `${v.org}: ${v.category} ఒప్పందం ఇప్పుడు ${v.status}.` }),
+    hi: (v) => ({ title: 'अनुबंध अपडेट', body: `${v.org}: ${v.category} का अनुबंध अब ${v.status} है।` }),
+  },
   dispute_assigned: {
     en: (v) => ({ title: 'Dispute to resolve', body: `A dispute on booking ${v.ref} is now yours to resolve (${v.reason}). It moves up a level if not resolved by ${v.due}.` }),
     te: (v) => ({ title: 'పరిష్కరించాల్సిన వివాదం', body: `బుకింగ్ ${v.ref} పై వివాదం ఇప్పుడు మీరు పరిష్కరించాలి (${v.reason}). ${v.due} లోగా పరిష్కరించకపోతే అది పై స్థాయికి వెళ్తుంది.` }),

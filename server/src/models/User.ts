@@ -113,6 +113,13 @@ export interface IUser {
   // Customer-only in practice (see REQUIRED_KYC_DOCS_BY_ROLE — GSTIN is
   // already a required KYC document for fleet_owner/warehouse_hub, this is
   // the equivalent opt-in for a customer booking on a company's behalf).
+  /** P1.6 — a household books jobs; an institution also holds contracts with societies. */
+  accountType?: 'household' | 'institution';
+  institutionProfile?: {
+    institutionType: 'school' | 'college' | 'hospital' | 'hostel' | 'office' | 'apartment_association' | 'factory' | 'warehouse' | 'other';
+    orgName: string;
+    gstin?: string;
+  };
   businessProfile?: {
     isBusiness: boolean;
     gstin?: string;
@@ -247,6 +254,15 @@ const userSchema = new Schema<IUser>(
       ifsc: { type: String, trim: true, uppercase: true },
       upiId: { type: String, trim: true },
       updatedAt: { type: Date },
+    },
+    accountType: { type: String, enum: ['household', 'institution'], default: 'household' },
+    institutionProfile: {
+      institutionType: {
+        type: String,
+        enum: ['school', 'college', 'hospital', 'hostel', 'office', 'apartment_association', 'factory', 'warehouse', 'other'],
+      },
+      orgName: { type: String, trim: true, maxlength: 200 },
+      gstin: { type: String, trim: true, uppercase: true },
     },
     businessProfile: {
       isBusiness: { type: Boolean, default: false },
