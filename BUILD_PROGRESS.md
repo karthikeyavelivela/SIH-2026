@@ -19,7 +19,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P1.2 | Demand-indexed welfare pool | DONE | 6800f64 | weekly demand index, district pools, capped pro-rata payouts |
 | P1.3 | Workmanship guarantee loop | DONE | 6338e50 | re-work booking, materials-only pricing, reserve-paid labour, training after 2 claims |
 | P1.4 | Urgent booking | DONE | 22fba0c | urgent flag, 3/6/10 km rings, 12 s countdown, urgent-first feeds |
-| P1.5 | Dispute routing by level with SLA | TODO | | |
+| P1.5 | Dispute routing by level with SLA | DONE | 63719ef | levels + 48h SLA + scoped resolver queues + triage for all |
 | P1.6 | Institutions and bulk contracts | TODO | | |
 | P1.7 | Proxy members (no phone) | TODO | | |
 | P1.8 | Consent and privacy (+ C0 verification data + permission fixes) | TODO | | |
