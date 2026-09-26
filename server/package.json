@@ -15,7 +15,8 @@
     "seed:checkpoints": "ts-node src/scripts/seedCheckpoints.ts",
     "seed:fares": "ts-node src/scripts/seedFareRules.ts",
     "seed:insurance": "ts-node src/scripts/seedInsurancePlans.ts",
-    "seed:wage-floors": "ts-node src/scripts/seedWageFloors.ts"
+    "seed:wage-floors": "ts-node src/scripts/seedWageFloors.ts",
+    "migrate:kyc-private": "ts-node src/scripts/migrateKycPrivate.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

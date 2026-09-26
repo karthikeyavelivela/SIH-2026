@@ -127,6 +127,8 @@ export const downloadManifestPdf = asyncHandler(async (req: Request, res: Respon
   });
 
   res.setHeader('Content-Type', 'application/pdf');
+  // The API's CSP (default-src 'none') would blank the browser's PDF viewer.
+  res.removeHeader('Content-Security-Policy');
   res.setHeader('Content-Disposition', `inline; filename="BOL-${bookingId.slice(-8)}.pdf"`);
   res.status(200).send(pdfBuffer);
 });

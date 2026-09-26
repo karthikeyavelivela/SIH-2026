@@ -52,3 +52,98 @@ export async function uploadImage(
   });
   return { url: result.secure_url, publicId: result.public_id, mock: false };
 }
+
+/* ------------------------------------------------ private documents (KYC) */
+
+export interface PrivateUploadResult {
+  publicId: string;
+  format: string;
+  resourceType: 'image' | 'raw';
+  mock: boolean;
+}
+
+async function sdk() {
+  const cloudinary = await import('cloudinary');
+  cloudinary.v2.config({
+    cloud_name: env.CLOUDINARY_CLOUD_NAME,
+    api_key: env.CLOUDINARY_API_KEY,
+    api_secret: env.CLOUDINARY_API_SECRET,
+  });
+  return cloudinary.v2;
+}
+
+/**
+ * Stores an identity document so that no URL to it is public.
+ *
+ * Cloudinary's default delivery type 'upload' serves an asset to anyone who
+ * has its URL, and a URL is exactly what ends up in logs, screenshots and
+ * browser history. Aadhaar and PAN images must not work that way.
+ * 'authenticated' assets can only be fetched with a signed, expiring URL,
+ * minted per view by signedDocumentUrl below.
+ */
+export async function uploadPrivateDocument(
+  buffer: Buffer,
+  folder: string,
+  resourceType: 'image' | 'raw' = 'image'
+): Promise<PrivateUploadResult> {
+  if (env.MOCK_UPLOADS || !env.CLOUDINARY_CLOUD_NAME) {
+    return { publicId: `${folder}/mock-${Date.now()}`, format: resourceType === 'raw' ? 'pdf' : 'jpg', resourceType, mock: true };
+  }
+  const c = await sdk();
+  const res = await new Promise<{ public_id: string; format?: string }>((resolve, reject) => {
+    const stream = c.uploader.upload_stream({ folder, resource_type: resourceType, type: 'authenticated' }, (err, r) => {
+      if (err || !r) reject(err);
+      else resolve(r as { public_id: string; format?: string });
+    });
+    stream.end(buffer);
+  });
+  return { publicId: res.public_id, format: res.format ?? (resourceType === 'raw' ? '' : 'jpg'), resourceType, mock: false };
+}
+
+/** Re-uploads an existing (public) asset as a private one — the KYC migration. */
+export async function copyToPrivate(
+  sourceUrl: string,
+  folder: string,
+  resourceType: 'image' | 'raw'
+): Promise<PrivateUploadResult> {
+  const c = await sdk();
+  const res = (await c.uploader.upload(sourceUrl, { folder, resource_type: resourceType, type: 'authenticated' })) as {
+    public_id: string;
+    format?: string;
+  };
+  return { publicId: res.public_id, format: res.format ?? '', resourceType, mock: false };
+}
+
+/** Deletes an asset. `type` is the delivery type it was stored under. */
+export async function destroyAsset(publicId: string, resourceType: 'image' | 'raw', type: 'upload' | 'authenticated'): Promise<void> {
+  const c = await sdk();
+  await c.uploader.destroy(publicId, { resource_type: resourceType, type, invalidate: true });
+}
+
+export const SIGNED_URL_TTL_SECONDS = 300;
+
+/**
+ * A URL to a private document that stops working after `ttlSeconds`.
+ * Uses Cloudinary's API download endpoint, which checks both the signature
+ * and the expiry on every request.
+ */
+export async function signedDocumentUrl(
+  doc: { publicId: string; format?: string; resourceType?: 'image' | 'raw' },
+  ttlSeconds = SIGNED_URL_TTL_SECONDS
+): Promise<{ url: string; expiresAt: Date; mock: boolean }> {
+  const expiresAtSec = Math.floor(Date.now() / 1000) + ttlSeconds;
+  if (env.MOCK_UPLOADS || !env.CLOUDINARY_CLOUD_NAME) {
+    return {
+      url: `https://mock.cloudinary.local/signed/${encodeURIComponent(doc.publicId)}?expires_at=${expiresAtSec}`,
+      expiresAt: new Date(expiresAtSec * 1000),
+      mock: true,
+    };
+  }
+  const c = await sdk();
+  const url = c.utils.private_download_url(doc.publicId, doc.format ?? '', {
+    resource_type: doc.resourceType ?? 'image',
+    type: 'authenticated',
+    expires_at: expiresAtSec,
+  });
+  return { url, expiresAt: new Date(expiresAtSec * 1000), mock: false };
+}

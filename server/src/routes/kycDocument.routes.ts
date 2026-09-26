@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import { z } from 'zod';
+import { validateZod, objectId } from '../middleware/zod';
+import { requestsLimiter } from '../middleware/rateLimit';
 import { body, param } from 'express-validator';
 import { verifyJwt } from '../middleware/auth';
 import { validate } from '../middleware/validate';
@@ -16,6 +19,12 @@ export const kycDocumentRouter = Router();
 kycDocumentRouter.use(verifyJwt);
 
 kycDocumentRouter.get('/', kycDocumentController.listMyKycDocuments);
+kycDocumentRouter.get(
+  '/:id/url',
+  requestsLimiter,
+  validateZod({ params: z.object({ id: objectId }) }),
+  kycDocumentController.getKycDocumentUrl
+);
 
 kycDocumentRouter.post(
   '/',

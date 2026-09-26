@@ -30,6 +30,9 @@ services:
         sync: false
       - key: AUTO_CONFIRM_HOURS
         value: "24"
+      # Render sits behind Cloudflare: key per-IP rate limits on CF-Connecting-IP.
+      - key: TRUST_CLOUDFLARE
+        value: "true"
       - key: CLIENT_ORIGIN
         sync: false
       - key: MONGODB_URI

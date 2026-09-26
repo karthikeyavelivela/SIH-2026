@@ -529,6 +529,8 @@ export const downloadTaxInvoice = asyncHandler(async (req: Request, res: Respons
 
   const pdf = await generateTaxInvoicePdf(booking, customer, payment);
   res.setHeader('Content-Type', 'application/pdf');
+  // The API's CSP (default-src 'none') would blank the browser's PDF viewer.
+  res.removeHeader('Content-Security-Policy');
   res.setHeader('Content-Disposition', `attachment; filename="tax-invoice-${booking._id.toString().slice(-8)}.pdf"`);
   res.status(200).send(pdf);
 });

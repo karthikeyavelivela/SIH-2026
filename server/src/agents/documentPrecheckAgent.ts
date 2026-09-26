@@ -1,4 +1,5 @@
 import { User } from '../models/User';
+import { signedDocumentUrl } from '../services/cloudinary.service';
 import { ApiError } from '../utils/ApiError';
 import { callAgent } from './client';
 import { AgentResult } from './types';
@@ -79,7 +80,13 @@ export async function runDocumentPrecheckAgent(userId: string, documentType: Kyc
     );
   }
 
-  const image = await fetchImageAsBase64(doc.url);
+  // Private documents are fetched through a short-lived signed URL; the
+  // stored marker is not a fetchable address.
+  const fetchUrl =
+    doc.delivery === 'authenticated' && doc.publicId
+      ? (await signedDocumentUrl({ publicId: doc.publicId, format: doc.format, resourceType: doc.resourceType }, 60)).url
+      : doc.url;
+  const image = await fetchImageAsBase64(fetchUrl);
   context.hasFetchableImage = !!image;
 
   const systemPrompt = `You are FYRO's KYC document pre-check agent for an Indian logistics marketplace. You PRE-SCREEN a document image before a human reviewer decides — you NEVER approve or reject, only flag obvious problems: wrong document type visible, image unreadable/blurry, document clearly cut off or cropped, or a visible name that doesn't match the account holder.

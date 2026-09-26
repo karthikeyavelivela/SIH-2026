@@ -9,10 +9,10 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 
 | ID | Task | Status | Commit | Notes |
 |---|---|---|---|---|
-| SETUP | Branch, progress file, audit committed | IN PROGRESS | | |
-| P0.1 | Split mock flags; real Razorpay test mode; verify endpoint; webhook hardening; COD reconciliation | TODO | | |
-| P0.2 | Customer confirms completion (awaiting_confirmation, code, auto-confirm) | TODO | | |
-| P0.3 | Wage floor dates, staleness, per-task/unit conversion, source display, admin screen | TODO | | |
+| SETUP | Branch, progress file, audit committed | DONE | 5b757b2 |  |
+| P0.1 | Split mock flags; real Razorpay test mode; verify endpoint; webhook hardening; COD reconciliation | DONE | 038be8a | Checkout+verify, webhook hardening, boot guard, COD reconciliation |
+| P0.2 | Customer confirms completion (awaiting_confirmation, code, auto-confirm) | DONE | 1384719 | code + confirm/report + auto-confirm; single finalize path |
+| P0.3 | Wage floor dates, staleness, per-task/unit conversion, source display, admin screen | DONE | 18dae72 | dates+stale, per-task/unit conversion, source citations, admin screen |
 | P0.4 | Security: private KYC + signed URLs + migration, masked Aadhaar, OTP devCode, CF IP keying, headers | TODO | | |
 | PHASE-0-TESTS | Full server + client suites | TODO | | |
 | P1.1 | Fee split: rate + 10% (5/3/1/1), settlement, ledger, invoice | TODO | | |
@@ -43,12 +43,25 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 
 | Name | Service | Default | Purpose |
 |---|---|---|---|
+| MOCK_PAYMENTS | Render API | falls back to MOCK_EXTERNAL_SERVICES | true = fake orders + /mock-capture mounted; false = real Razorpay (test mode) |
+| MOCK_UPLOADS | Render API | falls back to MOCK_EXTERNAL_SERVICES | true = fake Cloudinary URLs |
+| MOCK_OTP | Render API | falls back to MOCK_EXTERNAL_SERVICES | true = no SMS sent |
+| RAZORPAY_KEY_ID | Render API | unset | Razorpay test key id (public; also returned to Checkout) |
+| RAZORPAY_KEY_SECRET | Render API | unset | Razorpay test key secret (verify HMAC) |
+| RAZORPAY_WEBHOOK_SECRET | Render API | unset | Webhook HMAC secret; required at boot when MOCK_PAYMENTS=false in production |
+| AUTO_CONFIRM_HOURS | Render API | 24 | Hours before an unconfirmed finished job is confirmed automatically |
+| TRUST_CLOUDFLARE | Render API | false | Key per-IP rate limits on CF-Connecting-IP (true on Render, which is behind Cloudflare) |
 
 ## Migrations needed
 
 | Order | Script | Dry run | Apply |
 |---|---|---|---|
+| 1 | server/src/scripts/migrateKycPrivate.ts | `npm run migrate:kyc-private --workspace server` | `npm run migrate:kyc-private --workspace server -- --apply` |
 
 ## HUMAN INPUT NEEDED
 
 (filled in as tasks surface them)
+- Razorpay TEST-mode key id, key secret and webhook secret (Razorpay dashboard, Test mode). Webhook URL: https://<render-api>/api/payments/webhook with events payment.captured, payment.failed, order.paid.
+- Wage floor (P0.3): the seeded AP figures come from a secondary compilation and expire 2026-09-30. To replace them, enter in /admin/wage-floors, per zone and skill band: monthly rate (basic + VDA), scheduled employment, notification number, notification date, effective from/until, sourceType=gazette, and the gazette URL. Also enter the notifications that actually cover domestic work and agricultural labour (the seeded one is Shops and Commercial Establishments).
+- P0.4: after deploy, run the KYC migration dry run on Render (Shell tab), review the report, then run it with --apply. Until then, older KYC documents stay publicly reachable by URL (no longer listed anywhere in the API).
+

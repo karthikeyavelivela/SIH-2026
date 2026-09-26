@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { clientIp } from '../middleware/clientIp';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -70,13 +71,13 @@ export const signupCustomer = asyncHandler(async (req: Request, res: Response) =
     // `region` seeds User.region, which the matching engine reads and which
     // the customer can change later from their profile. Before this it was
     // asked for at signup on some designs but had nowhere to go.
-    user = await User.create({ name, phone, email, region, passwordHash, role: 'customer', signupIp: req.ip });
+    user = await User.create({ name, phone, email, region, passwordHash, role: 'customer', signupIp: clientIp(req) });
   } catch (err) {
     // The findOne check above narrows the race window but doesn't close it —
     // two concurrent signups for the same phone can both pass it.
     rethrowAsConflict(err, 'Phone number');
   }
-  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+  detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user) });
 });
@@ -89,7 +90,7 @@ export const signupDriver = asyncHandler(async (req: Request, res: Response) => 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, passwordHash, role: 'driver', signupIp: req.ip });
+    user = await User.create({ name, phone, passwordHash, role: 'driver', signupIp: clientIp(req) });
   } catch (err) {
     rethrowAsConflict(err, 'Phone number');
   }
@@ -109,7 +110,7 @@ export const signupDriver = asyncHandler(async (req: Request, res: Response) => 
     await User.findByIdAndDelete(user._id);
     rethrowAsConflict(err, 'Vehicle registration number');
   }
-  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+  detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user) });
 });
@@ -138,12 +139,12 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
 
     let user;
     try {
-      user = await User.create({ name, phone, passwordHash, role: 'hamali_solo', signupIp: req.ip });
+      user = await User.create({ name, phone, passwordHash, role: 'hamali_solo', signupIp: clientIp(req) });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
     await HamaliProfile.create({ userId: user._id, type: 'solo', workerKind, skills });
-    detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+    detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res.status(201).json({ user: publicUser(user) });
     return;
@@ -152,7 +153,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
   if (joinType === 'leader') {
     let user;
     try {
-      user = await User.create({ name, phone, passwordHash, role: 'mutha_leader', signupIp: req.ip });
+      user = await User.create({ name, phone, passwordHash, role: 'mutha_leader', signupIp: clientIp(req) });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
@@ -163,7 +164,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
       memberIds: [],
       inviteCode: code,
     });
-    detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+    detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res
       .status(201)
@@ -178,7 +179,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
 
     let user;
     try {
-      user = await User.create({ name, phone, passwordHash, role: 'mutha_member', signupIp: req.ip });
+      user = await User.create({ name, phone, passwordHash, role: 'mutha_member', signupIp: clientIp(req) });
     } catch (err) {
       rethrowAsConflict(err, 'Phone number');
     }
@@ -186,7 +187,7 @@ export const signupHamali = asyncHandler(async (req: Request, res: Response) => 
     mutha.memberIds.push(user._id);
     await mutha.save();
 
-    detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+    detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
     setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
     res.status(201).json({ user: publicUser(user) });
     return;
@@ -203,12 +204,12 @@ export const signupFleetOwner = asyncHandler(async (req: Request, res: Response)
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, passwordHash, role: 'fleet_owner', signupIp: req.ip });
+    user = await User.create({ name, phone, passwordHash, role: 'fleet_owner', signupIp: clientIp(req) });
   } catch (err) {
     rethrowAsConflict(err, 'Phone number');
   }
   const fleet = await Fleet.create({ ownerId: user._id, name: fleetName, vehicleIds: [], driverIds: [] });
-  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+  detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user), fleet: { id: fleet._id, name: fleet.name } });
 });
@@ -221,12 +222,12 @@ export const signupWarehouseHub = asyncHandler(async (req: Request, res: Respons
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
   let user;
   try {
-    user = await User.create({ name, phone, passwordHash, role: 'warehouse_hub', signupIp: req.ip });
+    user = await User.create({ name, phone, passwordHash, role: 'warehouse_hub', signupIp: clientIp(req) });
   } catch (err) {
     rethrowAsConflict(err, 'Phone number');
   }
   const hub = await WarehouseHub.create({ ownerId: user._id, name: hubName, address: address ?? '' });
-  detectRapidAccountCreation(user._id, req.ip).catch(() => {});
+  detectRapidAccountCreation(user._id, clientIp(req)).catch(() => {});
   setAuthCookies(res, user._id.toString(), user.role, user.tokenVersion, user.preferredLocale as AppLocale);
   res.status(201).json({ user: publicUser(user), hub: { id: hub._id, name: hub.name } });
 });

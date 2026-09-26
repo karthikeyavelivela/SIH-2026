@@ -2820,7 +2820,10 @@
       "aadhaar": "Aadhaar",
       "pan": "PAN",
       "gstin": "GSTIN"
-    }
+    },
+    "viewDoc": "View",
+    "openingDoc": "Opening…",
+    "viewDocFailed": "Could not open the document. Try again."
   },
   "adminLedger": {
     "eyebrow": "Finance",
@@ -4622,5 +4625,10 @@
       "scheduled": "Starts later",
       "retired": "Retired"
     }
+  },
+  "kycDocs": {
+    "maskedAadhaarTitle": "Upload a masked Aadhaar",
+    "maskedAadhaarBody": "Download it from myaadhaar.uidai.gov.in and choose \"Masked Aadhaar\" — only the last 4 digits show. Or cover the first 8 digits before taking the photo. We never need your full Aadhaar number.",
+    "privateNote": "Your documents are stored privately. Only you and a KYC reviewer can open them, and every view is logged."
   }
 }

@@ -94,6 +94,8 @@ export const exportReport = asyncHandler(async (req: Request, res: Response) => 
   if (format === 'pdf') {
     const pdf = await generateReportPdf(reportTitle, header, rows);
     res.setHeader('Content-Type', 'application/pdf');
+  // The API's CSP (default-src 'none') would blank the browser's PDF viewer.
+  res.removeHeader('Content-Security-Policy');
     res.setHeader('Content-Disposition', `attachment; filename="report-${source}-${Date.now()}.pdf"`);
     res.status(200).send(pdf);
     return;

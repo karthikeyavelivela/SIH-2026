@@ -53,4 +53,52 @@ const API_ORIGIN = process.env.API_PROXY_TARGET || 'https://sih-2026-f63s.onrend
 
 nextConfig.rewrites = async () => [{ source: '/api/:path*', destination: `${API_ORIGIN}/api/:path*` }];
 
+/*
+ * Security headers on every page.
+ *
+ * The CSP lists exactly the origins the app loads from: Cloudinary (images,
+ * the hero video), OpenStreetMap tiles, Google Fonts (Material Symbols),
+ * Razorpay Checkout (its script, frames and API), and the API origin for
+ * the realtime socket. 'unsafe-inline' stays on script-src because Next.js
+ * 14 inlines its bootstrap scripts without a nonce; 'unsafe-eval' only in
+ * development, where React Refresh needs it.
+ */
+const isDev = process.env.NODE_ENV !== 'production';
+const SOCKET_ORIGIN = process.env.NEXT_PUBLIC_SOCKET_URL || API_ORIGIN;
+// Preview deployments call the API directly rather than through the rewrite.
+const API_BASE_ORIGIN = process.env.NEXT_PUBLIC_API_BASE || API_ORIGIN;
+const wsOrigin = SOCKET_ORIGIN.replace(/^http/, 'ws');
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://checkout.razorpay.com`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://*.tile.openstreetmap.org https://*.razorpay.com",
+  "media-src 'self' https://res.cloudinary.com",
+  `connect-src 'self' ${API_BASE_ORIGIN} ${SOCKET_ORIGIN} ${wsOrigin} https://*.razorpay.com${isDev ? ' ws://localhost:* http://localhost:*' : ''}`,
+  'frame-src https://api.razorpay.com https://checkout.razorpay.com',
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+].join('; ');
+
+nextConfig.headers = async () => [
+  {
+    source: '/:path*',
+    headers: [
+      { key: 'Content-Security-Policy', value: csp },
+      { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      // Location for the area chip and booking pickup, camera for Scan and
+      // Diagnose and proof photos, microphone for voice input. Nothing else.
+      { key: 'Permissions-Policy', value: 'geolocation=(self), camera=(self), microphone=(self), payment=(self "https://checkout.razorpay.com"), usb=(), serial=()' },
+    ],
+  },
+];
+
 module.exports = withNextIntl(nextConfig);

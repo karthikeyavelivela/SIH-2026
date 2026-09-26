@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
+import { writeAuditLog } from '../services/audit.service';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { User } from '../models/User';
-import { uploadImage } from '../services/cloudinary.service';
+import { uploadPrivateDocument, signedDocumentUrl } from '../services/cloudinary.service';
+import { publicKycDoc } from '../utils/publicUser';
 import type { KycDocumentType } from '@fyro/shared';
 
 // AUDIT_REPORT.md Section D item 1 / Phase 1.2: DocumentUploadCard.tsx
@@ -23,6 +25,12 @@ import type { KycDocumentType } from '@fyro/shared';
 // controller.ts — all the same shape). Flagged for a product decision
 // rather than decided unilaterally here, per the build prompt's own rule
 // ("if you think something should be cut or deferred, ask").
+/** Subdocuments are hydrated at runtime but typed as the plain interface. */
+function asPlain(doc: unknown): Record<string, unknown> {
+  const d = doc as { toObject?: () => Record<string, unknown> };
+  return typeof d.toObject === 'function' ? d.toObject() : { ...(doc as Record<string, unknown>) };
+}
+
 const MAX_KYC_DOCUMENT_BYTES = 8 * 1024 * 1024; // 8MB — generous for a scanned PDF, cheap ceiling against abuse
 
 const KYC_DOCUMENT_TYPES: KycDocumentType[] = [
@@ -41,7 +49,11 @@ const KYC_DOCUMENT_TYPES: KycDocumentType[] = [
 export const listMyKycDocuments = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findById(req.user!.id).select('kycDocs kycStatus kycRejectionReason');
   if (!user) throw new ApiError(404, 'User not found');
-  res.status(200).json({ kycStatus: user.kycStatus, kycRejectionReason: user.kycRejectionReason, documents: user.kycDocs });
+  res.status(200).json({
+    kycStatus: user.kycStatus,
+    kycRejectionReason: user.kycRejectionReason,
+    documents: user.kycDocs.map((d) => publicKycDoc(asPlain(d))),
+  });
 });
 
 /**
@@ -70,11 +82,21 @@ export const uploadKycDocument = asyncHandler(async (req: Request, res: Response
   if (buffer.byteLength > MAX_KYC_DOCUMENT_BYTES) throw new ApiError(400, 'File too large (max 8MB)');
 
   const resourceType = mime === 'application/pdf' ? 'raw' : 'image';
-  const { url } = await uploadImage(buffer, `kyc/${user._id}/${type}`, resourceType);
+  const stored = await uploadPrivateDocument(buffer, `kyc/${user._id}/${type}`, resourceType);
+  // A mock upload stores nothing. Recording it as a submitted identity
+  // document would put a document that does not exist in front of a
+  // reviewer, so outside the test suite it is refused.
+  if (stored.mock && process.env.NODE_ENV !== 'test') {
+    throw new ApiError(503, 'Document storage is not configured, so documents cannot be accepted right now. Please try again later.');
+  }
 
   const newDoc = {
     type,
-    url,
+    url: `cloudinary-private://${stored.publicId}`,
+    publicId: stored.publicId,
+    format: stored.format,
+    resourceType: stored.resourceType,
+    delivery: 'authenticated' as const,
     status: 'under_review' as const,
     rejectionReason: undefined,
     expiryDate: undefined,
@@ -107,7 +129,8 @@ export const uploadKycDocument = asyncHandler(async (req: Request, res: Response
 
   await user.save();
 
-  res.status(200).json({ document: user.kycDocs.find((d) => d.type === type) });
+  const saved = user.kycDocs.find((d) => d.type === type);
+  res.status(200).json({ document: saved ? publicKycDoc(asPlain(saved)) : null });
 });
 
 /**
@@ -132,3 +155,51 @@ export const deleteKycDocument = asyncHandler(async (req: Request, res: Response
 });
 
 export { KYC_DOCUMENT_TYPES };
+
+/**
+ * GET /api/kyc/documents/:id/url — a link to one document that expires in
+ * five minutes.
+ *
+ * Only the document's owner, an admin, or a manager holding verify_kyc may
+ * have one, and every link minted for someone other than the owner is
+ * audited: who looked at whose identity document, and when, is exactly the
+ * record a privacy complaint turns on.
+ */
+export const getKycDocumentUrl = asyncHandler(async (req: Request, res: Response) => {
+  const docId = req.params.id;
+  const owner = await User.findOne({ 'kycDocs._id': docId }).select('kycDocs');
+  const doc = owner?.kycDocs.find((d) => d._id.toString() === docId);
+  if (!owner || !doc) throw new ApiError(404, 'Document not found');
+
+  const isOwner = owner._id.toString() === req.user!.id;
+  let isReviewer = req.user!.role === 'admin';
+  if (!isOwner && !isReviewer && req.user!.role === 'manager') {
+    const me = await User.findById(req.user!.id).select('permissions').lean();
+    isReviewer = !!me?.permissions?.includes('verify_kyc');
+  }
+  // 404 rather than 403: whether a document id exists is itself not the
+  // caller's business.
+  if (!isOwner && !isReviewer) throw new ApiError(404, 'Document not found');
+
+  let link: { url: string; expiresAt: Date | null; legacy: boolean };
+  if (doc.delivery === 'authenticated' && doc.publicId) {
+    const signed = await signedDocumentUrl({ publicId: doc.publicId, format: doc.format, resourceType: doc.resourceType });
+    link = { url: signed.url, expiresAt: signed.expiresAt, legacy: false };
+  } else {
+    // Stored before private storage existed; still public until
+    // scripts/migrateKycPrivate.ts --apply moves it.
+    link = { url: doc.url, expiresAt: null, legacy: true };
+  }
+
+  if (!isOwner) {
+    await writeAuditLog({
+      actorId: req.user!.id,
+      actorRole: req.user!.role,
+      action: 'kyc_document_viewed',
+      targetType: 'User',
+      targetId: owner._id.toString(),
+      details: { documentId: docId, documentType: doc.type, legacy: link.legacy },
+    });
+  }
+  res.status(200).json(link);
+});

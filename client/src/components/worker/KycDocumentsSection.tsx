@@ -49,6 +49,7 @@ interface KycDocumentsSectionProps {
 // is written to be reused there rather than thrown away.
 export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps) {
   const t = useTranslations('agents.documentPrecheck');
+  const tk = useTranslations('kycDocs');
   const [docs, setDocs] = useState<KycDocument[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadingType, setUploadingType] = useState<KycDocumentType | null>(null);
@@ -99,7 +100,8 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
 
   return (
     <div className="mb-6">
-      <h2 className="font-heading text-lg font-bold mb-3">Documents</h2>
+      <h2 className="font-heading text-lg font-bold mb-1">Documents</h2>
+      <p className="text-xs text-fy-muted mb-3">{tk('privateNote')}</p>
       <div className="space-y-2.5">
         {requiredTypes.map((type) => {
           const doc = docs.find((d) => d.type === type);
@@ -112,6 +114,12 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
                 rejectionReason={doc?.rejectionReason}
                 onUpload={(file) => handleUpload(type, file)}
               />
+              {type === 'aadhaar' && (!doc || doc.status !== 'verified') && (
+                <div className="mt-1.5 ml-1 rounded-control bg-fy-field px-3 py-2">
+                  <p className="text-xs font-semibold text-fy-brown">{tk('maskedAadhaarTitle')}</p>
+                  <p className="text-xs text-fy-muted">{tk('maskedAadhaarBody')}</p>
+                </div>
+              )}
               {doc && doc.status !== 'verified' && (
                 <div className="mt-1.5 ml-1">
                   {precheckResult ? (

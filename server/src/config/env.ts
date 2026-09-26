@@ -86,6 +86,12 @@ const envSchema = z.object({
   // P0.2 — hours a job waits in awaiting_confirmation before it is
   // confirmed automatically (unless the customer reported a problem).
   AUTO_CONFIRM_HOURS: z.coerce.number().positive().max(24 * 30).default(24),
+  // P0.4 — key IP rate limits on Cloudflare's CF-Connecting-IP. Only for a
+  // deployment actually behind Cloudflare (Render is). See middleware/clientIp.ts.
+  TRUST_CLOUDFLARE: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

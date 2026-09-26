@@ -31,7 +31,14 @@ export async function generateOtp(): Promise<GeneratedOtp> {
   const code = crypto.randomInt(100000, 999999).toString();
   const hash = await bcrypt.hash(code, BCRYPT_COST);
   const expiresAt = new Date(Date.now() + OTP_TTL_MS);
-  return { code, hash, expiresAt, devCode: env.MOCK_OTP ? code : undefined };
+  return {
+    code,
+    hash,
+    expiresAt,
+    // Never in production, whatever the mock flag says: a code returned to
+    // the caller defeats the point of sending it to a phone.
+    devCode: env.MOCK_OTP && env.NODE_ENV !== 'production' ? code : undefined,
+  };
 }
 
 /**

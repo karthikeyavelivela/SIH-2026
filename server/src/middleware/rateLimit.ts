@@ -1,3 +1,4 @@
+import { clientIp } from './clientIp';
 import rateLimit from 'express-rate-limit';
 
 // Uses the default in-memory store — fine for Phase 1's single-instance
@@ -15,7 +16,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many attempts, try again in a minute.' },
-  keyGenerator: (req) => `${req.ip}:${req.path}`,
+  keyGenerator: (req) => `${clientIp(req)}:${req.path}`,
 });
 
 // Password guessing against ONE account, from anywhere.
@@ -34,7 +35,7 @@ export const loginAccountLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true,
   message: { error: 'Too many attempts for this account. Try again in 15 minutes.' },
-  keyGenerator: (req) => `login:${String(req.body?.phone ?? '').replace(/\D/g, '').slice(-10) || req.ip}`,
+  keyGenerator: (req) => `login:${String(req.body?.phone ?? '').replace(/\D/g, '').slice(-10) || clientIp(req)}`,
 });
 
 // Geocode proxy — auth-gated (verifyJwt runs before this middleware in
@@ -49,7 +50,7 @@ export const geocodeLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many geocode requests, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
 });
 
 // Booking creation — required by the spec's "rate limit ... booking
@@ -65,7 +66,7 @@ export const bookingCreateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many booking attempts, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
 });
 
 // Quote (fare preview) — no side effects, but it's designed to be called
@@ -78,7 +79,7 @@ export const bookingQuoteLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many fare-estimate requests, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
 });
 
 // Job requests feed/accept/reject/start/complete — polled by driver/hamali/
@@ -92,7 +93,7 @@ export const requestsLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
 });
 
 // Phase 4 AI agents — "rate limit and cache agent calls; do not invoke on
@@ -109,7 +110,7 @@ export const agentLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many AI assistant requests, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
 });
 
 // Phase 0 remediation (V2's carried-forward, unchecked security item) — a
@@ -133,7 +134,7 @@ export const globalMutationLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
   // The Jest suite makes far more than 100 unauthenticated mutating
   // requests per file well inside a minute by design (many small,
   // sequential setup calls sharing one req.ip since there's no real
@@ -153,5 +154,5 @@ export const paymentLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many payment attempts, try again in a minute.' },
-  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
 });

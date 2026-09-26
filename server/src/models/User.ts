@@ -13,7 +13,19 @@ import type { Role, AccountStatus, KycStatus, KycDocumentType, KycDocumentStatus
 export interface IKycDocument {
   _id: Types.ObjectId;
   type: KycDocumentType;
+  /**
+   * Legacy: a PUBLIC Cloudinary URL, from before documents were stored
+   * privately. For private documents this holds a non-fetchable marker
+   * (cloudinary-private://<publicId>). Never sent to a client — see
+   * utils/publicUser.ts — documents are viewed through a short-lived signed
+   * URL from GET /api/kyc/documents/:id/url.
+   */
   url: string;
+  /** Set for privately stored ('authenticated') documents. */
+  publicId?: string;
+  format?: string;
+  resourceType?: 'image' | 'raw';
+  delivery?: 'upload' | 'authenticated';
   status: KycDocumentStatus;
   rejectionReason?: string;
   expiryDate?: Date;
@@ -177,6 +189,10 @@ const userSchema = new Schema<IUser>(
         {
           type: { type: String, required: true },
           url: { type: String, required: true },
+          publicId: { type: String },
+          format: { type: String },
+          resourceType: { type: String, enum: ['image', 'raw'] },
+          delivery: { type: String, enum: ['upload', 'authenticated'], default: 'upload' },
           status: { type: String, enum: ['under_review', 'verified', 'rejected'], default: 'under_review' },
           rejectionReason: { type: String, trim: true },
           expiryDate: { type: Date },

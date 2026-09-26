@@ -87,7 +87,14 @@ export const app = express();
 // was confirmed working in production (RateLimit-Remaining 9 -> 3).
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 1));
 
-app.use(helmet());
+// The API serves JSON and PDFs only, so its CSP can be the strictest
+// possible: nothing may load, nothing may frame it. HSTS for a year.
+app.use(
+  helmet({
+    contentSecurityPolicy: { directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"], baseUri: ["'none'"] } },
+    strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true },
+  })
+);
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 // Captures the raw request body alongside Express's parsed JSON — the
 // Razorpay webhook handler needs the exact raw bytes to verify the HMAC
