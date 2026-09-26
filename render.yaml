@@ -11,6 +11,23 @@ services:
         value: production
       - key: MOCK_EXTERNAL_SERVICES
         value: "true"
+      # Per-integration switches; each falls back to MOCK_EXTERNAL_SERVICES
+      # when unset. For the live demo: payments in Razorpay TEST mode
+      # (MOCK_PAYMENTS=false + test keys), real uploads, mocked OTP until an
+      # SMS gateway is live. With MOCK_PAYMENTS=false the server refuses to
+      # boot unless all three RAZORPAY_* values below are set.
+      - key: MOCK_PAYMENTS
+        sync: false
+      - key: MOCK_UPLOADS
+        sync: false
+      - key: MOCK_OTP
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
       - key: CLIENT_ORIGIN
         sync: false
       - key: MONGODB_URI

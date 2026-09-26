@@ -16,7 +16,7 @@ export interface UploadResult {
 }
 
 /**
- * Uploads a file buffer to Cloudinary. Behind MOCK_EXTERNAL_SERVICES=true
+ * Uploads a file buffer to Cloudinary. Behind MOCK_UPLOADS=true
  * (the Phase 1 default) this returns a deterministic fake URL instead of
  * calling the real API, so the rest of the codebase can be written against
  * the real integration shape before Cloudinary credentials exist.
@@ -31,7 +31,7 @@ export async function uploadImage(
   folder: string,
   resourceType: 'image' | 'raw' = 'image'
 ): Promise<UploadResult> {
-  if (env.MOCK_EXTERNAL_SERVICES || !env.CLOUDINARY_CLOUD_NAME) {
+  if (env.MOCK_UPLOADS || !env.CLOUDINARY_CLOUD_NAME) {
     const fakeId = `${folder}-${Date.now()}`;
     const ext = resourceType === 'raw' ? 'pdf' : 'jpg';
     return { url: `https://mock.cloudinary.local/${fakeId}.${ext}`, publicId: fakeId, mock: true };

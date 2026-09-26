@@ -4,41 +4,24 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
 import { Booking } from '../models/Booking';
 import { Payment } from '../models/Payment';
-import { createOrder } from '../services/payment.service';
-import { writeLedgerEntry } from '../services/ledger.service';
+import { LedgerEntry } from '../models/LedgerEntry';
+import {
+  createOrder,
+  capturePayment,
+  failPayment,
+  verifyCheckoutSignature,
+  verifyWebhookSignature,
+} from '../services/payment.service';
 import { env } from '../config/env';
 
 /**
- * Posts the 'revenue' half of the money chain — ledger.service.ts's own
- * doc comment flagged this as "not yet wired into real booking/payment/
- * payout flows" (a follow-up that was never actually done); the payout
- * side (payout.controller.ts) and the parametric-insurance side
- * (parametricInsurance.service.ts) were both real, but a customer's own
- * payment never posted anything, so GET /api/admin/ledger's revenue total
- * was silently always zero regardless of how much money actually moved.
- * Called only from a genuine pending/failed -> success transition (never
- * on an already-success payment) so a redelivered webhook or a stale
- * mock-capture retry can never double-post the same revenue twice.
- */
-async function postRevenueLedgerEntry(payment: { _id: unknown; bookingId: unknown; amount: number }): Promise<void> {
-  const booking = await Booking.findById(payment.bookingId).select('region').lean();
-  await writeLedgerEntry({
-    type: 'revenue',
-    entityType: 'Payment',
-    entityId: String(payment._id),
-    amount: payment.amount,
-    description: `Payment received for booking ${String(payment.bookingId)}`,
-    status: 'posted',
-    region: booking?.region,
-  });
-}
-
-/**
- * POST /api/payments/order — customer creates (or re-fetches, idempotent)
- * a payment order for their own completed booking. Amount is ALWAYS the
- * server-stored fareBreakdown.total from the booking, never a
- * client-supplied figure — same "money only ever computed/read
- * server-side" rule the fare engine already enforces.
+ * POST /api/payments/order/:bookingId — customer creates (or re-fetches,
+ * idempotent) a payment order for their own completed booking. Amount is
+ * ALWAYS the server-stored fareBreakdown.total, never a client figure.
+ *
+ * The response carries what the browser needs to open Razorpay Checkout:
+ * the order and the PUBLIC key id (never the secret), plus `mock` so the
+ * client knows whether to open Checkout at all.
  */
 export const createPaymentOrder = asyncHandler(async (req: Request, res: Response) => {
   const booking = await Booking.findOne({ _id: req.params.bookingId, customerId: req.user!.id });
@@ -51,8 +34,11 @@ export const createPaymentOrder = asyncHandler(async (req: Request, res: Respons
     createdAt: -1,
   });
   if (existing?.status === 'success') {
-    res.status(200).json({ payment: existing });
+    res.status(200).json({ payment: existing, mock: env.MOCK_PAYMENTS });
     return;
+  }
+  if (existing?.method === 'cod') {
+    throw new ApiError(409, 'Cash on delivery was chosen for this booking');
   }
 
   const order = await createOrder(booking._id.toString(), booking.fareBreakdown.total);
@@ -70,16 +56,44 @@ export const createPaymentOrder = asyncHandler(async (req: Request, res: Respons
     });
   }
 
-  res.status(201).json({ payment, order });
+  res.status(201).json({
+    payment,
+    order,
+    mock: env.MOCK_PAYMENTS,
+    keyId: env.MOCK_PAYMENTS ? null : env.RAZORPAY_KEY_ID,
+  });
 });
 
 /**
- * POST /api/payments/:bookingId/cod — customer chooses to pay cash on
- * delivery instead of online. Creates a Payment the same way
- * createPaymentOrder does (server-computed amount, idempotent on an
- * existing pending/success row), just with no Razorpay order — status
- * stays 'pending' until the worker who actually receives the cash
- * confirms it via confirmCodPayment below.
+ * POST /api/payments/:bookingId/verify — the browser's half of a Checkout
+ * payment: Razorpay hands the page order_id, payment_id and a signature;
+ * the server checks HMAC_SHA256(order_id|payment_id, KEY_SECRET) and only
+ * then records the capture. The webhook may arrive first or second — both
+ * go through capturePayment, which is idempotent.
+ */
+export const verifyPayment = asyncHandler(async (req: Request, res: Response) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body as {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  };
+  const booking = await Booking.findOne({ _id: req.params.bookingId, customerId: req.user!.id }).select('_id').lean();
+  if (!booking) throw new ApiError(404, 'Booking not found');
+
+  const payment = await Payment.findOne({ bookingId: booking._id, razorpayOrderId: razorpay_order_id });
+  if (!payment) throw new ApiError(400, 'This order does not belong to this booking');
+
+  if (!verifyCheckoutSignature(razorpay_order_id, razorpay_payment_id, razorpay_signature)) {
+    throw new ApiError(400, 'Payment signature did not verify');
+  }
+
+  const { payment: captured } = await capturePayment(payment._id.toString(), razorpay_payment_id);
+  res.status(200).json({ payment: captured });
+});
+
+/**
+ * POST /api/payments/:bookingId/cod — customer chooses cash on delivery.
+ * Status stays 'pending' until the worker who holds the cash confirms it.
  */
 export const createCodPayment = asyncHandler(async (req: Request, res: Response) => {
   const booking = await Booking.findOne({ _id: req.params.bookingId, customerId: req.user!.id });
@@ -107,12 +121,8 @@ export const createCodPayment = asyncHandler(async (req: Request, res: Response)
 });
 
 /**
- * POST /api/payments/:bookingId/cod/confirm — the assigned driver or hamali
- * who actually collected the cash confirms receipt. Deliberately NOT
- * callable by the customer (see Payment.codConfirmedBy's own doc comment)
- * — only whoever physically held the cash can honestly attest it changed
- * hands. IDOR-scoped to workers actually assigned to this booking, same
- * pattern as checkpoint.controller.ts's assertDriverOnBooking.
+ * POST /api/payments/:bookingId/cod/confirm — the assigned worker who
+ * collected the cash confirms receipt. Never callable by the customer.
  */
 export const confirmCodPayment = asyncHandler(async (req: Request, res: Response) => {
   const booking = await Booking.findById(req.params.bookingId).select('assignedDriverIds assignedHamaliIds status');
@@ -126,24 +136,16 @@ export const confirmCodPayment = asyncHandler(async (req: Request, res: Response
 
   const payment = await Payment.findOne({ bookingId: booking._id, method: 'cod' }).sort({ createdAt: -1 });
   if (!payment) throw new ApiError(404, 'No cash-on-delivery payment found for this booking');
-  if (payment.status === 'success') {
-    res.status(200).json({ payment });
-    return;
-  }
 
-  payment.status = 'success';
-  payment.codConfirmedBy = new Types.ObjectId(req.user!.id);
-  await payment.save();
-  await postRevenueLedgerEntry(payment);
-
-  res.status(200).json({ payment });
+  const { payment: captured } = await capturePayment(payment._id.toString(), undefined, {
+    codConfirmedBy: new Types.ObjectId(workerId),
+  });
+  res.status(200).json({ payment: captured });
 });
 
 /**
- * GET /api/payments/cod/pending — every completed booking assigned to the
- * calling worker with a cash-on-delivery payment still awaiting their own
- * confirmation. Drives the "cash to collect" list on the worker's earnings
- * screen (client/src/components/worker/CodCollectionSection.tsx).
+ * GET /api/payments/cod/pending — completed bookings assigned to the
+ * calling worker whose cash payment still awaits their confirmation.
  */
 export const listPendingCodForWorker = asyncHandler(async (req: Request, res: Response) => {
   const workerId = req.user!.id;
@@ -167,36 +169,30 @@ export const listPendingCodForWorker = asyncHandler(async (req: Request, res: Re
   res.status(200).json({ items });
 });
 
-/**
- * GET /api/payments/:bookingId — the caller's own payment status for a
- * booking (customer-scoped by customerId, same IDOR discipline as every
- * other booking-scoped route).
- */
+/** GET /api/payments/:bookingId — the caller's own payment status for a booking. */
 export const getPaymentForBooking = asyncHandler(async (req: Request, res: Response) => {
   const booking = await Booking.findOne({ _id: req.params.bookingId, customerId: req.user!.id });
   if (!booking) throw new ApiError(404, 'Booking not found');
   const payment = await Payment.findOne({ bookingId: booking._id }).sort({ createdAt: -1 });
-  res.status(200).json({ payment });
+  res.status(200).json({ payment, mock: env.MOCK_PAYMENTS });
 });
 
 /**
- * POST /api/payments/webhook — Razorpay's real webhook shape: raw body +
- * X-Razorpay-Signature header, verified via HMAC before trusting any of
- * the payload (see payment.service.verifyWebhookSignature). Idempotent on
- * razorpayOrderId so a redelivered webhook can't double-process.
+ * POST /api/payments/webhook — Razorpay's server-to-server notification.
+ * Public by necessity; trust comes only from the HMAC over the raw body.
+ * A bad or missing signature is a 400 and changes nothing. Idempotent.
  */
 export const paymentWebhook = asyncHandler(async (req: Request, res: Response) => {
   const signature = req.headers['x-razorpay-signature'];
   const rawBody = (req as unknown as { rawBody?: string }).rawBody ?? JSON.stringify(req.body);
 
-  const { verifyWebhookSignature } = await import('../services/payment.service');
   if (typeof signature !== 'string' || !verifyWebhookSignature(rawBody, signature)) {
     throw new ApiError(400, 'Invalid webhook signature');
   }
 
   const event = req.body?.event;
   const orderId = req.body?.payload?.payment?.entity?.order_id;
-  const paymentId = req.body?.payload?.payment?.entity?.id;
+  const razorpayPaymentId = req.body?.payload?.payment?.entity?.id;
   if (!orderId) {
     res.status(200).json({ ok: true }); // acknowledge unrelated events without erroring the sender
     return;
@@ -208,32 +204,22 @@ export const paymentWebhook = asyncHandler(async (req: Request, res: Response) =
     return;
   }
 
-  const wasAlreadySuccess = payment.status === 'success';
-
-  if (event === 'payment.captured') {
-    payment.status = 'success';
-    payment.razorpayPaymentId = paymentId;
+  if (event === 'payment.captured' || event === 'order.paid') {
+    await capturePayment(payment._id.toString(), razorpayPaymentId);
   } else if (event === 'payment.failed') {
-    payment.status = 'failed';
-  }
-  await payment.save();
-
-  if (event === 'payment.captured' && !wasAlreadySuccess) {
-    await postRevenueLedgerEntry(payment);
+    await failPayment(payment._id.toString());
   }
 
   res.status(200).json({ ok: true });
 });
 
 /**
- * POST /api/payments/:bookingId/mock-capture — MOCK-MODE ONLY stand-in for
- * a real Razorpay webhook round trip, so the payment flow is demoable
- * end-to-end without a public webhook URL or live keys. 404s (as if the
- * route didn't exist) outside mock mode rather than silently no-op'ing,
- * so it can never be mistaken for a real payment confirmation path.
+ * POST /api/payments/:bookingId/mock-capture — MOCK_PAYMENTS only. The
+ * route is not even mounted otherwise (payment.routes.ts); the check here
+ * is a second line in case it ever is.
  */
 export const mockCapturePayment = asyncHandler(async (req: Request, res: Response) => {
-  if (!env.MOCK_EXTERNAL_SERVICES) throw new ApiError(404, 'Not found');
+  if (!env.MOCK_PAYMENTS) throw new ApiError(404, 'Not found');
 
   const booking = await Booking.findOne({ _id: req.params.bookingId, customerId: req.user!.id });
   if (!booking) throw new ApiError(404, 'Booking not found');
@@ -241,14 +227,104 @@ export const mockCapturePayment = asyncHandler(async (req: Request, res: Respons
   const payment = await Payment.findOne({ bookingId: booking._id }).sort({ createdAt: -1 });
   if (!payment) throw new ApiError(404, 'No payment order found for this booking — create one first');
 
-  const wasAlreadySuccess = payment.status === 'success';
-  payment.status = 'success';
-  payment.razorpayPaymentId = `pay_mock_${Date.now()}`;
-  await payment.save();
+  const { payment: captured } = await capturePayment(payment._id.toString(), `pay_mock_${Date.now()}`);
+  res.status(200).json({ payment: captured });
+});
 
-  if (!wasAlreadySuccess) {
-    await postRevenueLedgerEntry(payment);
+/* ------------------------------------------------ COD reconciliation (admin) */
+
+interface CodRow {
+  paymentId: string;
+  bookingId: string;
+  region: string | null;
+  amount: number;
+  status: string;
+  createdAt: Date;
+  capturedAt: Date | null;
+  confirmedBy: string | null;
+  ledgerPosted: boolean;
+}
+
+/**
+ * Every cash-on-delivery payment in a date range, and whether the money
+ * the worker says they collected reached the ledger.
+ *
+ * Three buckets matter to whoever reconciles cash: still with the worker
+ * (pending), confirmed and posted, and confirmed but NOT posted — the last
+ * should always be zero; a non-zero count is a bug or tampering, and is
+ * listed so it can be chased.
+ */
+export async function codReconciliation(from: Date, to: Date) {
+  const payments = await Payment.find({ method: 'cod', createdAt: { $gte: from, $lt: to } })
+    .sort({ createdAt: 1 })
+    .lean();
+  const bookingIds = payments.map((p) => p.bookingId);
+  const bookings = await Booking.find({ _id: { $in: bookingIds } }).select('region').lean();
+  const regionOf = new Map(bookings.map((b) => [b._id.toString(), b.region ?? null]));
+  const ledger = await LedgerEntry.find({
+    type: 'revenue',
+    entityType: 'Payment',
+    entityId: { $in: payments.map((p) => p._id) },
+  })
+    .select('entityId')
+    .lean();
+  const posted = new Set(ledger.map((l) => l.entityId.toString()));
+
+  const rows: CodRow[] = payments.map((p) => ({
+    paymentId: p._id.toString(),
+    bookingId: p.bookingId.toString(),
+    region: regionOf.get(p.bookingId.toString()) ?? null,
+    amount: p.amount,
+    status: p.status,
+    createdAt: p.createdAt,
+    capturedAt: p.capturedAt ?? null,
+    confirmedBy: p.codConfirmedBy ? p.codConfirmedBy.toString() : null,
+    ledgerPosted: posted.has(p._id.toString()),
+  }));
+
+  const sum = (xs: CodRow[]) => Math.round(xs.reduce((s, r) => s + r.amount, 0) * 100) / 100;
+  const pending = rows.filter((r) => r.status === 'pending');
+  const confirmed = rows.filter((r) => r.status === 'success');
+  const unposted = confirmed.filter((r) => !r.ledgerPosted);
+  return {
+    from,
+    to,
+    rows,
+    totals: {
+      count: rows.length,
+      pendingCount: pending.length,
+      pendingAmount: sum(pending),
+      confirmedCount: confirmed.length,
+      confirmedAmount: sum(confirmed),
+      confirmedNotPostedCount: unposted.length,
+      confirmedNotPostedAmount: sum(unposted),
+    },
+  };
+}
+
+function csvCell(v: unknown): string {
+  const s = v instanceof Date ? v.toISOString() : v === null || v === undefined ? '' : String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** GET /api/admin/payments/cod-reconciliation?from&to[&format=csv] */
+export const getCodReconciliation = asyncHandler(async (req: Request, res: Response) => {
+  const { from, to, format } = req.query as unknown as { from: Date; to: Date; format?: 'json' | 'csv' };
+  if (to <= from) throw new ApiError(400, '"to" must be after "from"');
+  const report = await codReconciliation(from, to);
+
+  if (format === 'csv') {
+    const header = ['paymentId', 'bookingId', 'region', 'amount', 'status', 'createdAt', 'capturedAt', 'confirmedBy', 'ledgerPosted'];
+    const lines = [header.join(',')].concat(
+      report.rows.map((r) => header.map((h) => csvCell(r[h as keyof CodRow])).join(','))
+    );
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="cod-reconciliation-${from.toISOString().slice(0, 10)}-${to.toISOString().slice(0, 10)}.csv"`
+    );
+    res.status(200).send(lines.join('\n') + '\n');
+    return;
   }
-
-  res.status(200).json({ payment });
+  res.status(200).json(report);
 });

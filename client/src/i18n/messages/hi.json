@@ -959,7 +959,12 @@
     "whoCrew": "लोडिंग टीम",
     "whoDriverAndCrew": "ड्राइवर और लोडिंग टीम",
     "notifyOnTheWay": "यह स्क्रीन बंद होने पर भी, आपका कामगार निकलते ही आपको बता दें?",
-    "notifyTitle": "आपकी FYRO बुकिंग"
+    "notifyTitle": "आपकी FYRO बुकिंग",
+    "checkoutUnavailable": "अभी ऑनलाइन भुगतान उपलब्ध नहीं है। कृपया कैश ऑन डिलीवरी चुनें।",
+    "checkoutLoadFailed": "भुगतान विंडो नहीं खुल सकी। अपना कनेक्शन जाँचें और फिर कोशिश करें।",
+    "checkoutDescription": "आपकी FYRO बुकिंग का भुगतान",
+    "paymentCancelled": "भुगतान रद्द हो गया। कोई राशि नहीं कटी।",
+    "paymentFailed": "भुगतान पूरा नहीं हुआ।"
   },
   "customerHistory": {
     "title": "बुकिंग इतिहास",
@@ -2445,7 +2450,8 @@
       "incentives": "प्रोत्साहन",
       "regions": "क्षेत्र",
       "auditLog": "ऑडिट लॉग",
-      "profile": "प्रोफ़ाइल"
+      "profile": "प्रोफ़ाइल",
+      "codReconciliation": "नकद मिलान"
     },
     "adminConsole": "एडमिन कंसोल",
     "managerConsole": "मैनेजर कंसोल",
@@ -4511,5 +4517,27 @@
       "title": "खेतिहर मज़दूर",
       "body": "आपको सिर्फ़ खेत के काम मिलते हैं — बुवाई, रोपाई, निराई, कटाई और गहाई — आपके पास के किसानों से।"
     }
+  },
+  "codReconciliation": {
+    "eyebrow": "भुगतान",
+    "title": "कैश ऑन डिलीवरी मिलान",
+    "subtitle": "इस अवधि का हर नकद भुगतान, और कामगार द्वारा पुष्टि की गई नकदी खाते में दर्ज हुई या नहीं।",
+    "exportCsv": "CSV निर्यात",
+    "from": "से",
+    "to": "तक",
+    "withWorkers": "अभी कामगारों के पास नकदी",
+    "confirmedPosted": "पुष्टि और दर्ज",
+    "confirmedNotPosted": "पुष्टि हुई, दर्ज नहीं",
+    "mismatchAlert": "{count} पुष्ट नकद भुगतानों की खाते में प्रविष्टि नहीं है। लाल चिह्नित पंक्तियों की जाँच करें।",
+    "empty": "इस अवधि में कोई नकद भुगतान नहीं।",
+    "created": "बनाया गया",
+    "booking": "बुकिंग",
+    "region": "क्षेत्र",
+    "amount": "राशि",
+    "status": "स्थिति",
+    "confirmedAt": "पुष्टि का समय",
+    "statusPending": "कामगार के पास",
+    "statusPosted": "दर्ज",
+    "statusNotPosted": "दर्ज नहीं"
   }
 }
