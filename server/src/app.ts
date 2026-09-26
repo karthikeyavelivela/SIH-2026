@@ -60,6 +60,7 @@ import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
 import { resolveLocale } from './i18n/resolveLocale';
 import { describeChain, providerHealth } from './agents/providers';
+import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './routes/welfare.routes';
 
 export const app = express();
 
@@ -188,6 +189,8 @@ app.use('/api/admin/regions', regionRouter);
 app.use('/api/admin/audit-log', auditLogRouter);
 app.use('/api/admin/stats', adminStatsRouter);
 app.use('/api/admin/insurance', adminInsuranceRouter);
+app.use('/api/admin/welfare', adminWelfareRouter);
+app.use('/api/welfare', welfareRouter);
 app.use('/api/admin/referrals', adminReferralRouter);
 app.use('/api/admin/kyc-queue', kycRouter);
 app.use('/api/kyc/documents', kycDocumentRouter);
@@ -216,6 +219,7 @@ app.use('/api/availability', availabilityRouter);
 app.use('/api/requests', requestsRouter);
 app.use('/api/loadboard', loadboardRouter);
 app.use('/api/admin/federations', adminFederationRouter);
+app.use('/api/federation/welfare', federationWelfareRouter);
 app.use('/api/federation', federationRouter);
 app.use('/api/governance', governanceRouter);
 app.use('/api/service-categories', serviceCategoryRouter);

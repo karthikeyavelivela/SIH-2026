@@ -92,6 +92,22 @@ const envSchema = z.object({
     .string()
     .default('false')
     .transform((v) => v === 'true'),
+  // P1.2 — the demand-indexed welfare pool. Policy parameters, not statutory
+  // figures: the defaults are the build brief's, to be confirmed by the
+  // federations (BUILD_PROGRESS.md, HUMAN INPUT NEEDED).
+  WELFARE_TRIGGER_INDEX: z.coerce.number().positive().max(1).default(0.6),
+  WELFARE_PAYOUT_CAP_PCT: z.coerce.number().positive().max(100).default(40),
+  WELFARE_PER_MEMBER_CAP: z.coerce.number().positive().default(1000),
+  WELFARE_MIN_SOCIETY_MEMBERS: z.coerce.number().int().positive().default(5),
+  WELFARE_MIN_ACTIVE_DAYS: z.coerce.number().int().positive().max(28).default(8),
+  WELFARE_MIN_HISTORY_WEEKS: z.coerce.number().int().positive().max(12).default(4),
+  // The old individual trigger (one worker's own earnings below a threshold)
+  // is off: it paid people for having a slow month regardless of demand.
+  // Kept behind this flag only so its tests still run.
+  INDIVIDUAL_EARNINGS_TRIGGER: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

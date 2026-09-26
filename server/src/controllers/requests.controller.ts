@@ -29,6 +29,7 @@ import {
   markWorkDone,
 } from '../services/completion.service';
 import { stripCompletionSecrets } from '../utils/completionSecrets';
+import { markAvailableToday } from '../services/activity.service';
 
 // Phase 2 polling scope: a single fixed search radius, not the spec's real
 // "start small, widen if no response" expanding search — that behavior is
@@ -79,6 +80,7 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       res.status(200).json({ requests: [] });
       return;
     }
+    await markAvailableToday(userId);
     // A vehicle that failed its last compliance inspection sees an empty
     // list, same shape as the offline case above — not an error, just
     // nothing to offer them until they pass a fresh inspection.
@@ -135,6 +137,7 @@ export const listRequests = asyncHandler(async (req: Request, res: Response) => 
       res.status(200).json({ requests: [] });
       return;
     }
+    await markAvailableToday(userId);
     // Only the work this person does — see workerEligibility.ts.
     const eligibility = await bookingFilterFor(profile);
     const hamaliBase = {

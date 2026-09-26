@@ -342,7 +342,11 @@ export async function checkParametricTrigger(
       ? await computeTrailingEarnings(userId, role, trigger.periodDays, at)
       : 0; // days_unable_to_work — no real data source yet, see doc comment above
 
-  const triggered = trigger.condition === 'earnings_below_threshold' && actualValue < trigger.thresholdValue;
+  // P1.2: the individual earnings trigger is retired in favour of the
+  // demand-indexed welfare pool (welfarePool.service.ts) — one worker's slow
+  // month is not evidence of a demand collapse. Only its tests turn it on.
+  const triggered =
+    env.INDIVIDUAL_EARNINGS_TRIGGER && trigger.condition === 'earnings_below_threshold' && actualValue < trigger.thresholdValue;
 
   let disbursement: DisbursementOutcome | undefined;
   if (triggered) {

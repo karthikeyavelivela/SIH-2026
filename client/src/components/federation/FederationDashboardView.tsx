@@ -11,6 +11,7 @@ import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, StatRow, ProgressBar } from '@/components/fy/Data';
 import { Button, Field } from '@/components/fy/Controls';
 import { TopBar } from '@/components/fy/Navigation';
+import { WelfarePanel } from '@/components/federation/WelfarePanel';
 
 /* Built against client/public/design/federation_ap_state_dashboard.html and
    federation_district_action_console.html.
@@ -567,6 +568,9 @@ export function FederationDashboardView() {
             </LightCard>
           </Section>
         )}
+
+        {/* P1.2 — the district welfare pool and its weekly demand checks. */}
+        <WelfarePanel />
       </main>
     </div>
   );

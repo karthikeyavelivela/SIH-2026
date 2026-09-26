@@ -24,7 +24,9 @@ export type LedgerEntryType =
   | 'society_share'
   | 'welfare_pool_contribution'
   | 'guarantee_reserve'
-  | 'platform_fee';
+  | 'platform_fee'
+  // P1.2 — money out of a district welfare pool.
+  | 'welfare_pool_payout';
 export type LedgerEntryStatus = 'posted' | 'pending' | 'failed';
 
 // Append-only platform financial ledger (Part 2.2 of the admin/ops build).
@@ -65,6 +67,7 @@ const ledgerEntrySchema = new Schema<ILedgerEntry>({
       'welfare_pool_contribution',
       'guarantee_reserve',
       'platform_fee',
+      'welfare_pool_payout',
     ],
     required: true,
   },

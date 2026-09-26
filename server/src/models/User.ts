@@ -80,6 +80,8 @@ export interface IUser {
   // same "not self-service" posture as `permissions` above. Absent for
   // every other role.
   federationId?: Types.ObjectId;
+  /** Verification (demo/test) data: excluded from analytics, welfare and reports. */
+  isVerification?: boolean;
   // Bumped on refresh-token rotation and logout to invalidate prior refresh tokens.
   tokenVersion: number;
   // Everything below added for the Phase 2 profile remediation
@@ -211,6 +213,7 @@ const userSchema = new Schema<IUser>(
     ratingCount: { type: Number, default: 0 },
     permissions: { type: [String], default: [] },
     federationId: { type: Schema.Types.ObjectId, ref: 'Federation' },
+    isVerification: { type: Boolean, default: false, index: true },
     tokenVersion: { type: Number, default: 0 },
     notificationPreferences: {
       type: {

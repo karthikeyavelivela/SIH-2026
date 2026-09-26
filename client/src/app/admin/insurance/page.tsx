@@ -170,7 +170,9 @@ export default function AdminInsurancePage() {
 function CreatePlanModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: () => void }) {
   const t = useTranslations('adminInsurance');
   const [name, setName] = useState('');
-  const [type, setType] = useState<'standard' | 'parametric'>('parametric');
+  // P1.2: new earnings-triggered (parametric) plans are retired — income
+  // support now comes from the demand-indexed district welfare pool.
+  const [type, setType] = useState<'standard' | 'parametric'>('standard');
   const [category, setCategory] = useState('work_compensation');
   const [coverageAmount, setCoverageAmount] = useState('5000');
   const [premium, setPremium] = useState('50');
@@ -218,10 +220,10 @@ function CreatePlanModal({ open, onClose, onCreated }: { open: boolean; onClose:
     <Modal open={open} onClose={onClose} title={t('newPlanTitle')}>
       <div className="space-y-3">
         <input placeholder={t('namePlaceholder')} value={name} onChange={(e) => setName(e.target.value)} className="w-full min-h-[40px] px-3 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm" />
+        <p className="text-xs text-fy-ink-soft">{t('parametricRetired')}</p>
         <textarea placeholder={t('descriptionPlaceholder')} value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="w-full px-3 py-2 rounded-control border border-fy-muted/20 bg-fy-bone text-sm" />
         <div className="flex gap-2">
           <select value={type} onChange={(e) => setType(e.target.value as 'standard' | 'parametric')} className="flex-1 text-sm rounded-control border border-fy-muted/20 bg-fy-bone px-3 py-2">
-            <option value="parametric">{t('parametric')}</option>
             <option value="standard">{t('standard')}</option>
           </select>
           <select value={category} onChange={(e) => setCategory(e.target.value)} className="flex-1 text-sm rounded-control border border-fy-muted/20 bg-fy-bone px-3 py-2">

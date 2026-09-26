@@ -146,6 +146,8 @@ export interface IBooking {
     feeSplit?: { societyPct: number; welfarePoolPct: number; guaranteeReservePct: number; platformPct: number };
   };
   distanceKm: number;
+  /** Verification (demo/test) data: excluded from analytics, welfare and reports. */
+  isVerification?: boolean;
   statusHistory: { status: BookingStatus; timestamp: Date }[];
   // Photo proof captured by the assigned worker at pickup (before 'start')
   // and delivery (before 'complete') — biggest single dispute-reduction
@@ -285,6 +287,7 @@ const bookingSchema = new Schema<IBooking>(
       },
     },
     distanceKm: { type: Number, default: 0 },
+    isVerification: { type: Boolean, default: false, index: true },
     statusHistory: {
       type: [{ status: String, timestamp: { type: Date, default: Date.now } }],
       default: [],

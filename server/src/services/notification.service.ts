@@ -52,6 +52,11 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'ఇన్సూరెన్స్ పేఅవుట్ ట్రిగ్గర్ అయింది', body: `₹${v.amount} ఆటోమేటిక్‌గా చెల్లించబడింది — మీ ఆదాయం కవర్ చేసిన థ్రెషోల్డ్ కంటే తక్కువగా ఉంది.` }),
     hi: (v) => ({ title: 'बीमा भुगतान ट्रिगर हुआ', body: `₹${v.amount} अपने आप भुगतान हुआ — आपकी कमाई कवर की गई सीमा से कम थी।` }),
   },
+  welfare_payout: {
+    en: (v) => ({ title: 'Welfare pool payment', body: `₹${v.amount} from the ${v.pool} welfare pool — work in your area dropped well below normal this week.` }),
+    te: (v) => ({ title: 'సంక్షేమ నిధి చెల్లింపు', body: `${v.pool} సంక్షేమ నిధి నుండి ₹${v.amount} — ఈ వారం మీ ప్రాంతంలో పని సాధారణం కంటే చాలా తగ్గింది.` }),
+    hi: (v) => ({ title: 'कल्याण कोष भुगतान', body: `${v.pool} कल्याण कोष से ₹${v.amount} — इस हफ़्ते आपके इलाक़े में काम सामान्य से बहुत कम रहा।` }),
+  },
   dispute_update: {
     en: (v) => ({ title: 'Dispute update', body: `Your dispute is now ${v.status}.` }),
     te: (v) => ({ title: 'వివాద అప్‌డేట్', body: `మీ వివాదం ఇప్పుడు ${v.status}.` }),

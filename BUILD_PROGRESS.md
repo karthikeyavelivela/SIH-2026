@@ -51,6 +51,13 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | RAZORPAY_WEBHOOK_SECRET | Render API | unset | Webhook HMAC secret; required at boot when MOCK_PAYMENTS=false in production |
 | AUTO_CONFIRM_HOURS | Render API | 24 | Hours before an unconfirmed finished job is confirmed automatically |
 | TRUST_CLOUDFLARE | Render API | false | Key per-IP rate limits on CF-Connecting-IP (true on Render, which is behind Cloudflare) |
+| WELFARE_TRIGGER_INDEX | Render API | 0.6 | Demand index below which the district pool pays |
+| WELFARE_PAYOUT_CAP_PCT | Render API | 40 | Most of the pool one weekly check may pay |
+| WELFARE_PER_MEMBER_CAP | Render API | 1000 | Most one member receives per week (rupees) |
+| WELFARE_MIN_SOCIETY_MEMBERS | Render API | 5 | Smallest society checked on its own |
+| WELFARE_MIN_ACTIVE_DAYS | Render API | 8 | Days available/working in 28 to count as active |
+| WELFARE_MIN_HISTORY_WEEKS | Render API | 4 | Weeks of history needed before an index is computed |
+| INDIVIDUAL_EARNINGS_TRIGGER | Render API | false | Old per-worker earnings trigger (tests only) |
 
 ## Migrations needed
 
@@ -67,4 +74,5 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P0.4: after deploy, run the KYC migration dry run on Render (Shell tab), review the report, then run it with --apply. Until then, older KYC documents stay publicly reachable by URL (no longer listed anywhere in the API).
 - P1.1: confirm with a tax professional that 18% GST applies to the FYRO service fee (taxInvoice.service.ts SERVICE_FEE_RATE, shown inclusive), alongside the existing 5% GTA and 18% labour rates.
 - P1.1: society commissionRatePct / welfareDeductionRatePct are deprecated (no longer deducted from members). District federation caps on them now only matter for bookings priced before the fee; decide whether federations should instead cap society rate floors.
+- P1.2: the welfare parameters (trigger 0.6, 40% pool cap, Rs 1,000 per member per week, 8 active days in 28, 5-member societies, 4 weeks minimum history) are the build brief's defaults, not federation decisions. Confirm or change them (env vars) before the pool pays real money.
 
