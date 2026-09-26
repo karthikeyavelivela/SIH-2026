@@ -12,6 +12,8 @@ import {
   getPlatformCommissionPct,
 } from '../services/platformCommission.service';
 import { writeAuditLog } from '../services/audit.service';
+import { LedgerEntry } from '../models/LedgerEntry';
+import { getFeeSplit, feeSplitProblems, DEFAULT_FEE_SPLIT, FeeSplit } from '../services/serviceFee.service';
 
 const BCRYPT_COST = 12;
 
@@ -203,4 +205,62 @@ export const updatePlatformCommission = asyncHandler(async (req: Request, res: R
   });
 
   res.status(200).json({ effectivePct: await getPlatformCommissionPct() });
+});
+
+
+/**
+ * GET /api/admin/platform-fees — the P1.1 service fee: the split in force,
+ * the default, and what each part has collected so far (from the ledger,
+ * never an estimate). The legacy commission rate is included because it
+ * still describes how bookings priced before the fee were settled.
+ */
+export const getPlatformFees = asyncHandler(async (_req: Request, res: Response) => {
+  const [split, legacyPct, collected] = await Promise.all([
+    getFeeSplit(),
+    getPlatformCommissionPct(),
+    LedgerEntry.aggregate([
+      { $match: { type: { $in: ['society_share', 'welfare_pool_contribution', 'guarantee_reserve', 'platform_fee'] } } },
+      { $group: { _id: '$type', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+    ]),
+  ]);
+  const byType = Object.fromEntries(
+    collected.map((c: { _id: string; total: number; count: number }) => [c._id, { total: Math.round(c.total * 100) / 100, postings: c.count }])
+  );
+  res.status(200).json({ split, defaultSplit: DEFAULT_FEE_SPLIT, legacyCommissionPct: legacyPct, collected: byType });
+});
+
+/**
+ * PUT /api/admin/platform-fees — change the split, forward only. Bookings
+ * already priced keep the split frozen onto them. Refused unless the four
+ * parts add up to the total.
+ */
+export const updatePlatformFees = asyncHandler(async (req: Request, res: Response) => {
+  const next = req.body as FeeSplit;
+  const problems = feeSplitProblems(next);
+  if (problems.length) throw new ApiError(400, problems.join('. '));
+  const before = await getFeeSplit();
+
+  await PlatformSetting.findByIdAndUpdate(
+    PLATFORM_SETTING_ID,
+    {
+      _id: PLATFORM_SETTING_ID,
+      feeTotalPct: next.feeTotalPct,
+      societyPct: next.societyPct,
+      welfarePoolPct: next.welfarePoolPct,
+      guaranteeReservePct: next.guaranteeReservePct,
+      platformPct: next.platformPct,
+    },
+    { upsert: true }
+  );
+
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'platform_fee_split_changed',
+    targetType: 'PlatformSetting',
+    targetId: new Types.ObjectId().toString(),
+    details: { before, after: next },
+  });
+
+  res.status(200).json({ split: await getFeeSplit() });
 });

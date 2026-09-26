@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { Booking, EarningsResponse } from '@/lib/types';
+import { Booking, EarningsResponse, workerRateOf } from '@/lib/types';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 import { LightCard, Panel, Section, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -82,7 +82,7 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
           <StatusPill tone={booking.status === 'in_progress' ? 'lime' : 'neutral'}>
             {booking.status === 'in_progress' ? t('working') : t('accepted')}
           </StatusPill>
-          <p className="font-heading text-title text-fy-ink mt-1">₹{booking.fareBreakdown.total}</p>
+          <p className="font-heading text-title text-fy-ink mt-1">₹{workerRateOf(booking.fareBreakdown)}</p>
         </div>
       </div>
 

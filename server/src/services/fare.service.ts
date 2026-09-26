@@ -56,6 +56,11 @@ export interface FareBreakdown {
   surgeMultiplier: number;
   hamaliFare: number;
   total: number;
+  // P1.1 — set by serviceFee.service.ts's withServiceFee; see Booking.ts.
+  workerRate?: number;
+  serviceFeePct?: number;
+  serviceFee?: number;
+  feeSplit?: { societyPct: number; welfarePoolPct: number; guaranteeReservePct: number; platformPct: number };
 }
 
 interface ComputeFareInput {

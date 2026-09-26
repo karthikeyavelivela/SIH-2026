@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { Booking, EarningsResponse, MuthaResponse } from '@/lib/types';
+import { Booking, EarningsResponse, MuthaResponse, workerRateOf } from '@/lib/types';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
@@ -229,7 +229,7 @@ export default function MuthaDashboardPage() {
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <EyebrowLabel>{t('runFare')}</EyebrowLabel>
-                          <p className="font-heading text-title text-fy-green">₹{b.fareBreakdown.total}</p>
+                          <p className="font-heading text-title text-fy-green">₹{workerRateOf(b.fareBreakdown)}</p>
                         </div>
                         <span className="inline-flex items-center gap-1 font-body text-label font-semibold text-fy-green">
                           {t('manifest')}

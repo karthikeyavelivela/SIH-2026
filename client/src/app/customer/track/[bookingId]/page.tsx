@@ -42,7 +42,15 @@ interface BookingDetail {
   /** Named trade, when one was booked. Absent on a bare crew or truck dispatch. */
   serviceCategorySlug?: string;
   status: string;
-  fareBreakdown: { baseFare: number; distanceFare: number; hamaliFare: number; total: number };
+  fareBreakdown: {
+    baseFare: number;
+    distanceFare: number;
+    hamaliFare: number;
+    total: number;
+    workerRate?: number;
+    serviceFeePct?: number;
+    serviceFee?: number;
+  };
   pickupLocation: { address: string; coordinates: [number, number] };
   dropLocation: { address: string; coordinates: [number, number] };
   // Phase 6.3 — multi-stop routing.
@@ -673,8 +681,17 @@ export default function TrackBookingPage() {
               {booking.fareBreakdown.hamaliFare > 0 && (
                 <StatRow label={t('hamali')} value={`${'₹'}${booking.fareBreakdown.hamaliFare}`} />
               )}
+              {typeof booking.fareBreakdown.serviceFee === 'number' && (
+                <StatRow
+                  label={t('serviceFee', { pct: booking.fareBreakdown.serviceFeePct ?? 10 })}
+                  value={`${'₹'}${booking.fareBreakdown.serviceFee}`}
+                />
+              )}
               <Divider />
               <StatRow label={t('total')} value={`${'₹'}${booking.fareBreakdown.total}`} valueTone="green" />
+              {typeof booking.fareBreakdown.serviceFee === 'number' && (
+                <Body size="label">{t('workerKeepsAll')}</Body>
+              )}
             </Panel>
             {booking.status === 'completed' ? (
               <PaymentSection bookingId={bookingId} />

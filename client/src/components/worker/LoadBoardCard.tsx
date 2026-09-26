@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Booking } from '@/lib/types';
+import { Booking, workerRateOf } from '@/lib/types';
 import { ApiClientError } from '@/lib/api';
 import { Icon } from '@/components/ui/Icon';
 import { Panel, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -115,7 +115,7 @@ export function LoadBoardCard({ booking, accent = 'primary', onBid, onWithdraw }
         </div>
         <div className="text-right shrink-0">
           <EyebrowLabel>{t('customerOffer')}</EyebrowLabel>
-          <p className="font-heading text-title text-fy-ink">₹{booking.fareBreakdown.total}</p>
+          <p className="font-heading text-title text-fy-ink">₹{workerRateOf(booking.fareBreakdown)}</p>
         </div>
       </div>
 

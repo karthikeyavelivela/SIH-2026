@@ -57,6 +57,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | Order | Script | Dry run | Apply |
 |---|---|---|---|
 | 1 | server/src/scripts/migrateKycPrivate.ts | `npm run migrate:kyc-private --workspace server` | `npm run migrate:kyc-private --workspace server -- --apply` |
+| 2 | none (P1.1 is forward-only) | `Bookings priced before P1.1 keep total = worker rate and settle with the old 1% + bye-law deductions; nothing to backfill` | `n/a` |
 
 ## HUMAN INPUT NEEDED
 
@@ -64,4 +65,6 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - Razorpay TEST-mode key id, key secret and webhook secret (Razorpay dashboard, Test mode). Webhook URL: https://<render-api>/api/payments/webhook with events payment.captured, payment.failed, order.paid.
 - Wage floor (P0.3): the seeded AP figures come from a secondary compilation and expire 2026-09-30. To replace them, enter in /admin/wage-floors, per zone and skill band: monthly rate (basic + VDA), scheduled employment, notification number, notification date, effective from/until, sourceType=gazette, and the gazette URL. Also enter the notifications that actually cover domestic work and agricultural labour (the seeded one is Shops and Commercial Establishments).
 - P0.4: after deploy, run the KYC migration dry run on Render (Shell tab), review the report, then run it with --apply. Until then, older KYC documents stay publicly reachable by URL (no longer listed anywhere in the API).
+- P1.1: confirm with a tax professional that 18% GST applies to the FYRO service fee (taxInvoice.service.ts SERVICE_FEE_RATE, shown inclusive), alongside the existing 5% GTA and 18% labour rates.
+- P1.1: society commissionRatePct / welfareDeductionRatePct are deprecated (no longer deducted from members). District federation caps on them now only matter for bookings priced before the fee; decide whether federations should instead cap society rate floors.
 

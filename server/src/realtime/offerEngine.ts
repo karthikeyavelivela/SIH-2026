@@ -10,6 +10,7 @@ import { acceptAsDriver, acceptAsHamaliSolo } from '../services/bookingAssignmen
 import { ApiError } from '../utils/ApiError';
 import { emitBookingOffer, emitOfferClosed, emitBookingMatched } from './emitters';
 import { SEARCH_RADIUS_KM } from '../controllers/requests.controller';
+import { workerRateOf } from '../services/serviceFee.service';
 
 /** Spec: "~20 seconds (configurable constant)". */
 export const OFFER_TIMEOUT_MS = 20_000;
@@ -91,7 +92,8 @@ async function advanceVehicleOffer(state: OfferState): Promise<void> {
     pickupAddress: booking.pickupLocation.address,
     dropAddress: booking.dropLocation.address,
     distanceKm: booking.distanceKm,
-    total: booking.fareBreakdown.total,
+    // What the worker earns: their rate, not the customer's total with the service fee.
+    total: workerRateOf(booking.fareBreakdown),
     expiresAt: Date.now() + OFFER_TIMEOUT_MS,
     weightKg: booking.cargoDetails?.weightKg,
     goodsType: booking.cargoDetails?.goodsType,
@@ -223,7 +225,8 @@ async function advanceHamaliOffer(state: OfferState): Promise<void> {
     pickupAddress: booking.pickupLocation.address,
     dropAddress: booking.dropLocation.address,
     distanceKm: booking.distanceKm,
-    total: booking.fareBreakdown.total,
+    // What the worker earns: their rate, not the customer's total with the service fee.
+    total: workerRateOf(booking.fareBreakdown),
     expiresAt: Date.now() + OFFER_TIMEOUT_MS,
     weightKg: booking.cargoDetails?.weightKg,
     goodsType: booking.cargoDetails?.goodsType,

@@ -79,6 +79,7 @@ function navItems(
     { href: '/admin/managers', label: t('managers'), icon: <UsersIcon className="w-5 h-5" />, show: isAdmin },
     { href: '/admin/fares', label: t('fares'), icon: <LayersIcon className="w-5 h-5" />, show: has('edit_fare_rules') },
     { href: '/admin/wage-floors', label: t('wageFloors'), icon: <LayersIcon className="w-5 h-5" />, show: isAdmin },
+    { href: '/admin/platform-fees', label: t('platformFees'), icon: <WalletIcon className="w-5 h-5" />, show: isAdmin },
     {
       href: '/admin/complaints',
       label: t('complaints'),

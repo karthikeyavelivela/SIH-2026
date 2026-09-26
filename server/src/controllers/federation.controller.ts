@@ -16,6 +16,7 @@ import { Complaint } from '../models/Complaint';
 import { writeAuditLog } from '../services/audit.service';
 import { publicUser } from '../utils/publicUser';
 import type { Role } from '@fyro/shared';
+import { workerRateOf } from '../services/serviceFee.service';
 
 const BCRYPT_COST = 12;
 
@@ -207,7 +208,7 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
 
   const [completedBookings, trainingProgress, activePolicies, openDisputes, openComplaints] = await Promise.all([
     Booking.find({ assignedMuthaId: { $in: societyIds }, status: 'completed' })
-      .select('assignedMuthaId fareBreakdown.total')
+      .select('assignedMuthaId fareBreakdown.total fareBreakdown.workerRate')
       .lean(),
     TrainingProgress.find({ userId: { $in: uniqueMemberIds } }).select('userId status').lean(),
     InsurancePolicy.countDocuments({ userId: { $in: uniqueMemberIds }, status: 'active' }),
@@ -216,7 +217,7 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
   ]);
 
   const jobsCompleted = completedBookings.length;
-  const earningsDistributed = Math.round(completedBookings.reduce((s, b) => s + b.fareBreakdown.total, 0) * 100) / 100;
+  const earningsDistributed = Math.round(completedBookings.reduce((s, b) => s + workerRateOf(b.fareBreakdown), 0) * 100) / 100;
 
   const totalModulesTargetingMembers = await TrainingModule.countDocuments({
     forRoles: { $in: ['mutha_leader', 'mutha_member'] },

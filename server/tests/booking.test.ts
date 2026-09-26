@@ -150,7 +150,12 @@ describe('booking lifecycle', () => {
     });
     expect(res.status).toBe(201);
     expect(res.body.booking.fareBreakdown.hamaliFare).toBeGreaterThan(0);
-    expect(res.body.booking.fareBreakdown.total).toBe(res.body.booking.fareBreakdown.hamaliFare);
+    // P1.1 — the rule-priced labour is the worker's rate; the customer pays
+    // it plus the 10% service fee.
+    const fb = res.body.booking.fareBreakdown;
+    expect(fb.workerRate).toBe(fb.hamaliFare);
+    expect(fb.serviceFee).toBe(Math.round(fb.hamaliFare * 10) / 100);
+    expect(fb.total).toBe(Math.round((fb.workerRate + fb.serviceFee) * 100) / 100);
   });
 
   it('creates a combo booking end to end (both vehicle and hamali components present)', async () => {

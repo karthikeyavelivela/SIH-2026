@@ -966,7 +966,9 @@
     "checkoutLoadFailed": "Could not open the payment window. Check your connection and try again.",
     "checkoutDescription": "Payment for your FYRO booking",
     "paymentCancelled": "Payment was cancelled. Nothing was charged.",
-    "paymentFailed": "The payment did not go through."
+    "paymentFailed": "The payment did not go through.",
+    "serviceFee": "Service fee ({pct}%)",
+    "workerKeepsAll": "The worker receives 100% of their rate."
   },
   "customerHistory": {
     "title": "Booking history",
@@ -1051,7 +1053,11 @@
     "estimatedValueLabel": "Estimated value of goods (Rs, optional)",
     "ewayBillLabel": "E-way bill number",
     "ewayBillPlaceholder": "12-digit e-way bill number",
-    "ewayBillHint": "Required by GST rules for consignments worth Rs 50,000 or more. Self-declared — not verified against the government e-way bill portal."
+    "ewayBillHint": "Required by GST rules for consignments worth Rs 50,000 or more. Self-declared — not verified against the government e-way bill portal.",
+    "workerRate": "Worker's rate",
+    "serviceFee": "Service fee ({pct}%)",
+    "workerKeepsAll": "The worker receives 100% of their rate.",
+    "feeNote": "₹{rate} to the worker (all of it) + ₹{fee} service fee ({pct}%)"
   },
   "muthaMemberJob": {
     "hello": "Hello,",
@@ -1175,7 +1181,8 @@
     "platformFeeMixed": "Platform commission, at the rate charged on each job",
     "societyFee": "Society deduction",
     "netLabel": "Net to you",
-    "deductionNote": "Every deduction on every job, itemised."
+    "deductionNote": "Every deduction on every job, itemised.",
+    "keepsAll": "On newer jobs the customer paid the service fee on top — nothing was taken from your rate."
   },
   "workerRequests": {
     "pageTitle": "Job requests",
@@ -2013,7 +2020,8 @@
     "noCompletedJobsHint": "Once a member completes a society job, their share appears here.",
     "noRunsInRange": "No settled runs in this range.",
     "platformFee": "Platform commission ({pct}%)",
-    "platformFeeMixed": "Platform commission, at the rate charged on each job"
+    "platformFeeMixed": "Platform commission, at the rate charged on each job",
+    "feeShare": "Society's share of service fees (paid by customers, not members)"
   },
   "muthaRequests": {
     "pageTitle": "Job requests",
@@ -2460,7 +2468,8 @@
       "auditLog": "Audit log",
       "profile": "Profile",
       "codReconciliation": "Cash reconciliation",
-      "wageFloors": "Wage floors"
+      "wageFloors": "Wage floors",
+      "platformFees": "Service fee"
     },
     "adminConsole": "Admin console",
     "managerConsole": "Manager console",
@@ -4206,7 +4215,15 @@
       "quotationNote": "This worker looks at the job first, then sends a written price. Visit fee ₹{fee}.",
       "quotationNoteFree": "This worker looks at the job first, then sends a written price. No visit fee.",
       "visitAdjustable": "The visit fee comes off the final bill if you go ahead.",
-      "entryFromService": "Or pick a worker and see their own rates"
+      "entryFromService": "Or pick a worker and see their own rates",
+      "workerRate": "{name}'s rate",
+      "serviceFee": "Service fee ({pct}%)",
+      "feeSociety": "Society share ({pct}%)",
+      "feeWelfare": "District welfare pool ({pct}%)",
+      "feeGuarantee": "Workmanship guarantee reserve ({pct}%)",
+      "feePlatform": "FYRO platform ({pct}%)",
+      "youPay": "You pay",
+      "workerKeepsAll": "Nothing is deducted from the worker's rate — the fee is paid on top."
     },
     "quotation": {
       "title": "Quotations",
@@ -4630,5 +4647,33 @@
     "maskedAadhaarTitle": "Upload a masked Aadhaar",
     "maskedAadhaarBody": "Download it from myaadhaar.uidai.gov.in and choose \"Masked Aadhaar\" — only the last 4 digits show. Or cover the first 8 digits before taking the photo. We never need your full Aadhaar number.",
     "privateNote": "Your documents are stored privately. Only you and a KYC reviewer can open them, and every view is logged."
+  },
+  "adminPlatformFees": {
+    "eyebrow": "Money",
+    "title": "Service fee",
+    "subtitle": "Customers pay the worker's rate plus this fee. Workers keep 100% of their rate. The fee is split four ways, and every part is posted to the ledger when a job completes.",
+    "feeTotal": "Total service fee",
+    "parts": {
+      "societyPct": "Society share",
+      "welfarePoolPct": "District welfare pool",
+      "guaranteeReservePct": "Guarantee reserve",
+      "platformPct": "Platform fee"
+    },
+    "partHints": {
+      "societyPct": "To the worker's society; a solo worker's goes to the district federation.",
+      "welfarePoolPct": "To the district's welfare pool.",
+      "guaranteeReservePct": "Pays for re-work under the workmanship guarantee.",
+      "platformPct": "FYRO's revenue. Also takes any paise left over from rounding."
+    },
+    "collected": "Collected so far: ₹{amount} across {count} jobs",
+    "addsUp": "The parts add up to {sum}%.",
+    "doesNotAdd": "The parts add up to {sum}%, not {total}%. They must match before you can save.",
+    "forwardOnly": "A change applies only to bookings priced after you save. Every existing booking keeps the split it was quoted at.",
+    "legacy": "Bookings priced before the service fee existed were settled the old way: {pct}% platform commission taken from the worker, plus the society's bye-law cut. Those records are unchanged.",
+    "save": "Save split",
+    "saving": "Saving…",
+    "saved": "Saved. New bookings are priced with this split.",
+    "saveFailed": "Could not save. Try again.",
+    "resetDefault": "Reset to 10% (5/3/1/1)"
   }
 }

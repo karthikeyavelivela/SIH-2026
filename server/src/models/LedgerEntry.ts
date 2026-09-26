@@ -19,7 +19,12 @@ export type LedgerEntryType =
   | 'commission'
   | 'welfare_fund'
   | 'equity'
-  | 'surplus';
+  | 'surplus'
+  // P1.1 — the four parts of the customer-paid service fee.
+  | 'society_share'
+  | 'welfare_pool_contribution'
+  | 'guarantee_reserve'
+  | 'platform_fee';
 export type LedgerEntryStatus = 'posted' | 'pending' | 'failed';
 
 // Append-only platform financial ledger (Part 2.2 of the admin/ops build).
@@ -39,13 +44,28 @@ export interface ILedgerEntry {
   status: LedgerEntryStatus;
   description: string;
   region?: string;
+  /** The booking a service-fee posting came from — its idempotency key. */
+  bookingId?: Types.ObjectId;
   timestamp: Date;
 }
 
 const ledgerEntrySchema = new Schema<ILedgerEntry>({
   type: {
     type: String,
-    enum: ['revenue', 'payout', 'fee', 'refund', 'commission', 'welfare_fund', 'equity', 'surplus'],
+    enum: [
+      'revenue',
+      'payout',
+      'fee',
+      'refund',
+      'commission',
+      'welfare_fund',
+      'equity',
+      'surplus',
+      'society_share',
+      'welfare_pool_contribution',
+      'guarantee_reserve',
+      'platform_fee',
+    ],
     required: true,
   },
   entityType: { type: String, required: true },
@@ -54,8 +74,16 @@ const ledgerEntrySchema = new Schema<ILedgerEntry>({
   status: { type: String, enum: ['posted', 'pending', 'failed'], default: 'posted' },
   description: { type: String, required: true },
   region: { type: String, trim: true },
+  bookingId: { type: Schema.Types.ObjectId },
   timestamp: { type: Date, default: Date.now },
 });
+
+// One posting of each service-fee part per booking, however many times
+// settlement is retried.
+ledgerEntrySchema.index(
+  { bookingId: 1, type: 1 },
+  { unique: true, partialFilterExpression: { bookingId: { $exists: true } } }
+);
 
 ledgerEntrySchema.index({ timestamp: -1 });
 ledgerEntrySchema.index({ type: 1, timestamp: -1 });

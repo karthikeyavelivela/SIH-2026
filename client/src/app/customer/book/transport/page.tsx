@@ -1,5 +1,6 @@
 'use client';
 
+import { FeeNote } from '@/components/booking/FeeNote';
 import { RatingGateNotice } from '@/components/booking/RatingGateNotice';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -412,6 +413,7 @@ export default function TransportBookingPage() {
                   value={`₹${fare.total}`}
                   note={t('gstNote')}
                 />
+                <FeeNote fare={fare} className="text-fy-on-slate opacity-80" />
               </>
             ) : (
               <Body tone="on-dark" size="label" className="opacity-80">

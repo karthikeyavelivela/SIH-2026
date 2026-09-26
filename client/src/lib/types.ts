@@ -23,7 +23,17 @@ export interface FareBreakdown {
   distanceFare: number;
   surgeMultiplier: number;
   hamaliFare: number;
+  /** What the customer pays: the worker's rate plus the service fee. */
   total: number;
+  /** P1.1 — the worker's rate, all of which the worker keeps. Absent on older bookings. */
+  workerRate?: number;
+  serviceFeePct?: number;
+  serviceFee?: number;
+}
+
+/** What the worker earns on a booking: their rate, never the customer's total. */
+export function workerRateOf(fb: Pick<FareBreakdown, 'total' | 'workerRate'>): number {
+  return typeof fb.workerRate === 'number' ? fb.workerRate : fb.total;
 }
 
 export interface Booking {
@@ -113,6 +123,8 @@ export interface EarningLine {
   /** Disclosed per line so a worker sees what was taken and by whom. */
   grossAmount?: number;
   platformFee?: number;
+  /** The platform rate taken on this job; 0 for a job priced with the P1.1 service fee. */
+  platformRatePct?: number;
   societyFee?: number;
 }
 
@@ -165,6 +177,8 @@ export interface EarningsResponse {
    * between the society's reserve and what is distributable to the crew.
    */
   retained?: number;
+  /** P1.1 — the society's share of customers' service fees, posted to its ledger. */
+  societyShareFromFees?: number;
   commissionRatePct?: number;
   welfareDeductionRatePct?: number;
   /**

@@ -22,6 +22,7 @@ import { detectAbnormalCancellationRate } from '../services/fraudDetection.servi
 import { guaranteeStatusFor, claimGuarantee } from '../services/guarantee.service';
 import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { priceWork, UNIT_DECLARATIONS } from '../services/workPricing.service';
+import { getFeeSplit, withServiceFee } from '../services/serviceFee.service';
 
 /**
  * The 422 a customer sees when nothing prices their job.
@@ -125,7 +126,7 @@ async function priceBooking(input: QuoteInput) {
   // ever computed independently.
   const liveSurge = await getSurgeMultiplier(region);
 
-  const fareBreakdown = computeFareBreakdown({
+  const workerFare = computeFareBreakdown({
     vehicleRule: vehicleRule
       ? {
           baseFare: vehicleRule.baseFare,
@@ -146,6 +147,9 @@ async function priceBooking(input: QuoteInput) {
     hamaliCount: requiredHamaliCount ?? 0,
   });
 
+  // P1.1 — the rule-priced amount is the worker's rate; the customer pays
+  // the service fee on top of it.
+  const fareBreakdown = withServiceFee(workerFare, await getFeeSplit());
   return { fareBreakdown, distanceKm };
 }
 
@@ -171,13 +175,10 @@ export const quoteBooking = asyncHandler(async (req: Request, res: Response) => 
     if (!profile) throw new ApiError(404, 'That worker has not published rates for this service');
     const fare = await priceWork({ profile, mode: pricingMode, unitType, quantity, taskName, quotationId });
     res.status(200).json({
-      fareBreakdown: {
-        baseFare: 0,
-        distanceFare: 0,
-        surgeMultiplier: 1,
-        hamaliFare: fare.total,
-        total: fare.total,
-      },
+      fareBreakdown: withServiceFee(
+        { baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: fare.total, total: fare.total },
+        await getFeeSplit()
+      ),
       workFare: fare,
     });
     return;
@@ -322,13 +323,10 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 
     // Expressed through the existing FareBreakdown shape so every downstream
     // reader — earnings, commission, invoice, ledger — keeps working unchanged.
-    fareBreakdown = {
-      baseFare: 0,
-      distanceFare: 0,
-      surgeMultiplier: 1,
-      hamaliFare: workFare.total,
-      total: workFare.total,
-    };
+    fareBreakdown = withServiceFee(
+      { baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: workFare.total, total: workFare.total },
+      await getFeeSplit()
+    );
   } else {
     ({ fareBreakdown, distanceKm } = await priceBooking({
       type,

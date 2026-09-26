@@ -9,6 +9,7 @@ import { writeAuditLog, SYSTEM_ACTOR_ID } from './audit.service';
 import { detectZeroDistanceFullFare } from './fraudDetection.service';
 import { recordSocietyDeductionsForBooking } from './governance.service';
 import { recordPlatformCommissionForBooking } from './platformCommission.service';
+import { settleServiceFee } from './serviceFee.service';
 import type { HydratedDocument } from 'mongoose';
 
 /**
@@ -147,6 +148,12 @@ export async function finalizeCompletion(
   detectZeroDistanceFullFare(booking._id.toString()).catch(() => {});
   // Settlement. Awaited (not fire-and-forget) so a caller that returns
   // 'completed' has actually settled; each writer is itself idempotent.
+  // P1.1: a booking priced with the service fee posts its four fee parts and
+  // deducts nothing from the worker; the two old writers below skip it.
+  await settleServiceFee(booking).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('settleServiceFee failed:', err);
+  });
   await recordSocietyDeductionsForBooking(booking).catch((err) => {
     // eslint-disable-next-line no-console
     console.error('recordSocietyDeductionsForBooking failed:', err);

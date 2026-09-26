@@ -7,6 +7,7 @@ import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { acceptAsDriver, acceptAsHamaliSolo } from '../services/bookingAssignment.service';
 import { emitBookingMatched } from '../realtime/emitters';
+import { workerRateOf, repriceWorkerRate, plainFare } from '../services/serviceFee.service';
 
 const openStatus = { $in: ['requested', 'searching'] };
 
@@ -107,8 +108,9 @@ export const placeBid = asyncHandler(async (req: Request, res: Response) => {
 
   await assertEligibleBidder(userId, role, booking);
 
-  const ceiling = booking.fareBreakdown.total * MAX_BID_MULTIPLE;
-  if (booking.fareBreakdown.total > 0 && amount > ceiling) {
+  const referenceRate = workerRateOf(booking.fareBreakdown);
+  const ceiling = referenceRate * MAX_BID_MULTIPLE;
+  if (referenceRate > 0 && amount > ceiling) {
     throw new ApiError(400, `Bid too high — must be at most ₹${ceiling.toFixed(2)} (${MAX_BID_MULTIPLE}x the reference fare)`);
   }
 
@@ -194,15 +196,17 @@ export const acceptBid = asyncHandler(async (req: Request, res: Response) => {
   // components are scaled proportionally to the new total purely for
   // display, exactly the pattern that comment already prescribes for any
   // caller needing them to visually sum.
-  const oldFareBreakdown = booking.fareBreakdown;
-  const scale = oldFareBreakdown.total > 0 ? bid.amount / oldFareBreakdown.total : 1;
-  booking.fareBreakdown = {
+  // P1.1 — a bid is the worker's own price for the job, so it replaces the
+  // worker's rate; the customer's service fee is recomputed on top of it at
+  // the booking's frozen split.
+  const oldFareBreakdown = plainFare(booking.fareBreakdown);
+  const oldRate = workerRateOf(oldFareBreakdown);
+  const scale = oldRate > 0 ? bid.amount / oldRate : 1;
+  booking.fareBreakdown = repriceWorkerRate(oldFareBreakdown, bid.amount, {
     baseFare: Math.round(oldFareBreakdown.baseFare * scale * 100) / 100,
     distanceFare: Math.round(oldFareBreakdown.distanceFare * scale * 100) / 100,
     hamaliFare: Math.round(oldFareBreakdown.hamaliFare * scale * 100) / 100,
-    surgeMultiplier: oldFareBreakdown.surgeMultiplier,
-    total: bid.amount,
-  };
+  });
   booking.openForBidding = false;
   await booking.save();
 

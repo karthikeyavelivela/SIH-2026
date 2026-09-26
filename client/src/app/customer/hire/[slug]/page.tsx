@@ -56,7 +56,13 @@ interface WorkFare {
 }
 
 interface Disclosure {
+  /** The worker's rate — all of which the worker keeps (P1.1). */
   total: number;
+  serviceFee: number;
+  serviceFeePct: number;
+  customerTotal: number;
+  feeParts: { society: number; welfarePool: number; guaranteeReserve: number; platform: number };
+  feeSplit: { societyPct: number; welfarePoolPct: number; guaranteeReservePct: number; platformPct: number };
   platformFee: number;
   platformRatePct: number;
   societyReserve: number;
@@ -457,31 +463,37 @@ export default function HirePage() {
 
                   <div className="border-t border-fy-brown/10 pt-2.5 flex flex-col gap-1.5">
                     <EyebrowLabel>{t('breakdown')}</EyebrowLabel>
-                    <Row label={t('subtotal')} value={`₹${disclosure.total}`} strong />
+                    <Row label={t('workerRate', { name: chosen.name })} value={`₹${disclosure.total}`} strong />
                     <Row
-                      label={t('platformFee', { pct: disclosure.platformRatePct })}
-                      value={`−₹${disclosure.platformFee}`}
+                      label={t('serviceFee', { pct: disclosure.serviceFeePct })}
+                      value={`+₹${disclosure.serviceFee}`}
                     />
-                    {disclosure.societyReserve > 0 && (
+                    {/* Where the fee goes — the same split settlement posts. */}
+                    <div className="flex flex-col gap-1 pl-3 border-l border-fy-brown/10">
                       <Row
-                        label={t('societyReserve', {
-                          society: disclosure.societyName ?? '',
-                          pct: disclosure.societyRatePct,
-                        })}
-                        value={`−₹${disclosure.societyReserve}`}
+                        label={t('feeSociety', { pct: disclosure.feeSplit.societyPct })}
+                        value={`₹${disclosure.feeParts.society}`}
                       />
-                    )}
-                    {disclosure.societyWelfare > 0 && (
                       <Row
-                        label={t('societyWelfare', { pct: disclosure.welfareRatePct })}
-                        value={`−₹${disclosure.societyWelfare}`}
+                        label={t('feeWelfare', { pct: disclosure.feeSplit.welfarePoolPct })}
+                        value={`₹${disclosure.feeParts.welfarePool}`}
                       />
-                    )}
+                      <Row
+                        label={t('feeGuarantee', { pct: disclosure.feeSplit.guaranteeReservePct })}
+                        value={`₹${disclosure.feeParts.guaranteeReserve}`}
+                      />
+                      <Row
+                        label={t('feePlatform', { pct: disclosure.feeSplit.platformPct })}
+                        value={`₹${disclosure.feeParts.platform}`}
+                      />
+                    </div>
+                    <Row label={t('youPay')} value={`₹${disclosure.customerTotal}`} strong />
                     <Row
                       label={t('takeHome', { name: chosen.name })}
                       value={`₹${disclosure.workerTakeHome}`}
                       strong
                     />
+                    <span className="text-xs text-fy-green">{t('workerKeepsAll')}</span>
                     <span className="font-mono text-[10px] text-fy-muted">{t('disclosureNote')}</span>
                     {/* The last line of the breakdown, after the worker's
                         take-home: the one number on this screen that is not

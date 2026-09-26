@@ -400,13 +400,16 @@ describe('work-based pricing — what the customer is shown', () => {
     });
 
     const d = res.body.disclosure;
-    // Both cuts on gross, neither compounding on the other — the same
-    // arithmetic the earnings screen and the commission record use.
+    // P1.1 — the society's bye-law rates no longer come out of the worker's
+    // pay: the customer pays the rate plus a 10% fee, split 5/3/1/1, and the
+    // worker keeps all of the rate.
     expect(d.total).toBe(1000);
-    expect(d.platformFee).toBe(10);
-    expect(d.societyReserve).toBe(60);
-    expect(d.societyWelfare).toBe(20);
-    expect(d.workerTakeHome).toBe(910);
+    expect(d.serviceFee).toBe(100);
+    expect(d.customerTotal).toBe(1100);
+    expect(d.feeParts).toEqual({ society: 50, welfarePool: 30, guaranteeReserve: 10, platform: 10 });
+    expect(d.platformFee).toBe(0);
+    expect(d.societyReserve).toBe(0);
+    expect(d.workerTakeHome).toBe(1000);
     expect(d.societyName).toBe('Deducting Society');
   });
 
@@ -582,7 +585,10 @@ describe('work-based pricing — booking at a published rate', () => {
     const booking = await Booking.findById(res.body.booking._id);
     // 32 sq ft x Rs 300. No fare rule was consulted, and none exists for this
     // trade — the price is the worker's own published number.
-    expect(booking?.fareBreakdown.total).toBe(9600);
+    expect(booking?.fareBreakdown.workerRate).toBe(9600);
+    // P1.1 — the customer pays the worker's rate plus the 10% service fee.
+    expect(booking?.fareBreakdown.serviceFee).toBe(960);
+    expect(booking?.fareBreakdown.total).toBe(10560);
     expect(booking?.pricingMode).toBe('per_unit');
     expect(booking?.unitType).toBe('sq_ft_face');
     expect(booking?.quantity).toBe(32);
@@ -699,7 +705,8 @@ describe('work-based pricing — booking at a published rate', () => {
     });
 
     expect(quote.status).toBe(200);
-    expect(quote.body.fareBreakdown.total).toBe(6000);
+    expect(quote.body.fareBreakdown.workerRate).toBe(6000);
+    expect(quote.body.fareBreakdown.total).toBe(6600);
     expect(await Booking.countDocuments({ customerId: customer._id })).toBe(0);
   });
 });

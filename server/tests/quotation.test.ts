@@ -114,7 +114,10 @@ describe('quotation — the path from request to agreed price', () => {
 
     // The booking the work happens under charges exactly that.
     const booking = await Booking.findById(accepted.body.bookingId);
-    expect(booking?.fareBreakdown.total).toBe(17600);
+    // The agreed quotation is the worker's rate; the customer pays it plus
+    // the 10% service fee (P1.1).
+    expect(booking?.fareBreakdown.workerRate).toBe(17600);
+    expect(booking?.fareBreakdown.total).toBe(19360);
     expect(booking?.pricingMode).toBe('quotation');
     expect(booking?.quotationId?.toString()).toBe(id);
   });
@@ -238,7 +241,7 @@ describe('quotation — after acceptance the price cannot move on its own', () =
 
     // Requested is not approved: the bill has not moved.
     let booking = await Booking.findById(bookingId);
-    expect(booking?.fareBreakdown.total).toBe(17600);
+    expect(booking?.fareBreakdown.workerRate).toBe(17600);
 
     const approved = await customerAgent
       .post(`/api/quotations/variations/${raised.body.variation._id}/decide`)
@@ -246,7 +249,9 @@ describe('quotation — after acceptance the price cannot move on its own', () =
     expect(approved.status).toBe(200);
 
     booking = await Booking.findById(bookingId);
-    expect(booking?.fareBreakdown.total).toBe(20100);
+    // The variation moves the worker's rate; the fee follows at the frozen 10%.
+    expect(booking?.fareBreakdown.workerRate).toBe(20100);
+    expect(booking?.fareBreakdown.total).toBe(22110);
 
     // The agreed figure is untouched — the variation is a documented addition
     // to it, not a rewrite of it.
@@ -266,7 +271,8 @@ describe('quotation — after acceptance the price cannot move on its own', () =
       .send({ approve: false, note: 'Not needed.' });
 
     const booking = await Booking.findById(accepted.body.bookingId);
-    expect(booking?.fareBreakdown.total).toBe(17600);
+    expect(booking?.fareBreakdown.workerRate).toBe(17600);
+    expect(booking?.fareBreakdown.total).toBe(19360);
   });
 
   it('a variation cannot be raised before anything was agreed', async () => {

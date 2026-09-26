@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
 import { useIncomingOffer } from '@/lib/useIncomingOffer';
-import { Booking, MuthaResponse } from '@/lib/types';
+import { Booking, MuthaResponse, workerRateOf } from '@/lib/types';
 import { OfferCard } from '@/components/worker/OfferCard';
 import { SelectableWorkerCard } from '@/components/ui/SelectableWorkerCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -130,7 +130,7 @@ function MemberPicker({
         </div>
         <div className="rounded-control bg-fy-field p-3">
           <EyebrowLabel>{t('collectiveYield')}</EyebrowLabel>
-          <p className="font-heading text-heading text-fy-ink leading-none">₹{booking.fareBreakdown.total}</p>
+          <p className="font-heading text-heading text-fy-ink leading-none">₹{workerRateOf(booking.fareBreakdown)}</p>
           {perWorker != null && <Body size="label">{t('perWorker', { amount: perWorker })}</Body>}
         </div>
       </div>

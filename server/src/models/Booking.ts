@@ -132,7 +132,18 @@ export interface IBooking {
     distanceFare: number;
     surgeMultiplier: number;
     hamaliFare: number;
+    /** What the customer pays: workerRate + serviceFee. */
     total: number;
+    /**
+     * P1.1 — the worker's rate, all of which the worker keeps. Absent on
+     * bookings priced before the service fee existed; those read `total` as
+     * the worker's rate and keep their old deductions (see serviceFee.service.ts).
+     */
+    workerRate?: number;
+    serviceFeePct?: number;
+    serviceFee?: number;
+    /** The split frozen at booking time, so a later settings change never rewrites it. */
+    feeSplit?: { societyPct: number; welfarePoolPct: number; guaranteeReservePct: number; platformPct: number };
   };
   distanceKm: number;
   statusHistory: { status: BookingStatus; timestamp: Date }[];
@@ -259,6 +270,19 @@ const bookingSchema = new Schema<IBooking>(
       surgeMultiplier: { type: Number, default: 1.0 },
       hamaliFare: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
+      workerRate: { type: Number },
+      serviceFeePct: { type: Number },
+      serviceFee: { type: Number },
+      feeSplit: {
+        type: {
+          societyPct: Number,
+          welfarePoolPct: Number,
+          guaranteeReservePct: Number,
+          platformPct: Number,
+        },
+        _id: false,
+        default: undefined,
+      },
     },
     distanceKm: { type: Number, default: 0 },
     statusHistory: {

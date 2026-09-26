@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useBookingSocket } from '@/lib/useBookingSocket';
 import { useLiveLocationBroadcast } from '@/lib/useLiveLocationBroadcast';
 import { distanceKm } from '@/lib/geo';
-import { Booking } from '@/lib/types';
+import { Booking, workerRateOf } from '@/lib/types';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
@@ -200,7 +200,7 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
             </div>
             <div className="text-right shrink-0">
               <EyebrowLabel>{tRole('agreedFreight')}</EyebrowLabel>
-              <p className="font-heading text-title text-fy-ink">₹{booking.fareBreakdown.total}</p>
+              <p className="font-heading text-title text-fy-ink">₹{workerRateOf(booking.fareBreakdown)}</p>
             </div>
           </div>
 

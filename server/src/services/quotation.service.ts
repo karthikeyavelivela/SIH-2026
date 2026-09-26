@@ -11,6 +11,7 @@ import { VariationOrder } from '../models/VariationOrder';
 import { Booking } from '../models/Booking';
 import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { createNotification } from './notification.service';
+import { getFeeSplit, withServiceFee, workerRateOf, repriceWorkerRate } from './serviceFee.service';
 
 /**
  * The quotation lifecycle.
@@ -308,13 +309,11 @@ export async function acceptQuotation(
     dropLocation: { type: 'Point', coordinates: where.coordinates, address: where.address },
     requiredHamaliCount: 1,
     status: 'searching',
-    fareBreakdown: {
-      baseFare: 0,
-      distanceFare: 0,
-      surgeMultiplier: 1,
-      hamaliFare: quotation.frozenTotal,
-      total: quotation.frozenTotal,
-    },
+    // The agreed quotation is the worker's rate; the service fee goes on top.
+    fareBreakdown: withServiceFee(
+      { baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: quotation.frozenTotal, total: quotation.frozenTotal },
+      await getFeeSplit()
+    ),
     statusHistory: [{ status: 'searching', timestamp: new Date() }],
   });
 
@@ -417,12 +416,11 @@ export async function approveVariation(userId: string, variationId: string, appr
     // to it.
     const booking = await Booking.findById(variation.bookingId);
     if (booking) {
-      const updated = round2(booking.fareBreakdown.total + variation.amount);
-      booking.fareBreakdown = {
-        ...booking.fareBreakdown,
-        hamaliFare: updated,
-        total: updated,
-      };
+      // The variation moves the worker's rate; the fee follows at the
+      // booking's own frozen split.
+      const fb = booking.fareBreakdown;
+      const updatedRate = round2(workerRateOf(fb) + variation.amount);
+      booking.fareBreakdown = repriceWorkerRate(fb, updatedRate, { hamaliFare: updatedRate });
       await booking.save();
     }
   }

@@ -14,6 +14,7 @@ import { SocietyRateFloor } from '../models/SocietyRateFloor';
 import { WorkerPricingProfile, IWorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { Quotation } from '../models/Quotation';
 import type { PricingMode, UnitType } from '@fyro/shared';
+import { withServiceFee, splitServiceFee, type FeeSplit } from './serviceFee.service';
 
 /**
  * Work-based pricing: the money math, and the floor that bounds it.
@@ -415,7 +416,17 @@ export async function priceWork(input: PriceWorkInput): Promise<WorkFareBreakdow
 // ----------------------------------------------------- itemised for humans
 
 export interface PriceDisclosure {
+  /** The worker's rate for this job — all of which the worker keeps (P1.1). */
   total: number;
+  /** P1.1 — added on top of the worker's rate and paid by the customer. */
+  serviceFee: number;
+  serviceFeePct: number;
+  /** What the customer pays: total + serviceFee. */
+  customerTotal: number;
+  /** Where the service fee goes, in rupees, exactly as settlement will post it. */
+  feeParts: { society: number; welfarePool: number; guaranteeReserve: number; platform: number };
+  feeSplit: { societyPct: number; welfarePoolPct: number; guaranteeReservePct: number; platformPct: number };
+  /** Deprecated (always 0 since P1.1): nothing is deducted from the worker any more. */
   platformFee: number;
   platformRatePct: number;
   societyReserve: number;
@@ -451,29 +462,21 @@ export interface PriceDisclosure {
 }
 
 /**
- * Every deduction, named, before the customer confirms.
+ * Every rupee, named, before the customer confirms.
  *
- * The product's promise is that a customer sees what the worker actually
- * takes home — not a total with an invisible cut inside it. Both deductions
- * are taken on gross and neither compounds on the other, which is the same
- * arithmetic the earnings screen and the commission record already use.
+ * Since P1.1 nothing is deducted from the worker: the customer pays the
+ * worker's rate plus a published service fee, and this says exactly where
+ * each part of that fee goes — computed by the same functions settlement
+ * uses, so the promise on screen is the posting in the ledger.
  */
-export async function disclosePrice(
-  total: number,
-  workerId: string,
-  platformRatePct: number,
-  categorySlug?: string
-): Promise<PriceDisclosure> {
+export async function disclosePrice(total: number, workerId: string, split: FeeSplit, categorySlug?: string): Promise<PriceDisclosure> {
   const society = await Mutha.findOne({ $or: [{ leaderId: workerId }, { memberIds: workerId }] })
-    .select('name commissionRatePct welfareDeductionRatePct')
+    .select('name')
     .lean();
 
-  const societyRatePct = society?.commissionRatePct ?? 0;
-  const welfareRatePct = society?.welfareDeductionRatePct ?? 0;
-
-  const platformFee = round2((total * platformRatePct) / 100);
-  const societyReserve = round2((total * societyRatePct) / 100);
-  const societyWelfare = round2((total * welfareRatePct) / 100);
+  const priced = withServiceFee({ baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: total, total }, split);
+  const serviceFee = priced.serviceFee ?? 0;
+  const feeParts = splitServiceFee(serviceFee, split);
 
   const worker = await User.findById(workerId).select('region').lean();
   const state = worker?.region ? await stateForRegion(worker.region) : null;
@@ -483,13 +486,23 @@ export async function disclosePrice(
 
   return {
     total: round2(total),
-    platformFee,
-    platformRatePct,
-    societyReserve,
-    societyWelfare,
-    societyRatePct,
-    welfareRatePct,
-    workerTakeHome: round2(total - platformFee - societyReserve - societyWelfare),
+    serviceFee,
+    serviceFeePct: split.feeTotalPct,
+    customerTotal: priced.total,
+    feeParts,
+    feeSplit: {
+      societyPct: split.societyPct,
+      welfarePoolPct: split.welfarePoolPct,
+      guaranteeReservePct: split.guaranteeReservePct,
+      platformPct: split.platformPct,
+    },
+    platformFee: 0,
+    platformRatePct: 0,
+    societyReserve: 0,
+    societyWelfare: 0,
+    societyRatePct: 0,
+    welfareRatePct: 0,
+    workerTakeHome: round2(total),
     societyName: society?.name,
     ...(floor
       ? {
