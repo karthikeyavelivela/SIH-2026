@@ -14,6 +14,7 @@ import {
 import { writeAuditLog } from '../services/audit.service';
 import { LedgerEntry } from '../models/LedgerEntry';
 import { getFeeSplit, feeSplitProblems, DEFAULT_FEE_SPLIT, FeeSplit } from '../services/serviceFee.service';
+import { guaranteeReserveBalance } from '../services/guarantee.service';
 
 const BCRYPT_COST = 12;
 
@@ -226,7 +227,9 @@ export const getPlatformFees = asyncHandler(async (_req: Request, res: Response)
   const byType = Object.fromEntries(
     collected.map((c: { _id: string; total: number; count: number }) => [c._id, { total: Math.round(c.total * 100) / 100, postings: c.count }])
   );
-  res.status(200).json({ split, defaultSplit: DEFAULT_FEE_SPLIT, legacyCommissionPct: legacyPct, collected: byType });
+  // P1.3 — what the guarantee reserve still holds after re-work labour.
+  const guaranteeReserve = await guaranteeReserveBalance();
+  res.status(200).json({ split, defaultSplit: DEFAULT_FEE_SPLIT, legacyCommissionPct: legacyPct, collected: byType, guaranteeReserve });
 });
 
 /**

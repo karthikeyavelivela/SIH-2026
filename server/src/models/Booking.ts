@@ -148,6 +148,18 @@ export interface IBooking {
   distanceKm: number;
   /** Verification (demo/test) data: excluded from analytics, welfare and reports. */
   isVerification?: boolean;
+  /**
+   * P1.3 — a workmanship-guarantee re-work job. The customer pays only the
+   * materials the worker records; the worker's labour is paid at the base
+   * rate from the platform's guarantee reserve (guarantee.service.ts).
+   */
+  isRework?: boolean;
+  reworkOfBookingId?: Types.ObjectId;
+  guaranteeComplaintId?: Types.ObjectId;
+  materialsCost?: number;
+  materialsNote?: string;
+  /** Set once the labour payment from the reserve has been made (or queued). */
+  reworkLabourPayoutId?: Types.ObjectId;
   statusHistory: { status: BookingStatus; timestamp: Date }[];
   // Photo proof captured by the assigned worker at pickup (before 'start')
   // and delivery (before 'complete') — biggest single dispute-reduction
@@ -288,6 +300,12 @@ const bookingSchema = new Schema<IBooking>(
     },
     distanceKm: { type: Number, default: 0 },
     isVerification: { type: Boolean, default: false, index: true },
+    isRework: { type: Boolean, default: false },
+    reworkOfBookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
+    guaranteeComplaintId: { type: Schema.Types.ObjectId, ref: 'Complaint' },
+    materialsCost: { type: Number, min: 0 },
+    materialsNote: { type: String, trim: true, maxlength: 300 },
+    reworkLabourPayoutId: { type: Schema.Types.ObjectId, ref: 'Payout' },
     statusHistory: {
       type: [{ status: String, timestamp: { type: Date, default: Date.now } }],
       default: [],

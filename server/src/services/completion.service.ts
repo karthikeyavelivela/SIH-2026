@@ -10,6 +10,7 @@ import { detectZeroDistanceFullFare } from './fraudDetection.service';
 import { recordSocietyDeductionsForBooking } from './governance.service';
 import { recordPlatformCommissionForBooking } from './platformCommission.service';
 import { settleServiceFee } from './serviceFee.service';
+import { settleRework } from './guarantee.service';
 import type { HydratedDocument } from 'mongoose';
 
 /**
@@ -161,6 +162,11 @@ export async function finalizeCompletion(
   await recordPlatformCommissionForBooking(booking).catch((err) => {
     // eslint-disable-next-line no-console
     console.error('recordPlatformCommissionForBooking failed:', err);
+  });
+  // P1.3: a guarantee re-work pays its labour from the reserve.
+  await settleRework(booking).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('settleRework failed:', err);
   });
 
   await writeAuditLog({

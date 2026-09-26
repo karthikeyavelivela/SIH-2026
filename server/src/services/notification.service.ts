@@ -52,6 +52,16 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'ఇన్సూరెన్స్ పేఅవుట్ ట్రిగ్గర్ అయింది', body: `₹${v.amount} ఆటోమేటిక్‌గా చెల్లించబడింది — మీ ఆదాయం కవర్ చేసిన థ్రెషోల్డ్ కంటే తక్కువగా ఉంది.` }),
     hi: (v) => ({ title: 'बीमा भुगतान ट्रिगर हुआ', body: `₹${v.amount} अपने आप भुगतान हुआ — आपकी कमाई कवर की गई सीमा से कम थी।` }),
   },
+  guarantee_rework: {
+    en: (v) => ({ title: 'Guarantee re-work booked', body: `A customer claimed the workmanship guarantee on ${v.ref}. The re-work job is in your active jobs: the customer pays materials only, and your labour is paid ₹${v.labour} from the guarantee reserve.` }),
+    te: (v) => ({ title: 'హామీ పునఃపని బుక్ అయింది', body: `${v.ref} పై కస్టమర్ పని నాణ్యత హామీని కోరారు. పునఃపని మీ యాక్టివ్ జాబ్స్‌లో ఉంది: కస్టమర్ సామగ్రికి మాత్రమే చెల్లిస్తారు, మీ శ్రమకు హామీ నిల్వ నుండి ₹${v.labour} చెల్లిస్తారు.` }),
+    hi: (v) => ({ title: 'गारंटी पर दोबारा काम बुक हुआ', body: `ग्राहक ने ${v.ref} पर काम की गारंटी का दावा किया। दोबारा का काम आपकी सक्रिय जॉब में है: ग्राहक केवल सामान का भुगतान करेगा, और आपकी मज़दूरी ₹${v.labour} गारंटी रिज़र्व से दी जाएगी।` }),
+  },
+  training_assigned: {
+    en: (v) => ({ title: 'Training assigned', body: `"${v.module}" has been added to your training after ${v.count} guarantee claims in 90 days. There is no penalty — it is there to help.` }),
+    te: (v) => ({ title: 'శిక్షణ కేటాయించబడింది', body: `90 రోజుల్లో ${v.count} హామీ క్లెయిమ్‌ల తర్వాత "${v.module}" మీ శిక్షణలో చేర్చబడింది. ఎలాంటి జరిమానా లేదు — ఇది సహాయం కోసమే.` }),
+    hi: (v) => ({ title: 'प्रशिक्षण दिया गया', body: `90 दिनों में ${v.count} गारंटी दावों के बाद "${v.module}" आपके प्रशिक्षण में जोड़ा गया है। कोई जुर्माना नहीं है — यह मदद के लिए है।` }),
+  },
   welfare_payout: {
     en: (v) => ({ title: 'Welfare pool payment', body: `₹${v.amount} from the ${v.pool} welfare pool — work in your area dropped well below normal this week.` }),
     te: (v) => ({ title: 'సంక్షేమ నిధి చెల్లింపు', body: `${v.pool} సంక్షేమ నిధి నుండి ₹${v.amount} — ఈ వారం మీ ప్రాంతంలో పని సాధారణం కంటే చాలా తగ్గింది.` }),
@@ -95,21 +105,36 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
             title: 'Wage floor needs updating',
             body: `The minimum-wage notification for ${v.states} has passed its end date. The last notified rate is still being enforced. Enter the new notification.`,
           }
-        : { title: 'System alert', body: String(v.message ?? '') },
+        : v.kind === 'repeat_guarantee_claims'
+          ? {
+              title: 'Member may need support',
+              body: `${v.member} has had ${v.count} workmanship guarantee claims in 90 days. The "${v.module}" training has been assigned to them. No penalty applies.`,
+            }
+          : { title: 'System alert', body: String(v.message ?? '') },
     te: (v) =>
       v.kind === 'wage_floor_stale'
         ? {
             title: 'కనీస వేతనం నవీకరించాలి',
             body: `${v.states} కనీస వేతన నోటిఫికేషన్ గడువు ముగిసింది. చివరిగా ప్రకటించిన రేటు ఇంకా అమలులో ఉంది. కొత్త నోటిఫికేషన్‌ను నమోదు చేయండి.`,
           }
-        : { title: 'సిస్టమ్ హెచ్చరిక', body: String(v.message ?? '') },
+        : v.kind === 'repeat_guarantee_claims'
+          ? {
+              title: 'సభ్యుడికి సహాయం అవసరం కావచ్చు',
+              body: `90 రోజుల్లో ${v.member} పై ${v.count} పని నాణ్యత హామీ క్లెయిమ్‌లు వచ్చాయి. వారికి "${v.module}" శిక్షణ కేటాయించబడింది. ఎలాంటి జరిమానా లేదు.`,
+            }
+          : { title: 'సిస్టమ్ హెచ్చరిక', body: String(v.message ?? '') },
     hi: (v) =>
       v.kind === 'wage_floor_stale'
         ? {
             title: 'न्यूनतम मज़दूरी अपडेट करें',
             body: `${v.states} की न्यूनतम मज़दूरी अधिसूचना की अवधि समाप्त हो गई है। अंतिम अधिसूचित दर अभी भी लागू है। नई अधिसूचना दर्ज करें।`,
           }
-        : { title: 'सिस्टम अलर्ट', body: String(v.message ?? '') },
+        : v.kind === 'repeat_guarantee_claims'
+          ? {
+              title: 'सदस्य को मदद की ज़रूरत हो सकती है',
+              body: `90 दिनों में ${v.member} पर ${v.count} गारंटी दावे आए हैं। उन्हें "${v.module}" प्रशिक्षण दिया गया है। कोई जुर्माना नहीं है।`,
+            }
+          : { title: 'सिस्टम अलर्ट', body: String(v.message ?? '') },
   },
 };
 

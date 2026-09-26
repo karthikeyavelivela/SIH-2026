@@ -26,7 +26,9 @@ export type LedgerEntryType =
   | 'guarantee_reserve'
   | 'platform_fee'
   // P1.2 — money out of a district welfare pool.
-  | 'welfare_pool_payout';
+  | 'welfare_pool_payout'
+  // P1.3 — labour for guarantee re-work, paid out of the reserve.
+  | 'guarantee_reserve_payout';
 export type LedgerEntryStatus = 'posted' | 'pending' | 'failed';
 
 // Append-only platform financial ledger (Part 2.2 of the admin/ops build).
@@ -68,6 +70,7 @@ const ledgerEntrySchema = new Schema<ILedgerEntry>({
       'guarantee_reserve',
       'platform_fee',
       'welfare_pool_payout',
+      'guarantee_reserve_payout',
     ],
     required: true,
   },

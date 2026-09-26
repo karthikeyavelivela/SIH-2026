@@ -13,6 +13,8 @@ export interface ITrainingProgress {
   moduleId: Types.ObjectId;
   status: TrainingProgressStatus;
   completedAt?: Date;
+  /** Why it was assigned rather than chosen, e.g. 'guarantee_claims' (P1.3). Never a penalty. */
+  assignedReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +25,7 @@ const trainingProgressSchema = new Schema<ITrainingProgress>(
     moduleId: { type: Schema.Types.ObjectId, ref: 'TrainingModule', required: true },
     status: { type: String, enum: ['locked', 'in_progress', 'completed'], default: 'in_progress' },
     completedAt: { type: Date },
+    assignedReason: { type: String },
   },
   { timestamps: true }
 );

@@ -573,5 +573,5 @@ export const getGuaranteeStatus = asyncHandler(async (req: Request, res: Respons
 export const raiseGuaranteeClaim = asyncHandler(async (req: Request, res: Response) => {
   const { description } = req.body as { description: string };
   const complaint = await claimGuarantee(req.user!.id, req.params.id, description);
-  res.status(201).json({ complaintId: complaint._id.toString() });
+  res.status(201).json({ complaintId: complaint._id.toString(), reworkBookingId: complaint.reworkBookingId?.toString() });
 });

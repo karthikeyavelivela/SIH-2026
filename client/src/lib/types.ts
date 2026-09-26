@@ -38,6 +38,11 @@ export function workerRateOf(fb: Pick<FareBreakdown, 'total' | 'workerRate'>): n
 
 export interface Booking {
   _id: string;
+  /** P1.3 — a workmanship-guarantee re-work: the customer pays materials only. */
+  isRework?: boolean;
+  reworkOfBookingId?: string;
+  materialsCost?: number;
+  materialsNote?: string;
   customerId: string;
   type: BookingType;
   // goodsType is the customer's own declaration (server GOODS_TYPES enum).

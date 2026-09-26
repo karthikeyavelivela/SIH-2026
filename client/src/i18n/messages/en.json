@@ -4021,7 +4021,8 @@
     "placeholder": "What was wrong with the work?",
     "sent": "Claim raised. The cooperative desk will review it.",
     "error": "Could not raise the claim.",
-    "notEligible": "This service does not carry a workmanship guarantee."
+    "notEligible": "This service does not carry a workmanship guarantee.",
+    "trackRework": "Track the re-work visit"
   },
   "pwa": {
     "offlineTitle": "You are offline",
@@ -4675,7 +4676,8 @@
     "saving": "Saving…",
     "saved": "Saved. New bookings are priced with this split.",
     "saveFailed": "Could not save. Try again.",
-    "resetDefault": "Reset to 10% (5/3/1/1)"
+    "resetDefault": "Reset to 10% (5/3/1/1)",
+    "reserveBalance": "Guarantee reserve now holds ₹{amount} after re-work labour."
   },
   "welfare": {
     "title": "Welfare pool",
@@ -4698,5 +4700,19 @@
     "checkLine": "{jobs} jobs · {active} active members · ₹{paid} paid",
     "awaitingApproval": "payments awaiting admin approval",
     "howItWorks": "How the pool works"
+  },
+  "rework": {
+    "title": "Guarantee re-work",
+    "explainer": "The customer claimed the workmanship guarantee. They pay only for materials you record here. Your labour is paid at the base rate from the guarantee reserve when the job is confirmed.",
+    "materialsLabel": "Materials cost (₹)",
+    "materialsPlaceholder": "Materials cost in ₹ (0 if none)",
+    "noteLabel": "What was used",
+    "notePlaceholder": "What was used (optional)",
+    "save": "Save materials",
+    "saving": "Saving…",
+    "saved": "Saved. The customer will pay ₹{amount} for materials.",
+    "saveFailed": "Could not save the materials. Try again.",
+    "materialsFinal": "Materials charged to the customer: ₹{amount}",
+    "leaderBadge": "Guarantee re-work: you can reassign it to another member before it starts."
   }
 }

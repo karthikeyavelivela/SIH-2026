@@ -24,7 +24,9 @@ export type NotificationType =
   // Operational alerts to admins, federation and society officers, keyed by
   // `kind` in the template (stale wage floor, SLA breach, welfare trigger).
   | 'system_alert'
-  | 'welfare_payout';
+  | 'welfare_payout'
+  | 'guarantee_rework'
+  | 'training_assigned';
 
 export interface INotification {
   _id: Types.ObjectId;
@@ -59,6 +61,8 @@ const notificationSchema = new Schema<INotification>({
       'quotation_update',
       'system_alert',
       'welfare_payout',
+      'guarantee_rework',
+      'training_assigned',
     ],
     required: true,
   },

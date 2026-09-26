@@ -18,6 +18,8 @@ interface FeesResponse {
   split: Split;
   defaultSplit: Split;
   legacyCommissionPct: number;
+  /** P1.3 — the guarantee reserve after re-work labour paid from it. */
+  guaranteeReserve: number;
   collected: Partial<Record<'society_share' | 'welfare_pool_contribution' | 'guarantee_reserve' | 'platform_fee', { total: number; postings: number }>>;
 }
 
@@ -124,6 +126,7 @@ export default function AdminPlatformFeesPage() {
           </p>
           <p className="text-xs text-fy-ink-soft">{t('forwardOnly')}</p>
           <p className="text-xs text-fy-ink-soft">{t('legacy', { pct: data.legacyCommissionPct })}</p>
+          <p className="text-sm text-fy-ink">{t('reserveBalance', { amount: data.guaranteeReserve.toLocaleString('en-IN') })}</p>
 
           {error && (
             <p role="alert" className="rounded-control bg-fy-error-bg text-fy-on-error-bg px-4 py-3 text-sm">

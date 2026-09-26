@@ -13,6 +13,7 @@ import { useBookingSocket } from '@/lib/useBookingSocket';
 import { useLiveLocationBroadcast } from '@/lib/useLiveLocationBroadcast';
 import { distanceKm } from '@/lib/geo';
 import { Booking, workerRateOf } from '@/lib/types';
+import { ReworkPanel } from '@/components/worker/ReworkPanel';
 import { ChatPanel } from '@/components/worker/ChatPanel';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { PhotoProofCapture } from '@/components/worker/PhotoProofCapture';
@@ -189,6 +190,8 @@ export function WorkerActiveJob({ base, accent }: { base: WorkerBase; accent: 'p
             )}
           </div>
         )}
+
+        {booking.isRework && <ReworkPanel booking={booking} onUpdated={() => reload()} />}
 
         <Panel className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-3">

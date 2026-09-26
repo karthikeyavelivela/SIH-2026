@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -25,6 +26,7 @@ interface GuaranteeStatus {
   expiresAt?: string;
   daysLeft?: number;
   claimedComplaintId?: string;
+  reworkBookingId?: string;
   reason?: 'not_completed' | 'category_not_eligible' | 'window_expired' | 'already_claimed';
 }
 
@@ -35,6 +37,7 @@ export function GuaranteeSection({ bookingId, status }: { bookingId: string; sta
   const [description, setDescription] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [reworkId, setReworkId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,7 +59,10 @@ export function GuaranteeSection({ bookingId, status }: { bookingId: string; sta
     setBusy(true);
     setError(null);
     try {
-      await api.post(`/api/bookings/${bookingId}/guarantee-claim`, { description: description.trim() });
+      const res = await api.post<{ complaintId: string; reworkBookingId?: string }>(`/api/bookings/${bookingId}/guarantee-claim`, {
+        description: description.trim(),
+      });
+      setReworkId(res.reworkBookingId ?? null);
       setSent(true);
       setOpen(false);
     } catch (err) {
@@ -74,9 +80,23 @@ export function GuaranteeSection({ bookingId, status }: { bookingId: string; sta
       </div>
 
       {sent ? (
-        <Body size="label">{t('sent')}</Body>
+        <>
+          <Body size="label">{t('sent')}</Body>
+          {reworkId && (
+            <Link href={`/customer/track/${reworkId}`} className="font-body text-label font-semibold text-fy-green underline">
+              {t('trackRework')}
+            </Link>
+          )}
+        </>
       ) : guarantee.claimedComplaintId ? (
-        <Body size="label">{t('claimed')}</Body>
+        <>
+          <Body size="label">{t('claimed')}</Body>
+          {guarantee.reworkBookingId && (
+            <Link href={`/customer/track/${guarantee.reworkBookingId}`} className="font-body text-label font-semibold text-fy-green underline">
+              {t('trackRework')}
+            </Link>
+          )}
+        </>
       ) : guarantee.reason === 'window_expired' ? (
         <Body size="label">{t('expired')}</Body>
       ) : (

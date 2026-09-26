@@ -42,6 +42,7 @@ function startOfToday(): number {
 
 function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Promise<void> }) {
   const t = useTranslations('muthaActiveJobs');
+  const tRework = useTranslations('rework');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,6 +86,10 @@ function JobRow({ booking, onChanged }: { booking: Booking; onChanged: () => Pro
           <p className="font-heading text-title text-fy-ink mt-1">₹{workerRateOf(booking.fareBreakdown)}</p>
         </div>
       </div>
+
+      {booking.isRework && (
+        <p className="font-body text-label text-fy-green">{tRework('leaderBadge')}</p>
+      )}
 
       <Divider />
 

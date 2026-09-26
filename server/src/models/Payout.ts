@@ -1,7 +1,7 @@
 import { Schema, model, Types } from 'mongoose';
 
 export type PayoutStatus = 'pending' | 'approved' | 'rejected' | 'paid';
-export type PayoutSource = 'earnings' | 'parametric_insurance' | 'welfare_pool';
+export type PayoutSource = 'earnings' | 'parametric_insurance' | 'welfare_pool' | 'guarantee_rework';
 
 // Lightweight payout-approval queue (driver/hamali/Mutha earnings cycle
 // close). Distinct from Incentive (a bonus grant) and Payment (a customer
@@ -34,7 +34,7 @@ const payoutSchema = new Schema<IPayout>(
     period: { type: String, required: true },
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'paid'], default: 'pending' },
     breakdown: { type: Schema.Types.Mixed, default: {} },
-    source: { type: String, enum: ['earnings', 'parametric_insurance', 'welfare_pool'], required: true, default: 'earnings' },
+    source: { type: String, enum: ['earnings', 'parametric_insurance', 'welfare_pool', 'guarantee_rework'], required: true, default: 'earnings' },
     sourceRefId: { type: Schema.Types.ObjectId },
     decidedByAdminId: { type: Schema.Types.ObjectId, ref: 'User' },
     decidedAt: { type: Date },
