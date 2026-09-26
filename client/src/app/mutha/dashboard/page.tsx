@@ -45,6 +45,7 @@ function statusTone(s: string): 'lime' | 'neutral' | 'outline' {
 
 export default function MuthaDashboardPage() {
   const t = useTranslations('muthaDashboard');
+  const tDisputes = useTranslations('disputeRouting');
   const { user } = useAuth();
   const { data, state } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const { data: bookingsData } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 15000);
@@ -165,6 +166,14 @@ export default function MuthaDashboardPage() {
                 />
               </div>
             </div>
+
+            {/* P1.5 — disputes about this society's jobs come here first. */}
+            <Link
+              href="/mutha/disputes"
+              className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
+            >
+              {tDisputes('openQueue')}
+            </Link>
 
             <Section
               title={<SectionHeading>{t('memberRoster')}</SectionHeading>}

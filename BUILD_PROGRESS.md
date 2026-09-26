@@ -60,6 +60,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | INDIVIDUAL_EARNINGS_TRIGGER | Render API | false | Old per-worker earnings trigger (tests only) |
 | URGENT_RADII_KM | Render API | 3,6,10 | Urgent search rings in km (then the ordinary 25 km) |
 | URGENT_OFFER_TIMEOUT_MS | Render API | 12000 | Countdown for an urgent offer (ordinary: 20000) |
+| DISPUTE_SLA_HOURS | Render API | 48 | Hours a dispute waits at one level before escalating by itself |
 
 ## Migrations needed
 

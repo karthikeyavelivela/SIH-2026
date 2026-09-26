@@ -20,6 +20,7 @@ import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 import { findUnratedCompletedBooking } from '../services/ratingGate.service';
 import { detectAbnormalCancellationRate } from '../services/fraudDetection.service';
 import { guaranteeStatusFor, claimGuarantee } from '../services/guarantee.service';
+import { initialRouting, announceNewDispute } from '../services/disputeRouting.service';
 import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { priceWork, UNIT_DECLARATIONS } from '../services/workPricing.service';
 import { getFeeSplit, withServiceFee } from '../services/serviceFee.service';
@@ -498,7 +499,9 @@ export const reportProblem = asyncHandler(async (req: Request, res: Response) =>
       statusHistory: booking.statusHistory,
     },
     communicationLog: [],
+    ...(await initialRouting(booking)),
   });
+  await announceNewDispute(dispute);
   booking.settlementHeld = true;
   await booking.save();
   await writeAuditLog({

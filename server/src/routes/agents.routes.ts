@@ -19,7 +19,9 @@ agentsRouter.use(verifyJwt, agentLimiter);
 // account-status decisions downstream of this).
 agentsRouter.post(
   '/dispute-triage/:id',
-  requireRole('admin'),
+  // P1.5: every resolver can ask for triage on a dispute they may act on
+  // (the controller checks the scope); it recommends, a person decides.
+  requireRole('admin', 'mutha_leader', 'federation_district_admin', 'federation_state_admin'),
   [param('id').isMongoId()],
   validate,
   agentsController.triageDispute

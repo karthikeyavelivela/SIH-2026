@@ -4719,5 +4719,31 @@
     "toggle": "Urgent — I need someone now",
     "toggleHint": "Offered first to the nearest workers, then a wider area. No extra charge.",
     "badge": "Urgent"
+  },
+  "disputeRouting": {
+    "eyebrow": "Disputes",
+    "queueTitle": "Disputes to resolve",
+    "queueSubtitle": "Disputes come to the level closest to the work first. Each level has 48 hours to resolve or escalate; after that it moves up by itself.",
+    "waiting": "Waiting",
+    "resolvedByYou": "Resolved here",
+    "empty": "Nothing waiting",
+    "emptyDesc": "Disputes about work in your area will appear here.",
+    "dueIn": "{hours} h left",
+    "overdue": "overdue",
+    "openQueue": "Disputes to resolve →",
+    "routeTitle": "Route",
+    "resolvedAt": "Resolved at: {level}",
+    "escalateHint": "Escalating sends it to the next level up (society → district → state → FYRO), with a fresh 48 hours.",
+    "levels": {
+      "society": "Society leader",
+      "district": "District federation",
+      "state": "State federation",
+      "admin": "FYRO admin"
+    },
+    "reasons": {
+      "initial": "raised here",
+      "escalated": "escalated",
+      "sla_missed": "moved up after 48 hours"
+    }
   }
 }

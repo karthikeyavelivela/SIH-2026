@@ -52,6 +52,11 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'ఇన్సూరెన్స్ పేఅవుట్ ట్రిగ్గర్ అయింది', body: `₹${v.amount} ఆటోమేటిక్‌గా చెల్లించబడింది — మీ ఆదాయం కవర్ చేసిన థ్రెషోల్డ్ కంటే తక్కువగా ఉంది.` }),
     hi: (v) => ({ title: 'बीमा भुगतान ट्रिगर हुआ', body: `₹${v.amount} अपने आप भुगतान हुआ — आपकी कमाई कवर की गई सीमा से कम थी।` }),
   },
+  dispute_assigned: {
+    en: (v) => ({ title: 'Dispute to resolve', body: `A dispute on booking ${v.ref} is now yours to resolve (${v.reason}). It moves up a level if not resolved by ${v.due}.` }),
+    te: (v) => ({ title: 'పరిష్కరించాల్సిన వివాదం', body: `బుకింగ్ ${v.ref} పై వివాదం ఇప్పుడు మీరు పరిష్కరించాలి (${v.reason}). ${v.due} లోగా పరిష్కరించకపోతే అది పై స్థాయికి వెళ్తుంది.` }),
+    hi: (v) => ({ title: 'निपटाने के लिए विवाद', body: `बुकिंग ${v.ref} का विवाद अब आपको निपटाना है (${v.reason})। ${v.due} तक न निपटा तो यह ऊपर के स्तर पर चला जाएगा।` }),
+  },
   guarantee_rework: {
     en: (v) => ({ title: 'Guarantee re-work booked', body: `A customer claimed the workmanship guarantee on ${v.ref}. The re-work job is in your active jobs: the customer pays materials only, and your labour is paid ₹${v.labour} from the guarantee reserve.` }),
     te: (v) => ({ title: 'హామీ పునఃపని బుక్ అయింది', body: `${v.ref} పై కస్టమర్ పని నాణ్యత హామీని కోరారు. పునఃపని మీ యాక్టివ్ జాబ్స్‌లో ఉంది: కస్టమర్ సామగ్రికి మాత్రమే చెల్లిస్తారు, మీ శ్రమకు హామీ నిల్వ నుండి ₹${v.labour} చెల్లిస్తారు.` }),

@@ -110,6 +110,8 @@ const envSchema = z.object({
     .default('3,6,10')
     .transform((v) => v.split(',').map((n) => Number(n.trim())).filter((n) => Number.isFinite(n) && n > 0)),
   URGENT_OFFER_TIMEOUT_MS: z.coerce.number().int().min(5000).max(60000).default(12000),
+  // P1.5 — hours a dispute waits at one level before it escalates by itself.
+  DISPUTE_SLA_HOURS: z.coerce.number().positive().max(24 * 14).default(48),
   INDIVIDUAL_EARNINGS_TRIGGER: z
     .string()
     .default('false')
