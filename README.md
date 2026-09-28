@@ -256,20 +256,25 @@ sequenceDiagram
 
 ## 7. Where the money goes
 
+The customer pays the worker's rate **plus a 10% service fee**. The worker keeps **100% of their rate** — nothing is deducted from it. The fee is split in integer paise and posted to the ledger when the job is confirmed complete:
+
 ```mermaid
 flowchart LR
-    T["Job total<br/>₹9,600"] --> P["FYRO commission 1%<br/>−₹96"]
-    T --> R["Society reserve (bye-law)<br/>−₹576"]
-    T --> WF["Society welfare fund<br/>−₹192"]
-    T --> NET["Worker takes home<br/>₹8,736"]
-    P --> L[("LedgerEntry<br/>write-once")]
-    R --> CR[("CommissionRecord<br/>write-once")]
-    WF --> CR
-    NET --> PB["Worker passbook<br/>/earnings — every deduction itemised"]
-    CR --> SUR["Surplus distribution<br/>per share, frozen line items"]
+    C["Customer pays<br/>₹10,560"] --> W["Worker's rate<br/>₹9,600 — all to the worker"]
+    C --> F["Service fee 10%<br/>₹960"]
+    F --> S["Society share 5%<br/>₹480 → the worker's society<br/>(solo worker: district federation)"]
+    F --> WP["Welfare pool 3%<br/>₹288 → district welfare pool"]
+    F --> G["Guarantee reserve 1%<br/>₹96 → pays re-work labour"]
+    F --> P["Platform 1%<br/>₹96 → FYRO (+ any rounding paise)"]
+    S & WP & G & P --> L[("LedgerEntry<br/>one per part per booking")]
+    W --> PB["Worker passbook<br/>/earnings"]
+    S --> SUR["Society surplus<br/>per share, frozen line items"]
+    WP --> WEL["Weekly demand check<br/>pays members when district demand falls"]
 ```
 
-Deductions are taken on **gross** and never compounded, each on its own line. History is never recomputed: a job charged at an old rate keeps reading at that rate (production shows one worker's jobs reporting rates applied `[1, 10]`).
+- The split in force when a booking is priced is **frozen onto the booking**; an admin changes it at `/admin/platform-fees` (the four parts must add up to the total) and only new bookings use it.
+- Settlement is idempotent — a retried completion never posts a part twice.
+- Bookings priced before the service fee existed keep the old behaviour (1% platform commission and the society's bye-law cut taken from the worker), so history is never recomputed.
 
 ---
 
@@ -603,7 +608,7 @@ Beyond the brief: transit custody with NH16 / NH65 toll plazas as checkpoints, l
 
 ## 20. Status, honestly
 
-**Verified live on production (26 Sep 2026):** Electrician booking → skill-matched worker sees it → accepts → two-way chat within ~3 s → proof photos → start → complete → mandatory ratings → **Pay now succeeds** → GST invoice PDF downloads → worker passbook shows ₹594 net for two ₹300 jobs (1% commission itemised).
+**Verified live on production (26 Sep 2026):** Electrician booking → skill-matched worker sees it → accepts → two-way chat within ~3 s → proof photos → start → complete → mandatory ratings → **Pay now succeeds** → GST invoice PDF downloads → worker passbook shows ₹594 net for two ₹300 jobs (priced before the service fee, so the old 1% commission applied). On this branch, new bookings add the 10% fee on top instead and the worker keeps the full ₹300.
 
 **Not built, or not live — named rather than glossed:**
 
