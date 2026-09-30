@@ -26,4 +26,15 @@ export interface AgentResult {
   /** The exact model id that answered, for the same reason. */
   model?: string;
   generatedAt: string;
+  /**
+   * P2.1 — where the NUMBERS came from: 'ml' when the fyro-ml service
+   * produced them, 'rules' when the service was off or failed and the
+   * rule-based path answered. Absent for agents that do not use it.
+   */
+  source?: 'ml' | 'rules';
+  /** Why the ML path was not used, when source is 'rules'. */
+  mlFallbackReason?: string;
+  mlModelVersion?: string | null;
+  /** True when the forecast came from a baseline, not a trained model. */
+  coldStart?: boolean;
 }

@@ -24,7 +24,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P1.7 | Proxy members (no phone) | DONE | (this commit) | leader-managed members, KYC/payout with consent, claim code + public /claim-account; also fixed date-dependent contracts test |
 | P1.8 | Consent and privacy (+ C0 verification data + permission fixes) | DONE | (this commit) | versioned ConsentRecord + signup step + /privacy (en/te/hi) + profile consent/export; location on tap; notification prompt after first job; seed/cleanup:verification; R10 exclusions |
 | PHASE-1-TESTS | Full suites | DONE | (this commit) | server 739/739 (76 suites) + tsc clean; client 83/83 + tsc clean |
-| P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | TODO | | |
+| P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | DONE | (this commit) | ml/ FastAPI (XGBoost, OR-Tools CP-SAT, IsolationForest), train.py with honest metrics, mlClient 3 s timeout + rules fallback, forecast agent + hourly-rate check wired, /api/health ml status, render.yaml service; pytest 19, server 13 |
 | P2.2 | Allocation UI (recommended crew) + fairness panel | TODO | | |
 | P2.3 | TARA: provider order, knowledge base, retrieval, citations | TODO | | |
 | P2.4 | Document pre-check with OCR | TODO | | |
@@ -61,6 +61,10 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | URGENT_RADII_KM | Render API | 3,6,10 | Urgent search rings in km (then the ordinary 25 km) |
 | URGENT_OFFER_TIMEOUT_MS | Render API | 12000 | Countdown for an urgent offer (ordinary: 20000) |
 | DISPUTE_SLA_HOURS | Render API | 48 | Hours a dispute waits at one level before escalating by itself |
+| ML_SERVICE_URL | Render API | unset | Base URL of the fyro-ml service; unset = rules |
+| ML_SERVICE_TOKEN | Render API + Render ML | unset | Shared secret (16+ chars), identical on both services |
+| MONGODB_URI_READONLY | local (train.py only) | unset | Read-only Atlas user for training; never set on a server |
+| MIN_SOCIETY_BOOKINGS / MIN_TRAIN_DAYS | Render ML | 50 / 60 | Cold-start and training thresholds |
 | VERIFICATION_ENABLED | Render API / local | unset | Lets `npm run seed:verification` create the isolated isVerification accounts; leave unset otherwise |
 
 ## Migrations needed
@@ -83,3 +87,5 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P1.8 privacy notice (/privacy): the grievance officer's name, email and phone, and the retention periods for KYC documents, chats and location history. The page currently says these are not yet published; it does not invent them. Fill the `retentionPending` and `grievancePending` strings (en/te/hi, namespace `privacyNotice`) when known, and bump PRIVACY_NOTICE_VERSION in shared/src/types.ts so people are asked to agree again.
 - P1.8: have the privacy notice text reviewed by counsel before public launch; it is written from what the app actually does, not from legal advice.
 - C0: run `VERIFICATION_ENABLED=true npm run seed:verification --workspace server` against production once (Render shell is paid-only; run it locally against the production MONGODB_URI), copy the printed passwords, then unset the flag.
+- P2.1: create a READ-ONLY Atlas database user and run `python ml/scripts/train.py` locally with MONGODB_URI_READONLY (Render's shell is paid-only). Until there is enough real completed-booking history per category, nothing is trained and forecasts come back as cold-start baselines; the API then says so. Decide whether a second Render web service (fyro-ml, free plan, sleeps when idle) is acceptable; if not, leave ML_SERVICE_URL unset and everything uses rules.
+- P2.1: movable festivals (Ugadi, Diwali, Eid, Dasara, etc.) for `ml/app/calendar_data.py` from the Andhra Pradesh government holiday list, and AP-specific crop-season windows from the AP Department of Agriculture. Only fixed-date national holidays and coarse Kharif/Rabi months are included now, each with a source note.

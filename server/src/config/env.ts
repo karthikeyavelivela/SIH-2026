@@ -32,6 +32,10 @@ const envSchema = z.object({
   // C0: lets scripts/seedVerification.ts create the isolated verification
   // accounts. Off by default; nothing else reads it.
   VERIFICATION_ENABLED: optionalFlag,
+  // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
+  // back to the rule-based path, labelled source 'rules'.
+  ML_SERVICE_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
+  ML_SERVICE_TOKEN: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(16).optional()),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),

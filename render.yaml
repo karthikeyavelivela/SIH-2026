@@ -50,3 +50,27 @@ services:
       # unrelated to MOCK_EXTERNAL_SERVICES, see agents/client.ts.
       - key: ANTHROPIC_API_KEY
         sync: false
+      # P2.1 — the ML service below. Both unset = forecasts, allocation and
+      # price checks use the rule-based path, labelled source "rules".
+      - key: ML_SERVICE_URL
+        sync: false
+      - key: ML_SERVICE_TOKEN
+        sync: false
+
+  # P2.1 — fyro-ml: demand forecast, crew allocation, price anomaly.
+  # A second free-plan service; it sleeps when idle, so the first call after
+  # a quiet spell can be slow. The API times out at 3 s and falls back to rules.
+  - type: web
+    name: fyro-ml
+    runtime: python
+    plan: free
+    rootDir: ml
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # Must equal the API's ML_SERVICE_TOKEN (at least 16 characters).
+      - key: ML_SERVICE_TOKEN
+        sync: false

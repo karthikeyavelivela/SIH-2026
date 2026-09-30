@@ -1,3 +1,4 @@
+import { checkHourlyRate } from '../services/rateCheck.service';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
@@ -81,7 +82,20 @@ export const upsertMyPricing = asyncHandler(async (req: Request, res: Response) 
     details: { categorySlug: draft.categorySlug, modes: draft.modesOffered },
   });
 
-  res.status(200).json({ profile });
+  // P2.1 — advisory only; the floors above are what actually refuse a rate.
+  const rateCheck = draft.hourly?.rate ? await checkHourlyRate(workerId, draft.categorySlug, draft.hourly.rate).catch(() => undefined) : undefined;
+  if (rateCheck?.flagged) {
+    await writeAuditLog({
+      actorId: workerId,
+      actorRole: req.user!.role,
+      action: 'pricing_rate_flagged_unusual',
+      targetType: 'WorkerPricingProfile',
+      targetId: profile._id.toString(),
+      details: { categorySlug: draft.categorySlug, rate: draft.hourly?.rate, source: rateCheck.source, medianOthers: rateCheck.medianOthers },
+    });
+  }
+
+  res.status(200).json({ profile, ...(rateCheck ? { rateCheck } : {}) });
 });
 
 /** The floors that apply to the calling worker, so the form can show them. */

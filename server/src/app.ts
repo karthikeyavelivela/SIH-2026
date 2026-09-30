@@ -64,6 +64,7 @@ import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './ro
 import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
+import { mlHealth } from './services/mlClient';
 import { proxyMemberRouter, proxyClaimRouter } from './routes/proxyMember.routes';
 
 export const app = express();
@@ -164,8 +165,8 @@ app.use('/api', (_req, res, next) => {
  * the rest of /api/health does — it is the endpoint you need when you
  * cannot get in.
  */
-app.get('/api/health', (_req, res) =>
-  res.status(200).json({ ok: true, ai: describeChain(), aiProviders: providerHealth() })
+app.get('/api/health', async (_req, res) =>
+  res.status(200).json({ ok: true, ai: describeChain(), aiProviders: providerHealth(), ml: await mlHealth() })
 );
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before
