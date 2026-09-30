@@ -64,6 +64,8 @@ export interface IUser {
   // the full reasoning on why these two are deliberately not auto-linked.
   kycStatus: KycStatus;
   kycDocs: IKycDocument[];
+  /** P4.4: the day this person's current police verification ends. The profile badge shows while it is in the future. */
+  policeVerifiedUntil?: Date;
   /** P4.1: outcome of Aadhaar Paperless Offline e-KYC; never any content of the file. */
   aadhaarOfflineKyc?: {
     referenceId: string;
@@ -232,6 +234,7 @@ const userSchema = new Schema<IUser>(
     },
     region: { type: String, trim: true },
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    policeVerifiedUntil: { type: Date },
     // P4.1: the outcome of Aadhaar Paperless Offline e-KYC, and nothing from the
     // file itself. referenceId is unique so one file verifies one account.
     aadhaarOfflineKyc: {

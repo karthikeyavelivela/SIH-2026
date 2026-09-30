@@ -44,6 +44,7 @@ const docStatusTone: Record<KycDocument['status'], 'muted' | 'secondary' | 'succ
 // 'verify_kyc' MANAGER_PERMISSIONS slot, audit-logged server-side.
 export default function AdminKycQueuePage() {
   const t = useTranslations('adminKyc');
+  const tCreds = useTranslations('credentials');
   const { data, state, reload } = usePolling(() => api.get<{ users: KycUser[] }>('/api/admin/kyc-queue'), 15000);
   const [selected, setSelected] = useState<KycUser | null>(null);
   const [rejecting, setRejecting] = useState(false);
@@ -119,6 +120,10 @@ export default function AdminKycQueuePage() {
       <p className="text-xs font-bold uppercase tracking-[0.2em] text-fy-brown mb-2">{t('eyebrow')}</p>
       <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
       <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
+
+      <a href="/admin/police-verification" className="inline-block mb-4 text-sm font-semibold text-fy-green hover:underline">
+        {tCreds('reviewLink')} →
+      </a>
 
       <div className="max-w-xs mb-8">
         <QueueCounter count={users.length} label={t('pendingReview')} tone={users.length > 0 ? 'primary' : 'muted'} />

@@ -1,4 +1,7 @@
 import { onSecondary } from '../infra/readPreference';
+import { Types } from 'mongoose';
+import { eShramCoverage } from '../services/eshram.service';
+import { policeVerifiedCoverage } from '../services/policeVerification.service';
 import { societyFairness, recommendationUptake } from '../services/allocation.service';
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
@@ -247,10 +250,20 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
   const welfareEnrolmentRatePct =
     uniqueMemberIds.length > 0 ? Math.round((activePolicies / uniqueMemberIds.length) * 1000) / 10 : 0;
 
+  const [eShram, police] = await Promise.all([
+    eShramCoverage(uniqueMemberIds.map((m) => new Types.ObjectId(m))),
+    policeVerifiedCoverage(uniqueMemberIds.map((m) => new Types.ObjectId(m))),
+  ]);
+
   res.status(200).json({
     federation,
     districts,
     counts: {
+      // Recorded by members, not checked against the e-Shram portal.
+      eShramRecordedPct: eShram.pct,
+      eShramRecorded: eShram.registered,
+      policeVerifiedPct: police.pct,
+      policeVerified: police.verified,
       societies: societies.length,
       workers: uniqueMemberIds.length,
       jobsCompleted,

@@ -1,5 +1,6 @@
 'use client';
 
+import { WorkerCredentialsSection } from '@/components/worker/WorkerCredentialsSection';
 import { AadhaarOfflineCard } from '@/components/kyc/AadhaarOfflineCard';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -143,6 +144,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
         })}
       </div>
       {error && <p className="text-xs text-fy-error mt-2">{error}</p>}
+      <WorkerCredentialsSection />
     </div>
   );
 }

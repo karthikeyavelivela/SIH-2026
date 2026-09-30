@@ -62,6 +62,8 @@ interface FederationDashboardResponse {
     earningsDistributed: number;
     trainingCompletionRatePct: number;
     welfareEnrolmentRatePct: number;
+    eShramRecordedPct: number;
+    policeVerifiedPct: number;
     grievancesOpen: number;
   };
   societies: {
@@ -140,6 +142,7 @@ function Statutory({
 // two pages can never accidentally show the wrong tier's controls.
 export function FederationDashboardView() {
   const t = useTranslations('federation');
+  const tc = useTranslations('credentials');
   const tDisputes = useTranslations('disputeRouting');
   const tContracts = useTranslations('contracts');
   const { data, state, reload } = usePolling(() => api.get<FederationDashboardResponse>('/api/federation/me'), 30000);
@@ -332,6 +335,20 @@ export function FederationDashboardView() {
             value={`${counts.welfareEnrolmentRatePct}%`}
             note={t('membersWithCover')}
             glyph="health_and_safety"
+            tone="brown"
+          />
+          <Statutory
+            label={tc('eshramRecorded')}
+            value={`${counts.eShramRecordedPct}%`}
+            note={tc('eshramRecordedNote')}
+            glyph="badge"
+            tone="brown"
+          />
+          <Statutory
+            label={tc('policeVerifiedStat')}
+            value={`${counts.policeVerifiedPct}%`}
+            note={tc('policeVerifiedNote')}
+            glyph="verified_user"
             tone="brown"
           />
           <Statutory

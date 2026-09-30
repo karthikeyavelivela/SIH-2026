@@ -38,6 +38,7 @@ import { onSecondary } from '../src/infra/readPreference';
 import { RECURRING_JOBS, processJob, startRecurringJobs, stopRecurringJobs } from '../src/infra/scheduler';
 import { initRealtime } from '../src/realtime';
 import * as contractService from '../src/services/contract.service';
+import * as policeService from '../src/services/policeVerification.service';
 import * as welfareService from '../src/services/welfarePool.service';
 import * as scheduledBooking from '../src/services/scheduledBooking.service';
 import * as incentives from '../src/services/scheduledIncentiveRunner.service';
@@ -174,7 +175,7 @@ describe('recurring jobs with Redis (BullMQ)', () => {
   it('registers each job once, as a repeating schedule with a fixed id, and starts one worker', async () => {
     redisOn();
     expect(await startRecurringJobs()).toBe('bullmq');
-    expect(mockUpsert).toHaveBeenCalledTimes(4);
+    expect(mockUpsert).toHaveBeenCalledTimes(RECURRING_JOBS.length);
     const registered = mockUpsert.mock.calls.map((c) => ({ id: (c as unknown[])[0], every: ((c as unknown[])[1] as { every: number }).every }));
     expect(registered).toEqual(RECURRING_JOBS.map((j) => ({ id: j.name, every: j.everyMs })));
     expect(RECURRING_JOBS.map((j) => j.name)).toEqual([
@@ -182,6 +183,7 @@ describe('recurring jobs with Redis (BullMQ)', () => {
       'run-incentives',
       'welfare-weekly-check',
       'contract-occurrences',
+      'police-verification-reminders',
     ]);
     expect(workerProcessors).toHaveLength(1);
     await stopRecurringJobs();
@@ -193,13 +195,15 @@ describe('recurring jobs with Redis (BullMQ)', () => {
     const inc = jest.spyOn(incentives, 'runAllActiveIncentiveRulesScheduled').mockResolvedValue({ rulesRun: 0, totalGranted: 0 });
     const welfare = jest.spyOn(welfareService, 'runWelfareChecks').mockResolvedValue([]);
     const visits = jest.spyOn(contractService, 'generateVisits').mockResolvedValue(0);
+    const police = jest.spyOn(policeService, 'runPoliceVerificationReminders').mockResolvedValue({ sent30: 0, sent7: 0, expired: 0 });
     await startRecurringJobs();
     const run = workerProcessors[0];
     await run({ name: 'release-scheduled-bookings' });
     await run({ name: 'run-incentives' });
     await run({ name: 'welfare-weekly-check' });
     await run({ name: 'contract-occurrences' });
-    expect([release, inc, welfare, visits].map((s) => s.mock.calls.length)).toEqual([1, 1, 1, 1]);
+    await run({ name: 'police-verification-reminders' });
+    expect([release, inc, welfare, visits, police].map((s) => s.mock.calls.length)).toEqual([1, 1, 1, 1, 1]);
     await expect(processJob({ name: 'nonsense' })).rejects.toThrow(/unknown recurring job/);
     await stopRecurringJobs();
   });
