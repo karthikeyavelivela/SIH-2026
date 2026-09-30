@@ -4,6 +4,8 @@ import { validate } from '../middleware/validate';
 import { authLimiter, loginAccountLimiter } from '../middleware/rateLimit';
 import { verifyJwt } from '../middleware/auth';
 import * as authController from '../controllers/auth.controller';
+import { withSignupConsent } from '../middleware/signupConsent';
+import { CONSENT_PURPOSES } from '@fyro/shared';
 
 export const authRouter = Router();
 
@@ -17,6 +19,7 @@ const nameRule = body('name').isString().trim().isLength({ min: 1 });
 authRouter.post(
   '/signup/customer',
   authLimiter,
+  withSignupConsent,
   // checkFalsy: true — the client always sends email:'' when left blank
   // (a controlled input, never omitted from the request body), and
   // express-validator's optional() only skips *absent* fields by default,
@@ -39,6 +42,7 @@ authRouter.post(
 authRouter.post(
   '/signup/driver',
   authLimiter,
+  withSignupConsent,
   [
     nameRule,
     phoneRule,
@@ -54,6 +58,7 @@ authRouter.post(
 authRouter.post(
   '/signup/hamali',
   authLimiter,
+  withSignupConsent,
   [
     nameRule,
     phoneRule,
@@ -71,6 +76,7 @@ authRouter.post(
 authRouter.post(
   '/signup/fleet-owner',
   authLimiter,
+  withSignupConsent,
   [nameRule, phoneRule, passwordRule, body('fleetName').isString().trim().notEmpty()],
   validate,
   authController.signupFleetOwner
@@ -79,6 +85,7 @@ authRouter.post(
 authRouter.post(
   '/signup/warehouse-hub',
   authLimiter,
+  withSignupConsent,
   [nameRule, phoneRule, passwordRule, body('hubName').isString().trim().notEmpty(), body('address').optional().isString()],
   validate,
   authController.signupWarehouseHub
@@ -225,3 +232,18 @@ authRouter.patch(
 );
 
 authRouter.delete('/me', verifyJwt, authController.deleteMyAccount);
+
+// ---- P1.8 consent, privacy, export ----
+
+authRouter.get('/me/consents', verifyJwt, authController.getMyConsents);
+authRouter.put(
+  '/me/consents',
+  verifyJwt,
+  [
+    body('acceptNotice').optional().isBoolean(),
+    ...CONSENT_PURPOSES.map((p) => body(`purposes.${p}`).optional().isBoolean()),
+  ],
+  validate,
+  authController.putMyConsents
+);
+authRouter.get('/me/export', verifyJwt, authController.exportMine);

@@ -572,6 +572,7 @@ export function PrivacySettingsSection() {
   if (!privacy) return null;
 
   return (
+    <>
     <SectionCard title={t('title')}>
       <div className="flex items-center justify-between">
         <div className="pr-4">
@@ -599,6 +600,108 @@ export function PrivacySettingsSection() {
           <option value="private">{t('private')}</option>
         </select>
       </div>
+    </SectionCard>
+    <ConsentSection />
+    </>
+  );
+}
+
+// ---- P1.8: consent, notice acceptance, data export ----
+
+interface ConsentState {
+  noticeVersion: string;
+  purposes: { analytics: boolean };
+  current: boolean;
+  recordedAt?: string;
+}
+
+export function ConsentSection() {
+  const t = useTranslations('consent');
+  const locale = useLocale();
+  const [consent, setConsent] = useState<ConsentState | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    api.get<{ consent: ConsentState }>('/api/auth/me/consents').then((r) => setConsent(r.consent)).catch(() => setConsent(null));
+  }, []);
+
+  async function save(body: Record<string, unknown>) {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const r = await api.put<{ consent: ConsentState }>('/api/auth/me/consents', body);
+      setConsent(r.consent);
+      setMessage(t('saved'));
+    } catch {
+      setMessage(t('failed'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function download() {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const data = await api.get<unknown>('/api/auth/me/export');
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'fyro-my-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setMessage(t('exportFailed'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!consent) return null;
+
+  return (
+    <SectionCard title={t('settingsTitle')}>
+      <p className="text-xs text-fy-ink-soft">{t('settingsIntro')}</p>
+      {!consent.current && (
+        <div className="flex flex-col gap-2 rounded-control bg-fy-brown/10 p-3">
+          <p className="text-sm font-medium">{t('acceptTitle')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('acceptBody')}</p>
+          <Link href="/privacy" className="text-xs font-semibold text-fy-brown hover:underline">
+            {t('readNotice')}
+          </Link>
+          <Button size="md" disabled={busy} onClick={() => save({ acceptNotice: true })}>
+            {t('acceptButton')}
+          </Button>
+        </div>
+      )}
+      <div className="flex items-center justify-between">
+        <div className="pr-4">
+          <p className="text-sm font-medium">{t('analyticsLabel')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('analyticsBody')}</p>
+        </div>
+        <Toggle
+          checked={consent.purposes.analytics}
+          disabled={busy || !consent.current}
+          onChange={(v) => save({ purposes: { analytics: v } })}
+        />
+      </div>
+      <p className="text-xs text-fy-ink-soft">{t('requiredNote')}</p>
+      {consent.recordedAt && (
+        <p className="text-xs text-fy-ink-soft">
+          {t('recordedOn', { date: new Date(consent.recordedAt).toLocaleDateString(locale), version: consent.noticeVersion })}
+        </p>
+      )}
+      <div className="flex items-center justify-between pt-3 border-t border-fy-muted/10">
+        <div className="pr-4">
+          <p className="text-sm font-medium">{t('exportTitle')}</p>
+          <p className="text-xs text-fy-ink-soft">{t('exportBody')}</p>
+        </div>
+        <Button size="md" variant="secondary" disabled={busy} onClick={download}>
+          {t('exportButton')}
+        </Button>
+      </div>
+      {message && <p role="status" className="text-xs text-fy-ink-soft">{message}</p>}
     </SectionCard>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSignupConsent } from '@/components/consent/SignupConsent';
 import { useTranslations, useLocale } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -46,6 +47,7 @@ export default function SignupCustomerPage() {
   const router = useRouter();
   const { refetch } = useAuth();
   const t = useTranslations('auth.signupCustomer');
+  const consent = useSignupConsent();
   const tm = useTranslations('marketing.home');
   const locale = useLocale() as LanguageCode;
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', region: '' });
@@ -57,7 +59,7 @@ export default function SignupCustomerPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/auth/signup/customer', form);
+      await api.post('/api/auth/signup/customer', { ...form, ...consent.payload });
       await refetch();
       router.push('/customer/dashboard');
     } catch (err) {
@@ -212,7 +214,8 @@ export default function SignupCustomerPage() {
               </div>
             )}
 
-            <Button type="submit" disabled={loading} glyph="how_to_reg" className="w-full">
+            {consent.field}
+            <Button type="submit" disabled={loading || !consent.valid} glyph="how_to_reg" className="w-full">
               {loading ? t('submitLoading') : t('submit')}
             </Button>
           </form>

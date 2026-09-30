@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSignupConsent } from '@/components/consent/SignupConsent';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -31,6 +32,7 @@ export default function SignupHamaliPage() {
   const router = useRouter();
   const { refetch } = useAuth();
   const t = useTranslations('auth.signupHamali');
+  const consent = useSignupConsent();
 
   const [joinType, setJoinType] = useState<JoinType>('solo');
   const [form, setForm] = useState({ name: '', phone: '', password: '', muthaName: '', inviteCode: '' });
@@ -42,7 +44,7 @@ export default function SignupHamaliPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/auth/signup/hamali', { ...form, joinType });
+      await api.post('/api/auth/signup/hamali', { ...form, joinType, ...consent.payload });
       await refetch();
       const home =
         joinType === 'solo' ? '/hamali/dashboard' : joinType === 'leader' ? '/mutha/dashboard' : '/mutha-member/job';
@@ -179,7 +181,8 @@ export default function SignupHamaliPage() {
           />
         </SignupField>
 
-        <Button type="submit" className="w-full mt-1" disabled={loading}>
+        {consent.field}
+        <Button type="submit" className="w-full mt-1" disabled={loading || !consent.valid}>
           {loading ? t('submitLoading') : t('submit')}
         </Button>
       </form>

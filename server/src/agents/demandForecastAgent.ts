@@ -1,6 +1,7 @@
 import { Booking } from '../models/Booking';
 import { callAgent } from './client';
 import { AgentResult } from './types';
+import { mlForecast, mlConfigured, type MlForecastRow } from '../services/mlClient';
 import type { AgentLocale } from './locale';
 
 const MS_PER_DAY = 86_400_000;
@@ -25,6 +26,60 @@ async function bookingDensityByHour(region: string): Promise<{ total: number; by
   for (const b of bookings) counts[new Date(b.createdAt).getHours()]++;
 
   return { total: bookings.length, byHour: counts.map((count, hour) => ({ hour, count })) };
+}
+
+const ML_HISTORY_DAYS = 90;
+const ML_TOP_CATEGORIES = 3;
+
+/**
+ * Daily booking counts for the region by service category, verification data
+ * excluded, for the ML forecast. The service does its own modelling; this
+ * only gathers what it is asked to score.
+ */
+async function dailyHistoryByCategory(region: string): Promise<Map<string, { date: string; count: number }[]>> {
+  const since = new Date(Date.now() - ML_HISTORY_DAYS * MS_PER_DAY);
+  const rows = await Booking.aggregate<{ _id: { day: string; category: string }; count: number }>([
+    {
+      $match: {
+        region,
+        createdAt: { $gte: since },
+        isVerification: { $ne: true },
+        serviceCategorySlug: { $type: 'string' },
+        status: { $nin: ['cancelled'] },
+      },
+    },
+    {
+      $group: {
+        _id: { day: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, category: '$serviceCategorySlug' },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+  const byCat = new Map<string, { date: string; count: number }[]>();
+  for (const r of rows) byCat.set(r._id.category, [...(byCat.get(r._id.category) ?? []), { date: r._id.day, count: r.count }]);
+  return byCat;
+}
+
+interface MlOutcome {
+  source: 'ml' | 'rules';
+  reason?: string;
+  rows: MlForecastRow[];
+}
+
+async function mlDemandForecast(region: string): Promise<MlOutcome> {
+  if (!mlConfigured()) return { source: 'rules', reason: 'not_configured', rows: [] };
+  const byCat = await dailyHistoryByCategory(region);
+  const top = [...byCat.entries()]
+    .sort((a, b) => b[1].reduce((n, r) => n + r.count, 0) - a[1].reduce((n, r) => n + r.count, 0))
+    .slice(0, ML_TOP_CATEGORIES);
+  const start = new Date(Date.now() + MS_PER_DAY).toISOString().slice(0, 10);
+  const rows: MlForecastRow[] = [];
+  for (const [category, history] of top) {
+    const res = await mlForecast({ category, history, start, horizonDays: 7 });
+    if (!res.ok) return { source: 'rules', reason: res.reason, rows: [] };
+    rows.push(...res.data.forecast);
+  }
+  return rows.length > 0 ? { source: 'ml', rows } : { source: 'rules', reason: 'no_category_history', rows: [] };
 }
 
 /**
@@ -72,7 +127,15 @@ export async function runDemandForecastAgent(
     };
   }
 
-  const context = { region, lookbackDays: LOOKBACK_DAYS, totalBookings: total, byHour, audience };
+  const ml = await mlDemandForecast(region);
+  const context = {
+    region,
+    lookbackDays: LOOKBACK_DAYS,
+    totalBookings: total,
+    byHour,
+    audience,
+    ...(ml.source === 'ml' ? { mlForecast: ml.rows } : {}),
+  };
 
   const audienceInstruction =
     audience === 'admin'
@@ -87,9 +150,13 @@ ${audienceInstruction}
 Respond ONLY with JSON: {"summary": "<the recommendation, plain language, cites specific hours>", "confidence": "low"|"moderate"|"high", "evidence": [{"label": "<hour or metric>", "value": "<count or figure from the data>"}]}.
 confidence "high" only with a clear, consistent peak across the data; "moderate" for a visible but noisy pattern.`;
 
-  const userPrompt = `Region: ${region}\nHourly booking counts (last ${LOOKBACK_DAYS} days, ${total} total):\n${JSON.stringify(byHour)}`;
+  const userPrompt = `Region: ${region}\nHourly booking counts (last ${LOOKBACK_DAYS} days, ${total} total):\n${JSON.stringify(byHour)}${
+    ml.source === 'ml'
+      ? `\nNext-7-day forecast from the forecasting model. The numbers are the model's: do not change or add any. When cold_start is true, say it is a baseline, not a trained prediction:\n${JSON.stringify(ml.rows)}`
+      : ''
+  }`;
 
-  return callAgent({ agentName: 'demand_forecast', systemPrompt, userPrompt, context, locale }, (ctx) => {
+  const result = await callAgent({ agentName: 'demand_forecast', systemPrompt, userPrompt, context, locale }, (ctx) => {
     const c = ctx as typeof context;
     const peak = [...c.byHour].sort((a, b) => b.count - a.count)[0];
     return {
@@ -102,4 +169,20 @@ confidence "high" only with a clear, consistent peak across the data; "moderate"
       ],
     };
   });
+
+  if (ml.source === 'rules') {
+    return { ...result, source: 'rules', ...(ml.reason ? { mlFallbackReason: ml.reason } : {}) };
+  }
+  // The ML numbers go into the evidence as they came back, whatever the
+  // model wrote in its summary, so a reader can check the words against them.
+  const forecastEvidence = ml.rows
+    .slice(0, 6)
+    .map((r) => ({ label: `${r.category} ${r.date}`, value: `${r.prediction} (${r.lower}–${r.upper})${r.cold_start ? ' baseline' : ''}` }));
+  return {
+    ...result,
+    source: 'ml',
+    mlModelVersion: ml.rows.find((r) => r.model_version)?.model_version ?? null,
+    coldStart: ml.rows.every((r) => r.cold_start),
+    evidence: [...result.evidence, ...forecastEvidence],
+  };
 }

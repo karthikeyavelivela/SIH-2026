@@ -17,6 +17,8 @@ import { TRADE_SKILLS, AGRI_SKILL } from '../services/workerEligibility';
 import { Mutha } from '../models/Mutha';
 import { Fleet } from '../models/Fleet';
 import { WarehouseHub } from '../models/WarehouseHub';
+import { getConsent, recordConsent, updateOptionalConsent, type ConsentChoice } from '../services/consent.service';
+import { exportMyData } from '../services/dataExport.service';
 import { detectRapidAccountCreation } from '../services/fraudDetection.service';
 import type { Role, AppLocale } from '@fyro/shared';
 import {
@@ -659,4 +661,28 @@ export const deleteMyAccount = asyncHandler(async (req: Request, res: Response) 
   res.clearCookie('accessToken', cookieOpts);
   res.clearCookie('refreshToken', cookieOpts);
   res.status(200).json({ ok: true });
+});
+
+export const getMyConsents = asyncHandler(async (req: Request, res: Response) => {
+  res.status(200).json({ consent: await getConsent(req.user!.id) });
+});
+
+/**
+ * acceptNotice:true records a full decision (required purposes on) — how
+ * someone who signed up before consent existed, or under an older notice,
+ * accepts the current one. Without it, only the optional purposes change.
+ */
+export const putMyConsents = asyncHandler(async (req: Request, res: Response) => {
+  const { acceptNotice, purposes } = req.body as { acceptNotice?: boolean; purposes?: ConsentChoice };
+  const choice = purposes ?? {};
+  const consent = acceptNotice
+    ? await recordConsent(req.user!.id, { ...choice, identity_verification: true, matching_location: true, payments: true, welfare_administration: true }, 'settings')
+    : await updateOptionalConsent(req.user!.id, choice);
+  res.status(200).json({ consent });
+});
+
+export const exportMine = asyncHandler(async (req: Request, res: Response) => {
+  const data = await exportMyData(req.user!.id);
+  res.setHeader('Content-Disposition', 'attachment; filename="fyro-my-data.json"');
+  res.status(200).json(data);
 });

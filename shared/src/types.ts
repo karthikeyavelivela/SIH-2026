@@ -147,3 +147,27 @@ export const QUOTATION_STATUSES = [
   'expired',
 ] as const;
 export type QuotationStatus = (typeof QUOTATION_STATUSES)[number];
+
+// ---- P1.8 consent and privacy ----
+
+/**
+ * The purposes a person consents to. The first four are needed to run the
+ * service at all (they cannot be switched off while the account exists; the
+ * way out is deleting the account). Analytics is the only optional one.
+ */
+export const CONSENT_PURPOSES = [
+  'identity_verification',
+  'matching_location',
+  'payments',
+  'welfare_administration',
+  'analytics',
+] as const;
+export type ConsentPurpose = (typeof CONSENT_PURPOSES)[number];
+export const REQUIRED_CONSENT_PURPOSES: ConsentPurpose[] = [
+  'identity_verification',
+  'matching_location',
+  'payments',
+  'welfare_administration',
+];
+/** Bump when the privacy notice text changes in a way that needs fresh consent. */
+export const PRIVACY_NOTICE_VERSION = '2026-10-01';

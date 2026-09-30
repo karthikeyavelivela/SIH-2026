@@ -425,14 +425,29 @@ Created by `npm run seed:demo` (`server/src/scripts/seedDemoAccounts.ts`).
 | `9000000015` | Fleet owner | `/fleet-owner/…` |
 | `9000000016` | Warehouse hub | `/warehouse-hub/…` |
 | `9000000017` | Manager | `/admin/…` (permission-scoped) |
+| `9000000021` | Federation district admin (from `npm run seed:federations`) | `/federation-district/…` |
 
 ### Test accounts (password `TestPass123!`)
 
 `9200000001` – `9200000006`: throwaway accounts created while testing signup flows on production (`9200000001` is a solo hamali with KYC pending). Kept on purpose.
 
+### Manual test accounts (password `testpass123`)
+
+| Phone (username) | Role |
+|---|---|
+| `9876500022` | Customer |
+| `9876500088` | Warehouse hub |
+| `9876500099` | Fleet owner |
+
 ### Admin
 
-The root admin is **not** a demo account. It is created from `ADMIN_PHONE` / `ADMIN_PASSWORD` (`npm run seed:admin`), so on a deployed instance only whoever set those variables can sign in as admin. Its credentials are never published.
+The root admin is created from `ADMIN_PHONE` / `ADMIN_PASSWORD` (`npm run seed:admin`). For the competition demo deployment the credentials are published so judges can review the admin console:
+
+| Phone (username) | Password | Role |
+|---|---|---|
+| `9999999999` | `ChangeMe123!` | Root admin |
+
+Change `ADMIN_PASSWORD` and re-seed before any real use.
 
 ### Test payment details (Razorpay test mode only)
 

@@ -65,8 +65,18 @@ export const listMyKycDocuments = asyncHandler(async (req: Request, res: Respons
  */
 export const uploadKycDocument = asyncHandler(async (req: Request, res: Response) => {
   const { type, fileBase64 } = req.body as { type: KycDocumentType; fileBase64: string };
+  const document = await storeKycDocument(req.user!.id, type, fileBase64);
+  res.status(200).json({ document });
+});
 
-  const user = await User.findById(req.user!.id);
+/**
+ * Stores one KYC document for a user, privately, and puts them back in the
+ * review queue. Shared by a worker uploading their own document and (P1.7)
+ * a society leader uploading for a member who has no phone — either way the
+ * document is reviewed by the same people before it counts.
+ */
+export async function storeKycDocument(userId: string, type: KycDocumentType, fileBase64: string) {
+  const user = await User.findById(userId);
   if (!user) throw new ApiError(404, 'User not found');
 
   const existing = user.kycDocs.find((d) => d.type === type);
@@ -130,8 +140,8 @@ export const uploadKycDocument = asyncHandler(async (req: Request, res: Response
   await user.save();
 
   const saved = user.kycDocs.find((d) => d.type === type);
-  res.status(200).json({ document: saved ? publicKycDoc(asPlain(saved)) : null });
-});
+  return saved ? publicKycDoc(asPlain(saved)) : null;
+}
 
 /**
  * DELETE /api/kyc/documents/:type — remove one document before it's been
