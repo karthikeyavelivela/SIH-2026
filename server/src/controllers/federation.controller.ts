@@ -1,3 +1,4 @@
+import { societyFairness, recommendationUptake } from '../services/allocation.service';
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -172,6 +173,21 @@ async function societyIdsInScope(federationId: string, federationType: 'state' |
  * fabricated. On zero societies in scope, returns real zeros/empty arrays
  * rather than a fabricated placeholder.
  */
+/**
+ * GET /api/federation/fairness — how evenly work is spread within each
+ * society in scope over the last four weeks, and how often leaders take the
+ * crew recommendation. Real counts from Booking and AllocationLog; nothing
+ * estimated.
+ */
+export const getFairness = asyncHandler(async (req: Request, res: Response) => {
+  const federationId = await getCallerFederationId(req.user!.id);
+  const federation = await Federation.findById(federationId);
+  if (!federation) throw new ApiError(404, 'Federation not found');
+  const societyIds = await societyIdsInScope(federation._id.toString(), federation.type);
+  const [societies, uptake] = await Promise.all([societyFairness(societyIds), recommendationUptake(societyIds)]);
+  res.status(200).json({ windowDays: 28, societies, recommendations: uptake });
+});
+
 export const getMyFederationDashboard = asyncHandler(async (req: Request, res: Response) => {
   const federationId = await getCallerFederationId(req.user!.id);
 

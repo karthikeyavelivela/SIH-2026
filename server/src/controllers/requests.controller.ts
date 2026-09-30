@@ -1,3 +1,4 @@
+import { recordAllocationOutcome } from '../services/allocation.service';
 import { bookingFilterFor } from '../services/workerEligibility';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -232,6 +233,7 @@ export const acceptRequest = asyncHandler(async (req: Request, res: Response) =>
   } else if (role === 'mutha_leader') {
     const memberIds: string[] = Array.isArray(req.body.memberIds) ? req.body.memberIds : [];
     booking = await acceptAsMuthaLeader(userId, bookingId, memberIds);
+    if (booking.assignedMuthaId) await recordAllocationOutcome(bookingId, booking.assignedMuthaId.toString(), memberIds);
     // Settles (clears or advances) any pending Phase 3 offer-engine state
     // for this leader — see notifyMuthaOfferSettled's doc comment for why
     // a Mutha leader's assignment can't be settled inline in

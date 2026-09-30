@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { FairnessPanel } from '@/components/federation/FairnessPanel';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -574,6 +575,7 @@ export function FederationDashboardView() {
 
         {/* P1.2 — the district welfare pool and its weekly demand checks. */}
         <WelfarePanel />
+        <FairnessPanel />
 
         {/* P1.5 — disputes waiting at this federation's level. */}
         {data && (

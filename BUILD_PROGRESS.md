@@ -25,7 +25,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P1.8 | Consent and privacy (+ C0 verification data + permission fixes) | DONE | (this commit) | versioned ConsentRecord + signup step + /privacy (en/te/hi) + profile consent/export; location on tap; notification prompt after first job; seed/cleanup:verification; R10 exclusions |
 | PHASE-1-TESTS | Full suites | DONE | (this commit) | server 739/739 (76 suites) + tsc clean; client 83/83 + tsc clean |
 | P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | DONE | (this commit) | ml/ FastAPI (XGBoost, OR-Tools CP-SAT, IsolationForest), train.py with honest metrics, mlClient 3 s timeout + rules fallback, forecast agent + hourly-rate check wired, /api/health ml status, render.yaml service; pytest 19, server 13 |
-| P2.2 | Allocation UI (recommended crew) + fairness panel | TODO | | |
+| P2.2 | Allocation UI (recommended crew) + fairness panel | DONE | (this commit) | POST /api/mutha/allocation/recommend (ML or rules, labelled), AllocationLog recommendation-vs-final, RecommendedCrew on /mutha/requests + assign-members (covers contract visits), GET /api/federation/fairness + FairnessPanel; server 8, client 3 |
 | P2.3 | TARA: provider order, knowledge base, retrieval, citations | TODO | | |
 | P2.4 | Document pre-check with OCR | TODO | | |
 | PHASE-2-TESTS | Full suites + pytest | TODO | | |

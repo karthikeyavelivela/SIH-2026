@@ -51,6 +51,7 @@ federationRouter.use(verifyJwt, requireRole('federation_state_admin', 'federatio
 // '/frequent-routes' comment documents).
 federationRouter.get('/me', federationController.getMyFederationDashboard);
 federationRouter.get('/training-needs', federationController.getTrainingNeedsAssessment);
+federationRouter.get('/fairness', federationController.getFairness);
 federationRouter.get(
   '/affiliation-requests',
   requireRole('federation_district_admin'),

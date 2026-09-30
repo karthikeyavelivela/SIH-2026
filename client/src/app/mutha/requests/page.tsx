@@ -1,5 +1,6 @@
 'use client';
 
+import { RecommendedCrew } from '@/components/mutha/RecommendedCrew';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -146,6 +147,8 @@ function MemberPicker({
       )}
 
       <Divider />
+
+      {remaining > 0 && <RecommendedCrew bookingId={booking._id} onUse={(ids) => setSelected(ids.slice(0, remaining))} />}
 
       <div>
         <EyebrowLabel tone="green">{t('assignOnline', { selected: selected.length, remaining })}</EyebrowLabel>

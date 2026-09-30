@@ -4956,5 +4956,32 @@
     "changesTitle": "Changes",
     "changesBody": "If this notice changes in a way that matters, its version changes and you are asked to agree again.",
     "back": "Back"
+  },
+  "crewRecommend": {
+    "button": "Suggest a crew",
+    "loading": "Finding a crew…",
+    "title": "Suggested crew",
+    "sourceMl": "Suggested by the allocation model. You decide.",
+    "sourceRules": "Suggested by simple rules, because the allocation model is not available right now. You decide.",
+    "reason_skill_match": "Has the skill",
+    "reason_available": "Available",
+    "reason_near": "Close to the site",
+    "reason_fewer_recent_days": "Worked fewer days lately",
+    "away": "{km} km away",
+    "useThese": "Use these",
+    "alternates": "Other options",
+    "unmet": "{count} more needed than we could find among your online members.",
+    "none": "No member is available to suggest right now.",
+    "failed": "Could not get a suggestion. You can still choose the crew yourself."
+  },
+  "fairness": {
+    "panelTitle": "Fairness of work",
+    "intro": "Job-days per member over the last {days} days. A wide gap means a few people get most of the work.",
+    "societyLine": "{members} members · busiest {max} · middle {median} · least {min}",
+    "spread": "Gap {spread}",
+    "noWork": "{count} with no work",
+    "uptake": "Leaders took the crew suggestion {followed} of {decided} times.",
+    "uptakeNone": "No crew suggestions have been acted on yet.",
+    "empty": "No societies in scope yet."
   }
 }

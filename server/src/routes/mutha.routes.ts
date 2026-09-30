@@ -70,6 +70,14 @@ muthaRouter.post(
 );
 
 muthaRouter.post(
+  '/allocation/recommend',
+  requireRole('mutha_leader'),
+  [body('bookingId').isMongoId()],
+  validate,
+  muthaController.recommendCrewForJob
+);
+
+muthaRouter.post(
   '/jobs/:bookingId/assign',
   requireRole('mutha_leader'),
   [
