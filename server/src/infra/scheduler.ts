@@ -5,6 +5,7 @@ import { runAllActiveIncentiveRulesScheduled, startScheduledIncentiveRunner } fr
 import { runWelfareChecks, startWelfareRunner } from '../services/welfarePool.service';
 import { generateVisits, startContractRunner } from '../services/contract.service';
 import { runPoliceVerificationReminders } from '../services/policeVerification.service';
+import { runSchemeRenewals } from '../services/scheme.service';
 
 /**
  * The four recurring jobs that must not run twice:
@@ -14,6 +15,7 @@ import { runPoliceVerificationReminders } from '../services/policeVerification.s
  *   welfare-weekly-check        every 6 h     last week's welfare check (idempotent per week)
  *   contract-occurrences        hourly        the next week of contract visits
  *   police-verification-reminders daily       30 and 7 days before a police verification ends, and once after
+ *   scheme-renewals             daily         PMSBY/PMJJBY premiums due, paid from the district welfare pool
  *
  * With REDIS_URL set they are BullMQ repeatable jobs: every tick is one job
  * and exactly one worker, on whichever instance, takes it. Without Redis each
@@ -34,6 +36,7 @@ export const RECURRING_JOBS: RecurringJob[] = [
   { name: 'welfare-weekly-check', everyMs: 6 * 60 * 60 * 1000, run: () => runWelfareChecks() },
   { name: 'contract-occurrences', everyMs: 60 * 60 * 1000, run: () => generateVisits() },
   { name: 'police-verification-reminders', everyMs: 24 * 60 * 60 * 1000, run: () => runPoliceVerificationReminders() },
+  { name: 'scheme-renewals', everyMs: 24 * 60 * 60 * 1000, run: () => runSchemeRenewals() },
 ];
 
 export const QUEUE_NAME = 'fyro-recurring';
@@ -62,6 +65,8 @@ export async function startRecurringJobs(): Promise<'bullmq' | 'intervals'> {
     // Daily; once at boot as well, since each reminder goes out only once however often this runs.
     setTimeout(() => void runPoliceVerificationReminders().catch(() => undefined), 120_000).unref();
     setInterval(() => void runPoliceVerificationReminders().catch(() => undefined), 24 * 60 * 60 * 1000).unref();
+    setTimeout(() => void runSchemeRenewals().catch(() => undefined), 180_000).unref();
+    setInterval(() => void runSchemeRenewals().catch(() => undefined), 24 * 60 * 60 * 1000).unref();
     return 'intervals';
   }
   queue = new Queue(QUEUE_NAME, { connection: newRedis('bullmq-queue', { maxRetriesPerRequest: null }) });

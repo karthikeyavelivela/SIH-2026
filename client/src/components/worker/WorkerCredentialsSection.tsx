@@ -1,5 +1,6 @@
 'use client';
 
+import { SchemesCard } from '@/components/worker/SchemesCard';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -167,6 +168,7 @@ export function WorkerCredentialsSection() {
     <>
       <EShramCard />
       <PoliceVerificationCard />
+      <SchemesCard />
     </>
   );
 }

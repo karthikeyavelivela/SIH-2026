@@ -5071,5 +5071,29 @@
     "eshramRecordedNote": "members who typed in their number (not checked against the portal)",
     "policeVerifiedStat": "Police verified",
     "policeVerifiedNote": "members with a verification valid today"
+  },
+  "schemes": {
+    "title": "PMSBY and PMJJBY insurance",
+    "label": "Enrolment through the member's bank",
+    "intro": "These are government schemes you join at your own bank. FYRO helps you write down the enrolment and, once the bank has enrolled you, pays the yearly premium from the district welfare pool. The bank holds the account and the policy.",
+    "pmsby": "PMSBY: accident cover",
+    "pmjjby": "PMJJBY: life cover",
+    "premium": "Yearly premium: ₹{amount} (source: {source})",
+    "premiumUnknown": "The yearly premium figure has not been confirmed yet, so renewals are on hold until it is.",
+    "statusRecorded": "Recorded. Waiting for the bank's reference.",
+    "statusConfirmed": "Confirmed by the bank ({ref}). Renews {date}.",
+    "hold_premium_not_set": "Renewal on hold: premium figure not confirmed.",
+    "hold_pool_insufficient": "Renewal on hold: the district pool is short.",
+    "hold_no_district": "Renewal on hold: no district pool covers this member.",
+    "enrol": "Record enrolment",
+    "bank": "Bank name",
+    "last4": "Last 4 digits of the account (optional)",
+    "nomineeName": "Nominee's name",
+    "nomineeRelation": "Nominee's relation",
+    "consent": "I agree that this enrolment is recorded and that FYRO may pay the yearly premium from the district welfare pool.",
+    "consentOnBehalf": "{name} has agreed, and I am recording it for them because they have no phone.",
+    "bankRef": "Bank's reference number",
+    "confirm": "Save the bank's reference",
+    "failed": "That did not work. Please try again."
   }
 }

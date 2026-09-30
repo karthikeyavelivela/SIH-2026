@@ -70,11 +70,12 @@ export function median(values: number[]): number | null {
 export async function poolBalance(districtFederationId: string | Types.ObjectId): Promise<number> {
   const id = new Types.ObjectId(String(districtFederationId));
   const rows = await LedgerEntry.aggregate([
-    { $match: { entityType: 'Federation', entityId: id, type: { $in: ['welfare_pool_contribution', 'welfare_pool_payout'] } } },
+    { $match: { entityType: 'Federation', entityId: id, type: { $in: ['welfare_pool_contribution', 'welfare_pool_payout', 'scheme_premium'] } } },
     { $group: { _id: '$type', total: { $sum: '$amount' } } },
   ]);
   const inflow = rows.find((r) => r._id === 'welfare_pool_contribution')?.total ?? 0;
-  const outflow = rows.find((r) => r._id === 'welfare_pool_payout')?.total ?? 0;
+  // Welfare payouts and scheme premiums both leave the pool.
+  const outflow = (rows.find((r) => r._id === 'welfare_pool_payout')?.total ?? 0) + (rows.find((r) => r._id === 'scheme_premium')?.total ?? 0);
   return round2(inflow - outflow);
 }
 

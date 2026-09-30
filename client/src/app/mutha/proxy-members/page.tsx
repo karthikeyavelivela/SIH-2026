@@ -1,5 +1,6 @@
 'use client';
 
+import { SchemesCard } from '@/components/worker/SchemesCard';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -86,7 +87,8 @@ export default function ProxyMembersPage() {
 
 function MemberCard({ member, onChanged }: { member: ProxyMember; onChanged: () => Promise<unknown> }) {
   const t = useTranslations('proxyMembers');
-  const [open, setOpen] = useState<'none' | 'payout' | 'earnings'>('none');
+  const tSchemes = useTranslations('schemes');
+  const [open, setOpen] = useState<'none' | 'payout' | 'earnings' | 'schemes'>('none');
   const [message, setMessage] = useState<string | null>(null);
   const [claim, setClaim] = useState<{ code: string; expiresAt: string } | null>(null);
   const [earnings, setEarnings] = useState<{ total: number; jobs: number } | null>(null);
@@ -174,7 +176,11 @@ function MemberCard({ member, onChanged }: { member: ProxyMember; onChanged: () 
         <Button size="md" variant="ghost" onClick={async () => setClaim(await api.post(`/api/proxy-members/${member._id}/claim-code`))}>
           {t('claimCode')}
         </Button>
+        <Button size="md" variant="ghost" onClick={() => setOpen(open === 'schemes' ? 'none' : 'schemes')}>
+          {tSchemes('title')}
+        </Button>
       </div>
+      {open === 'schemes' && <SchemesCard memberId={member._id} memberName={member.name} />}
 
       {open === 'payout' && (
         <LightCard className="flex flex-col gap-2">

@@ -66,6 +66,7 @@ import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
 import { ivrRouter, adminCallbackRouter } from './routes/ivr.routes';
 import { eShramRouter, policeVerificationRouter } from './routes/workerCredentials.routes';
+import { schemeRouter, adminSchemeRouter } from './routes/scheme.routes';
 import { ondcRouter } from './routes/ondc.routes';
 import { chatRouter } from './routes/chat.routes';
 import { mlHealth } from './services/mlClient';
@@ -185,6 +186,8 @@ app.use('/api/auth', authRouter);
 // accidentally match a sub-resource path first. Keep this ordering for any
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
+app.use('/api/admin/scheme-plans', adminSchemeRouter);
+app.use('/api/schemes', schemeRouter);
 app.use('/api/admin/callback-requests', adminCallbackRouter);
 app.use('/api/ivr/exotel', ivrRouter);
 app.use('/api/ondc', ondcRouter);

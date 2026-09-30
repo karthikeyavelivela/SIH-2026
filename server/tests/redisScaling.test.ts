@@ -39,6 +39,7 @@ import { RECURRING_JOBS, processJob, startRecurringJobs, stopRecurringJobs } fro
 import { initRealtime } from '../src/realtime';
 import * as contractService from '../src/services/contract.service';
 import * as policeService from '../src/services/policeVerification.service';
+import * as schemeService from '../src/services/scheme.service';
 import * as welfareService from '../src/services/welfarePool.service';
 import * as scheduledBooking from '../src/services/scheduledBooking.service';
 import * as incentives from '../src/services/scheduledIncentiveRunner.service';
@@ -184,6 +185,7 @@ describe('recurring jobs with Redis (BullMQ)', () => {
       'welfare-weekly-check',
       'contract-occurrences',
       'police-verification-reminders',
+      'scheme-renewals',
     ]);
     expect(workerProcessors).toHaveLength(1);
     await stopRecurringJobs();
@@ -196,6 +198,7 @@ describe('recurring jobs with Redis (BullMQ)', () => {
     const welfare = jest.spyOn(welfareService, 'runWelfareChecks').mockResolvedValue([]);
     const visits = jest.spyOn(contractService, 'generateVisits').mockResolvedValue(0);
     const police = jest.spyOn(policeService, 'runPoliceVerificationReminders').mockResolvedValue({ sent30: 0, sent7: 0, expired: 0 });
+    const renewals = jest.spyOn(schemeService, 'runSchemeRenewals').mockResolvedValue([]);
     await startRecurringJobs();
     const run = workerProcessors[0];
     await run({ name: 'release-scheduled-bookings' });
@@ -203,7 +206,8 @@ describe('recurring jobs with Redis (BullMQ)', () => {
     await run({ name: 'welfare-weekly-check' });
     await run({ name: 'contract-occurrences' });
     await run({ name: 'police-verification-reminders' });
-    expect([release, inc, welfare, visits, police].map((s) => s.mock.calls.length)).toEqual([1, 1, 1, 1, 1]);
+    await run({ name: 'scheme-renewals' });
+    expect([release, inc, welfare, visits, police, renewals].map((s) => s.mock.calls.length)).toEqual([1, 1, 1, 1, 1, 1]);
     await expect(processJob({ name: 'nonsense' })).rejects.toThrow(/unknown recurring job/);
     await stopRecurringJobs();
   });
