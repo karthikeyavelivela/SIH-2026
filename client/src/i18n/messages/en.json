@@ -5000,5 +5000,21 @@
     "status_warn": "check",
     "status_fail": "no",
     "status_skipped": "not checked"
+  },
+  "offlineKyc": {
+    "title": "Aadhaar offline e-KYC",
+    "intro": "Instead of a photo, you can share the signed zip file from myAadhaar. We check UIDAI's signature and keep only the result: the last 4 digits and whether the name matches. We do not keep the file, the photo or your share code.",
+    "off": "This option is not switched on yet. Upload a masked photo of your Aadhaar instead.",
+    "notReady": "This option is switched on but not ready yet. Upload a masked photo of your Aadhaar instead.",
+    "fileLabel": "Offline e-KYC zip file",
+    "shareCodeLabel": "Share code you set when downloading",
+    "submit": "Verify",
+    "verifying": "Verifying…",
+    "done": "Verified. Aadhaar ending {last4}.",
+    "match_match": "Name matches your account.",
+    "match_partial": "Name partly matches your account. A reviewer will look.",
+    "match_mismatch": "Name does not match your account. A reviewer will look.",
+    "match_not_compared": "The name could not be compared.",
+    "failed": "That did not work. Check the file and the share code and try again."
   }
 }

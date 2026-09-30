@@ -31,7 +31,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | PHASE-2-TESTS | Full suites + pytest | DONE | (this commit) | server 798 passed + 3 opt-in skipped (80 suites), client 86/86, pytest 19/19, tsc clean (server, client) |
 | P3.1 | Redis scaling (adapter, rate-limit store, offer state, BullMQ, read prefs) | DONE | (this commit) | active only when REDIS_URL set: @socket.io/redis-adapter, rate-limit-redis (9 limiters, own prefixes), offer state write-through to Redis with seq-guarded countdowns + per-booking lock, BullMQ repeatable jobs for scheduled-booking release / incentives / welfare check / contract visits, secondaryPreferred on analytics/federation-dashboard/report reads, /api/health redis; 18 tests (ioredis-mock, mocked bullmq) |
 | PHASE-3-TESTS | Full suites | TODO | | |
-| P4.1 | Aadhaar Paperless Offline e-KYC | TODO | | |
+| P4.1 | Aadhaar Paperless Offline e-KYC | DONE (flag off; certificate needs confirming) | (this commit) | POST/GET /api/kyc/documents/aadhaar-offline behind AADHAAR_OFFLINE_EKYC_ENABLED: in-memory AES-zip open with the share phrase, XML-DSig verified against server/certs, data read only from the signed bytes, only reference id / last 4 / timestamp / name-match / cert fingerprint kept, XML+photo+share code never stored or logged, one file one account, freshness window; 22 server + 5 client tests on a self-signed test fixture (test mode only) |
 | P4.2 | Bhashini ASR/TTS/translate | TODO | | |
 | P4.3 | SMS + IVR + real forgot-password | TODO | | |
 | P4.4 | DigiLocker, e-Shram, police verification, PMSBY/PMJJBY, ONDC catalogue | TODO | | |
@@ -68,6 +68,8 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | KNOWLEDGE_VECTOR_INDEX | Render API | unset | Name of an Atlas Vector Search index on KnowledgeChunk.embedding, if one exists |
 | DOC_OCR_ENABLED | Render API | unset (off) | Runs OCR on KYC image uploads; heavy, downloads eng/tel/hin language data on first use |
 | OCR_LANG_PATH | Render API | unset | Directory or URL of tesseract traineddata files, to avoid the download |
+| AADHAAR_OFFLINE_EKYC_ENABLED | Render API | unset (off) | Turns on Aadhaar Paperless Offline e-KYC. Do not enable until the UIDAI certificate in server/certs is confirmed |
+| AADHAAR_XML_MAX_AGE_DAYS | Render API | 7 | Oldest offline file accepted, from its own timestamp |
 | ML_SERVICE_URL | Render API | unset | Base URL of the fyro-ml service; unset = rules |
 | ML_SERVICE_TOKEN | Render API + Render ML | unset | Shared secret (16+ chars), identical on both services |
 | MONGODB_URI_READONLY | local (train.py only) | unset | Read-only Atlas user for training; never set on a server |
@@ -103,3 +105,4 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P3.1: create a Redis (Render Key Value or Upstash) and set REDIS_URL. Until then FYRO runs exactly as before, on one instance, with everything in memory. After setting it, check `/api/health` shows `redis: { configured: true, connected: true }` and the boot log says `Recurring jobs: bullmq`. The shared rate-limit counting is rate-limit-redis's and could not be run against the test fake (it cannot execute Lua scripts), so confirm it once against the live Redis: exceed a limit from one instance and check the other refuses too.
 - P3.1: Redis must be reachable with a plain `redis://` or `rediss://` URL; BullMQ needs a Redis that allows `maxmemory-policy noeviction` (Upstash and Render Key Value do).
 - P3.1: the auto-confirm, dispute-SLA and wage-floor-alert runners are idempotent sweeps and still run on every instance; only the four jobs that must not repeat moved to BullMQ.
+- P4.1 (IMPORTANT): UIDAI's page (https://uidai.gov.in/en/aadhaar-paperless-offline-e-kyc) links ONE certificate file for every date range it lists, and that file (`server/certs/uidai-okyc-publickey.cer`, downloaded 2026-09-30, SHA-256 E7:23:06:42:...:A5:78) is CN=hcl-aua, valid 2018-01-03 to 2019-01-03. FYRO verifies by public key and ignores the validity dates, but files signed today may use a different key, in which case every real file will be refused. Before setting AADHAAR_OFFLINE_EKYC_ENABLED=true: confirm with UIDAI that this is the key that signs current files, or test one offline file of your own, and add the current certificate to server/certs/ if it differs. Nothing has been run against a real UIDAI file.

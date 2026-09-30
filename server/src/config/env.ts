@@ -34,6 +34,14 @@ const envSchema = z.object({
   VERIFICATION_ENABLED: optionalFlag,
   // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
   // back to the rule-based path, labelled source 'rules'.
+  // P4.1 — Aadhaar Paperless Offline e-KYC. Off by default. The only keys that
+  // can verify a file are the certificates in server/certs/ (see its README).
+  AADHAAR_OFFLINE_EKYC_ENABLED: optionalFlag,
+  // Oldest offline XML accepted, in days, measured from its own timestamp.
+  AADHAAR_XML_MAX_AGE_DAYS: z.coerce.number().positive().max(365).default(7),
+  // TEST ONLY: a directory of test public keys that replaces server/certs/
+  // when NODE_ENV is 'test'. Ignored in every other environment.
+  UIDAI_TEST_CERT_DIR: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
   // P2.4 — OCR pre-check of KYC uploads (tesseract.js). Off by default: the
   // engine is heavy and downloads its language data on first use.
   DOC_OCR_ENABLED: optionalFlag,

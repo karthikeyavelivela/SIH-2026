@@ -64,6 +64,15 @@ export interface IUser {
   // the full reasoning on why these two are deliberately not auto-linked.
   kycStatus: KycStatus;
   kycDocs: IKycDocument[];
+  /** P4.1: outcome of Aadhaar Paperless Offline e-KYC; never any content of the file. */
+  aadhaarOfflineKyc?: {
+    referenceId: string;
+    last4: string;
+    xmlTimestamp: Date;
+    nameMatch: 'match' | 'partial' | 'mismatch' | 'not_compared';
+    certificateFingerprint: string;
+    verifiedAt: Date;
+  };
   // Set by kyc.controller's reject action; cleared (unset) on a subsequent
   // approve. Not required for 'pending'/'verified' — only ever meaningful
   // alongside kycStatus === 'rejected'.
@@ -216,6 +225,20 @@ const userSchema = new Schema<IUser>(
     },
     region: { type: String, trim: true },
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    // P4.1: the outcome of Aadhaar Paperless Offline e-KYC, and nothing from the
+    // file itself. referenceId is unique so one file verifies one account.
+    aadhaarOfflineKyc: {
+      type: {
+        referenceId: { type: String },
+        last4: { type: String },
+        xmlTimestamp: { type: Date },
+        nameMatch: { type: String, enum: ['match', 'partial', 'mismatch', 'not_compared'] },
+        certificateFingerprint: { type: String },
+        verifiedAt: { type: Date },
+      },
+      _id: false,
+      default: undefined,
+    },
     kycDocs: {
       type: [
         {
@@ -345,5 +368,7 @@ const userSchema = new Schema<IUser>(
 // society leader over their own members. search.service.ts is where that is
 // enforced; an index is not an access grant.
 userSchema.index({ name: 'text' }, { name: 'user_search' });
+// One offline e-KYC file verifies one account.
+userSchema.index({ 'aadhaarOfflineKyc.referenceId': 1 }, { unique: true, sparse: true });
 
 export const User = model<IUser>('User', userSchema);

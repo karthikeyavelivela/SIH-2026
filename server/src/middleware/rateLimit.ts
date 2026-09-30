@@ -154,6 +154,19 @@ export const globalMutationLimiter = rateLimit({
   skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || process.env.NODE_ENV === 'test',
 });
 
+// Aadhaar offline e-KYC submissions, per account. A person tries it a few
+// times at most (a mistyped share phrase); the cap stops anyone guessing
+// share phrases against a zip.
+export const offlineKycLimiter = rateLimit({
+  ...storeFor('offlineKycLimiter'),
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again later.' },
+  keyGenerator: (req) => req.user?.id ?? clientIp(req),
+});
+
 // Payment order creation, Checkout verification and COD selection — per
 // account. A real customer makes a handful of these per booking; the cap
 // stops a script hammering signature verification.

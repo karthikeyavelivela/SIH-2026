@@ -25,6 +25,8 @@
     "@anthropic-ai/sdk": "^0.120.0",
     "@fyro/shared": "*",
     "@socket.io/redis-adapter": "^8.3.0",
+    "@xmldom/xmldom": "^0.9.12",
+    "@zip.js/zip.js": "^2.18.2",
     "bcrypt": "^5.1.1",
     "bullmq": "^6.3.10",
     "cloudinary": "^2.2.0",
@@ -43,6 +45,7 @@
     "razorpay": "^2.9.8",
     "socket.io": "^4.8.3",
     "tesseract.js": "^7.0.0",
+    "xml-crypto": "^6.3.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
