@@ -34,6 +34,14 @@ const envSchema = z.object({
   VERIFICATION_ENABLED: optionalFlag,
   // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
   // back to the rule-based path, labelled source 'rules'.
+  // P4.2 — Bhashini (speech to text, text to speech, translation). Off by
+  // default; needs BHASHINI_ENABLED=true and both credentials from a ULCA account.
+  BHASHINI_ENABLED: optionalFlag,
+  BHASHINI_USER_ID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  BHASHINI_API_KEY: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // Overrides for the ULCA pipeline config URL and pipeline id, if they change.
+  BHASHINI_CONFIG_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
+  BHASHINI_PIPELINE_ID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
   // P4.1 — Aadhaar Paperless Offline e-KYC. Off by default. The only keys that
   // can verify a file are the certificates in server/certs/ (see its README).
   AADHAAR_OFFLINE_EKYC_ENABLED: optionalFlag,

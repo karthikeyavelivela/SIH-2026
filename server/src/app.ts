@@ -64,6 +64,7 @@ import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './ro
 import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
+import { chatRouter } from './routes/chat.routes';
 import { mlHealth } from './services/mlClient';
 import { redisHealth } from './infra/redis';
 import { proxyMemberRouter, proxyClaimRouter } from './routes/proxyMember.routes';
@@ -208,6 +209,7 @@ app.use('/api/kyc/documents', kycDocumentRouter);
 app.use('/api/hamali-profile', hamaliProfileRouter);
 app.use('/api/agents', agentsRouter);
 app.use('/api/assistant', assistantRouter);
+app.use('/api/chat', chatRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/emergency', emergencyRouter);
 app.use('/api/pricing', pricingRouter);

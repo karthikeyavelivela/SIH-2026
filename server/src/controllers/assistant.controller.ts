@@ -14,6 +14,7 @@ import { uploadImage } from '../services/cloudinary.service';
 const MAX_DIAGNOSE_BYTES = 6 * 1024 * 1024;
 import { writeAuditLog } from '../services/audit.service';
 import { cached } from '../agents/cache';
+import { bhashiniReady, bhashiniStatus, speechToText, textToSpeech, BHASHINI_LANGS, type BhashiniLang } from '../services/bhashini.service';
 import type { Role } from '@fyro/shared';
 import type { AgentLocale } from '../agents/locale';
 
@@ -44,10 +45,12 @@ async function currentConversation(userId: string, role: string, locale: AgentLo
   });
 }
 
-export const ask = asyncHandler(async (req: Request, res: Response) => {
-  const { question, conversationId } = req.body as { question: string; conversationId?: string };
-  const userId = req.user!.id;
-  const role = req.user!.role as Role;
+/**
+ * One question to TARA and its recorded answer. Shared by the typed route and
+ * the voice route, so a spoken question goes through exactly the same scoping,
+ * guardrails, caching and transcript as a typed one.
+ */
+async function answerQuestion(userId: string, role: Role, question: string, conversationId?: string) {
 
   const user = await User.findById(userId).select('preferredLocale').lean();
   const locale = (user?.preferredLocale as AgentLocale) ?? 'en';
@@ -96,7 +99,55 @@ export const ask = asyncHandler(async (req: Request, res: Response) => {
     },
   });
 
-  res.status(200).json({ conversationId: conversation._id.toString(), answer });
+  return { conversationId: conversation._id.toString(), answer, locale };
+}
+
+export const ask = asyncHandler(async (req: Request, res: Response) => {
+  const { question, conversationId } = req.body as { question: string; conversationId?: string };
+  const { conversationId: id, answer } = await answerQuestion(req.user!.id, req.user!.role as Role, question, conversationId);
+  res.status(200).json({ conversationId: id, answer });
+});
+
+const AUDIO_MAX_BASE64 = 4_000_000; // ~3 MB of audio: a question, not a recording session
+
+/**
+ * POST /api/assistant/voice — a spoken question in, a spoken answer out.
+ * Speech to text, then the ordinary TARA path, then text to speech. If
+ * Bhashini is off or fails the caller gets a clear reason and the screen
+ * stays in text; an answer that could be produced is never withheld because
+ * the voice for it could not be.
+ */
+export const askByVoice = asyncHandler(async (req: Request, res: Response) => {
+  const { audioBase64, language, audioFormat, conversationId, speakAnswer } = req.body as {
+    audioBase64: string;
+    language: BhashiniLang;
+    audioFormat?: string;
+    conversationId?: string;
+    speakAnswer?: boolean;
+  };
+  if (!bhashiniReady()) throw new ApiError(503, 'Voice is not switched on yet. You can type your question instead.');
+  if (audioBase64.length > AUDIO_MAX_BASE64) throw new ApiError(413, 'That recording is too long. Please keep it short.');
+
+  const heard = await speechToText(audioBase64.replace(/^data:[^,]*,/, ''), language, audioFormat ?? 'wav');
+  if (!heard.ok) {
+    throw new ApiError(422, heard.reason === 'no_speech_recognised' ? 'We could not hear a question in that recording. Please try again.' : 'Voice did not work just now. You can type your question instead.');
+  }
+
+  const { conversationId: id, answer, locale } = await answerQuestion(req.user!.id, req.user!.role as Role, heard.data, conversationId);
+
+  let audio: { audioBase64: string; format: string } | undefined;
+  let voiceNote: string | undefined;
+  if (speakAnswer !== false) {
+    const spoken = await textToSpeech(answer.summary, (BHASHINI_LANGS as string[]).includes(locale) ? (locale as BhashiniLang) : language);
+    if (spoken.ok) audio = spoken.data;
+    else voiceNote = 'voice_reply_unavailable';
+  }
+  res.status(200).json({ transcript: heard.data, conversationId: id, answer, ...(audio ? { audio } : {}), ...(voiceNote ? { voiceNote } : {}) });
+});
+
+/** GET /api/assistant/voice-status — lets the screen show or hide the microphone honestly. */
+export const voiceStatus = asyncHandler(async (_req: Request, res: Response) => {
+  res.status(200).json(bhashiniStatus());
 });
 
 export const listConversations = asyncHandler(async (req: Request, res: Response) => {

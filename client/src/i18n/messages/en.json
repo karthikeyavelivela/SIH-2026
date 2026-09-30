@@ -3952,7 +3952,13 @@
     "rangeOne": "One worker near you charges ₹{low}",
     "noRates": "Nobody near you has published a rate for this yet.",
     "quotationWorkers": "{count} nearby worker(s) will visit and quote.",
-    "ratesNote": "From rates workers near you actually published."
+    "ratesNote": "From rates workers near you actually published.",
+    "voiceStart": "Speak your question",
+    "voiceStop": "Stop and send",
+    "voiceListening": "Listening…",
+    "voiceWorking": "Understanding what you said…",
+    "voiceDenied": "The microphone was not allowed. You can type your question.",
+    "voiceFailed": "Voice did not work. You can type your question."
   },
   "search": {
     "placeholder": "Search bookings, services, people…",
@@ -5016,5 +5022,11 @@
     "match_mismatch": "Name does not match your account. A reviewer will look.",
     "match_not_compared": "The name could not be compared.",
     "failed": "That did not work. Check the file and the share code and try again."
+  },
+  "chatTranslate": {
+    "translate": "Translate",
+    "showOriginal": "Show original",
+    "translating": "Translating…",
+    "failed": "Could not translate"
   }
 }

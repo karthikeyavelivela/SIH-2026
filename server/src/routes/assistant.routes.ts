@@ -27,6 +27,21 @@ assistantRouter.post(
   assistantController.ask
 );
 
+// P4.2 — voice in and out through Bhashini. Off unless BHASHINI_ENABLED.
+assistantRouter.get('/voice-status', assistantController.voiceStatus);
+assistantRouter.post(
+  '/voice',
+  [
+    body('audioBase64').isString().isLength({ min: 100 }),
+    body('language').isIn(['en', 'te', 'hi']),
+    body('audioFormat').optional().isIn(['wav', 'mp3', 'flac', 'webm']),
+    body('conversationId').optional().isMongoId(),
+    body('speakAnswer').optional().isBoolean(),
+  ],
+  validate,
+  assistantController.askByVoice
+);
+
 assistantRouter.get('/conversations', assistantController.listConversations);
 
 assistantRouter.get(
