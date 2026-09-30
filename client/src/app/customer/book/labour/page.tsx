@@ -371,8 +371,12 @@ export default function LabourBookingPage() {
             aside={
               flow.locatingDevice ? (
                 <EyebrowLabel>{t('locating')}</EyebrowLabel>
-              ) : (
+              ) : flow.deviceLocation ? (
                 <EyebrowLabel tone="green">{t('gpsAccurate')}</EyebrowLabel>
+              ) : (
+                <button type="button" onClick={flow.locateMe} className="font-body text-label font-semibold text-fy-green hover:underline">
+                  {t('useMyLocation')}
+                </button>
               )
             }
           >

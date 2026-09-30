@@ -78,6 +78,16 @@ export const SERVER_MESSAGES: Catalog = {
     te: 'ఈ ఫోన్ నంబర్ ఇప్పటికే నమోదైంది',
     hi: 'यह फ़ोन नंबर पहले से पंजीकृत है',
   },
+  'The required consents must be accepted to create an account': {
+    en: 'The required consents must be accepted to create an account',
+    te: 'ఖాతా సృష్టించడానికి తప్పనిసరి అంగీకారాలను ఇవ్వాలి',
+    hi: 'खाता बनाने के लिए ज़रूरी सहमतियाँ देना आवश्यक है',
+  },
+  'Accept the current privacy notice first': {
+    en: 'Accept the current privacy notice first',
+    te: 'ముందుగా ప్రస్తుత గోప్యతా నోటీసును అంగీకరించండి',
+    hi: 'पहले मौजूदा गोपनीयता सूचना स्वीकार करें',
+  },
   'User not found': {
     en: 'User not found',
     te: 'యూజర్ కనబడలేదు',

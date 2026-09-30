@@ -29,6 +29,9 @@ const envSchema = z.object({
   MOCK_PAYMENTS: optionalFlag,
   MOCK_UPLOADS: optionalFlag,
   MOCK_OTP: optionalFlag,
+  // C0: lets scripts/seedVerification.ts create the isolated verification
+  // accounts. Off by default; nothing else reads it.
+  VERIFICATION_ENABLED: optionalFlag,
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),

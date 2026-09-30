@@ -356,4 +356,14 @@ bookingSchema.index(
   { weights: { 'pickupLocation.address': 3, 'dropLocation.address': 2, 'cargoDetails.goodsType': 1 }, name: 'booking_search' }
 );
 
+// R10: a booking made by a verification account is verification data too, so
+// it stays out of analytics, forecasting training, welfare indices,
+// incentives and public stats without every creation site having to remember.
+bookingSchema.pre('save', async function inheritVerificationFlag(next) {
+  if (!this.isNew || this.isVerification || !this.customerId) return next();
+  const owner = await model('User').findById(this.customerId).select('isVerification').lean<{ isVerification?: boolean } | null>();
+  if (owner?.isVerification) this.isVerification = true;
+  next();
+});
+
 export const Booking = model<IBooking>('Booking', bookingSchema);

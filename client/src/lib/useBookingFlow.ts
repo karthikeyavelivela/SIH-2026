@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, ApiClientError } from '@/lib/api';
 import { distanceKm } from '@/lib/geo';
@@ -64,20 +64,19 @@ export function useBookingFlow({
   const [weightKg, setWeightKg] = useState(initialWeightKg ? String(initialWeightKg) : '');
   const [hamaliCount, setHamaliCount] = useState(1);
 
-  // Device GPS as the default pickup — requested once on mount (the real
-  // browser permission prompt fires here), reverse-geocoded to a human
-  // address. Silent on denial or error: the field just stays empty and the
-  // customer types normally, rather than failing loudly for something that
-  // does not block the core flow.
+  // Device GPS as the pickup, on request only. It used to be requested the
+  // moment the screen opened, which put the browser's permission prompt in
+  // front of someone who had not yet chosen to share anything (P1.8). Now
+  // nothing is asked until they tap "Use my current location"; the result is
+  // reverse-geocoded to a human address. Silent on denial or error: the field
+  // stays empty and they type normally.
   const [deviceLocation, setDeviceLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locatingDevice, setLocatingDevice] = useState(true);
+  const [locatingDevice, setLocatingDevice] = useState(false);
   const [mismatchDismissedFor, setMismatchDismissedFor] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!('geolocation' in navigator)) {
-      setLocatingDevice(false);
-      return;
-    }
+  const locateMe = useCallback(() => {
+    if (!('geolocation' in navigator)) return;
+    setLocatingDevice(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -87,19 +86,20 @@ export function useBookingFlow({
             `/api/geocode/reverse?lat=${loc.lat}&lng=${loc.lng}`
           );
           if (res.result) {
-            // The region comes back on this same response and was being
-            // thrown away, which left the fare lookup keyed on an empty
-            // string for anyone who let the device fill their pickup in.
-            setPickup((current) => current ?? {
-              lat: res.result!.lat,
-              lng: res.result!.lon,
-              address: res.result!.displayName,
-              region: res.result!.region,
+            // Tapping the button is an explicit choice, so it replaces
+            // whatever pickup was there. The region comes back on this same
+            // response; without it the fare lookup would be keyed on an
+            // empty string.
+            setPickup({
+              lat: res.result.lat,
+              lng: res.result.lon,
+              address: res.result.displayName,
+              region: res.result.region,
             });
           }
         } catch {
           // Reverse geocode failed — device location is still known for the
-          // mismatch check below, pickup just isn't prefilled.
+          // mismatch check below, pickup just isn't filled.
         } finally {
           setLocatingDevice(false);
         }
@@ -107,8 +107,6 @@ export function useBookingFlow({
       () => setLocatingDevice(false),
       { enableHighAccuracy: true, timeout: 10000 }
     );
-    // Once on mount only — re-firing would re-prompt and re-fetch pointlessly.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Keyed on the dismissed address, not a boolean, so switching to a
@@ -280,6 +278,7 @@ export function useBookingFlow({
     setHamaliCount,
     deviceLocation,
     locatingDevice,
+    locateMe,
     mismatch,
     dismissMismatch: () => setMismatchDismissedFor(pickup?.address ?? null),
     region,

@@ -25,15 +25,15 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
     revenueTrendAgg,
   ] = await Promise.all([
     Booking.aggregate([
-      { $match: { status: 'completed' } },
+      { $match: { status: 'completed', isVerification: { $ne: true } } },
       { $group: { _id: null, total: { $sum: '$fareBreakdown.total' } } },
     ]),
-    Booking.countDocuments({ status: { $in: ACTIVE_STATUSES } }),
-    Booking.countDocuments({ status: 'completed' }),
+    Booking.countDocuments({ status: { $in: ACTIVE_STATUSES }, isVerification: { $ne: true } }),
+    Booking.countDocuments({ status: 'completed', isVerification: { $ne: true } }),
     // Avg delivery time: minutes between the first statusHistory entry and
     // the 'completed' entry, for bookings that actually have both.
     Booking.aggregate([
-      { $match: { status: 'completed', 'statusHistory.0': { $exists: true } } },
+      { $match: { status: 'completed', 'statusHistory.0': { $exists: true }, isVerification: { $ne: true } } },
       {
         $project: {
           startedAt: { $arrayElemAt: ['$statusHistory.timestamp', 0] },
@@ -59,6 +59,7 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
     // Demand hotspots: bucket pickup coordinates to ~0.02deg (~2km) grid
     // cells and count bookings in each — cheap, dependency-free clustering.
     Booking.aggregate([
+      { $match: { isVerification: { $ne: true } } },
       {
         $project: {
           lat: { $round: [{ $multiply: [{ $arrayElemAt: ['$pickupLocation.coordinates', 1] }, 50] }, 0] },
@@ -70,7 +71,7 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
       { $limit: 50 },
     ]),
     Booking.aggregate([
-      { $match: { status: 'completed', createdAt: { $gte: fourteenDaysAgo } } },
+      { $match: { status: 'completed', createdAt: { $gte: fourteenDaysAgo }, isVerification: { $ne: true } } },
       {
         $group: {
           _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },

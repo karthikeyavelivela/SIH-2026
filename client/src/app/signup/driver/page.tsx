@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSignupConsent } from '@/components/consent/SignupConsent';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -26,6 +27,7 @@ export default function SignupDriverPage() {
   const router = useRouter();
   const { refetch } = useAuth();
   const t = useTranslations('auth.signupDriver');
+  const consent = useSignupConsent();
 
   const [form, setForm] = useState({
     name: '',
@@ -43,7 +45,7 @@ export default function SignupDriverPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/auth/signup/driver', { ...form, capacityKg: Number(form.capacityKg) });
+      await api.post('/api/auth/signup/driver', { ...form, capacityKg: Number(form.capacityKg), ...consent.payload });
       await refetch();
       router.push('/driver/dashboard');
     } catch (err) {
@@ -155,7 +157,8 @@ export default function SignupDriverPage() {
           </SignupField>
         </div>
 
-        <Button type="submit" className="w-full mt-1" disabled={loading}>
+        {consent.field}
+        <Button type="submit" className="w-full mt-1" disabled={loading || !consent.valid}>
           {loading ? t('submitLoading') : t('submit')}
         </Button>
       </form>

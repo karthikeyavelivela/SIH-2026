@@ -22,8 +22,8 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P1.5 | Dispute routing by level with SLA | DONE | 63719ef | levels + 48h SLA + scoped resolver queues + triage for all |
 | P1.6 | Institutions and bulk contracts | DONE | 67f7084 | institution accounts, contracts lifecycle, visit generation, monthly GST invoice |
 | P1.7 | Proxy members (no phone) | DONE | (this commit) | leader-managed members, KYC/payout with consent, claim code + public /claim-account; also fixed date-dependent contracts test |
-| P1.8 | Consent and privacy (+ C0 verification data + permission fixes) | TODO | | |
-| PHASE-1-TESTS | Full suites | TODO | | |
+| P1.8 | Consent and privacy (+ C0 verification data + permission fixes) | DONE | (this commit) | versioned ConsentRecord + signup step + /privacy (en/te/hi) + profile consent/export; location on tap; notification prompt after first job; seed/cleanup:verification; R10 exclusions |
+| PHASE-1-TESTS | Full suites | DONE | (this commit) | server 739/739 (76 suites) + tsc clean; client 83/83 + tsc clean |
 | P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | TODO | | |
 | P2.2 | Allocation UI (recommended crew) + fairness panel | TODO | | |
 | P2.3 | TARA: provider order, knowledge base, retrieval, citations | TODO | | |
@@ -61,6 +61,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | URGENT_RADII_KM | Render API | 3,6,10 | Urgent search rings in km (then the ordinary 25 km) |
 | URGENT_OFFER_TIMEOUT_MS | Render API | 12000 | Countdown for an urgent offer (ordinary: 20000) |
 | DISPUTE_SLA_HOURS | Render API | 48 | Hours a dispute waits at one level before escalating by itself |
+| VERIFICATION_ENABLED | Render API / local | unset | Lets `npm run seed:verification` create the isolated isVerification accounts; leave unset otherwise |
 
 ## Migrations needed
 
@@ -79,4 +80,6 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P1.1: society commissionRatePct / welfareDeductionRatePct are deprecated (no longer deducted from members). District federation caps on them now only matter for bookings priced before the fee; decide whether federations should instead cap society rate floors.
 - P1.2: the welfare parameters (trigger 0.6, 40% pool cap, Rs 1,000 per member per week, 8 active days in 28, 5-member societies, 4 weeks minimum history) are the build brief's defaults, not federation decisions. Confirm or change them (env vars) before the pool pays real money.
 - P1.6: contract visits are billed monthly (statement + consolidated GST invoice), but collecting the monthly payment still uses the per-visit Pay now / cash flow. A single monthly online payment for a contract is not built yet.
-
+- P1.8 privacy notice (/privacy): the grievance officer's name, email and phone, and the retention periods for KYC documents, chats and location history. The page currently says these are not yet published; it does not invent them. Fill the `retentionPending` and `grievancePending` strings (en/te/hi, namespace `privacyNotice`) when known, and bump PRIVACY_NOTICE_VERSION in shared/src/types.ts so people are asked to agree again.
+- P1.8: have the privacy notice text reviewed by counsel before public launch; it is written from what the app actually does, not from legal advice.
+- C0: run `VERIFICATION_ENABLED=true npm run seed:verification --workspace server` against production once (Render shell is paid-only; run it locally against the production MONGODB_URI), copy the printed passwords, then unset the flag.

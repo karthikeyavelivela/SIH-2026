@@ -42,9 +42,9 @@ export const getPublicStats = asyncHandler(async (_req: Request, res: Response) 
 
   const [societies, workers, completedAgg, federations, categories] = await Promise.all([
     Mutha.countDocuments({}),
-    User.countDocuments({ role: { $in: ['driver', 'hamali_solo', 'mutha_member', 'mutha_leader'] } }),
+    User.countDocuments({ role: { $in: ['driver', 'hamali_solo', 'mutha_member', 'mutha_leader'] }, isVerification: { $ne: true } }),
     Booking.aggregate<{ _id: null; count: number; total: number }>([
-      { $match: { status: 'completed' } },
+      { $match: { status: 'completed', isVerification: { $ne: true } } },
       { $group: { _id: null, count: { $sum: 1 }, total: { $sum: '$fareBreakdown.total' } } },
     ]),
     Federation.countDocuments({}),

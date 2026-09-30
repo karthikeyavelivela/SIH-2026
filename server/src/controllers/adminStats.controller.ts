@@ -25,13 +25,13 @@ export const getAdminStats = asyncHandler(async (_req: Request, res: Response) =
 
   const [activeBookings, gmvAgg, openComplaints, totalCompletedBookings, workersOnline, vehiclesOnline, openDisputes] =
     await Promise.all([
-      Booking.countDocuments({ status: { $in: activeStatuses } }),
+      Booking.countDocuments({ status: { $in: activeStatuses }, isVerification: { $ne: true } }),
       Booking.aggregate([
-        { $match: { status: 'completed' } },
+        { $match: { status: 'completed', isVerification: { $ne: true } } },
         { $group: { _id: null, gmv: { $sum: '$fareBreakdown.total' } } },
       ]),
       Complaint.countDocuments({ status: { $in: ['open', 'in_review'] } }),
-      Booking.countDocuments({ status: 'completed' }),
+      Booking.countDocuments({ status: 'completed', isVerification: { $ne: true } }),
       HamaliProfile.countDocuments({ availabilityStatus: { $in: availableStatuses } }),
       Vehicle.countDocuments({ availabilityStatus: { $in: availableStatuses } }),
       Dispute.countDocuments({ status: { $in: ['open', 'investigating', 'escalated'] } }),

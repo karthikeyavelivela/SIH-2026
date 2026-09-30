@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSignupConsent } from '@/components/consent/SignupConsent';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -17,6 +18,7 @@ export default function SignupFleetOwnerPage() {
   const router = useRouter();
   const { refetch } = useAuth();
   const t = useTranslations('auth.signupFleetOwner');
+  const consent = useSignupConsent();
 
   const [form, setForm] = useState({ name: '', phone: '', password: '', fleetName: '' });
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export default function SignupFleetOwnerPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/auth/signup/fleet-owner', form);
+      await api.post('/api/auth/signup/fleet-owner', { ...form, ...consent.payload });
       await refetch();
       router.push('/fleet-owner/dashboard');
     } catch (err) {
@@ -103,7 +105,8 @@ export default function SignupFleetOwnerPage() {
           />
         </SignupField>
 
-        <Button type="submit" className="w-full mt-1" disabled={loading}>
+        {consent.field}
+        <Button type="submit" className="w-full mt-1" disabled={loading || !consent.valid}>
           {t('submit')}
         </Button>
       </form>

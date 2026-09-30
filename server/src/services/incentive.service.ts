@@ -12,12 +12,13 @@ export function currentPeriod(): string {
 export async function completedJobCountForUser(userId: string): Promise<number> {
   return Booking.countDocuments({
     status: 'completed',
+    isVerification: { $ne: true },
     $or: [{ assignedDriverIds: userId }, { assignedHamaliIds: userId }],
   });
 }
 
 export async function completedJobCountForMutha(muthaId: string): Promise<number> {
-  return Booking.countDocuments({ status: 'completed', assignedMuthaId: muthaId });
+  return Booking.countDocuments({ status: 'completed', assignedMuthaId: muthaId, isVerification: { $ne: true } });
 }
 
 export interface GrantResult {

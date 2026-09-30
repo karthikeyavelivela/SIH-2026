@@ -141,7 +141,12 @@ export function WorkerDashboard({
       />
 
       <main className="pt-16 fy-pad-nav px-gutter max-w-2xl mx-auto relative z-10 flex flex-col gap-4">
-        <NotificationPrompt accent={accent} copy={t('notifyPrompt')} />
+        {/* Only once they have taken a first job: asking a stranger for
+            notification permission before they have done anything is what
+            browsers penalise and people dismiss unread (P1.8). */}
+        {mine?.bookings.some((b) => ['accepted', 'in_progress', 'awaiting_confirmation', 'completed'].includes(b.status)) && (
+          <NotificationPrompt accent={accent} copy={t('notifyPrompt')} />
+        )}
 
         <div className="flex items-center gap-3.5 pt-2">
           <Avatar name={user?.name ?? '?'} photoUrl={user?.profilePhoto} accent={accent} size="lg" status={status ?? undefined} />
