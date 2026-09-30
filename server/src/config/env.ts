@@ -34,6 +34,15 @@ const envSchema = z.object({
   VERIFICATION_ENABLED: optionalFlag,
   // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
   // back to the rule-based path, labelled source 'rules'.
+  // P4.4 — "Fetch from DigiLocker" (PAN and driving licence only). Off by
+  // default. The redirect URI must be exactly the one registered with
+  // DigiLocker / API Setu, and points at the web app's /digilocker/callback.
+  DIGILOCKER_ENABLED: optionalFlag,
+  DIGILOCKER_CLIENT_ID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  DIGILOCKER_CLIENT_SECRET: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  DIGILOCKER_REDIRECT_URI: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
+  // Override if the sandbox lives on a different host from DigiLocker's documented one.
+  DIGILOCKER_BASE_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   // P4.3 — SMS (OTP, password reset, confirmations) and the Exotel IVR.
   // SMS_PROVIDER names the gateway; unset or 'none' means no SMS is sent.
   SMS_PROVIDER: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['none', 'msg91', 'twilio']).optional()),

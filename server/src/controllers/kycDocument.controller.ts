@@ -77,7 +77,7 @@ export const uploadKycDocument = asyncHandler(async (req: Request, res: Response
  * a society leader uploading for a member who has no phone — either way the
  * document is reviewed by the same people before it counts.
  */
-export async function storeKycDocument(userId: string, type: KycDocumentType, fileBase64: string) {
+export async function storeKycDocument(userId: string, type: KycDocumentType, fileBase64: string, source: 'upload' | 'digilocker' = 'upload') {
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, 'User not found');
 
@@ -130,6 +130,7 @@ export async function storeKycDocument(userId: string, type: KycDocumentType, fi
     reviewedAt: undefined,
     reviewedByAdminId: undefined,
     precheck,
+    source,
   };
 
   if (existing) {

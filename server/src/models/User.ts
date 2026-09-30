@@ -32,6 +32,8 @@ export interface IKycDocument {
   uploadedAt: Date;
   reviewedAt?: Date;
   reviewedByAdminId?: Types.ObjectId;
+  /** P4.4: where the document came from. A DigiLocker one was integrity-checked on arrival and still goes to review. */
+  source?: 'upload' | 'digilocker';
   /** P2.4 OCR pre-check: a recommendation for the reviewer, never a decision. */
   precheck?: {
     recommendation: 'looks_ok' | 'needs_review' | 'unmasked_aadhaar';
@@ -264,6 +266,7 @@ const userSchema = new Schema<IUser>(
           uploadedAt: { type: Date, required: true, default: Date.now },
           reviewedAt: { type: Date },
           reviewedByAdminId: { type: Schema.Types.ObjectId, ref: 'User' },
+          source: { type: String, enum: ['upload', 'digilocker'], default: 'upload' },
           // P2.4: what the OCR pre-check recommended. Statuses and a
           // confidence only; never the text or any number read.
           precheck: {

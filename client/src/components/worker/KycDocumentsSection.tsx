@@ -1,5 +1,6 @@
 'use client';
 
+import { DigiLockerButton } from '@/components/kyc/DigiLockerButton';
 import { WorkerCredentialsSection } from '@/components/worker/WorkerCredentialsSection';
 import { AadhaarOfflineCard } from '@/components/kyc/AadhaarOfflineCard';
 import { useEffect, useState } from 'react';
@@ -123,6 +124,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
                 </div>
               )}
               {type === 'aadhaar' && (!doc || doc.status !== 'verified') && <AadhaarOfflineCard />}
+              {(type === 'pan' || type === 'driving_licence') && (!doc || doc.status !== 'verified') && <DigiLockerButton docType={type} />}
               {doc && doc.status !== 'verified' && (
                 <div className="mt-1.5 ml-1">
                   {precheckResult ? (

@@ -5095,5 +5095,15 @@
     "bankRef": "Bank's reference number",
     "confirm": "Save the bank's reference",
     "failed": "That did not work. Please try again."
+  },
+  "digilocker": {
+    "fetch": "Fetch from DigiLocker",
+    "note": "Sign in to DigiLocker and choose to share this one document. It still goes for checking like an uploaded one.",
+    "off": "Fetching from DigiLocker is not switched on yet. Please upload the document.",
+    "starting": "Opening DigiLocker…",
+    "working": "Getting your document from DigiLocker…",
+    "done": "Done. Your document was fetched and is waiting to be checked.",
+    "failed": "That did not work. You can upload the document instead.",
+    "back": "Back to my account"
   }
 }
