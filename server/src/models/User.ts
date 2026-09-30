@@ -32,6 +32,14 @@ export interface IKycDocument {
   uploadedAt: Date;
   reviewedAt?: Date;
   reviewedByAdminId?: Types.ObjectId;
+  /** P2.4 OCR pre-check: a recommendation for the reviewer, never a decision. */
+  precheck?: {
+    recommendation: 'looks_ok' | 'needs_review' | 'unmasked_aadhaar';
+    checks: { key: string; status: string; detail?: string }[];
+    ocrConfidence: number;
+    engine: string;
+    at: Date;
+  };
 }
 
 export interface IUser {
@@ -223,6 +231,19 @@ const userSchema = new Schema<IUser>(
           uploadedAt: { type: Date, required: true, default: Date.now },
           reviewedAt: { type: Date },
           reviewedByAdminId: { type: Schema.Types.ObjectId, ref: 'User' },
+          // P2.4: what the OCR pre-check recommended. Statuses and a
+          // confidence only; never the text or any number read.
+          precheck: {
+            type: {
+              recommendation: { type: String, enum: ['looks_ok', 'needs_review', 'unmasked_aadhaar'] },
+              checks: [{ key: String, status: String, detail: String, _id: false }],
+              ocrConfidence: Number,
+              engine: String,
+              at: Date,
+            },
+            _id: false,
+            default: undefined,
+          },
         },
       ],
       default: [],

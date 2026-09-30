@@ -4983,5 +4983,22 @@
     "uptake": "Leaders took the crew suggestion {followed} of {decided} times.",
     "uptakeNone": "No crew suggestions have been acted on yet.",
     "empty": "No societies in scope yet."
+  },
+  "kycPrecheck": {
+    "title": "Automatic check",
+    "suggestion": "A suggestion from reading the image automatically. You decide.",
+    "rec_looks_ok": "Looks fine",
+    "rec_needs_review": "Needs a careful look",
+    "rec_unmasked_aadhaar": "Full Aadhaar number visible",
+    "confidence": "{percent}% readable",
+    "check_legible": "Image is readable",
+    "check_unmasked_aadhaar": "Aadhaar is masked",
+    "check_id_pattern": "ID number has the right shape",
+    "check_name_match": "Name matches the account",
+    "check_dob_year": "Year of birth matches",
+    "status_pass": "yes",
+    "status_warn": "check",
+    "status_fail": "no",
+    "status_skipped": "not checked"
   }
 }

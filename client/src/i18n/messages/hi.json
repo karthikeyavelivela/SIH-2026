@@ -4983,5 +4983,22 @@
     "uptake": "{decided} में से {followed} बार लीडरों ने टीम का सुझाव माना।",
     "uptakeNone": "अभी तक किसी टीम सुझाव पर अमल नहीं हुआ है।",
     "empty": "अभी दायरे में कोई सोसाइटी नहीं है।"
+  },
+  "kycPrecheck": {
+    "title": "स्वचालित जाँच",
+    "suggestion": "छवि को अपने आप पढ़कर दिया गया सुझाव। फ़ैसला आपका है।",
+    "rec_looks_ok": "ठीक लगता है",
+    "rec_needs_review": "ध्यान से देखना ज़रूरी",
+    "rec_unmasked_aadhaar": "पूरा आधार नंबर दिख रहा है",
+    "confidence": "{percent}% पढ़ने योग्य",
+    "check_legible": "छवि पढ़ने योग्य है",
+    "check_unmasked_aadhaar": "आधार मास्क्ड है",
+    "check_id_pattern": "आईडी नंबर सही रूप में है",
+    "check_name_match": "नाम खाते से मेल खाता है",
+    "check_dob_year": "जन्म वर्ष मेल खाता है",
+    "status_pass": "हाँ",
+    "status_warn": "जाँचें",
+    "status_fail": "नहीं",
+    "status_skipped": "जाँचा नहीं गया"
   }
 }

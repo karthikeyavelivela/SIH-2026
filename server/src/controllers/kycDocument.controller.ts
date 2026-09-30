@@ -1,3 +1,5 @@
+import { ocrEnabled, recognizeImage } from '../services/ocr.service';
+import { analyzeOcrText, type OcrPrecheck } from '../services/docPrecheck.service';
 import { Request, Response } from 'express';
 import { writeAuditLog } from '../services/audit.service';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -91,6 +93,20 @@ export async function storeKycDocument(userId: string, type: KycDocumentType, fi
   if (buffer.byteLength === 0) throw new ApiError(400, 'File is empty');
   if (buffer.byteLength > MAX_KYC_DOCUMENT_BYTES) throw new ApiError(400, 'File too large (max 8MB)');
 
+  // P2.4: read the image before it is stored. Only a fully visible Aadhaar
+  // number stops the upload (so the unmasked image is never kept); every other
+  // finding is a recommendation the reviewer sees.
+  let precheck: OcrPrecheck | undefined;
+  if (mime !== 'application/pdf' && ocrEnabled()) {
+    const ocr = await recognizeImage(buffer);
+    if (ocr) {
+      precheck = analyzeOcrText(ocr.text, ocr.confidence, type, { name: user.name });
+      if (precheck.recommendation === 'unmasked_aadhaar') {
+        throw new ApiError(422, 'This looks like an unmasked Aadhaar number. Please upload a masked copy with the first 8 digits hidden.');
+      }
+    }
+  }
+
   const resourceType = mime === 'application/pdf' ? 'raw' : 'image';
   const stored = await uploadPrivateDocument(buffer, `kyc/${user._id}/${type}`, resourceType);
   // A mock upload stores nothing. Recording it as a submitted identity
@@ -113,6 +129,7 @@ export async function storeKycDocument(userId: string, type: KycDocumentType, fi
     uploadedAt: new Date(),
     reviewedAt: undefined,
     reviewedByAdminId: undefined,
+    precheck,
   };
 
   if (existing) {

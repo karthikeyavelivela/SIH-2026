@@ -88,6 +88,11 @@ export const SERVER_MESSAGES: Catalog = {
     te: 'ముందుగా ప్రస్తుత గోప్యతా నోటీసును అంగీకరించండి',
     hi: 'पहले मौजूदा गोपनीयता सूचना स्वीकार करें',
   },
+  'This looks like an unmasked Aadhaar number. Please upload a masked copy with the first 8 digits hidden.': {
+    en: 'This looks like an unmasked Aadhaar number. Please upload a masked copy with the first 8 digits hidden.',
+    te: 'ఇది పూర్తిగా కనిపిస్తున్న ఆధార్ నంబర్‌లా ఉంది. దయచేసి మొదటి 8 అంకెలు దాచిన మాస్క్డ్ కాపీని అప్‌లోడ్ చేయండి.',
+    hi: 'यह पूरा दिखता आधार नंबर लगता है। कृपया पहले 8 अंक छिपी हुई मास्क्ड कॉपी अपलोड करें।',
+  },
   'User not found': {
     en: 'User not found',
     te: 'యూజర్ కనబడలేదు',

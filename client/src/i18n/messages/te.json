@@ -4983,5 +4983,22 @@
     "uptake": "{decided} సార్లలో {followed} సార్లు లీడర్లు బృంద సూచనను తీసుకున్నారు.",
     "uptakeNone": "ఇంకా ఏ బృంద సూచనపై చర్య తీసుకోలేదు.",
     "empty": "ఇంకా పరిధిలో సొసైటీలు లేవు."
+  },
+  "kycPrecheck": {
+    "title": "ఆటోమేటిక్ తనిఖీ",
+    "suggestion": "చిత్రాన్ని ఆటోమేటిక్‌గా చదివి ఇచ్చిన సూచన. నిర్ణయం మీదే.",
+    "rec_looks_ok": "సరిగ్గా ఉంది",
+    "rec_needs_review": "జాగ్రత్తగా చూడాలి",
+    "rec_unmasked_aadhaar": "పూర్తి ఆధార్ నంబర్ కనిపిస్తోంది",
+    "confidence": "{percent}% చదవగలిగేలా ఉంది",
+    "check_legible": "చిత్రం చదవగలిగేలా ఉంది",
+    "check_unmasked_aadhaar": "ఆధార్ మాస్క్ చేయబడింది",
+    "check_id_pattern": "ఐడి నంబర్ సరైన రూపంలో ఉంది",
+    "check_name_match": "పేరు ఖాతాతో సరిపోతుంది",
+    "check_dob_year": "పుట్టిన సంవత్సరం సరిపోతుంది",
+    "status_pass": "అవును",
+    "status_warn": "పరిశీలించండి",
+    "status_fail": "కాదు",
+    "status_skipped": "తనిఖీ చేయలేదు"
   }
 }

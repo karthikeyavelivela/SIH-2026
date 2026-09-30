@@ -34,6 +34,11 @@ const envSchema = z.object({
   VERIFICATION_ENABLED: optionalFlag,
   // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
   // back to the rule-based path, labelled source 'rules'.
+  // P2.4 — OCR pre-check of KYC uploads (tesseract.js). Off by default: the
+  // engine is heavy and downloads its language data on first use.
+  DOC_OCR_ENABLED: optionalFlag,
+  // Directory or URL holding eng/tel/hin traineddata, to avoid the download.
+  OCR_LANG_PATH: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
   ML_SERVICE_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   ML_SERVICE_TOKEN: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(16).optional()),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),

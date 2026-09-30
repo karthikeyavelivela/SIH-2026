@@ -1,5 +1,6 @@
 'use client';
 
+import { PrecheckNote, type DocPrecheck } from '@/components/kyc/PrecheckNote';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -18,6 +19,7 @@ interface KycDocument {
   status: 'under_review' | 'verified' | 'rejected';
   rejectionReason?: string;
   uploadedAt: string;
+  precheck?: DocPrecheck;
 }
 
 interface KycUser {
@@ -167,8 +169,8 @@ export default function AdminKycQueuePage() {
               {selected.kycDocs.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noDocsOnFile')}</p>}
               <div className="space-y-2">
                 {selected.kycDocs.map((doc) => (
+                  <div key={doc._id} className="space-y-1.5">
                   <button
-                    key={doc._id}
                     type="button"
                     onClick={() => viewDocument(doc._id)}
                     disabled={openingDoc === doc._id}
@@ -180,6 +182,8 @@ export default function AdminKycQueuePage() {
                     </span>
                     <StatusChip tone={docStatusTone[doc.status]}>{t(`docStatus.${doc.status}`)}</StatusChip>
                   </button>
+                  {doc.precheck && <PrecheckNote precheck={doc.precheck} />}
+                  </div>
                 ))}
               </div>
             </div>

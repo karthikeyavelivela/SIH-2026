@@ -27,7 +27,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | DONE | (this commit) | ml/ FastAPI (XGBoost, OR-Tools CP-SAT, IsolationForest), train.py with honest metrics, mlClient 3 s timeout + rules fallback, forecast agent + hourly-rate check wired, /api/health ml status, render.yaml service; pytest 19, server 13 |
 | P2.2 | Allocation UI (recommended crew) + fairness panel | DONE | (this commit) | POST /api/mutha/allocation/recommend (ML or rules, labelled), AllocationLog recommendation-vs-final, RecommendedCrew on /mutha/requests + assign-members (covers contract visits), GET /api/federation/fairness + FairnessPanel; server 8, client 3 |
 | P2.3 | TARA: provider order, knowledge base, retrieval, citations | DONE | (this commit) | order Groq, Gemini, Anthropic, rules; /api/health activeProvider; server/knowledge/*.md (10 files) + KnowledgeChunk + buildKnowledge; Gemini embeddings or IDF-lexical fallback, optional Atlas vector index; citations in evidence; escalate line; hazard guardrail (gas/electrical/structural) runs before any model; 20 tests |
-| P2.4 | Document pre-check with OCR | TODO | | |
+| P2.4 | Document pre-check with OCR | DONE | (this commit) | tesseract.js (eng/tel/hin) behind DOC_OCR_ENABLED (off); pure analysis (masked/unmasked Aadhaar, PAN/GSTIN/DL shapes, fuzzy name, year); only an unmasked Aadhaar refuses an upload (422, nothing kept), everything else is a recommendation on the document for the admin; synthetic fixtures + make_fixtures.py; real-OCR test opt-in (RUN_OCR_TESTS=1), verified passing; 20 tests |
 | PHASE-2-TESTS | Full suites + pytest | TODO | | |
 | P3.1 | Redis scaling (adapter, rate-limit store, offer state, BullMQ, read prefs) | TODO | | |
 | PHASE-3-TESTS | Full suites | TODO | | |
@@ -65,6 +65,8 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | GEMINI_API_KEY | Render API | unset | Second provider, and the knowledge-base embeddings; without it retrieval is lexical |
 | GEMINI_EMBEDDING_MODEL | Render API | gemini-embedding-001 | Embedding model name |
 | KNOWLEDGE_VECTOR_INDEX | Render API | unset | Name of an Atlas Vector Search index on KnowledgeChunk.embedding, if one exists |
+| DOC_OCR_ENABLED | Render API | unset (off) | Runs OCR on KYC image uploads; heavy, downloads eng/tel/hin language data on first use |
+| OCR_LANG_PATH | Render API | unset | Directory or URL of tesseract traineddata files, to avoid the download |
 | ML_SERVICE_URL | Render API | unset | Base URL of the fyro-ml service; unset = rules |
 | ML_SERVICE_TOKEN | Render API + Render ML | unset | Shared secret (16+ chars), identical on both services |
 | MONGODB_URI_READONLY | local (train.py only) | unset | Read-only Atlas user for training; never set on a server |
@@ -96,3 +98,4 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P2.3: fill the knowledge-base placeholders (search for `[[TO BE CONFIRMED` in server/knowledge/): the bye-laws summary, the cancellation and refund policy, the FYRO helpline number and hours, the grievance officer, the GST rate on the service fee, and the federations' confirmation of the welfare parameters. TARA says "FYRO has not confirmed this yet" for each until they are filled.
 - P2.3: after deploying, run `npm run build:knowledge --workspace server` locally against the production MONGODB_URI with GEMINI_API_KEY set (Render's shell is paid-only). Optionally create an Atlas Vector Search index on KnowledgeChunk.embedding and set KNOWLEDGE_VECTOR_INDEX; otherwise retrieval is in-process.
 - P2.3: set AI_PROVIDER=auto (default) with GROQ_API_KEY to make Groq primary; AI_PROVIDER=groq pins to Groq alone with no fallback.
+- P2.4: decide whether to turn DOC_OCR_ENABLED on in production. Tesseract with Telugu and Hindi needs a few hundred MB of memory per recognition, which a free Render instance may not have; if it runs out, leave it off (uploads then simply have no pre-check) or host the traineddata files and set OCR_LANG_PATH.
