@@ -37,6 +37,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { refetch, user, loading: authLoading } = useAuth();
   const t = useTranslations('signIn');
+  const tClaim = useTranslations('proxyMembers');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -143,6 +144,13 @@ export default function LoginPage() {
             className="font-body text-label font-semibold text-fy-brown hover:underline text-center"
           >
             {t('forgot')}
+          </Link>
+
+          <Link
+            href="/claim-account"
+            className="font-body text-label font-semibold text-fy-brown hover:underline text-center"
+          >
+            {tClaim('claimLink')}
           </Link>
 
           <div className="border-t border-fy-brown/12 pt-4 text-center">

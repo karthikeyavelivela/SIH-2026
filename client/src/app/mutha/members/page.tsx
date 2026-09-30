@@ -37,6 +37,7 @@ type Filter = 'all' | 'on_job' | 'online' | 'offline';
 
 export default function MuthaMembersPage() {
   const t = useTranslations('muthaMembers');
+  const tProxy = useTranslations('proxyMembers');
   const { data, reload } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const [toRemove, setToRemove] = useState<{ _id: string; name: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -184,7 +185,7 @@ export default function MuthaMembersPage() {
                     key={m._id}
                     lead={<Avatar name={m.name} photoUrl={m.profilePhoto} accent="secondary" status={m.availabilityStatus} />}
                     title={m.name}
-                    meta={m.phone}
+                    meta={m.phone.startsWith('proxy-') ? tProxy('noPhone') : m.phone}
                     trailing={
                       <div className="flex items-center gap-2">
                         <StatusPill tone={m.availabilityStatus === 'online' ? 'lime' : m.availabilityStatus === 'on_job' ? 'neutral' : 'outline'}>

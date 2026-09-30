@@ -441,7 +441,13 @@ Created by `npm run seed:demo` (`server/src/scripts/seedDemoAccounts.ts`).
 
 ### Admin
 
-The root admin is **not** a demo account. It is created from `ADMIN_PHONE` / `ADMIN_PASSWORD` (`npm run seed:admin`), so on a deployed instance only whoever set those variables can sign in as admin. Its credentials are never published.
+The root admin is created from `ADMIN_PHONE` / `ADMIN_PASSWORD` (`npm run seed:admin`). For the competition demo deployment the credentials are published so judges can review the admin console:
+
+| Phone (username) | Password | Role |
+|---|---|---|
+| `9999999999` | `ChangeMe123!` | Root admin |
+
+Change `ADMIN_PASSWORD` and re-seed before any real use.
 
 ### Test payment details (Razorpay test mode only)
 

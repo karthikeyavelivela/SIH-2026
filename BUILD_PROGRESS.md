@@ -21,7 +21,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P1.4 | Urgent booking | DONE | 22fba0c | urgent flag, 3/6/10 km rings, 12 s countdown, urgent-first feeds |
 | P1.5 | Dispute routing by level with SLA | DONE | 63719ef | levels + 48h SLA + scoped resolver queues + triage for all |
 | P1.6 | Institutions and bulk contracts | DONE | 67f7084 | institution accounts, contracts lifecycle, visit generation, monthly GST invoice |
-| P1.7 | Proxy members (no phone) | TODO | | |
+| P1.7 | Proxy members (no phone) | DONE | (this commit) | leader-managed members, KYC/payout with consent, claim code + public /claim-account; also fixed date-dependent contracts test |
 | P1.8 | Consent and privacy (+ C0 verification data + permission fixes) | TODO | | |
 | PHASE-1-TESTS | Full suites | TODO | | |
 | P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | TODO | | |

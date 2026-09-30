@@ -113,6 +113,21 @@ export interface IUser {
   // Customer-only in practice (see REQUIRED_KYC_DOCS_BY_ROLE — GSTIN is
   // already a required KYC document for fleet_owner/warehouse_hub, this is
   // the equivalent opt-in for a customer booking on a company's behalf).
+  /**
+   * P1.7 — a society member with no phone of their own, run by their leader.
+   * Their `phone` is a reserved placeholder ('proxy-…') that can never be
+   * signed in with, and their password is unusable, until they claim the
+   * account by verifying a real phone.
+   */
+  leaderManaged?: boolean;
+  managedByMuthaId?: Types.ObjectId;
+  /** The leader's recorded consent when setting payout details on a member's behalf. */
+  payoutConsent?: { byUserId: Types.ObjectId; at: Date };
+  claimCodeHash?: string;
+  claimCodeExpiresAt?: Date;
+  claimAttempts?: number;
+  pendingClaim?: { phone: string; otpHash: string; expiresAt: Date; attempts: number };
+  claimedAt?: Date;
   /** P1.6 — a household books jobs; an institution also holds contracts with societies. */
   accountType?: 'household' | 'institution';
   institutionProfile?: {
@@ -255,6 +270,22 @@ const userSchema = new Schema<IUser>(
       upiId: { type: String, trim: true },
       updatedAt: { type: Date },
     },
+    leaderManaged: { type: Boolean, default: false },
+    managedByMuthaId: { type: Schema.Types.ObjectId, ref: 'Mutha' },
+    payoutConsent: {
+      byUserId: { type: Schema.Types.ObjectId, ref: 'User' },
+      at: { type: Date },
+    },
+    claimCodeHash: { type: String, select: false },
+    claimCodeExpiresAt: { type: Date, select: false },
+    claimAttempts: { type: Number, select: false },
+    pendingClaim: {
+      type: { phone: String, otpHash: String, expiresAt: Date, attempts: Number },
+      select: false,
+      _id: false,
+      default: undefined,
+    },
+    claimedAt: { type: Date },
     accountType: { type: String, enum: ['household', 'institution'], default: 'household' },
     institutionProfile: {
       institutionType: {

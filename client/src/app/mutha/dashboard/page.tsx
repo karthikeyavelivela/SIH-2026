@@ -47,6 +47,7 @@ export default function MuthaDashboardPage() {
   const t = useTranslations('muthaDashboard');
   const tDisputes = useTranslations('disputeRouting');
   const tContracts = useTranslations('contracts');
+  const tProxy = useTranslations('proxyMembers');
   const { user } = useAuth();
   const { data, state } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const { data: bookingsData } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 15000);
@@ -186,9 +187,14 @@ export default function MuthaDashboardPage() {
             <Section
               title={<SectionHeading>{t('memberRoster')}</SectionHeading>}
               aside={
-                <Link href="/mutha/members" className="font-body text-label font-semibold text-fy-green hover:underline">
-                  {t('manage')}
-                </Link>
+                <div className="flex flex-col items-end gap-1">
+                  <Link href="/mutha/members" className="font-body text-label font-semibold text-fy-green hover:underline">
+                    {t('manage')}
+                  </Link>
+                  <Link href="/mutha/proxy-members" className="font-body text-label font-semibold text-fy-green hover:underline">
+                    {tProxy('manageLink')}
+                  </Link>
+                </div>
               }
             >
               {members.length === 0 ? (

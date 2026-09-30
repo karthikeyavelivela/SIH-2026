@@ -64,6 +64,7 @@ import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './ro
 import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
+import { proxyMemberRouter, proxyClaimRouter } from './routes/proxyMember.routes';
 
 export const app = express();
 
@@ -197,6 +198,8 @@ app.use('/api/welfare', welfareRouter);
 app.use('/api/rework', reworkRouter);
 app.use('/api/dispute-queue', disputeQueueRouter);
 app.use('/api/contracts', contractRouter);
+app.use('/api/proxy-members', proxyMemberRouter);
+app.use('/api/proxy-claim', proxyClaimRouter);
 app.use('/api/admin/referrals', adminReferralRouter);
 app.use('/api/admin/kyc-queue', kycRouter);
 app.use('/api/kyc/documents', kycDocumentRouter);

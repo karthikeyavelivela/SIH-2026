@@ -115,7 +115,10 @@ describe('the contract lifecycle', () => {
     const accepted = await w.school.post(`/api/contracts/${id}/institution`).send({ action: 'accept_counter' });
     expect(accepted.body.contract).toMatchObject({ status: 'active', ratePerWorkerPerVisit: 450 });
 
-    expect(await generateVisits(MONDAY)).toBe(2);
+    // Accepting already generates against the real clock, so how many are new
+    // here depends on today's date; the total and idempotency do not.
+    await generateVisits(MONDAY);
+    expect(await Booking.countDocuments({ contractId: id })).toBe(2);
     expect(await generateVisits(MONDAY)).toBe(0); // idempotent
     const visits = await Booking.find({ contractId: id }).sort({ contractVisitDate: 1 }).lean();
     expect(visits.map((v) => v.contractVisitDate)).toEqual(['2026-10-05', '2026-10-08']);
@@ -176,7 +179,8 @@ describe('the contract lifecycle', () => {
     await w.school.post(`/api/contracts/${id}/institution`).send({ action: 'pause' });
     expect(await generateVisits(MONDAY)).toBe(0);
     await w.school.post(`/api/contracts/${id}/institution`).send({ action: 'resume' });
-    expect(await generateVisits(MONDAY)).toBe(2);
+    await generateVisits(MONDAY);
+    expect(await Booking.countDocuments({ contractId: id })).toBe(2);
     expect((await Contract.findById(id).lean())!.history.map((h) => h.status)).toEqual(['proposed', 'active', 'paused', 'active']);
   });
 });

@@ -9,6 +9,11 @@ export function publicUser(user: { toObject: () => Record<string, unknown> }) {
   // Fraud-detection-only (fraudDetection.service.ts's rapid-account-creation
   // detector) — never returned to the user themself or any non-admin caller.
   delete obj.signupIp;
+  // P1.7 — claim secrets never leave the server.
+  delete obj.claimCodeHash;
+  delete obj.claimCodeExpiresAt;
+  delete obj.claimAttempts;
+  delete obj.pendingClaim;
 
   /*
    * An avatar that was never actually stored.
