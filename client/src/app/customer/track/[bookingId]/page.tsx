@@ -1,5 +1,6 @@
 'use client';
 
+import { CompletionPanel } from '@/components/booking/CompletionPanel';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -41,7 +42,15 @@ interface BookingDetail {
   /** Named trade, when one was booked. Absent on a bare crew or truck dispatch. */
   serviceCategorySlug?: string;
   status: string;
-  fareBreakdown: { baseFare: number; distanceFare: number; hamaliFare: number; total: number };
+  fareBreakdown: {
+    baseFare: number;
+    distanceFare: number;
+    hamaliFare: number;
+    total: number;
+    workerRate?: number;
+    serviceFeePct?: number;
+    serviceFee?: number;
+  };
   pickupLocation: { address: string; coordinates: [number, number] };
   dropLocation: { address: string; coordinates: [number, number] };
   // Phase 6.3 — multi-stop routing.
@@ -124,7 +133,7 @@ function BidsReviewSection({ bookingId, onAccepted }: { bookingId: string; onAcc
   );
 }
 
-const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
+const STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation', 'completed'];
 
 // Confirmation, in the sense that matters to a customer: somebody has
 // taken the job. Before this the answer to "tell you when they're on the
@@ -227,6 +236,8 @@ export default function TrackBookingPage() {
   // The design's four-tab row: Status / Chat / Payment / Custody.
   const [tab, setTab] = useState<'status' | 'chat' | 'payment' | 'custody'>('status');
   const [linkCopied, setLinkCopied] = useState(false);
+  const [completionCode, setCompletionCode] = useState<string | null>(null);
+  const [autoConfirmHours, setAutoConfirmHours] = useState<number | null>(null);
 
   useEffect(() => {
     if (booking?.status !== 'completed') return;
@@ -241,8 +252,12 @@ export default function TrackBookingPage() {
 
     async function load() {
       try {
-        const res = await api.get<{ booking: BookingDetail }>(`/api/bookings/${bookingId}`);
-        if (!cancelled) setBooking(res.booking);
+        const res = await api.get<{ booking: BookingDetail; completionCode?: string | null; autoConfirmHours?: number }>(`/api/bookings/${bookingId}`);
+        if (!cancelled) {
+          setBooking(res.booking);
+          setCompletionCode(res.completionCode ?? null);
+          setAutoConfirmHours(res.autoConfirmHours ?? null);
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof ApiClientError ? err.message : t('loadError'));
       }
@@ -470,6 +485,13 @@ export default function TrackBookingPage() {
               <NotificationPrompt accent="primary" scope="booking" copy={t('notifyOnTheWay')} />
             )}
 
+            <CompletionPanel
+              booking={booking}
+              code={completionCode}
+              autoConfirmHours={autoConfirmHours}
+              onChanged={(b) => setBooking(b as BookingDetail)}
+            />
+
             {(booking.status === 'requested' || booking.status === 'searching') && (
               <LightCard className="flex items-center gap-3">
                 <span className="w-3.5 h-3.5 rounded-full border-2 border-fy-brown/30 border-t-fy-brown animate-spin shrink-0" />
@@ -659,8 +681,17 @@ export default function TrackBookingPage() {
               {booking.fareBreakdown.hamaliFare > 0 && (
                 <StatRow label={t('hamali')} value={`${'₹'}${booking.fareBreakdown.hamaliFare}`} />
               )}
+              {typeof booking.fareBreakdown.serviceFee === 'number' && (
+                <StatRow
+                  label={t('serviceFee', { pct: booking.fareBreakdown.serviceFeePct ?? 10 })}
+                  value={`${'₹'}${booking.fareBreakdown.serviceFee}`}
+                />
+              )}
               <Divider />
               <StatRow label={t('total')} value={`${'₹'}${booking.fareBreakdown.total}`} valueTone="green" />
+              {typeof booking.fareBreakdown.serviceFee === 'number' && (
+                <Body size="label">{t('workerKeepsAll')}</Body>
+              )}
             </Panel>
             {booking.status === 'completed' ? (
               <PaymentSection bookingId={bookingId} />

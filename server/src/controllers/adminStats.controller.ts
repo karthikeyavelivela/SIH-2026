@@ -14,7 +14,7 @@ import { Vehicle } from '../models/Vehicle';
  * this app reads, never re-derived or estimated.
  */
 export const getAdminStats = asyncHandler(async (_req: Request, res: Response) => {
-  const activeStatuses = ['requested', 'searching', 'matched', 'accepted', 'in_progress'];
+  const activeStatuses = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation'];
 
   // 'workersOnline' and 'openDisputes' are counted here because the admin
   // overview needs both and neither had a source: the console could show

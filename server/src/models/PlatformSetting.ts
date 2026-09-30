@@ -15,6 +15,16 @@ export interface IPlatformSetting {
    * clamps it and supplies the default when this has never been written.
    */
   platformCommissionPct?: number;
+  /**
+   * P1.1 — the customer pays the worker's rate plus feeTotalPct, split
+   * society / welfare pool / guarantee reserve / platform. The four parts
+   * must add up to feeTotalPct (serviceFee.service.ts validates it).
+   */
+  feeTotalPct?: number;
+  societyPct?: number;
+  welfarePoolPct?: number;
+  guaranteeReservePct?: number;
+  platformPct?: number;
   updatedAt: Date;
 }
 
@@ -25,6 +35,11 @@ const platformSettingSchema = new Schema<IPlatformSetting>(
     _id: { type: String, required: true },
     parametricPayoutsEnabled: { type: Boolean, default: true },
     platformCommissionPct: { type: Number, min: 0, max: 100, default: 1 },
+    feeTotalPct: { type: Number, min: 0, max: 50, default: 10 },
+    societyPct: { type: Number, min: 0, max: 50, default: 5 },
+    welfarePoolPct: { type: Number, min: 0, max: 50, default: 3 },
+    guaranteeReservePct: { type: Number, min: 0, max: 50, default: 1 },
+    platformPct: { type: Number, min: 0, max: 50, default: 1 },
   },
   { timestamps: { createdAt: false, updatedAt: true } }
 );

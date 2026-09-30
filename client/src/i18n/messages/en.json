@@ -767,7 +767,8 @@
       "accepted": "Accepted",
       "inProgress": "On the way",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "awaitingConfirmation": "Awaiting customer"
     },
     "bookingNotify": {
       "statusUpdate": "Your booking is now {status}.",
@@ -880,7 +881,8 @@
       "in_progress": "Picked up — on the way",
       "completed": "Delivered",
       "cancelled": "Cancelled",
-      "scheduled": "Scheduled"
+      "scheduled": "Scheduled",
+      "awaiting_confirmation": "Done — waiting for your confirmation"
     },
     "assignedToYou": "Assigned to you",
     "muthaGroup": "Mutha group",
@@ -964,7 +966,9 @@
     "checkoutLoadFailed": "Could not open the payment window. Check your connection and try again.",
     "checkoutDescription": "Payment for your FYRO booking",
     "paymentCancelled": "Payment was cancelled. Nothing was charged.",
-    "paymentFailed": "The payment did not go through."
+    "paymentFailed": "The payment did not go through.",
+    "serviceFee": "Service fee ({pct}%)",
+    "workerKeepsAll": "The worker receives 100% of their rate."
   },
   "customerHistory": {
     "title": "Booking history",
@@ -1049,7 +1053,11 @@
     "estimatedValueLabel": "Estimated value of goods (Rs, optional)",
     "ewayBillLabel": "E-way bill number",
     "ewayBillPlaceholder": "12-digit e-way bill number",
-    "ewayBillHint": "Required by GST rules for consignments worth Rs 50,000 or more. Self-declared — not verified against the government e-way bill portal."
+    "ewayBillHint": "Required by GST rules for consignments worth Rs 50,000 or more. Self-declared — not verified against the government e-way bill portal.",
+    "workerRate": "Worker's rate",
+    "serviceFee": "Service fee ({pct}%)",
+    "workerKeepsAll": "The worker receives 100% of their rate.",
+    "feeNote": "₹{rate} to the worker (all of it) + ₹{fee} service fee ({pct}%)"
   },
   "muthaMemberJob": {
     "hello": "Hello,",
@@ -1173,7 +1181,8 @@
     "platformFeeMixed": "Platform commission, at the rate charged on each job",
     "societyFee": "Society deduction",
     "netLabel": "Net to you",
-    "deductionNote": "Every deduction on every job, itemised."
+    "deductionNote": "Every deduction on every job, itemised.",
+    "keepsAll": "On newer jobs the customer paid the service fee on top — nothing was taken from your rate."
   },
   "workerRequests": {
     "pageTitle": "Job requests",
@@ -1794,7 +1803,12 @@
         "other": "Other"
       },
       "pickupLabel": "Pickup point",
-      "customerPhoto": "What the customer photographed"
+      "customerPhoto": "What the customer photographed",
+      "codeLabel": "Customer's completion code (optional)",
+      "codeHint": "Ask the customer for their 4-digit code when they are happy with the work. Without it, the job waits for their confirmation.",
+      "completeWithCode": "Complete with code",
+      "awaitingTitle": "Waiting for the customer to confirm",
+      "awaitingBody": "You are free for your next job. You will be paid once the customer confirms, or automatically after the waiting period if they raise no problem."
     },
     "driver": {
       "stepInTransit": "In transit",
@@ -1920,7 +1934,8 @@
       "accepted": "Accepted",
       "in_progress": "In Transit",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "awaiting_confirmation": "Confirm the job"
     },
     "exploreServices": "Explore Services",
     "bookingHistory": "Booking history",
@@ -2005,7 +2020,8 @@
     "noCompletedJobsHint": "Once a member completes a society job, their share appears here.",
     "noRunsInRange": "No settled runs in this range.",
     "platformFee": "Platform commission ({pct}%)",
-    "platformFeeMixed": "Platform commission, at the rate charged on each job"
+    "platformFeeMixed": "Platform commission, at the rate charged on each job",
+    "feeShare": "Society's share of service fees (paid by customers, not members)"
   },
   "muthaRequests": {
     "pageTitle": "Job requests",
@@ -2451,7 +2467,9 @@
       "regions": "Regions",
       "auditLog": "Audit log",
       "profile": "Profile",
-      "codReconciliation": "Cash reconciliation"
+      "codReconciliation": "Cash reconciliation",
+      "wageFloors": "Wage floors",
+      "platformFees": "Service fee"
     },
     "adminConsole": "Admin console",
     "managerConsole": "Manager console",
@@ -2811,7 +2829,10 @@
       "aadhaar": "Aadhaar",
       "pan": "PAN",
       "gstin": "GSTIN"
-    }
+    },
+    "viewDoc": "View",
+    "openingDoc": "Opening…",
+    "viewDocFailed": "Could not open the document. Try again."
   },
   "adminLedger": {
     "eyebrow": "Finance",
@@ -3036,7 +3057,8 @@
       "mutha_member": "Mutha member",
       "fleet_owner": "Fleet owner",
       "warehouse_hub": "Warehouse hub"
-    }
+    },
+    "parametricRetired": "Earnings-triggered (parametric) plans are retired. Income support now comes from each district's welfare pool, which pays when demand in the district falls, not when one person has a slow month."
   },
   "errorBoundary": {
     "title": "Something went wrong",
@@ -3999,7 +4021,8 @@
     "placeholder": "What was wrong with the work?",
     "sent": "Claim raised. The cooperative desk will review it.",
     "error": "Could not raise the claim.",
-    "notEligible": "This service does not carry a workmanship guarantee."
+    "notEligible": "This service does not carry a workmanship guarantee.",
+    "trackRework": "Track the re-work visit"
   },
   "pwa": {
     "offlineTitle": "You are offline",
@@ -4123,7 +4146,9 @@
       "removeRow": "Remove",
       "error": "Could not save your rates.",
       "openSection": "Set your rates",
-      "noModes": "Pick at least one way of charging."
+      "noModes": "Pick at least one way of charging.",
+      "minutesPerUnit": "Minutes per unit (optional)",
+      "minutesPerUnitPlaceholder": "e.g. 15"
     },
     "floors": {
       "intro": "A floor is the least any member of {society} will work for. It binds every member, and the federation's cap bounds it in turn.",
@@ -4192,7 +4217,15 @@
       "quotationNote": "This worker looks at the job first, then sends a written price. Visit fee ₹{fee}.",
       "quotationNoteFree": "This worker looks at the job first, then sends a written price. No visit fee.",
       "visitAdjustable": "The visit fee comes off the final bill if you go ahead.",
-      "entryFromService": "Or pick a worker and see their own rates"
+      "entryFromService": "Or pick a worker and see their own rates",
+      "workerRate": "{name}'s rate",
+      "serviceFee": "Service fee ({pct}%)",
+      "feeSociety": "Society share ({pct}%)",
+      "feeWelfare": "District welfare pool ({pct}%)",
+      "feeGuarantee": "Workmanship guarantee reserve ({pct}%)",
+      "feePlatform": "FYRO platform ({pct}%)",
+      "youPay": "You pay",
+      "workerKeepsAll": "Nothing is deducted from the worker's rate — the fee is paid on top."
     },
     "quotation": {
       "title": "Quotations",
@@ -4344,7 +4377,7 @@
   "wageFloor": {
     "title": "Government minimum wage",
     "customerLine": "At or above the {state} Government minimum wage (Notification {notification}).",
-    "hourlyOnlyNote": "Checked on hourly rates. Per-unit and per-task prices have no measured duration to check against.",
+    "hourlyOnlyNote": "Every rate is checked. Per-task and per-unit prices are converted to an hourly equivalent using the time the work takes.",
     "working": "₹{monthly} a month ÷ {days} working days ÷ {hours} hours = ₹{hourly} an hour",
     "band": "Counted as {band} work",
     "bands": {
@@ -4360,7 +4393,10 @@
     "below": "Below the statutory minimum — please re-price",
     "sourceGazette": "From the gazette notification.",
     "sourceSecondary": "Transcribed from a published compilation of the notification, not from the gazette itself.",
-    "noFloorForState": "No notification has been entered for this state yet, so no statutory floor is enforced here."
+    "noFloorForState": "No notification has been entered for this state yet, so no statutory floor is enforced here.",
+    "staleBanner": "Last notified rate — update pending",
+    "notifiedOn": "Notification {notification}, dated {date}",
+    "sourceLink": "Where this figure comes from"
   },
   "customerHome": {
     "menuAria": "Menu and profile",
@@ -4539,5 +4575,285 @@
     "statusPending": "With worker",
     "statusPosted": "Posted",
     "statusNotPosted": "Not posted"
+  },
+  "completion": {
+    "codeTitle": "Your completion code",
+    "codeBody": "Give this code to the worker only when you are happy with the work. It completes the job.",
+    "codeAria": "Completion code {code}",
+    "confirmTitle": "The worker has marked this job done",
+    "confirmBody": "Check the work, then confirm. If something is wrong, report it and payment to the worker is held until it is sorted out.",
+    "confirmDone": "Confirm job done",
+    "reportProblem": "Report a problem",
+    "reportLabel": "What is wrong?",
+    "reportPlaceholder": "For example: the tap still leaks",
+    "reportSubmit": "Send report",
+    "back": "Back",
+    "heldTitle": "Problem reported",
+    "heldBody": "Payment to the worker is on hold while this is looked into. You will be told when it is resolved.",
+    "autoNote": "If you do nothing, the job is confirmed automatically after {hours} hours.",
+    "error": "Something went wrong. Please try again."
+  },
+  "adminWageFloors": {
+    "eyebrow": "Statutory",
+    "title": "Government minimum wage floors",
+    "subtitle": "Every notification ever entered. A new notification replaces the old one; a row entered in error is deactivated with a reason. Hourly figures are derived on the server from the monthly rate.",
+    "staleAlert": "The notification for {states} has passed its end date. Its rate is still enforced. Enter the new notification.",
+    "empty": "No wage floors entered yet.",
+    "state": "State",
+    "zone": "Zone",
+    "band": "Skill band",
+    "monthly": "Monthly rate (₹)",
+    "hourly": "Hourly",
+    "period": "In force",
+    "source": "Source",
+    "status": "Status",
+    "deactivate": "Deactivate",
+    "deactivatePrompt": "Why is this row being withdrawn? (recorded in the audit log)",
+    "newTitle": "Enter a new notification",
+    "newHint": "Copy the figures exactly as notified. Say where they come from; a gazette figure and a compilation are not the same kind of fact.",
+    "scheduledEmployment": "Scheduled employment",
+    "notificationNumber": "Notification number",
+    "notificationDate": "Notification date",
+    "effectiveFrom": "Effective from",
+    "effectiveUntil": "Effective until (optional)",
+    "sourceType": "Source type",
+    "sourceUrl": "Source link",
+    "sourceNote": "Source note",
+    "publish": "Publish floor",
+    "published": "Published. The previous row for this state, zone and band was retired.",
+    "error": "Could not save. Please check the fields.",
+    "zones": {
+      "zone_1": "Zone I",
+      "zone_2": "Zone II",
+      "zone_3": "Zone III"
+    },
+    "bands": {
+      "unskilled": "Unskilled",
+      "semi_skilled": "Semi-skilled",
+      "skilled": "Skilled",
+      "highly_skilled": "Highly skilled"
+    },
+    "sources": {
+      "gazette": "Gazette",
+      "department_website": "Department website",
+      "secondary_compilation": "Secondary compilation"
+    },
+    "statuses": {
+      "in_force": "In force",
+      "stale": "Stale — still enforced",
+      "scheduled": "Starts later",
+      "retired": "Retired"
+    }
+  },
+  "kycDocs": {
+    "maskedAadhaarTitle": "Upload a masked Aadhaar",
+    "maskedAadhaarBody": "Download it from myaadhaar.uidai.gov.in and choose \"Masked Aadhaar\" — only the last 4 digits show. Or cover the first 8 digits before taking the photo. We never need your full Aadhaar number.",
+    "privateNote": "Your documents are stored privately. Only you and a KYC reviewer can open them, and every view is logged."
+  },
+  "adminPlatformFees": {
+    "eyebrow": "Money",
+    "title": "Service fee",
+    "subtitle": "Customers pay the worker's rate plus this fee. Workers keep 100% of their rate. The fee is split four ways, and every part is posted to the ledger when a job completes.",
+    "feeTotal": "Total service fee",
+    "parts": {
+      "societyPct": "Society share",
+      "welfarePoolPct": "District welfare pool",
+      "guaranteeReservePct": "Guarantee reserve",
+      "platformPct": "Platform fee"
+    },
+    "partHints": {
+      "societyPct": "To the worker's society; a solo worker's goes to the district federation.",
+      "welfarePoolPct": "To the district's welfare pool.",
+      "guaranteeReservePct": "Pays for re-work under the workmanship guarantee.",
+      "platformPct": "FYRO's revenue. Also takes any paise left over from rounding."
+    },
+    "collected": "Collected so far: ₹{amount} across {count} jobs",
+    "addsUp": "The parts add up to {sum}%.",
+    "doesNotAdd": "The parts add up to {sum}%, not {total}%. They must match before you can save.",
+    "forwardOnly": "A change applies only to bookings priced after you save. Every existing booking keeps the split it was quoted at.",
+    "legacy": "Bookings priced before the service fee existed were settled the old way: {pct}% platform commission taken from the worker, plus the society's bye-law cut. Those records are unchanged.",
+    "save": "Save split",
+    "saving": "Saving…",
+    "saved": "Saved. New bookings are priced with this split.",
+    "saveFailed": "Could not save. Try again.",
+    "resetDefault": "Reset to 10% (5/3/1/1)",
+    "reserveBalance": "Guarantee reserve now holds ₹{amount} after re-work labour."
+  },
+  "welfare": {
+    "title": "Welfare pool",
+    "panelTitle": "Welfare pool",
+    "normal": "Demand normal",
+    "belowNormal": "Demand low — paid",
+    "poolOf": "{district} welfare pool",
+    "lastIndex": "Last check (week of {week}): demand index {index}",
+    "noCheckYet": "No weekly check has run yet.",
+    "noDistrict": "Your area has no district federation yet, so there is no welfare pool for it.",
+    "youCount": "You were available on {days} of the last 28 days, so you are counted as an active member.",
+    "youDoNotCount": "You were available on {days} of the last 28 days. Go online on at least {min} days to be counted.",
+    "yourPayments": "Your welfare payments",
+    "weekOf": "Week of {week}",
+    "pending": "awaiting approval",
+    "rule": "Every week we compare jobs per active member in your district (and your society) with the usual level over the last {weeks} weeks. Active means you were available or working on at least {days} of the last 28 days. If demand falls below {index} of normal, the district pool pays its active members, shared by days available — up to {cap}% of the pool and ₹{perMember} each. One person's slow week alone never triggers it.",
+    "checksCount": "{count, plural, =0 {No weekly checks yet} one {# weekly check} other {# weekly checks}}",
+    "noIndex": "No index",
+    "indexValue": "Index {index}",
+    "checkLine": "{jobs} jobs · {active} active members · ₹{paid} paid",
+    "awaitingApproval": "payments awaiting admin approval",
+    "howItWorks": "How the pool works"
+  },
+  "rework": {
+    "title": "Guarantee re-work",
+    "explainer": "The customer claimed the workmanship guarantee. They pay only for materials you record here. Your labour is paid at the base rate from the guarantee reserve when the job is confirmed.",
+    "materialsLabel": "Materials cost (₹)",
+    "materialsPlaceholder": "Materials cost in ₹ (0 if none)",
+    "noteLabel": "What was used",
+    "notePlaceholder": "What was used (optional)",
+    "save": "Save materials",
+    "saving": "Saving…",
+    "saved": "Saved. The customer will pay ₹{amount} for materials.",
+    "saveFailed": "Could not save the materials. Try again.",
+    "materialsFinal": "Materials charged to the customer: ₹{amount}",
+    "leaderBadge": "Guarantee re-work: you can reassign it to another member before it starts."
+  },
+  "urgent": {
+    "toggle": "Urgent — I need someone now",
+    "toggleHint": "Offered first to the nearest workers, then a wider area. No extra charge.",
+    "badge": "Urgent"
+  },
+  "disputeRouting": {
+    "eyebrow": "Disputes",
+    "queueTitle": "Disputes to resolve",
+    "queueSubtitle": "Disputes come to the level closest to the work first. Each level has 48 hours to resolve or escalate; after that it moves up by itself.",
+    "waiting": "Waiting",
+    "resolvedByYou": "Resolved here",
+    "empty": "Nothing waiting",
+    "emptyDesc": "Disputes about work in your area will appear here.",
+    "dueIn": "{hours} h left",
+    "overdue": "overdue",
+    "openQueue": "Disputes to resolve →",
+    "routeTitle": "Route",
+    "resolvedAt": "Resolved at: {level}",
+    "escalateHint": "Escalating sends it to the next level up (society → district → state → FYRO), with a fresh 48 hours.",
+    "levels": {
+      "society": "Society leader",
+      "district": "District federation",
+      "state": "State federation",
+      "admin": "FYRO admin"
+    },
+    "reasons": {
+      "initial": "raised here",
+      "escalated": "escalated",
+      "sla_missed": "moved up after 48 hours"
+    }
+  },
+  "contracts": {
+    "title": "Contracts",
+    "openList": "Contracts with institutions →",
+    "proposeNew": "Propose a new contract",
+    "none": "No contracts yet.",
+    "summary": "{workers} worker(s) × ₹{rate} per visit of {hours} h",
+    "contractRef": "Contract {ref}",
+    "once": "Once, on {date}",
+    "weeklyOn": "Every week on {days}",
+    "monthlyOn": "Every month on day {day}",
+    "hoursLong": "{hours} hours",
+    "counterOffer": "Counter-offer: ₹{rate} per worker, {workers} worker(s)",
+    "yourAnswer": "Your answer",
+    "counterRate": "Counter rate per worker (₹)",
+    "note": "Note (optional)",
+    "accept": "Accept",
+    "counter": "Counter",
+    "reject": "Decline",
+    "acceptCounter": "Accept counter-offer",
+    "rejectCounter": "Decline counter-offer",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel contract",
+    "actionFailed": "That did not go through. Try again.",
+    "visits": "Visits",
+    "noVisits": "Visits appear here a week ahead once the contract is active.",
+    "crew": "crew {assigned}/{required}",
+    "assignCrew": "Assign crew",
+    "statement": "Monthly statement",
+    "month": "Month",
+    "noCompletedVisits": "No completed visits in this month.",
+    "lineSplit": "Workers ₹{workers} (all to them) + fee ₹{fee}: society ₹{society} · welfare ₹{welfare} · reserve ₹{reserve} · platform ₹{platform}",
+    "monthTotal": "Total for {visits} visit(s)",
+    "pendingVisits": "{count} more visit(s) this month are not completed yet.",
+    "downloadInvoice": "Download the month's GST invoice (PDF)",
+    "history": "History",
+    "status": {
+      "proposed": "Proposed",
+      "countered": "Counter-offer",
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "rejected": "Declined"
+    },
+    "visitStatus": {
+      "accepted": "Scheduled",
+      "in_progress": "In progress",
+      "awaiting_confirmation": "Awaiting confirmation",
+      "completed": "Done",
+      "cancelled": "Cancelled"
+    },
+    "days": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "institution": {
+      "title": "Institution account",
+      "explainer": "Schools, hostels, offices and associations can hold standing contracts with a society: regular visits, one monthly GST invoice.",
+      "type": "Type of institution",
+      "orgName": "Name of the institution",
+      "gstin": "GSTIN (optional)",
+      "become": "Register as an institution",
+      "update": "Save institution details",
+      "backToHousehold": "Switch back to a household account",
+      "saved": "Saved.",
+      "saveFailed": "Could not save. Check the details and try again.",
+      "openContracts": "Your contracts →",
+      "types": {
+        "school": "School",
+        "college": "College",
+        "hospital": "Hospital",
+        "hostel": "Hostel",
+        "office": "Office",
+        "apartment_association": "Apartment association",
+        "factory": "Factory",
+        "warehouse": "Warehouse",
+        "other": "Other"
+      }
+    },
+    "propose": {
+      "title": "New contract",
+      "site": "Where is the work?",
+      "sitePlaceholder": "Building, street, area",
+      "society": "Society",
+      "chooseSociety": "Choose a society",
+      "members": "{count} members",
+      "work": "Kind of work",
+      "scope": "What needs doing (e.g. classroom cleaning after school)",
+      "recurring": "Recurring",
+      "oneOff": "One-off, several workers",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "dayOfMonth": "Day of the month (1–28)",
+      "startDate": "Start date",
+      "time": "Start time",
+      "hours": "Hours per visit",
+      "workers": "Workers per visit",
+      "rate": "Pay per worker per visit (₹)",
+      "perVisit": "₹{amount} per visit to the workers, plus the 10% service fee.",
+      "send": "Send proposal",
+      "sending": "Sending…",
+      "failed": "Could not send the proposal."
+    }
   }
 }

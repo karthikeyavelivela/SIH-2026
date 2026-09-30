@@ -83,6 +83,39 @@ const envSchema = z.object({
   // elsewhere in this file.
   PLATFORM_GSTIN: z.string().optional(),
   PLATFORM_LEGAL_NAME: z.string().default('FYRO Logistics Platform'),
+  // P0.2 — hours a job waits in awaiting_confirmation before it is
+  // confirmed automatically (unless the customer reported a problem).
+  AUTO_CONFIRM_HOURS: z.coerce.number().positive().max(24 * 30).default(24),
+  // P0.4 — key IP rate limits on Cloudflare's CF-Connecting-IP. Only for a
+  // deployment actually behind Cloudflare (Render is). See middleware/clientIp.ts.
+  TRUST_CLOUDFLARE: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
+  // P1.2 — the demand-indexed welfare pool. Policy parameters, not statutory
+  // figures: the defaults are the build brief's, to be confirmed by the
+  // federations (BUILD_PROGRESS.md, HUMAN INPUT NEEDED).
+  WELFARE_TRIGGER_INDEX: z.coerce.number().positive().max(1).default(0.6),
+  WELFARE_PAYOUT_CAP_PCT: z.coerce.number().positive().max(100).default(40),
+  WELFARE_PER_MEMBER_CAP: z.coerce.number().positive().default(1000),
+  WELFARE_MIN_SOCIETY_MEMBERS: z.coerce.number().int().positive().default(5),
+  WELFARE_MIN_ACTIVE_DAYS: z.coerce.number().int().positive().max(28).default(8),
+  WELFARE_MIN_HISTORY_WEEKS: z.coerce.number().int().positive().max(12).default(4),
+  // The old individual trigger (one worker's own earnings below a threshold)
+  // is off: it paid people for having a slow month regardless of demand.
+  // Kept behind this flag only so its tests still run.
+  // P1.4 — urgent bookings: the search rings (km) and the shorter offer countdown.
+  URGENT_RADII_KM: z
+    .string()
+    .default('3,6,10')
+    .transform((v) => v.split(',').map((n) => Number(n.trim())).filter((n) => Number.isFinite(n) && n > 0)),
+  URGENT_OFFER_TIMEOUT_MS: z.coerce.number().int().min(5000).max(60000).default(12000),
+  // P1.5 — hours a dispute waits at one level before it escalates by itself.
+  DISPUTE_SLA_HOURS: z.coerce.number().positive().max(24 * 14).default(48),
+  INDIVIDUAL_EARNINGS_TRIGGER: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

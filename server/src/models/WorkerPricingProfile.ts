@@ -22,6 +22,12 @@ export interface IPerUnitRate {
   unitType: UnitType;
   rate: number;
   minimumQuantity: number;
+  /**
+   * How long one unit takes, in the worker's own estimate. Optional; when
+   * given, the statutory wage check converts the rate exactly instead of
+   * spreading the smallest job over the service's standard duration.
+   */
+  minutesPerUnit?: number;
   /** The worker's own words about what the rate covers. Shown to customers verbatim. */
   description?: string;
 }
@@ -77,6 +83,7 @@ const perUnitSchema = new Schema<IPerUnitRate>(
     unitType: { type: String, enum: UNIT_TYPES, required: true },
     rate: { type: Number, required: true, min: 1 },
     minimumQuantity: { type: Number, default: 1, min: 0 },
+    minutesPerUnit: { type: Number, min: 1, max: 600 },
     description: { type: String, maxlength: 200 },
   },
   { _id: false }

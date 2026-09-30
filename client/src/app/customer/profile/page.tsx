@@ -1,5 +1,6 @@
 'use client';
 
+import { InstitutionSection } from '@/components/contracts/InstitutionSection';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -155,6 +156,7 @@ export default function CustomerProfilePage() {
             <ProfileIdentitySection />
             <RoleSwitcherSection />
             <BusinessProfileSection />
+            <InstitutionSection />
           </>
         )}
 
@@ -205,6 +207,7 @@ export default function CustomerProfilePage() {
                 that is exactly what BusinessProfileSection already is, and it
                 belongs with billing rather than identity. */}
             <BusinessProfileSection />
+            <InstitutionSection />
             <Link href="/customer/insurance" className="block">
               <Panel className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">

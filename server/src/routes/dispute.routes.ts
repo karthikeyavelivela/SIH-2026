@@ -57,7 +57,47 @@ disputeRouter.post(
   validate,
   disputeController.addDisputeMessage
 );
+disputeRouter.post(
+  '/:id/escalate',
+  [param('id').isMongoId(), body('note').optional().isString().trim().isLength({ max: 2000 })],
+  validate,
+  disputeController.escalate
+);
 disputeRouter.patch(
+  '/:id/resolve',
+  [
+    param('id').isMongoId(),
+    body('action').isIn(['approve_adjustment', 'partial_refund', 'reject', 'escalate']),
+    body('note').isString().trim().isLength({ min: 1, max: 2000 }),
+    body('amount').optional().isFloat({ min: 0 }),
+  ],
+  validate,
+  disputeController.resolveDispute
+);
+
+// P1.5 — the resolver queue: society leaders, district and state federation
+// admins (scoped to their own society / federation, at their own level) and
+// admins (any level). Every handler re-checks the scope per dispute.
+export const disputeQueueRouter = Router();
+disputeQueueRouter.use(
+  verifyJwt,
+  requireRole('mutha_leader', 'federation_district_admin', 'federation_state_admin', 'admin')
+);
+disputeQueueRouter.get('/', [query('status').optional().isIn(['resolved'])], validate, disputeController.listQueue);
+disputeQueueRouter.get('/:id', [param('id').isMongoId()], validate, disputeController.getDispute);
+disputeQueueRouter.post(
+  '/:id/messages',
+  [param('id').isMongoId(), body('message').isString().trim().isLength({ min: 1, max: 2000 })],
+  validate,
+  disputeController.addDisputeMessage
+);
+disputeQueueRouter.post(
+  '/:id/escalate',
+  [param('id').isMongoId(), body('note').optional().isString().trim().isLength({ max: 2000 })],
+  validate,
+  disputeController.escalate
+);
+disputeQueueRouter.patch(
   '/:id/resolve',
   [
     param('id').isMongoId(),

@@ -60,6 +60,10 @@ import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
 import { resolveLocale } from './i18n/resolveLocale';
 import { describeChain, providerHealth } from './agents/providers';
+import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './routes/welfare.routes';
+import { reworkRouter } from './routes/rework.routes';
+import { disputeQueueRouter } from './routes/dispute.routes';
+import { contractRouter } from './routes/contract.routes';
 
 export const app = express();
 
@@ -87,7 +91,14 @@ export const app = express();
 // was confirmed working in production (RateLimit-Remaining 9 -> 3).
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 1));
 
-app.use(helmet());
+// The API serves JSON and PDFs only, so its CSP can be the strictest
+// possible: nothing may load, nothing may frame it. HSTS for a year.
+app.use(
+  helmet({
+    contentSecurityPolicy: { directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"], baseUri: ["'none'"] } },
+    strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true },
+  })
+);
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 // Captures the raw request body alongside Express's parsed JSON — the
 // Razorpay webhook handler needs the exact raw bytes to verify the HMAC
@@ -181,6 +192,11 @@ app.use('/api/admin/regions', regionRouter);
 app.use('/api/admin/audit-log', auditLogRouter);
 app.use('/api/admin/stats', adminStatsRouter);
 app.use('/api/admin/insurance', adminInsuranceRouter);
+app.use('/api/admin/welfare', adminWelfareRouter);
+app.use('/api/welfare', welfareRouter);
+app.use('/api/rework', reworkRouter);
+app.use('/api/dispute-queue', disputeQueueRouter);
+app.use('/api/contracts', contractRouter);
 app.use('/api/admin/referrals', adminReferralRouter);
 app.use('/api/admin/kyc-queue', kycRouter);
 app.use('/api/kyc/documents', kycDocumentRouter);
@@ -209,6 +225,7 @@ app.use('/api/availability', availabilityRouter);
 app.use('/api/requests', requestsRouter);
 app.use('/api/loadboard', loadboardRouter);
 app.use('/api/admin/federations', adminFederationRouter);
+app.use('/api/federation/welfare', federationWelfareRouter);
 app.use('/api/federation', federationRouter);
 app.use('/api/governance', governanceRouter);
 app.use('/api/service-categories', serviceCategoryRouter);

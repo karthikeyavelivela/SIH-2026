@@ -3,6 +3,8 @@ import { Schema, model, Types } from 'mongoose';
 export interface IComplaint {
   _id: Types.ObjectId;
   bookingId: Types.ObjectId;
+  /** P1.3 — the re-work booking a workmanship claim created. */
+  reworkBookingId?: Types.ObjectId;
   raisedByUserId: Types.ObjectId;
   againstUserId?: Types.ObjectId;
   againstMuthaId?: Types.ObjectId;
@@ -18,6 +20,7 @@ export interface IComplaint {
 const complaintSchema = new Schema<IComplaint>(
   {
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking', required: true },
+    reworkBookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
     raisedByUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     againstUserId: { type: Schema.Types.ObjectId, ref: 'User' },
     againstMuthaId: { type: Schema.Types.ObjectId, ref: 'Mutha' },

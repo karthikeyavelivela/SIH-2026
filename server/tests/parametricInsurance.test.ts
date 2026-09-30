@@ -13,6 +13,11 @@ import {
 } from '../src/services/parametricInsurance.service';
 import { env } from '../src/config/env';
 
+// P1.2 retired the individual earnings trigger in production; these tests
+// cover its mechanics (disbursement, caps, kill switch), so they turn it on.
+import { env as testEnv } from '../src/config/env';
+(testEnv as { INDIVIDUAL_EARNINGS_TRIGGER: boolean }).INDIVIDUAL_EARNINGS_TRIGGER = true;
+
 async function makeDriverWithPolicy(phone: string) {
   const driver = await User.create({ name: 'D', phone, passwordHash: 'x', role: 'driver' });
   const plan = await InsurancePlan.create({

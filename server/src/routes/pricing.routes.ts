@@ -52,6 +52,7 @@ pricingRouter.put(
     // feature exists to remove, so it cannot even be submitted.
     body('perUnit.*.unitType').isIn(UNIT_TYPES),
     body('perUnit.*.rate').isFloat({ min: 1 }),
+    body('perUnit.*.minutesPerUnit').optional({ values: 'null' }).isInt({ min: 1, max: 600 }),
     body('perTask').optional().isArray(),
     body('perTask.*.taskSlug').optional().isString(),
     body('perTask.*.taskName').isString().trim().notEmpty(),

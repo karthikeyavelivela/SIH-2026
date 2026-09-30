@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { usePolling } from '@/lib/usePolling';
-import { Booking, EarningsResponse, MuthaResponse } from '@/lib/types';
+import { Booking, EarningsResponse, MuthaResponse, workerRateOf } from '@/lib/types';
 import { RatingModal } from '@/components/worker/RatingModal';
 import { NotificationPrompt } from '@/components/ui/NotificationPrompt';
 import { NotificationBell } from '@/components/ui/NotificationBell';
@@ -45,6 +45,8 @@ function statusTone(s: string): 'lime' | 'neutral' | 'outline' {
 
 export default function MuthaDashboardPage() {
   const t = useTranslations('muthaDashboard');
+  const tDisputes = useTranslations('disputeRouting');
+  const tContracts = useTranslations('contracts');
   const { user } = useAuth();
   const { data, state } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const { data: bookingsData } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 15000);
@@ -166,6 +168,21 @@ export default function MuthaDashboardPage() {
               </div>
             </div>
 
+            {/* P1.5 — disputes about this society's jobs come here first. */}
+            <Link
+              href="/mutha/disputes"
+              className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
+            >
+              {tDisputes('openQueue')}
+            </Link>
+            {/* P1.6 — contracts with institutions. */}
+            <Link
+              href="/mutha/contracts"
+              className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
+            >
+              {tContracts('openList')}
+            </Link>
+
             <Section
               title={<SectionHeading>{t('memberRoster')}</SectionHeading>}
               aside={
@@ -229,7 +246,7 @@ export default function MuthaDashboardPage() {
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <EyebrowLabel>{t('runFare')}</EyebrowLabel>
-                          <p className="font-heading text-title text-fy-green">₹{b.fareBreakdown.total}</p>
+                          <p className="font-heading text-title text-fy-green">₹{workerRateOf(b.fareBreakdown)}</p>
                         </div>
                         <span className="inline-flex items-center gap-1 font-body text-label font-semibold text-fy-green">
                           {t('manifest')}

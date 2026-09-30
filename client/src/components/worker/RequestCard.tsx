@@ -1,8 +1,9 @@
 'use client';
 
+import { UrgentBadge } from '@/components/booking/UrgentToggle';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Booking } from '@/lib/types';
+import { Booking, workerRateOf } from '@/lib/types';
 import { ApiClientError } from '@/lib/api';
 import { Icon } from '@/components/ui/Icon';
 import { Panel, Divider, IconTile } from '@/components/fy/Surfaces';
@@ -95,10 +96,11 @@ export function RequestCard({ booking, accent = 'primary', onAccept, onReject, h
               {booking.pickupLocation.address.split(',')[0]} → {booking.dropLocation.address.split(',')[0]}
             </p>
             {meta.length > 0 && <Body size="label">{meta.join(' · ')}</Body>}
+            {booking.urgent && <UrgentBadge />}
           </div>
         </div>
         <div className="text-right shrink-0">
-          <p className="font-heading text-title text-fy-ink">₹{booking.fareBreakdown.total}</p>
+          <p className="font-heading text-title text-fy-ink">₹{workerRateOf(booking.fareBreakdown)}</p>
           {heavy && <EyebrowLabel tone="brown">{t('heavyAxle')}</EyebrowLabel>}
         </div>
       </div>

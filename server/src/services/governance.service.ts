@@ -5,6 +5,7 @@ import { MemberShare } from '../models/MemberShare';
 import { CommissionRecord } from '../models/CommissionRecord';
 import { SurplusDistribution } from '../models/SurplusDistribution';
 import { writeLedgerEntry } from './ledger.service';
+import { hasServiceFee, workerRateOf } from './serviceFee.service';
 
 // SIH26089 Phase B.2 — cooperative governance money math. Every function
 // here is pure/read-only except recordSocietyDeductionsForBooking (the one
@@ -25,7 +26,8 @@ function round2(n: number): number {
  * assume there are only two.
  */
 function hamaliPoolShare(booking: IBooking): number {
-  const { baseFare, distanceFare, hamaliFare, total } = booking.fareBreakdown;
+  const { baseFare, distanceFare, hamaliFare } = booking.fareBreakdown;
+  const total = workerRateOf(booking.fareBreakdown);
   const preSurgeSubtotal = baseFare + distanceFare + hamaliFare;
   if (preSurgeSubtotal <= 0) return 0;
   return (hamaliFare * total) / preSurgeSubtotal;
@@ -73,6 +75,10 @@ export function applyDeduction(
  */
 export async function recordSocietyDeductionsForBooking(booking: IBooking): Promise<void> {
   if (!booking.assignedMuthaId || booking.assignedHamaliIds.length === 0) return;
+  // P1.1: the society's share now comes from the customer's service fee
+  // (serviceFee.service.ts), never out of the worker's rate. Only bookings
+  // priced before that keep the old bye-law deduction.
+  if (hasServiceFee(booking.fareBreakdown)) return;
 
   const mutha = await Mutha.findById(booking.assignedMuthaId).select('commissionRatePct welfareDeductionRatePct').lean();
   if (!mutha) return;
@@ -208,7 +214,8 @@ export async function computeSurplus(
       $match: {
         entityType: 'Mutha',
         entityId: new Types.ObjectId(muthaId),
-        type: { $in: ['commission', 'welfare_fund'] },
+        // P1.1: society_share is the society's part of customers' service fees.
+        type: { $in: ['commission', 'welfare_fund', 'society_share'] },
         timestamp: { $gte: periodStart, $lte: periodEnd },
       },
     },

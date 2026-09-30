@@ -9,6 +9,11 @@ import { ParametricTrigger } from '../src/models/ParametricTrigger';
 import { Payout } from '../src/models/Payout';
 import { signAccessToken } from '../src/services/token.service';
 
+// P1.2 retired the individual earnings trigger in production; these tests
+// cover its mechanics (disbursement, caps, kill switch), so they turn it on.
+import { env as testEnv } from '../src/config/env';
+(testEnv as { INDIVIDUAL_EARNINGS_TRIGGER: boolean }).INDIVIDUAL_EARNINGS_TRIGGER = true;
+
 async function loginAs(role: string, phone: string) {
   const passwordHash = await bcrypt.hash('Passw0rd!', 12);
   const user = await User.create({ name: 'U', phone, passwordHash, role });

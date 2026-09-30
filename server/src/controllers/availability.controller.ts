@@ -5,6 +5,7 @@ import { Vehicle } from '../models/Vehicle';
 import { HamaliProfile } from '../models/HamaliProfile';
 import { User } from '../models/User';
 import { outstandingKycDocs, kycGateMessage } from '../services/kyc.service';
+import { markAvailableToday } from '../services/activity.service';
 
 const LAT_MIN = -90;
 const LAT_MAX = 90;
@@ -103,6 +104,9 @@ export const setAvailability = asyncHandler(async (req: Request, res: Response) 
   if (location) {
     update.currentLocation = { type: 'Point', coordinates: [location.lng, location.lat] };
   }
+
+  // P1.2 — going online counts as an available day for the welfare index.
+  if (status === 'online') await markAvailableToday(req.user!.id);
 
   if (req.user!.role === 'driver') {
     const vehicle = await Vehicle.findOneAndUpdate({ ownerId: req.user!.id }, update, { new: true });

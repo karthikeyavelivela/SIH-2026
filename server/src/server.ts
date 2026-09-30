@@ -1,3 +1,8 @@
+import { startWageFloorAlertRunner } from './services/wageFloorAlerts.service';
+import { startAutoConfirmRunner } from './services/completion.service';
+import { startWelfareRunner } from './services/welfarePool.service';
+import { startDisputeSlaRunner } from './services/disputeRouting.service';
+import { startContractRunner } from './services/contract.service';
 import { ensureServiceCategories } from './services/serviceCategorySeed';
 import http from 'http';
 import { app } from './app';
@@ -73,6 +78,11 @@ async function main() {
 
   startScheduledBookingReleaser();
   startScheduledIncentiveRunner();
+  startAutoConfirmRunner();
+  startWageFloorAlertRunner();
+  startWelfareRunner();
+  startDisputeSlaRunner();
+  startContractRunner();
   httpServer.listen(env.PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`FYRO server (HTTP + Socket.io) listening on port ${env.PORT}`);

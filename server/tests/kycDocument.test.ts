@@ -26,12 +26,16 @@ describe('POST /api/kyc/documents', () => {
     expect(upload.status).toBe(200);
     expect(upload.body.document.type).toBe('aadhaar');
     expect(upload.body.document.status).toBe('under_review');
-    expect(typeof upload.body.document.url).toBe('string');
+    // P0.4: identity documents never travel as a URL; the owner asks
+    // GET /api/kyc/documents/:id/url for a short-lived link instead.
+    expect(upload.body.document.url).toBeUndefined();
+    expect(upload.body.document.viewable).toBe(true);
 
     const list = await agent.get('/api/kyc/documents');
     expect(list.status).toBe(200);
     expect(list.body.documents).toHaveLength(1);
     expect(list.body.documents[0].type).toBe('aadhaar');
+    expect(list.body.documents[0].url).toBeUndefined();
   });
 
   it('accepts a PDF document (routed to Cloudinary as resource_type raw)', async () => {

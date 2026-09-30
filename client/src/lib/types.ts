@@ -9,6 +9,7 @@ export type BookingStatus =
   | 'matched'
   | 'accepted'
   | 'in_progress'
+  | 'awaiting_confirmation'
   | 'completed'
   | 'cancelled';
 
@@ -22,11 +23,28 @@ export interface FareBreakdown {
   distanceFare: number;
   surgeMultiplier: number;
   hamaliFare: number;
+  /** What the customer pays: the worker's rate plus the service fee. */
   total: number;
+  /** P1.1 — the worker's rate, all of which the worker keeps. Absent on older bookings. */
+  workerRate?: number;
+  serviceFeePct?: number;
+  serviceFee?: number;
+}
+
+/** What the worker earns on a booking: their rate, never the customer's total. */
+export function workerRateOf(fb: Pick<FareBreakdown, 'total' | 'workerRate'>): number {
+  return typeof fb.workerRate === 'number' ? fb.workerRate : fb.total;
 }
 
 export interface Booking {
   _id: string;
+  /** P1.3 — a workmanship-guarantee re-work: the customer pays materials only. */
+  isRework?: boolean;
+  /** P1.4 — the customer needs someone now; offered first, no extra fee. */
+  urgent?: boolean;
+  reworkOfBookingId?: string;
+  materialsCost?: number;
+  materialsNote?: string;
   customerId: string;
   type: BookingType;
   // goodsType is the customer's own declaration (server GOODS_TYPES enum).
@@ -97,6 +115,7 @@ export const STATUS_LABEL: Record<BookingStatus, string> = {
   matched: 'Matched',
   accepted: 'Accepted',
   in_progress: 'On the way',
+  awaiting_confirmation: 'Waiting for your confirmation',
   completed: 'Completed',
   cancelled: 'Cancelled',
 };
@@ -111,6 +130,8 @@ export interface EarningLine {
   /** Disclosed per line so a worker sees what was taken and by whom. */
   grossAmount?: number;
   platformFee?: number;
+  /** The platform rate taken on this job; 0 for a job priced with the P1.1 service fee. */
+  platformRatePct?: number;
   societyFee?: number;
 }
 
@@ -163,6 +184,8 @@ export interface EarningsResponse {
    * between the society's reserve and what is distributable to the crew.
    */
   retained?: number;
+  /** P1.1 — the society's share of customers' service fees, posted to its ledger. */
+  societyShareFromFees?: number;
   commissionRatePct?: number;
   welfareDeductionRatePct?: number;
   /**

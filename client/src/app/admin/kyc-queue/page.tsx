@@ -15,7 +15,6 @@ import { ShieldIcon } from '@/components/ui/icons';
 interface KycDocument {
   _id: string;
   type: string;
-  url: string;
   status: 'under_review' | 'verified' | 'rejected';
   rejectionReason?: string;
   uploadedAt: string;
@@ -51,6 +50,30 @@ export default function AdminKycQueuePage() {
   const [saving, setSaving] = useState(false);
 
   const users = data?.users ?? [];
+
+  /*
+   * KYC documents live in private storage and the list never carries a URL.
+   * "View" asks the server for a link that expires in minutes (the request
+   * is audit-logged). The tab is opened synchronously and pointed at the
+   * link afterwards, so a popup blocker does not eat it.
+   */
+  const [openingDoc, setOpeningDoc] = useState<string | null>(null);
+  async function viewDocument(docId: string) {
+    const tab = window.open('', '_blank');
+    if (tab) tab.opener = null;
+    setOpeningDoc(docId);
+    setError(null);
+    try {
+      const link = await api.get<{ url: string }>(`/api/kyc/documents/${docId}/url`);
+      if (tab) tab.location.href = link.url;
+      else window.location.assign(link.url);
+    } catch (err) {
+      tab?.close();
+      setError(err instanceof ApiClientError ? err.message : t('viewDocFailed'));
+    } finally {
+      setOpeningDoc(null);
+    }
+  }
 
   function openDetail(u: KycUser) {
     setSelected(u);
@@ -144,16 +167,19 @@ export default function AdminKycQueuePage() {
               {selected.kycDocs.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noDocsOnFile')}</p>}
               <div className="space-y-2">
                 {selected.kycDocs.map((doc) => (
-                  <a
+                  <button
                     key={doc._id}
-                    href={doc.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-control border border-fy-muted/20 text-sm hover:bg-fy-field"
+                    type="button"
+                    onClick={() => viewDocument(doc._id)}
+                    disabled={openingDoc === doc._id}
+                    className="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-control border border-fy-muted/20 text-sm text-left hover:bg-fy-field disabled:opacity-60"
                   >
-                    <span className="text-fy-brown truncate">{t(`docType.${doc.type}`) ?? doc.type}</span>
+                    <span className="text-fy-brown truncate">
+                      {t(`docType.${doc.type}`) ?? doc.type}
+                      <span className="ml-2 text-xs text-fy-muted">{openingDoc === doc._id ? t('openingDoc') : t('viewDoc')}</span>
+                    </span>
                     <StatusChip tone={docStatusTone[doc.status]}>{t(`docStatus.${doc.status}`)}</StatusChip>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>

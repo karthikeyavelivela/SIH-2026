@@ -12,6 +12,7 @@ import { runDocumentPrecheckAgent } from '../agents/documentPrecheckAgent';
 import { runPricingQuoteAgent, type FareCategory } from '../agents/pricingQuoteAgent';
 import { runMarketInsightsAgent } from '../agents/marketInsightsAgent';
 import type { Role, KycDocumentType } from '@fyro/shared';
+import { canActOn } from '../services/disputeRouting.service';
 
 /**
  * Every handler in this file follows the same shape:
@@ -35,8 +36,10 @@ export const triageDispute = asyncHandler(async (req: Request, res: Response) =>
   const disputeId = req.params.id;
   // Existence check here (not just inside the agent) so a bad id 404s
   // before anything is cached under it.
-  const exists = await Dispute.exists({ _id: disputeId });
-  if (!exists) throw new ApiError(404, 'Dispute not found');
+  const target = await Dispute.findById(disputeId).select('level muthaId districtFederationId stateFederationId').lean();
+  if (!target || !(await canActOn({ id: req.user!.id, role: req.user!.role }, target))) {
+    throw new ApiError(404, 'Dispute not found');
+  }
 
   // Phase 1 (agent localization) — the admin reading this triage result
   // gets it in THEIR OWN preferredLocale, not the disputing party's.

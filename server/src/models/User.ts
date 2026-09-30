@@ -13,7 +13,19 @@ import type { Role, AccountStatus, KycStatus, KycDocumentType, KycDocumentStatus
 export interface IKycDocument {
   _id: Types.ObjectId;
   type: KycDocumentType;
+  /**
+   * Legacy: a PUBLIC Cloudinary URL, from before documents were stored
+   * privately. For private documents this holds a non-fetchable marker
+   * (cloudinary-private://<publicId>). Never sent to a client — see
+   * utils/publicUser.ts — documents are viewed through a short-lived signed
+   * URL from GET /api/kyc/documents/:id/url.
+   */
   url: string;
+  /** Set for privately stored ('authenticated') documents. */
+  publicId?: string;
+  format?: string;
+  resourceType?: 'image' | 'raw';
+  delivery?: 'upload' | 'authenticated';
   status: KycDocumentStatus;
   rejectionReason?: string;
   expiryDate?: Date;
@@ -68,6 +80,8 @@ export interface IUser {
   // same "not self-service" posture as `permissions` above. Absent for
   // every other role.
   federationId?: Types.ObjectId;
+  /** Verification (demo/test) data: excluded from analytics, welfare and reports. */
+  isVerification?: boolean;
   // Bumped on refresh-token rotation and logout to invalidate prior refresh tokens.
   tokenVersion: number;
   // Everything below added for the Phase 2 profile remediation
@@ -99,6 +113,13 @@ export interface IUser {
   // Customer-only in practice (see REQUIRED_KYC_DOCS_BY_ROLE — GSTIN is
   // already a required KYC document for fleet_owner/warehouse_hub, this is
   // the equivalent opt-in for a customer booking on a company's behalf).
+  /** P1.6 — a household books jobs; an institution also holds contracts with societies. */
+  accountType?: 'household' | 'institution';
+  institutionProfile?: {
+    institutionType: 'school' | 'college' | 'hospital' | 'hostel' | 'office' | 'apartment_association' | 'factory' | 'warehouse' | 'other';
+    orgName: string;
+    gstin?: string;
+  };
   businessProfile?: {
     isBusiness: boolean;
     gstin?: string;
@@ -177,6 +198,10 @@ const userSchema = new Schema<IUser>(
         {
           type: { type: String, required: true },
           url: { type: String, required: true },
+          publicId: { type: String },
+          format: { type: String },
+          resourceType: { type: String, enum: ['image', 'raw'] },
+          delivery: { type: String, enum: ['upload', 'authenticated'], default: 'upload' },
           status: { type: String, enum: ['under_review', 'verified', 'rejected'], default: 'under_review' },
           rejectionReason: { type: String, trim: true },
           expiryDate: { type: Date },
@@ -195,6 +220,7 @@ const userSchema = new Schema<IUser>(
     ratingCount: { type: Number, default: 0 },
     permissions: { type: [String], default: [] },
     federationId: { type: Schema.Types.ObjectId, ref: 'Federation' },
+    isVerification: { type: Boolean, default: false, index: true },
     tokenVersion: { type: Number, default: 0 },
     notificationPreferences: {
       type: {
@@ -228,6 +254,15 @@ const userSchema = new Schema<IUser>(
       ifsc: { type: String, trim: true, uppercase: true },
       upiId: { type: String, trim: true },
       updatedAt: { type: Date },
+    },
+    accountType: { type: String, enum: ['household', 'institution'], default: 'household' },
+    institutionProfile: {
+      institutionType: {
+        type: String,
+        enum: ['school', 'college', 'hospital', 'hostel', 'office', 'apartment_association', 'factory', 'warehouse', 'other'],
+      },
+      orgName: { type: String, trim: true, maxlength: 200 },
+      gstin: { type: String, trim: true, uppercase: true },
     },
     businessProfile: {
       isBusiness: { type: Boolean, default: false },

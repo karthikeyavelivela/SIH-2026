@@ -3,6 +3,7 @@ import { IBooking } from '../models/Booking';
 import { IUser } from '../models/User';
 import { IPayment } from '../models/Payment';
 import { env } from '../config/env';
+import { hasServiceFee, workerRateOf } from './serviceFee.service';
 
 // Phase 6.4 — Indian tax invoice for a completed, paid booking.
 //
@@ -21,6 +22,10 @@ import { env } from '../config/env';
 // no invoice at all.
 const GTA_RATE = 0.05; // vehicle/freight component
 const LABOUR_RATE = 0.18; // hamali/labour component
+// P1.1 — the platform's service fee (an intermediary/support service).
+// Same caveat as the two rates above; listed in BUILD_PROGRESS.md under
+// HUMAN INPUT NEEDED for a tax professional to confirm.
+const SERVICE_FEE_RATE = 0.18;
 
 // SIH26089 pan-India rewrite — the platform is no longer confined to one
 // launch state (see seedFederations.ts's multi-state hierarchy), but this
@@ -51,8 +56,14 @@ interface InvoiceLine {
   inclusive: number;
 }
 
-function buildLines(booking: IBooking): InvoiceLine[] {
-  const { baseFare, distanceFare, hamaliFare, total } = booking.fareBreakdown;
+export function buildLines(booking: IBooking): InvoiceLine[] {
+  const { baseFare, distanceFare, hamaliFare } = booking.fareBreakdown;
+  // P1.1 — the worker's service lines are scaled to the worker's rate; the
+  // service fee is its own line, and absorbs any paise of rounding so the
+  // invoice still sums to exactly what the customer paid.
+  const customerTotal = booking.fareBreakdown.total;
+  const withFee = hasServiceFee(booking.fareBreakdown);
+  const total = workerRateOf(booking.fareBreakdown);
   const preSurgeSubtotal = baseFare + distanceFare + hamaliFare;
   // fareBreakdown's components are documented pre-surge (fare.service.ts) —
   // scaled proportionally to their real post-surge (and therefore actually
@@ -75,6 +86,19 @@ function buildLines(booking: IBooking): InvoiceLine[] {
   // line at 0% rather than an invoice with no line items at all.
   if (lines.length === 0) {
     lines.push({ label: 'Service charge', rate: 0, taxable: total, tax: 0, inclusive: total });
+  }
+  if (withFee) {
+    const feeInclusive = round2(customerTotal - lines.reduce((sum, l) => sum + l.inclusive, 0));
+    if (feeInclusive > 0) {
+      const { taxable, tax } = splitInclusive(feeInclusive, SERVICE_FEE_RATE);
+      lines.push({
+        label: `FYRO service fee (${booking.fareBreakdown.serviceFeePct ?? 10}%) - worker keeps 100% of their rate`,
+        rate: SERVICE_FEE_RATE,
+        taxable,
+        tax,
+        inclusive: feeInclusive,
+      });
+    }
   }
   return lines;
 }

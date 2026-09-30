@@ -19,6 +19,7 @@ import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, ProgressBar } from '@/components/fy/Data';
 import { Icon } from '@/components/ui/Icon';
 import { useAuth } from '@/lib/auth-context';
+import { WelfareCard } from '@/components/worker/WelfareCard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatusChip } from '@/components/ui/StatusChip';
@@ -319,12 +320,6 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
 
   const { user } = useAuth();
 
-  // The design's solvency gauge. Real numbers only: the accrual is what the
-  // parametric trigger has actually measured this period, the threshold is
-  // the trigger's own, and the payout is what would be paid if the period
-  // closes under it. Shown only for 'earnings_below_threshold', the one
-  // condition anything actually computes.
-  const gauge = (data?.parametricTriggers ?? []).find((tr) => tr.condition === 'earnings_below_threshold');
 
   return (
     <div className="min-h-screen bg-fy-bone relative">
@@ -369,51 +364,9 @@ export function InsuranceDashboard({ dashboardHref }: InsuranceDashboardProps) {
 
         {state !== 'loading' && (
           <>
-            {/* Solvency gauge — the design's headline card. */}
-            {gauge && (
-              <Panel className="p-5 flex flex-col gap-3">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="flex items-center gap-2 min-w-0">
-                    <IconTile tone="lime" size="sm">
-                      <Icon name="shield_with_heart" size={18} />
-                    </IconTile>
-                    <EyebrowLabel tone="green">{t('solvencyGauge')}</EyebrowLabel>
-                  </span>
-                  <StatusPill tone={gauge.triggered ? 'lime' : 'outline'} className="shrink-0">
-                    {gauge.triggered ? t('cyclePaid') : t('cycleActive')}
-                  </StatusPill>
-                </div>
-
-                <MetricBlock
-                  tone="green"
-                  label={t('currentAccrual')}
-                  value={formatMoney(gauge.actualValue)}
-                  note={t('thresholdNote', { threshold: gauge.thresholdValue.toLocaleString('en-IN') })}
-                />
-
-                <ProgressBar
-                  value={
-                    gauge.thresholdValue > 0
-                      ? Math.min(100, Math.round((gauge.actualValue / gauge.thresholdValue) * 100))
-                      : 0
-                  }
-                  tone="green"
-                />
-
-                <Divider />
-
-                <div className="flex items-start gap-2.5">
-                  <Icon name="auto_mode" size={18} className="text-fy-green shrink-0 mt-px" />
-                  <Body size="label">
-                    {t('parametricExplainer', {
-                      threshold: gauge.thresholdValue.toLocaleString('en-IN'),
-                      days: gauge.periodDays,
-                      amount: gauge.payoutAmount.toLocaleString('en-IN'),
-                    })}
-                  </Body>
-                </div>
-              </Panel>
-            )}
+            {/* P1.2 — the demand-indexed welfare pool replaces the old
+                personal-earnings gauge, whose trigger is retired. */}
+            <WelfareCard />
 
             <Section
               title={<SectionHeading>{t('activeCoverage')}</SectionHeading>}

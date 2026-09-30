@@ -3,6 +3,9 @@ import { Booking } from '../models/Booking';
 import { callAgent } from './client';
 import { AgentResult } from './types';
 import type { AgentLocale } from './locale';
+// Compared against FareRule rates, which are worker rates — so the settled
+// worker rate, not the customer total that carries the P1.1 service fee.
+import { workerRateOf } from '../services/serviceFee.service';
 
 export type FareCategory = 'vehicle_small' | 'vehicle_medium' | 'vehicle_large' | 'hamali';
 
@@ -34,10 +37,10 @@ async function historicalComparables(region: string, category: FareCategory): Pr
 
   if (bookings.length === 0) return { count: 0, avgTotal: 0, avgPerKm: null };
 
-  const totalSum = bookings.reduce((sum, b) => sum + (b.fareBreakdown?.total ?? 0), 0);
+  const totalSum = bookings.reduce((sum, b) => sum + (b.fareBreakdown ? workerRateOf(b.fareBreakdown) : 0), 0);
   const withDistance = bookings.filter((b) => (b.distanceKm ?? 0) > 0);
   const avgPerKm = withDistance.length
-    ? withDistance.reduce((sum, b) => sum + b.fareBreakdown.total / b.distanceKm, 0) / withDistance.length
+    ? withDistance.reduce((sum, b) => sum + workerRateOf(b.fareBreakdown) / b.distanceKm, 0) / withDistance.length
     : null;
 
   return { count: bookings.length, avgTotal: totalSum / bookings.length, avgPerKm };

@@ -26,6 +26,7 @@ import {
 import { writeAuditLog } from '../services/audit.service';
 import { guideFor } from '../services/taskCatalogue';
 import type { PricingMode, UnitType } from '@fyro/shared';
+import { getFeeSplit } from '../services/serviceFee.service';
 
 /**
  * Work-based pricing: publishing rates, reading them, and quoting from them.
@@ -249,7 +250,7 @@ export const quoteWork = asyncHandler(async (req: Request, res: Response) => {
   if (!profile) throw new ApiError(404, 'This worker has not published rates for that service');
 
   const fare = await priceWork({ profile, mode, unitType, quantity, taskName, quotationId });
-  const disclosure = await disclosePrice(fare.total, workerId, await getPlatformCommissionPct(), categorySlug);
+  const disclosure = await disclosePrice(fare.total, workerId, await getFeeSplit(), categorySlug);
 
   res.status(200).json({ fare, disclosure });
 });

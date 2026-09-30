@@ -124,5 +124,7 @@ describe('per-account login limit', () => {
         .send({ phone: '9000000503', password: 'Passw0rd!' });
       expect(r.status).toBe(200);
     }
-  });
+    // Twelve real bcrypt logins in a row: a few seconds alone, but past the
+    // default 30 s when the whole suite is competing for the CPU.
+  }, 90_000);
 });

@@ -3,7 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { Booking } from '../models/Booking';
 import { Vehicle } from '../models/Vehicle';
 
-const ACTIVE_STATUSES = ['requested', 'searching', 'matched', 'accepted', 'in_progress'];
+const ACTIVE_STATUSES = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation'];
 
 /**
  * GET /api/admin/analytics/overview — KPI grid + demand heatmap points +

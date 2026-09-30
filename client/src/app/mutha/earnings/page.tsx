@@ -112,6 +112,13 @@ export default function MuthaEarningsPage() {
               label={t('reservePool', { pct: reservePct })}
               value={`₹${retained.toLocaleString('en-IN')}`}
             />
+            {(data?.societyShareFromFees ?? 0) > 0 && (
+              <StatRow
+                className="[&>span:first-child]:text-fy-bone/70 [&>span:last-child]:text-fy-lime"
+                label={t('feeShare')}
+                value={`₹${(data?.societyShareFromFees ?? 0).toLocaleString('en-IN')}`}
+              />
+            )}
           </div>
         </div>
 

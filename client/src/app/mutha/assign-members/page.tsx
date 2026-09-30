@@ -64,7 +64,12 @@ function AssignMembersInner() {
     setPending(true);
     setError(null);
     try {
-      await api.post(`/api/mutha/jobs/${booking._id}/assign`, { memberIds: [...activeSelection] });
+      // P1.3 — a guarantee re-work is reassigned through its own endpoint.
+      if (booking.isRework) {
+        await api.patch(`/api/rework/${booking._id}/assign`, { memberIds: [...activeSelection] });
+      } else {
+        await api.post(`/api/mutha/jobs/${booking._id}/assign`, { memberIds: [...activeSelection] });
+      }
       await reloadBookings();
       router.push('/mutha/active-jobs');
     } catch (err) {

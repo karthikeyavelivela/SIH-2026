@@ -19,6 +19,7 @@ import {
   applyPlatformCommission,
 } from '../services/platformCommission.service';
 import { netShareForBookings } from '../services/governance.service';
+import { hasServiceFee, workerRateOf } from '../services/serviceFee.service';
 
 /**
  * A completed booking's fareBreakdown stores every component PRE-surge
@@ -46,14 +47,17 @@ import { netShareForBookings } from '../services/governance.service';
  * its own line rather than one unexplained smaller number.
  */
 function vehicleShare(booking: IBooking): number {
-  const { baseFare, distanceFare, hamaliFare, total } = booking.fareBreakdown;
+  const { baseFare, distanceFare, hamaliFare } = booking.fareBreakdown;
+  // The worker's rate, never the customer's total (which carries the P1.1 service fee).
+  const total = workerRateOf(booking.fareBreakdown);
   const preSurgeSubtotal = baseFare + distanceFare + hamaliFare;
   if (preSurgeSubtotal <= 0) return 0;
   return ((baseFare + distanceFare) * total) / preSurgeSubtotal;
 }
 
 function hamaliPoolShare(booking: IBooking): number {
-  const { baseFare, distanceFare, hamaliFare, total } = booking.fareBreakdown;
+  const { baseFare, distanceFare, hamaliFare } = booking.fareBreakdown;
+  const total = workerRateOf(booking.fareBreakdown);
   const preSurgeSubtotal = baseFare + distanceFare + hamaliFare;
   if (preSurgeSubtotal <= 0) return 0;
   return (hamaliFare * total) / preSurgeSubtotal;
@@ -119,7 +123,8 @@ async function chargedPlatformRates(bookings: IBooking[]): Promise<Map<string, n
   for (const row of rows) {
     // LedgerEntry.entityId is an ObjectId; the map is keyed on its string.
     const id = row.entityId.toString();
-    const total = byId.get(id)?.fareBreakdown?.total;
+    const fb = byId.get(id)?.fareBreakdown;
+    const total = fb ? workerRateOf(fb) : undefined;
     if (!total || total <= 0 || typeof row.amount !== 'number') continue;
     rates.set(id, round2((row.amount / total) * 100));
   }
@@ -131,6 +136,17 @@ function ratesApplied(lines: EarningLine[]): number[] {
   return [...new Set(lines.map((l) => l.platformRatePct).filter((r): r is number => typeof r === 'number'))].sort(
     (a, b) => a - b
   );
+}
+
+/**
+ * The platform rate deducted from this job's worker. Zero for a job priced
+ * with the P1.1 service fee — the customer paid the fee on top and the
+ * worker keeps all of their rate. Older jobs keep the rate they were
+ * actually charged.
+ */
+function legacyPlatformRate(b: IBooking, charged: Map<string, number>, current: number): number {
+  if (hasServiceFee(b.fareBreakdown)) return 0;
+  return charged.get(b._id.toString()) ?? current;
 }
 
 function statusHistoryCompletedAt(booking: IBooking): Date | undefined {
@@ -210,7 +226,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     let gross = 0;
     let platformFee = 0;
     const lines: EarningLine[] = bookings.map((b) => {
-      const ratePct = charged.get(b._id.toString()) ?? platformRatePct;
+      const ratePct = legacyPlatformRate(b, charged, platformRatePct);
       const cut = applyPlatformCommission(vehicleShare(b), ratePct);
       gross += cut.grossAmount;
       platformFee += cut.platformAmount;
@@ -250,7 +266,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     let gross = 0;
     let platformFee = 0;
     const lines: EarningLine[] = bookings.map((b) => {
-      const ratePct = charged.get(b._id.toString()) ?? platformRatePct;
+      const ratePct = legacyPlatformRate(b, charged, platformRatePct);
       const cut = applyPlatformCommission(perHamaliShare(b), ratePct);
       gross += cut.grossAmount;
       platformFee += cut.platformAmount;
@@ -299,7 +315,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       // The platform's cut is taken on the same gross, not compounded on
       // what the society already took, and at the rate that job was
       // actually charged rather than today's.
-      const ratePct = charged.get(b._id.toString()) ?? platformRatePct;
+      const ratePct = legacyPlatformRate(b, charged, platformRatePct);
       const cut = applyPlatformCommission(grossShare, ratePct);
       gross += cut.grossAmount;
       platformFee += cut.platformAmount;
@@ -382,13 +398,22 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
     // change.
     const chargedGroup = await chargedPlatformRates(bookings);
     let groupPlatformFee = 0;
+    const bookingById = new Map(bookings.map((b) => [b._id.toString(), b]));
     for (const line of groupLines) {
-      const ratePct = chargedGroup.get(line.bookingId) ?? platformRatePct;
+      const ratePct = legacyPlatformRate(bookingById.get(line.bookingId)!, chargedGroup, platformRatePct);
       line.platformRatePct = ratePct;
       groupPlatformFee += applyPlatformCommission(line.amount, ratePct).platformAmount;
     }
     groupPlatformFee = round2(groupPlatformFee);
     const groupGross = round2(groupLines.reduce((s, l) => s + l.amount, 0));
+
+    // P1.1 — the society's share of customers' service fees, paid on top of
+    // members' rates rather than deducted from them.
+    const shareAgg = await LedgerEntry.aggregate([
+      { $match: { type: 'society_share', entityType: 'Mutha', entityId: mutha._id } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    const societyShareFromFees = round2((shareAgg[0]?.total as number) ?? 0);
 
     res.status(200).json({
       // Group total stays the gross pool the Society's hamali arm actually
@@ -399,6 +424,7 @@ export const getMyEarnings = asyncHandler(async (req: Request, res: Response) =>
       total: groupGross,
       gross: groupGross,
       retained: round2(retainedTotal),
+      societyShareFromFees,
       platformFee: groupPlatformFee,
       platformRatePct,
       platformRatesApplied: ratesApplied(groupLines),

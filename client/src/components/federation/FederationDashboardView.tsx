@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -11,6 +12,7 @@ import { StatusPill } from '@/components/fy/Status';
 import { MetricBlock, StatRow, ProgressBar } from '@/components/fy/Data';
 import { Button, Field } from '@/components/fy/Controls';
 import { TopBar } from '@/components/fy/Navigation';
+import { WelfarePanel } from '@/components/federation/WelfarePanel';
 
 /* Built against client/public/design/federation_ap_state_dashboard.html and
    federation_district_action_console.html.
@@ -137,6 +139,8 @@ function Statutory({
 // two pages can never accidentally show the wrong tier's controls.
 export function FederationDashboardView() {
   const t = useTranslations('federation');
+  const tDisputes = useTranslations('disputeRouting');
+  const tContracts = useTranslations('contracts');
   const { data, state, reload } = usePolling(() => api.get<FederationDashboardResponse>('/api/federation/me'), 30000);
   const { data: needsData } = usePolling(() => api.get<TrainingNeedsResponse>('/api/federation/training-needs'), 60000);
   const [requests, setRequests] = useState<AffiliationRequest[] | null>(null);
@@ -566,6 +570,28 @@ export function FederationDashboardView() {
               ))}
             </LightCard>
           </Section>
+        )}
+
+        {/* P1.2 — the district welfare pool and its weekly demand checks. */}
+        <WelfarePanel />
+
+        {/* P1.5 — disputes waiting at this federation's level. */}
+        {data && (
+          <Link
+            href={isDistrict ? '/federation-district/disputes' : '/federation-state/disputes'}
+            className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
+          >
+            {tDisputes('openQueue')}
+          </Link>
+        )}
+        {/* P1.6 — contracts held by this federation's societies. */}
+        {data && (
+          <Link
+            href={isDistrict ? '/federation-district/contracts' : '/federation-state/contracts'}
+            className="block rounded-card border border-fy-muted/15 bg-fy-card px-5 py-4 font-body text-label font-semibold text-fy-brown hover:bg-fy-field"
+          >
+            {tContracts('openList')}
+          </Link>
         )}
       </main>
     </div>

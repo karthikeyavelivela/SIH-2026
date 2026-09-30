@@ -35,7 +35,11 @@ describe('InsuranceDashboard — Phase 7.1, insurance enrollment flow', () => {
   });
 
   it('shows the explore-plans action even with no active policies yet', async () => {
-    mockGet.mockResolvedValueOnce(EMPTY_ME_RESPONSE);
+    mockGet.mockImplementation((url: string) => {
+      if (url === '/api/insurance/me') return Promise.resolve(EMPTY_ME_RESPONSE);
+      // The welfare card (P1.2) has its own request; this test is about plans.
+      return Promise.reject(new Error(`unexpected url ${url}`));
+    });
     renderWithProviders(<InsuranceDashboard dashboardHref="/driver/dashboard" />);
 
     await waitFor(() => expect(mockGet).toHaveBeenCalledWith('/api/insurance/me'));
@@ -113,5 +117,31 @@ describe('InsuranceDashboard — Phase 7.1, insurance enrollment flow', () => {
 
     expect(await screen.findByText('Could not enrol — try again.')).toBeInTheDocument();
     expect(screen.queryByText(/you're enrolled/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('WelfareCard — P1.2, the demand-indexed welfare pool', () => {
+  it('shows the district pool, the last check, and whether the worker counts as active', async () => {
+    mockGet.mockReset();
+    mockGet.mockImplementation((url: string) => {
+      if (url === '/api/insurance/me') return Promise.resolve(EMPTY_ME_RESPONSE);
+      if (url === '/api/welfare/me')
+        return Promise.resolve({
+          district: { id: 'd1', name: 'Vijayawada District Federation', poolBalance: 12500 },
+          society: null,
+          recentChecks: [{ _id: 'c1', scope: 'district', scopeName: 'Vijayawada', periodStart: '2026-09-07T00:00:00.000Z', demandIndex: 0.92, triggered: false }],
+          payouts: [],
+          availableDaysLast28: 3,
+          rule: { triggerIndex: 0.6, payoutCapPct: 40, perMemberCap: 1000, minActiveDays: 8, minSocietyMembers: 5, historyWeeks: 12 },
+        });
+      return Promise.reject(new Error(`unexpected url ${url}`));
+    });
+    renderWithProviders(<InsuranceDashboard dashboardHref="/hamali/dashboard" />);
+    expect(await screen.findByText('Vijayawada District Federation welfare pool')).toBeInTheDocument();
+    expect(screen.getByText('₹12,500')).toBeInTheDocument();
+    expect(screen.getByText('Last check (week of 2026-09-07): demand index 0.92')).toBeInTheDocument();
+    expect(screen.getByText('Demand normal')).toBeInTheDocument();
+    expect(screen.getByText('You were available on 3 of the last 28 days. Go online on at least 8 days to be counted.')).toBeInTheDocument();
+    expect(screen.getByText(/One person's slow week alone never triggers it/)).toBeInTheDocument();
   });
 });

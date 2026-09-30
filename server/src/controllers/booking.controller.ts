@@ -1,4 +1,9 @@
 import { Request, Response } from 'express';
+import { env } from '../config/env';
+import { emitBookingStatus } from '../realtime/emitters';
+import { revealCompletionCode, finalizeCompletion, hasActiveDispute } from '../services/completion.service';
+import { Dispute } from '../models/Dispute';
+import { writeAuditLog } from '../services/audit.service';
 import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
@@ -15,8 +20,10 @@ import { startVehicleOffers, startHamaliOffers } from '../realtime/offerEngine';
 import { findUnratedCompletedBooking } from '../services/ratingGate.service';
 import { detectAbnormalCancellationRate } from '../services/fraudDetection.service';
 import { guaranteeStatusFor, claimGuarantee } from '../services/guarantee.service';
+import { initialRouting, announceNewDispute } from '../services/disputeRouting.service';
 import { WorkerPricingProfile } from '../models/WorkerPricingProfile';
 import { priceWork, UNIT_DECLARATIONS } from '../services/workPricing.service';
+import { getFeeSplit, withServiceFee } from '../services/serviceFee.service';
 
 /**
  * The 422 a customer sees when nothing prices their job.
@@ -120,7 +127,7 @@ async function priceBooking(input: QuoteInput) {
   // ever computed independently.
   const liveSurge = await getSurgeMultiplier(region);
 
-  const fareBreakdown = computeFareBreakdown({
+  const workerFare = computeFareBreakdown({
     vehicleRule: vehicleRule
       ? {
           baseFare: vehicleRule.baseFare,
@@ -141,6 +148,9 @@ async function priceBooking(input: QuoteInput) {
     hamaliCount: requiredHamaliCount ?? 0,
   });
 
+  // P1.1 — the rule-priced amount is the worker's rate; the customer pays
+  // the service fee on top of it.
+  const fareBreakdown = withServiceFee(workerFare, await getFeeSplit());
   return { fareBreakdown, distanceKm };
 }
 
@@ -166,13 +176,10 @@ export const quoteBooking = asyncHandler(async (req: Request, res: Response) => 
     if (!profile) throw new ApiError(404, 'That worker has not published rates for this service');
     const fare = await priceWork({ profile, mode: pricingMode, unitType, quantity, taskName, quotationId });
     res.status(200).json({
-      fareBreakdown: {
-        baseFare: 0,
-        distanceFare: 0,
-        surgeMultiplier: 1,
-        hamaliFare: fare.total,
-        total: fare.total,
-      },
+      fareBreakdown: withServiceFee(
+        { baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: fare.total, total: fare.total },
+        await getFeeSplit()
+      ),
       workFare: fare,
     });
     return;
@@ -219,6 +226,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     requiredHamaliCount,
     scheduledFor,
     openForBidding,
+    urgent,
     serviceCategorySlug,
     // Scan and Diagnose. The photo URL is one this server produced and
     // returned from /api/assistant/diagnose-photo — a client-supplied URL
@@ -259,6 +267,10 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   if (openForBidding) {
     if (type === 'combo') throw new ApiError(400, 'Bidding is not available for combo bookings yet');
     if (scheduledFor) throw new ApiError(400, 'Bidding is not available for scheduled bookings');
+  }
+  // P1.4 — urgent means now: it cannot be scheduled for later or put out to bids.
+  if (urgent && (scheduledFor || openForBidding)) {
+    throw new ApiError(400, 'An urgent booking is for now — it cannot be scheduled or put out for bids');
   }
 
   // Phase 6 — scheduled booking. scheduledFor is optional; when present it
@@ -317,13 +329,10 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 
     // Expressed through the existing FareBreakdown shape so every downstream
     // reader — earnings, commission, invoice, ledger — keeps working unchanged.
-    fareBreakdown = {
-      baseFare: 0,
-      distanceFare: 0,
-      surgeMultiplier: 1,
-      hamaliFare: workFare.total,
-      total: workFare.total,
-    };
+    fareBreakdown = withServiceFee(
+      { baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: workFare.total, total: workFare.total },
+      await getFeeSplit()
+    );
   } else {
     ({ fareBreakdown, distanceKm } = await priceBooking({
       type,
@@ -360,6 +369,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     statusHistory: [{ status: initialStatus, timestamp: new Date() }],
     scheduledFor: scheduledForDate,
     openForBidding: !!openForBidding,
+    urgent: !!urgent,
     // Carried from Scan and Diagnose, when the customer came that way.
     // The assigned worker sees both before they set out.
     diagnosisPhotoUrl: diagnosisPhotoUrl || undefined,
@@ -438,7 +448,72 @@ export const getMyBooking = asyncHandler(async (req: Request, res: Response) => 
   // customer can never fetch another's booking by guessing/enumerating ids.
   const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
   if (!booking) throw new ApiError(404, 'Booking not found');
-  res.status(200).json({ booking });
+  // The completion code is the customer's to hand over; it appears only
+  // here, only to the booking's own customer, only while work is under way.
+  const completionCode = booking.status === 'in_progress' ? await revealCompletionCode(booking._id.toString()) : null;
+  res.status(200).json({ booking, completionCode, autoConfirmHours: env.AUTO_CONFIRM_HOURS });
+});
+
+/**
+ * POST /api/bookings/:id/confirm-completion — the customer says the job is
+ * done. Moves awaiting_confirmation -> completed and settles.
+ */
+export const confirmCompletion = asyncHandler(async (req: Request, res: Response) => {
+  const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id }).select('status settlementHeld');
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  if (booking.status !== 'awaiting_confirmation') {
+    throw new ApiError(400, `There is nothing to confirm on a booking that is ${booking.status}`);
+  }
+  if (booking.settlementHeld || (await hasActiveDispute(booking._id.toString()))) {
+    throw new ApiError(409, 'A problem is open on this job. It will be settled when that is resolved.');
+  }
+  const completed = await finalizeCompletion(booking._id.toString(), 'customer', { id: req.user!.id, role: req.user!.role });
+  if (!completed) throw new ApiError(409, 'This job was already completed');
+  res.status(200).json({ booking: completed });
+});
+
+/**
+ * POST /api/bookings/:id/report-problem — the customer says the job is NOT
+ * done properly. Opens a dispute with the system's own record attached and
+ * holds settlement (and auto-confirm) until it is resolved.
+ */
+export const reportProblem = asyncHandler(async (req: Request, res: Response) => {
+  const { description } = req.body as { description: string };
+  const booking = await Booking.findOne({ _id: req.params.id, customerId: req.user!.id });
+  if (!booking) throw new ApiError(404, 'Booking not found');
+  if (booking.status !== 'awaiting_confirmation') {
+    throw new ApiError(400, 'A problem can be reported here while the job is waiting for your confirmation');
+  }
+  const dispute = await Dispute.create({
+    bookingId: booking._id,
+    raisedBy: req.user!.id,
+    claim: description,
+    priority: 'high',
+    status: 'open',
+    systemRecord: {
+      status: booking.status,
+      fareTotal: booking.fareBreakdown.total,
+      distanceKm: booking.distanceKm,
+      pickupAddress: booking.pickupLocation.address,
+      dropAddress: booking.dropLocation.address,
+      statusHistory: booking.statusHistory,
+    },
+    communicationLog: [],
+    ...(await initialRouting(booking)),
+  });
+  await announceNewDispute(dispute);
+  booking.settlementHeld = true;
+  await booking.save();
+  await writeAuditLog({
+    actorId: req.user!.id,
+    actorRole: req.user!.role,
+    action: 'completion_disputed',
+    targetType: 'Booking',
+    targetId: booking._id.toString(),
+    details: { disputeId: dispute._id.toString() },
+  });
+  emitBookingStatus(booking);
+  res.status(201).json({ booking, dispute });
 });
 
 /**
@@ -461,6 +536,8 @@ export const downloadTaxInvoice = asyncHandler(async (req: Request, res: Respons
 
   const pdf = await generateTaxInvoicePdf(booking, customer, payment);
   res.setHeader('Content-Type', 'application/pdf');
+  // The API's CSP (default-src 'none') would blank the browser's PDF viewer.
+  res.removeHeader('Content-Security-Policy');
   res.setHeader('Content-Disposition', `attachment; filename="tax-invoice-${booking._id.toString().slice(-8)}.pdf"`);
   res.status(200).send(pdf);
 });
@@ -470,6 +547,11 @@ export const cancelMyBooking = asyncHandler(async (req: Request, res: Response) 
   if (!booking) throw new ApiError(404, 'Booking not found');
   if (['completed', 'cancelled'].includes(booking.status)) {
     throw new ApiError(400, `Cannot cancel a booking that is already ${booking.status}`);
+  }
+  // The work is done; cancelling now would walk away from paying for it.
+  // A customer who is unhappy reports a problem instead.
+  if (booking.status === 'awaiting_confirmation') {
+    throw new ApiError(400, 'The worker has finished this job. Confirm it or report a problem instead of cancelling.');
   }
 
   booking.status = 'cancelled';
@@ -500,5 +582,5 @@ export const getGuaranteeStatus = asyncHandler(async (req: Request, res: Respons
 export const raiseGuaranteeClaim = asyncHandler(async (req: Request, res: Response) => {
   const { description } = req.body as { description: string };
   const complaint = await claimGuarantee(req.user!.id, req.params.id, description);
-  res.status(201).json({ complaintId: complaint._id.toString() });
+  res.status(201).json({ complaintId: complaint._id.toString(), reworkBookingId: complaint.reworkBookingId?.toString() });
 });

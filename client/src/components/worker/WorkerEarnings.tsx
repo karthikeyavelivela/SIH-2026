@@ -177,6 +177,11 @@ export function WorkerEarnings({ accent = 'primary' }: { accent?: 'primary' | 's
                   label={t('netLabel')}
                   value={`₹${rangeTotal.toLocaleString('en-IN')}`}
                 />
+                {/* P1.1 — jobs priced with the service fee carry a 0% rate:
+                    the customer paid the fee on top, nothing came off. */}
+                {inRange.some((l) => l.platformRatePct === 0) && (
+                  <span className="font-mono text-[10px] text-fy-lime">{t('keepsAll')}</span>
+                )}
               </div>
             </>
           )}

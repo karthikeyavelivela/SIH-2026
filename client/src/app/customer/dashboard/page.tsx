@@ -63,7 +63,7 @@ interface BookingSummary {
   createdAt: string;
 }
 
-const PROGRESS_STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
+const PROGRESS_STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation', 'completed'];
 
 function shortAddress(address: string): string {
   return address.split(',')[0];
@@ -98,6 +98,7 @@ export default function CustomerDashboardPage() {
     matched: tDash('status.matched'),
     accepted: tDash('status.accepted'),
     in_progress: tDash('status.in_progress'),
+    awaiting_confirmation: tDash('status.awaiting_confirmation'),
     completed: tDash('status.completed'),
     cancelled: tDash('status.cancelled'),
   };

@@ -8,6 +8,7 @@ interface WriteLedgerEntryInput {
   description: string;
   status?: ILedgerEntry['status'];
   region?: string;
+  bookingId?: string;
 }
 
 /**
@@ -26,6 +27,7 @@ export async function writeLedgerEntry(input: WriteLedgerEntryInput): Promise<IL
     description: input.description,
     status: input.status ?? 'posted',
     region: input.region,
+    bookingId: input.bookingId,
     timestamp: new Date(),
   });
   return entry.toObject();

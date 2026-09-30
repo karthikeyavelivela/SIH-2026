@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { bucketVehicleCategory, FareCard } from './FareCard';
+import { FeeNote } from './FeeNote';
 
 describe('bucketVehicleCategory — Phase 7.1, booking creation pricing logic', () => {
   it('mirrors the server\'s three-tier thresholds exactly (fare.service.ts\'s bucketVehicleCategoryFromCapacity)', () => {
@@ -67,5 +68,38 @@ describe('FareCard — Phase 7.1, booking creation flow', () => {
   it('error state falls back to a generic message when the server gave none', () => {
     renderWithProviders(<FareCard state="error" fare={null} errorMessage={null} />);
     expect(screen.getByText('Could not estimate a fare for this trip.')).toBeInTheDocument();
+  });
+});
+
+describe('FareCard and FeeNote — P1.1 service fee on top of the worker rate', () => {
+  it('shows the worker rate, the fee and the total, and says the worker keeps all of it', () => {
+    renderWithProviders(
+      <FareCard
+        state="ready"
+        fare={{ baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: 300, total: 330, workerRate: 300, serviceFee: 30, serviceFeePct: 10 }}
+        errorMessage={null}
+      />
+    );
+    expect(screen.getByText("Worker's rate")).toBeInTheDocument();
+    expect(screen.getByText('Service fee (10%)')).toBeInTheDocument();
+    expect(screen.getByText('₹30')).toBeInTheDocument();
+    expect(screen.getByText('₹330')).toBeInTheDocument();
+    expect(screen.getByText('The worker receives 100% of their rate.')).toBeInTheDocument();
+  });
+
+  it('a fare priced before the fee shows no fee lines', () => {
+    renderWithProviders(
+      <FareCard state="ready" fare={{ baseFare: 0, distanceFare: 0, surgeMultiplier: 1, hamaliFare: 300, total: 300 }} errorMessage={null} />
+    );
+    expect(screen.queryByText("Worker's rate")).not.toBeInTheDocument();
+    expect(screen.queryByText('The worker receives 100% of their rate.')).not.toBeInTheDocument();
+  });
+
+  it('FeeNote names both amounts and renders nothing without a fee', () => {
+    const { container, unmount } = renderWithProviders(<FeeNote fare={{ workerRate: 300, serviceFee: 30, serviceFeePct: 10 }} />);
+    expect(container.textContent).toBe('₹300 to the worker (all of it) + ₹30 service fee (10%)');
+    unmount();
+    const empty = renderWithProviders(<FeeNote fare={{}} />);
+    expect(empty.container.textContent).toBe('');
   });
 });

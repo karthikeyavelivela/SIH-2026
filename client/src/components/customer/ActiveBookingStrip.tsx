@@ -22,7 +22,7 @@ interface BookingSummary {
   createdAt: string;
 }
 
-const PROGRESS_STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed'];
+const PROGRESS_STEPS = ['requested', 'searching', 'matched', 'accepted', 'in_progress', 'awaiting_confirmation', 'completed'];
 
 function shortAddress(address: string): string {
   return address.split(',')[0];
@@ -67,6 +67,7 @@ export function ActiveBookingStrip({ mode }: { mode: CustomerMode }) {
     matched: t('status.matched'),
     accepted: t('status.accepted'),
     in_progress: t('status.in_progress'),
+    awaiting_confirmation: t('status.awaiting_confirmation'),
     completed: t('status.completed'),
     cancelled: t('status.cancelled'),
   };

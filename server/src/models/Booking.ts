@@ -27,6 +27,10 @@ export type BookingStatus =
   | 'matched'
   | 'accepted'
   | 'in_progress'
+  // The worker says the job is done; the customer has not confirmed it.
+  // Nothing is settled from here — settlement, earnings, the ledger, the
+  // guarantee window and the rating gate all wait for 'completed'.
+  | 'awaiting_confirmation'
   | 'completed'
   | 'cancelled';
 
@@ -128,15 +132,60 @@ export interface IBooking {
     distanceFare: number;
     surgeMultiplier: number;
     hamaliFare: number;
+    /** What the customer pays: workerRate + serviceFee. */
     total: number;
+    /**
+     * P1.1 — the worker's rate, all of which the worker keeps. Absent on
+     * bookings priced before the service fee existed; those read `total` as
+     * the worker's rate and keep their old deductions (see serviceFee.service.ts).
+     */
+    workerRate?: number;
+    serviceFeePct?: number;
+    serviceFee?: number;
+    /** The split frozen at booking time, so a later settings change never rewrites it. */
+    feeSplit?: { societyPct: number; welfarePoolPct: number; guaranteeReservePct: number; platformPct: number };
   };
   distanceKm: number;
+  /** Verification (demo/test) data: excluded from analytics, welfare and reports. */
+  isVerification?: boolean;
+  /**
+   * P1.3 — a workmanship-guarantee re-work job. The customer pays only the
+   * materials the worker records; the worker's labour is paid at the base
+   * rate from the platform's guarantee reserve (guarantee.service.ts).
+   */
+  /** P1.6 — a visit generated from an institution's contract. Billed monthly. */
+  contractId?: Types.ObjectId;
+  contractVisitDate?: string;
+  isRework?: boolean;
+  reworkOfBookingId?: Types.ObjectId;
+  guaranteeComplaintId?: Types.ObjectId;
+  materialsCost?: number;
+  materialsNote?: string;
+  /** Set once the labour payment from the reserve has been made (or queued). */
+  reworkLabourPayoutId?: Types.ObjectId;
   statusHistory: { status: BookingStatus; timestamp: Date }[];
   // Photo proof captured by the assigned worker at pickup (before 'start')
   // and delivery (before 'complete') — biggest single dispute-reduction
   // feature per PRODUCT.md's real-world feature spec, cheap to build on
   // top of the existing cloudinary.service upload path.
   proofPhotos: { pickup?: string; delivery?: string };
+  /**
+   * Customer-confirmed completion (P0.2).
+   *
+   * A 4-digit code is generated when the job starts. Only the customer can
+   * see it. A worker who enters it (with a delivery proof photo) completes
+   * the job on the spot; without it the job waits in awaiting_confirmation
+   * for the customer's "Confirm job done", a reported problem, or the
+   * auto-confirm window. Hash and encrypted copy are select:false — they
+   * never leave the server except as the plain code to the customer.
+   */
+  completionCodeHash?: string;
+  completionCodeCipher?: string;
+  completionCodeAttempts?: number;
+  workDoneAt?: Date;
+  completedVia?: 'code' | 'customer' | 'auto';
+  /** True while a reported problem holds settlement and auto-confirm. */
+  settlementHeld?: boolean;
   /**
    * The photograph the customer took of the problem, from Scan and
    * Diagnose, and what TARA made of it.
@@ -174,6 +223,11 @@ export interface IBooking {
   // a genuinely different multi-party acceptance flow, out of scope here
   // and left as a documented follow-up, not silently half-supported.
   openForBidding?: boolean;
+  /**
+   * P1.4 — the customer needs someone now. Offered first, in widening rings
+   * with a shorter countdown, and shown first in workers' feeds. No extra fee.
+   */
+  urgent?: boolean;
   createdAt: Date;
 }
 
@@ -219,7 +273,17 @@ const bookingSchema = new Schema<IBooking>(
     rejectedByUserIds: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
     status: {
       type: String,
-      enum: ['scheduled', 'requested', 'searching', 'matched', 'accepted', 'in_progress', 'completed', 'cancelled'],
+      enum: [
+        'scheduled',
+        'requested',
+        'searching',
+        'matched',
+        'accepted',
+        'in_progress',
+        'awaiting_confirmation',
+        'completed',
+        'cancelled',
+      ],
       default: 'requested',
     },
     fareBreakdown: {
@@ -228,8 +292,30 @@ const bookingSchema = new Schema<IBooking>(
       surgeMultiplier: { type: Number, default: 1.0 },
       hamaliFare: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
+      workerRate: { type: Number },
+      serviceFeePct: { type: Number },
+      serviceFee: { type: Number },
+      feeSplit: {
+        type: {
+          societyPct: Number,
+          welfarePoolPct: Number,
+          guaranteeReservePct: Number,
+          platformPct: Number,
+        },
+        _id: false,
+        default: undefined,
+      },
     },
     distanceKm: { type: Number, default: 0 },
+    isVerification: { type: Boolean, default: false, index: true },
+    contractId: { type: Schema.Types.ObjectId, ref: 'Contract', index: true },
+    contractVisitDate: { type: String },
+    isRework: { type: Boolean, default: false },
+    reworkOfBookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
+    guaranteeComplaintId: { type: Schema.Types.ObjectId, ref: 'Complaint' },
+    materialsCost: { type: Number, min: 0 },
+    materialsNote: { type: String, trim: true, maxlength: 300 },
+    reworkLabourPayoutId: { type: Schema.Types.ObjectId, ref: 'Payout' },
     statusHistory: {
       type: [{ status: String, timestamp: { type: Date, default: Date.now } }],
       default: [],
@@ -242,8 +328,15 @@ const bookingSchema = new Schema<IBooking>(
       pickup: { type: String },
       delivery: { type: String },
     },
+    completionCodeHash: { type: String, select: false },
+    completionCodeCipher: { type: String, select: false },
+    completionCodeAttempts: { type: Number, default: 0 },
+    workDoneAt: { type: Date },
+    completedVia: { type: String, enum: ['code', 'customer', 'auto'] },
+    settlementHeld: { type: Boolean, default: false },
     scheduledFor: { type: Date },
     openForBidding: { type: Boolean, default: false },
+    urgent: { type: Boolean, default: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
@@ -253,6 +346,7 @@ bookingSchema.index({ dropLocation: '2dsphere' });
 bookingSchema.index({ customerId: 1, status: 1 });
 bookingSchema.index({ region: 1, status: 1 }); // surge.service's searching-count query
 bookingSchema.index({ status: 1, scheduledFor: 1 }); // scheduledBooking.service's due-for-release poll
+bookingSchema.index({ status: 1, workDoneAt: 1 }); // completion.service's auto-confirm poll
 // Global search (Job 4). A booking is found by where it went, not by its id
 // — people search "Gajuwaka", never "6aa552328ecbb689a5cfb736". Weighted so
 // a pickup match outranks a drop match, since a person recalling one address

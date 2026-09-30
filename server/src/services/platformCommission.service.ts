@@ -1,6 +1,7 @@
 import { PlatformSetting, PLATFORM_SETTING_ID } from '../models/PlatformSetting';
 import { LedgerEntry } from '../models/LedgerEntry';
 import { writeLedgerEntry } from './ledger.service';
+import { hasServiceFee } from './serviceFee.service';
 
 /**
  * The platform's own commission — ₹1 retained for every ₹100 a role earns.
@@ -93,11 +94,13 @@ export function applyPlatformCommission(grossAmount: number, platformRatePct: nu
  */
 export async function recordPlatformCommissionForBooking(booking: {
   _id: unknown;
-  fareBreakdown: { total: number };
+  fareBreakdown: { total: number; serviceFee?: number };
   region?: string;
   status: string;
 }): Promise<void> {
   if (booking.status !== 'completed') return;
+  // P1.1: the platform's cut is now part of the customer's service fee.
+  if (hasServiceFee(booking.fareBreakdown)) return;
 
   const pct = await getPlatformCommissionPct();
   if (pct <= 0) return;

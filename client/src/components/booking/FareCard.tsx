@@ -21,6 +21,9 @@ export interface FareBreakdown {
   hamaliFare: number;
   surgeMultiplier: number;
   total: number;
+  workerRate?: number;
+  serviceFeePct?: number;
+  serviceFee?: number;
 }
 
 // Extracted out of customer/book/page.tsx (a Next.js App Router page.tsx
@@ -88,10 +91,25 @@ export function FareCard({
             <span>×{fare.surgeMultiplier}</span>
           </div>
         )}
+        {typeof fare.serviceFee === 'number' && typeof fare.workerRate === 'number' && (
+          <>
+            <div className="flex justify-between pt-2 mt-1 border-t border-fy-muted/10">
+              <span className="text-fy-ink-soft">{t('workerRate')}</span>
+              <span className="tabular-nums">₹{fare.workerRate}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-fy-ink-soft">{t('serviceFee', { pct: fare.serviceFeePct ?? 10 })}</span>
+              <span className="tabular-nums">₹{fare.serviceFee}</span>
+            </div>
+          </>
+        )}
         <div className="flex justify-between pt-2.5 mt-1 border-t border-fy-muted/10">
           <span className="font-heading font-bold text-fy-ink">{t('total')}</span>
           <span className="font-heading font-bold text-lg text-fy-ink tabular-nums">₹{fare.total}</span>
         </div>
+        {typeof fare.serviceFee === 'number' && (
+          <p className="text-xs text-fy-green pt-1">{t('workerKeepsAll')}</p>
+        )}
       </div>
     </div>
   );

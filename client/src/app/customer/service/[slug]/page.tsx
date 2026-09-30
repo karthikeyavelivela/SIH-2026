@@ -1,5 +1,7 @@
 'use client';
 
+import { UrgentToggle } from '@/components/booking/UrgentToggle';
+import { FeeNote } from '@/components/booking/FeeNote';
 import { useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -341,6 +343,7 @@ export default function ServiceDetailPage() {
             </div>
           )}
           {when === 'now' && <Body size="label">{t('nowHint')}</Body>}
+          {when === 'now' && <UrgentToggle checked={flow.urgent} onChange={flow.setUrgent} />}
 
           <button
             type="button"
@@ -422,6 +425,7 @@ export default function ServiceDetailPage() {
                 <p className="font-heading text-title text-fy-ink leading-none shrink-0">₹{flow.fare.total}</p>
               )}
             </div>
+            {flow.fareState === 'ready' && flow.fare && <FeeNote fare={flow.fare} className="w-full" />}
             <Button type="submit" glyph="bolt" disabled={!flow.canSubmit} className="w-full">
               {flow.submitting ? t('submitting') : t('submit')}
             </Button>

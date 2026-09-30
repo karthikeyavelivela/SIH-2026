@@ -31,6 +31,13 @@ export function publicUser(user: { toObject: () => Record<string, unknown> }) {
   // pendingPhoneChange.otpHash is exactly as sensitive as passwordHash —
   // never leaves the server. newPhone/expiresAt/attempts are fine (a
   // client needs to know a change is pending and when it expires).
+  // KYC documents: never a URL. Private ones have none worth sending, and a
+  // legacy public URL is the exact leak the private storage exists to stop.
+  // The client asks GET /api/kyc/documents/:id/url for a short-lived link.
+  if (Array.isArray(obj.kycDocs)) {
+    obj.kycDocs = (obj.kycDocs as Record<string, unknown>[]).map((d) => publicKycDoc(d));
+  }
+
   const pending = obj.pendingPhoneChange as Record<string, unknown> | undefined;
   if (pending) delete pending.otpHash;
 
@@ -54,4 +61,10 @@ export function publicUser(user: { toObject: () => Record<string, unknown> }) {
 function maskTail(value: string): string {
   if (value.length <= 4) return '•'.repeat(value.length);
   return '•'.repeat(value.length - 4) + value.slice(-4);
+}
+
+/** A KYC document as any client may see it: status and metadata, no location. */
+export function publicKycDoc(doc: Record<string, unknown>): Record<string, unknown> {
+  const { url: _url, publicId: _publicId, format: _format, ...rest } = doc;
+  return { ...rest, viewable: true };
 }

@@ -96,3 +96,18 @@ adminRouter.patch(
   validate,
   adminController.updatePlatformCommission
 );
+
+// P1.1 — the customer-paid service fee and its split. Admin-only, audited.
+adminRouter.get('/platform-fees', adminController.getPlatformFees);
+adminRouter.put(
+  '/platform-fees',
+  [
+    body('feeTotalPct').isFloat({ min: 0, max: 50 }).toFloat(),
+    body('societyPct').isFloat({ min: 0, max: 50 }).toFloat(),
+    body('welfarePoolPct').isFloat({ min: 0, max: 50 }).toFloat(),
+    body('guaranteeReservePct').isFloat({ min: 0, max: 50 }).toFloat(),
+    body('platformPct').isFloat({ min: 0, max: 50 }).toFloat(),
+  ],
+  validate,
+  adminController.updatePlatformFees
+);

@@ -40,7 +40,13 @@ export interface IMutha {
   // server-side by the affiliated district Federation's
   // maxCommissionRatePct/maxWelfareDeductionRatePct — see
   // governance.controller.ts's updateByLaws.
+  /**
+   * @deprecated P1.1 — no longer deducted from members. A society's income is
+   * now its share of customers' service fees (serviceFee.service.ts). Kept so
+   * bookings priced before the fee still settle, and read, exactly as they did.
+   */
   commissionRatePct: number;
+  /** @deprecated P1.1 — see commissionRatePct. */
   welfareDeductionRatePct: number;
   createdAt: Date;
 }

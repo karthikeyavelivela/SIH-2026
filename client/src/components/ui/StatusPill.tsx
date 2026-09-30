@@ -43,6 +43,7 @@ const BOOKING_STATUS_TONE: Record<string, Tone> = {
   searching: 'neutral',
   accepted: 'transport',
   in_progress: 'transport',
+  awaiting_confirmation: 'warning',
   completed: 'success',
   cancelled: 'danger',
   disputed: 'warning',

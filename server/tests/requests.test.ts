@@ -258,7 +258,9 @@ describe('job lifecycle: start / complete', () => {
 
     const complete = await agent.post(`/api/requests/${booking._id}/complete`);
     expect(complete.status).toBe(200);
-    expect(complete.body.booking.status).toBe('completed');
+    // Work done, customer not yet confirmed (P0.2). The worker is free
+    // for the next job all the same.
+    expect(complete.body.booking.status).toBe('awaiting_confirmation');
 
     const vehicle = await Vehicle.findOne({ ownerId: driver._id });
     expect(vehicle?.availabilityStatus).toBe('online');
