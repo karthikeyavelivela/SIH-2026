@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { validate } from '../middleware/validate';
-import { authLimiter, loginAccountLimiter } from '../middleware/rateLimit';
+import { authLimiter, loginAccountLimiter, passwordResetLimiter } from '../middleware/rateLimit';
 import { verifyJwt } from '../middleware/auth';
 import * as authController from '../controllers/auth.controller';
 import { withSignupConsent } from '../middleware/signupConsent';
@@ -232,6 +232,26 @@ authRouter.patch(
 );
 
 authRouter.delete('/me', verifyJwt, authController.deleteMyAccount);
+
+// ---- P4.3 forgot password, by SMS ----
+
+authRouter.get('/forgot-password/status', authController.forgotPasswordStatus);
+authRouter.post(
+  '/forgot-password/start',
+  authLimiter,
+  passwordResetLimiter,
+  [phoneRule],
+  validate,
+  authController.forgotPasswordStart
+);
+authRouter.post(
+  '/forgot-password/complete',
+  authLimiter,
+  passwordResetLimiter,
+  [phoneRule, body('otp').isString().trim().isLength({ min: 4, max: 8 }), body('newPassword').isString().isLength({ min: 8, max: 128 })],
+  validate,
+  authController.forgotPasswordComplete
+);
 
 // ---- P1.8 consent, privacy, export ----
 

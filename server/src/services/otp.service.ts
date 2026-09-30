@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import { env } from '../config/env';
+import { sendSms, type SmsLocale } from './sms.service';
 
 export const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 export const OTP_MAX_ATTEMPTS = 5;
@@ -49,11 +50,18 @@ export async function generateOtp(): Promise<GeneratedOtp> {
  * the point of use instead of silently stranding a user who never
  * receives a code they were told to expect.
  */
-export async function sendOtpSms(phone: string, code: string): Promise<void> {
+export async function sendOtpSms(phone: string, code: string, locale: SmsLocale = 'en'): Promise<void> {
   if (env.MOCK_OTP) return;
-  void phone;
-  void code;
-  throw new Error('No SMS provider is configured — set MOCK_OTP=true for development, or wire a real gateway here before enabling this in production.');
+  const sent = await sendSms(phone, 'otp', { OTP: code }, locale);
+  // Throws rather than pretending: with no provider configured, or a send that
+  // failed, a person must not be told a code is on its way when it is not.
+  if (!sent.ok) {
+    throw new Error(
+      sent.reason === 'not_configured'
+        ? 'No SMS provider is configured: set SMS_PROVIDER and its credentials, or MOCK_OTP=true for development.'
+        : `The code could not be sent by SMS (${sent.reason}).`
+    );
+  }
 }
 
 export async function verifyOtp(code: string, hash: string): Promise<boolean> {

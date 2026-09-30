@@ -166,6 +166,13 @@ export interface IUser {
     expiresAt: Date;
     attempts: number;
   };
+  /** P4.3 forgot-password: a code sent by SMS. otpHash is bcrypt, like passwordHash. */
+  pendingPasswordReset?: {
+    otpHash: string;
+    expiresAt: Date;
+    attempts: number;
+    requestedAt: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
   // Phase 6 fraud detection — captured once at signup (req.ip, real, never
@@ -356,6 +363,13 @@ const userSchema = new Schema<IUser>(
       otpHash: { type: String },
       expiresAt: { type: Date },
       attempts: { type: Number },
+    },
+    // No defaults on these paths, for the same reason as pendingPhoneChange above.
+    pendingPasswordReset: {
+      otpHash: { type: String },
+      expiresAt: { type: Date },
+      attempts: { type: Number },
+      requestedAt: { type: Date },
     },
     signupIp: { type: String },
     preferredLocale: { type: String, enum: ['en', 'te', 'hi'], default: 'en' },

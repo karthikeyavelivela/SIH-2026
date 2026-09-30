@@ -34,6 +34,22 @@ const envSchema = z.object({
   VERIFICATION_ENABLED: optionalFlag,
   // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
   // back to the rule-based path, labelled source 'rules'.
+  // P4.3 — SMS (OTP, password reset, confirmations) and the Exotel IVR.
+  // SMS_PROVIDER names the gateway; unset or 'none' means no SMS is sent.
+  SMS_PROVIDER: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['none', 'msg91', 'twilio']).optional()),
+  MSG91_AUTH_KEY: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  TWILIO_ACCOUNT_SID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  TWILIO_AUTH_TOKEN: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  TWILIO_FROM: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // JSON: { "otp": { "en": "<MSG91 flow id>", "te": "...", "hi": "..." }, ... }
+  // Each flow id is mapped to a DLT-registered template on the MSG91 panel.
+  SMS_TEMPLATE_IDS: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // The IVR answers Exotel's requests at /api/ivr/exotel/*. Off by default. The
+  // shared secret goes in the URL configured in Exotel, since Exotel does not
+  // sign its requests.
+  IVR_ENABLED: optionalFlag,
+  IVR_SHARED_SECRET: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(24).optional()),
+  EXOTEL_NUMBER: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
   // P4.2 — Bhashini (speech to text, text to speech, translation). Off by
   // default; needs BHASHINI_ENABLED=true and both credentials from a ULCA account.
   BHASHINI_ENABLED: optionalFlag,

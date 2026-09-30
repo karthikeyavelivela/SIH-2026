@@ -64,6 +64,7 @@ import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './ro
 import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
+import { ivrRouter, adminCallbackRouter } from './routes/ivr.routes';
 import { chatRouter } from './routes/chat.routes';
 import { mlHealth } from './services/mlClient';
 import { redisHealth } from './infra/redis';
@@ -182,6 +183,8 @@ app.use('/api/auth', authRouter);
 // accidentally match a sub-resource path first. Keep this ordering for any
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
+app.use('/api/admin/callback-requests', adminCallbackRouter);
+app.use('/api/ivr/exotel', ivrRouter);
 app.use('/api/admin/wage-floors', adminWageFloorRouter);
 app.use('/api/admin/promo-banners', adminPromoBannerRouter);
 app.use('/api/fare-rules', publishedRatesRouter);

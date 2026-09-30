@@ -154,6 +154,18 @@ export const globalMutationLimiter = rateLimit({
   skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || process.env.NODE_ENV === 'test',
 });
 
+// Password-reset codes, per phone number, so nobody can be spammed with codes
+// or have one guessed, whichever addresses the requests come from.
+export const passwordResetLimiter = rateLimit({
+  ...storeFor('passwordResetLimiter'),
+  windowMs: 60 * 60 * 1000,
+  max: 6,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again later.' },
+  keyGenerator: (req) => `${typeof req.body?.phone === 'string' ? req.body.phone : clientIp(req)}:${req.path}`,
+});
+
 // Aadhaar offline e-KYC submissions, per account. A person tries it a few
 // times at most (a mistyped share phrase); the cap stops anyone guessing
 // share phrases against a zip.

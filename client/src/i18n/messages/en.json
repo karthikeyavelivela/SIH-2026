@@ -5028,5 +5028,17 @@
     "showOriginal": "Show original",
     "translating": "Translating…",
     "failed": "Could not translate"
+  },
+  "passwordReset": {
+    "intro": "Enter the mobile number on your account. We will text you a code.",
+    "phone": "Mobile number",
+    "send": "Send code",
+    "sent": "If that number has an account, a code is on its way. Enter it below with your new password.",
+    "devCode": "Test mode: your code is {otp}.",
+    "otp": "Code",
+    "newPassword": "New password (at least 8 characters)",
+    "submit": "Change password",
+    "done": "Your password is changed. Sign in with the new one.",
+    "failed": "That did not work. Please try again."
   }
 }

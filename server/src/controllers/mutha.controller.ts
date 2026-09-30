@@ -1,3 +1,4 @@
+import { smsProxyAssignments } from '../services/smsNotify.service';
 import { recommendCrew, recordAllocationOutcome } from '../services/allocation.service';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
@@ -366,6 +367,8 @@ export const assignJobMembers = asyncHandler(async (req: Request, res: Response)
   });
 
   await recordAllocationOutcome(booking._id.toString(), mutha._id.toString(), memberIds);
+  // A member with no phone cannot be told directly: tell the leader (P4.3).
+  if (additions.length > 0) void smsProxyAssignments(booking, additions);
   emitBookingStatus(booking);
   res.status(200).json({ booking });
 });
