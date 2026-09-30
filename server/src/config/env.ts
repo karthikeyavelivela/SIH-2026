@@ -77,6 +77,10 @@ const envSchema = z.object({
    */
   GEMINI_MODEL: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+  // P2.3 — embedding model for the TARA knowledge base (Gemini), and an Atlas
+  // Vector Search index name if one has been created on KnowledgeChunk.
+  GEMINI_EMBEDDING_MODEL: z.string().optional(),
+  KNOWLEDGE_VECTOR_INDEX: z.string().optional(),
   // 'auto' (the default) tries Gemini, then Groq, then Anthropic, skipping
   // any without a key. Naming one provider pins the chain to it alone —
   // useful for proving which vendor answered, and for cutting a provider out

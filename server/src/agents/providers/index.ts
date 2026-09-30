@@ -7,17 +7,18 @@ import { anthropic } from './anthropic';
 /**
  * The provider chain.
  *
- * Order is fixed and deliberate: Gemini first (free tier covers text AND the
- * vision agent), Groq second (fast, free, no card), Anthropic third (kept
- * because it works and its SDK is already here). A provider with no key is
- * not in the chain at all — it is never "tried and failed", so a missing key
- * costs nothing and logs nothing.
+ * Order is fixed and deliberate: Groq first (Llama 3.3: fast, free, no card,
+ * and what the live demo runs on), Gemini second (free tier, and it also
+ * does the embeddings for the knowledge base), Anthropic third (kept because
+ * it works and its SDK is already here), then the rule-based path. A
+ * provider with no key is not in the chain at all: it is never "tried and
+ * failed", so a missing key costs nothing and logs nothing.
  *
  * AI_PROVIDER=<name> pins the chain to one provider. AI_PROVIDER=mock empties
  * it, which makes every agent take its rule-based path with mock:true — the
  * same path a deployment with no keys takes.
  */
-const ALL: AiProvider[] = [gemini, groq, anthropic];
+const ALL: AiProvider[] = [groq, gemini, anthropic];
 
 export interface GenerationOutcome {
   text: string;

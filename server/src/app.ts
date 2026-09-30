@@ -59,7 +59,7 @@ import { ApiError } from './utils/ApiError';
 import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
 import { resolveLocale } from './i18n/resolveLocale';
-import { describeChain, providerHealth } from './agents/providers';
+import { describeChain, providerHealth, providerChain } from './agents/providers';
 import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './routes/welfare.routes';
 import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
@@ -166,7 +166,7 @@ app.use('/api', (_req, res, next) => {
  * cannot get in.
  */
 app.get('/api/health', async (_req, res) =>
-  res.status(200).json({ ok: true, ai: describeChain(), aiProviders: providerHealth(), ml: await mlHealth() })
+  res.status(200).json({ ok: true, ai: describeChain(), activeProvider: providerChain()[0]?.name ?? 'rules', aiProviders: providerHealth(), ml: await mlHealth() })
 );
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before

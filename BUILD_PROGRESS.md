@@ -26,7 +26,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | PHASE-1-TESTS | Full suites | DONE | (this commit) | server 739/739 (76 suites) + tsc clean; client 83/83 + tsc clean |
 | P2.1 | fyro-ml Python service (forecast / allocate / price-anomaly) + mlClient | DONE | (this commit) | ml/ FastAPI (XGBoost, OR-Tools CP-SAT, IsolationForest), train.py with honest metrics, mlClient 3 s timeout + rules fallback, forecast agent + hourly-rate check wired, /api/health ml status, render.yaml service; pytest 19, server 13 |
 | P2.2 | Allocation UI (recommended crew) + fairness panel | DONE | (this commit) | POST /api/mutha/allocation/recommend (ML or rules, labelled), AllocationLog recommendation-vs-final, RecommendedCrew on /mutha/requests + assign-members (covers contract visits), GET /api/federation/fairness + FairnessPanel; server 8, client 3 |
-| P2.3 | TARA: provider order, knowledge base, retrieval, citations | TODO | | |
+| P2.3 | TARA: provider order, knowledge base, retrieval, citations | DONE | (this commit) | order Groq, Gemini, Anthropic, rules; /api/health activeProvider; server/knowledge/*.md (10 files) + KnowledgeChunk + buildKnowledge; Gemini embeddings or IDF-lexical fallback, optional Atlas vector index; citations in evidence; escalate line; hazard guardrail (gas/electrical/structural) runs before any model; 20 tests |
 | P2.4 | Document pre-check with OCR | TODO | | |
 | PHASE-2-TESTS | Full suites + pytest | TODO | | |
 | P3.1 | Redis scaling (adapter, rate-limit store, offer state, BullMQ, read prefs) | TODO | | |
@@ -61,6 +61,10 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | URGENT_RADII_KM | Render API | 3,6,10 | Urgent search rings in km (then the ordinary 25 km) |
 | URGENT_OFFER_TIMEOUT_MS | Render API | 12000 | Countdown for an urgent offer (ordinary: 20000) |
 | DISPUTE_SLA_HOURS | Render API | 48 | Hours a dispute waits at one level before escalating by itself |
+| GROQ_API_KEY | Render API | unset | Primary TARA/agent model (Llama); with AI_PROVIDER=auto it is tried first |
+| GEMINI_API_KEY | Render API | unset | Second provider, and the knowledge-base embeddings; without it retrieval is lexical |
+| GEMINI_EMBEDDING_MODEL | Render API | gemini-embedding-001 | Embedding model name |
+| KNOWLEDGE_VECTOR_INDEX | Render API | unset | Name of an Atlas Vector Search index on KnowledgeChunk.embedding, if one exists |
 | ML_SERVICE_URL | Render API | unset | Base URL of the fyro-ml service; unset = rules |
 | ML_SERVICE_TOKEN | Render API + Render ML | unset | Shared secret (16+ chars), identical on both services |
 | MONGODB_URI_READONLY | local (train.py only) | unset | Read-only Atlas user for training; never set on a server |
@@ -89,3 +93,6 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - C0: run `VERIFICATION_ENABLED=true npm run seed:verification --workspace server` against production once (Render shell is paid-only; run it locally against the production MONGODB_URI), copy the printed passwords, then unset the flag.
 - P2.1: create a READ-ONLY Atlas database user and run `python ml/scripts/train.py` locally with MONGODB_URI_READONLY (Render's shell is paid-only). Until there is enough real completed-booking history per category, nothing is trained and forecasts come back as cold-start baselines; the API then says so. Decide whether a second Render web service (fyro-ml, free plan, sleeps when idle) is acceptable; if not, leave ML_SERVICE_URL unset and everything uses rules.
 - P2.1: movable festivals (Ugadi, Diwali, Eid, Dasara, etc.) for `ml/app/calendar_data.py` from the Andhra Pradesh government holiday list, and AP-specific crop-season windows from the AP Department of Agriculture. Only fixed-date national holidays and coarse Kharif/Rabi months are included now, each with a source note.
+- P2.3: fill the knowledge-base placeholders (search for `[[TO BE CONFIRMED` in server/knowledge/): the bye-laws summary, the cancellation and refund policy, the FYRO helpline number and hours, the grievance officer, the GST rate on the service fee, and the federations' confirmation of the welfare parameters. TARA says "FYRO has not confirmed this yet" for each until they are filled.
+- P2.3: after deploying, run `npm run build:knowledge --workspace server` locally against the production MONGODB_URI with GEMINI_API_KEY set (Render's shell is paid-only). Optionally create an Atlas Vector Search index on KnowledgeChunk.embedding and set KNOWLEDGE_VECTOR_INDEX; otherwise retrieval is in-process.
+- P2.3: set AI_PROVIDER=auto (default) with GROQ_API_KEY to make Groq primary; AI_PROVIDER=groq pins to Groq alone with no fallback.

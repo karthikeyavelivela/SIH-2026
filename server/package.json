@@ -17,6 +17,7 @@
     "seed:insurance": "ts-node src/scripts/seedInsurancePlans.ts",
     "seed:wage-floors": "ts-node src/scripts/seedWageFloors.ts",
     "seed:verification": "ts-node src/scripts/seedVerification.ts",
+    "build:knowledge": "ts-node src/scripts/buildKnowledge.ts",
     "cleanup:verification": "ts-node src/scripts/cleanupVerification.ts",
     "migrate:kyc-private": "ts-node src/scripts/migrateKycPrivate.ts"
   },
