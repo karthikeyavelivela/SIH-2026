@@ -1,3 +1,4 @@
+import { smsBookingConfirmed, smsProxyAssignments } from '../services/smsNotify.service';
 import { IBooking } from '../models/Booking';
 import { User } from '../models/User';
 import { Vehicle } from '../models/Vehicle';
@@ -26,6 +27,10 @@ export async function emitBookingMatched(booking: IBooking): Promise<void> {
   // the live push below, a Notification is meant to survive a closed tab
   // or an offline device, so it must not be gated on tryGetIo().
   await createNotification(booking.customerId.toString(), 'booking_matched', {}, `/customer/track/${booking._id.toString()}`);
+
+  // P4.3: a text message too, best effort, and only when an SMS provider is set up.
+  void smsBookingConfirmed(booking);
+  void smsProxyAssignments(booking, booking.assignedHamaliIds);
 
   const io = tryGetIo();
   if (!io) return;

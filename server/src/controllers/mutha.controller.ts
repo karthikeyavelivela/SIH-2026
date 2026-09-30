@@ -1,3 +1,5 @@
+import { smsProxyAssignments } from '../services/smsNotify.service';
+import { recommendCrew, recordAllocationOutcome } from '../services/allocation.service';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -284,6 +286,11 @@ export const updateMyGroup = asyncHandler(async (req: Request, res: Response) =>
  * bookings can each freely draw from the group's online pool, but the same
  * member can never be double-booked onto two live jobs at once.
  */
+/** POST /api/mutha/allocation/recommend — who to put on this job, with reasons. A suggestion only; the leader still assigns. */
+export const recommendCrewForJob = asyncHandler(async (req: Request, res: Response) => {
+  res.status(200).json({ recommendation: await recommendCrew(req.user!.id, req.body.bookingId) });
+});
+
 export const assignJobMembers = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const bookingId = req.params.bookingId;
@@ -359,6 +366,9 @@ export const assignJobMembers = asyncHandler(async (req: Request, res: Response)
     details: { memberIds, additions, removals },
   });
 
+  await recordAllocationOutcome(booking._id.toString(), mutha._id.toString(), memberIds);
+  // A member with no phone cannot be told directly: tell the leader (P4.3).
+  if (additions.length > 0) void smsProxyAssignments(booking, additions);
   emitBookingStatus(booking);
   res.status(200).json({ booking });
 });

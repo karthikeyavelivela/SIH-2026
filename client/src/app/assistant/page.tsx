@@ -1,9 +1,10 @@
 'use client';
 
+import { startRecording, MicDenied, type Recorder } from '@/lib/voice';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Icon } from '@/components/ui/Icon';
@@ -87,6 +88,59 @@ export default function AssistantPage() {
   const [escalatedId, setEscalatedId] = useState<string | null>(null);
   const [canEscalate, setCanEscalate] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
+
+  // P4.2 — voice. The microphone button only exists when the server says
+  // Bhashini is ready, and the microphone is only opened when it is tapped.
+  const locale = useLocale();
+  const [voiceReady, setVoiceReady] = useState(false);
+  const [recorder, setRecorder] = useState<Recorder | null>(null);
+  const [voiceBusy, setVoiceBusy] = useState(false);
+
+  useEffect(() => {
+    api.get<{ ready: boolean }>('/api/assistant/voice-status').then((r) => setVoiceReady(r.ready)).catch(() => setVoiceReady(false));
+  }, []);
+
+  async function toggleVoice() {
+    setError(null);
+    if (!recorder) {
+      try {
+        setRecorder(await startRecording());
+      } catch (err) {
+        setError(err instanceof MicDenied ? t('voiceDenied') : t('voiceFailed'));
+      }
+      return;
+    }
+    const active = recorder;
+    setRecorder(null);
+    setVoiceBusy(true);
+    try {
+      const audioBase64 = await active.stop();
+      const res = await api.post<{
+        transcript: string;
+        conversationId: string;
+        answer: Answer;
+        audio?: { audioBase64: string; format: string };
+      }>('/api/assistant/voice', { audioBase64, language: locale === 'te' || locale === 'hi' ? locale : 'en', ...(conversationId ? { conversationId } : {}) });
+      setConversationId(res.conversationId);
+      setCanEscalate(true);
+      setTurns((prev) => [
+        ...prev,
+        { role: 'user', text: res.transcript },
+        {
+          role: 'assistant',
+          text: res.answer.summary,
+          evidence: res.answer.evidence,
+          confidence: res.answer.confidence,
+          suggestion: res.answer.suggestion,
+        },
+      ]);
+      if (res.audio) void new Audio(`data:audio/wav;base64,${res.audio.audioBase64}`).play().catch(() => undefined);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : t('voiceFailed'));
+    } finally {
+      setVoiceBusy(false);
+    }
+  }
 
   useEffect(() => {
     api
@@ -334,6 +388,17 @@ export default function AssistantPage() {
             placeholder={t('placeholder')}
             className="flex-1"
           />
+          {voiceReady && (
+            <Button
+              glyph={recorder ? 'stop_circle' : 'mic'}
+              variant="light"
+              disabled={loading || voiceBusy}
+              aria-label={recorder ? t('voiceStop') : t('voiceStart')}
+              onClick={() => void toggleVoice()}
+            >
+              {voiceBusy ? t('voiceWorking') : recorder ? t('voiceListening') : ''}
+            </Button>
+          )}
           <Button glyph="send" disabled={loading || !question.trim()} onClick={() => void send()}>
             {t('send')}
           </Button>

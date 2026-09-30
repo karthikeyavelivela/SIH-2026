@@ -1,16 +1,13 @@
 import { startWageFloorAlertRunner } from './services/wageFloorAlerts.service';
 import { startAutoConfirmRunner } from './services/completion.service';
-import { startWelfareRunner } from './services/welfarePool.service';
 import { startDisputeSlaRunner } from './services/disputeRouting.service';
-import { startContractRunner } from './services/contract.service';
 import { ensureServiceCategories } from './services/serviceCategorySeed';
 import http from 'http';
 import { app } from './app';
 import { connectDb } from './config/db';
 import { env } from './config/env';
 import { initRealtime } from './realtime';
-import { startScheduledBookingReleaser } from './services/scheduledBooking.service';
-import { startScheduledIncentiveRunner } from './services/scheduledIncentiveRunner.service';
+import { startRecurringJobs } from './infra/scheduler';
 import { describeChain } from './agents/providers';
 import { ensureTrainingModules } from './services/trainingCatalogue';
 import { ensureWageFloors } from './services/wageFloor.service';
@@ -76,13 +73,15 @@ async function main() {
     console.error('Promo banner seeding failed (continuing):', err);
   }
 
-  startScheduledBookingReleaser();
-  startScheduledIncentiveRunner();
+  // Scheduled-booking release, incentives, the welfare check and contract
+  // visits run once across all instances when REDIS_URL is set (BullMQ), and
+  // on in-process timers otherwise.
+  const jobs = await startRecurringJobs();
+  // eslint-disable-next-line no-console
+  console.log(`Recurring jobs: ${jobs}`);
   startAutoConfirmRunner();
   startWageFloorAlertRunner();
-  startWelfareRunner();
   startDisputeSlaRunner();
-  startContractRunner();
   httpServer.listen(env.PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`FYRO server (HTTP + Socket.io) listening on port ${env.PORT}`);

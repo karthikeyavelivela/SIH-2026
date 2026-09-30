@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validateZod, objectId } from '../middleware/zod';
-import { requestsLimiter } from '../middleware/rateLimit';
+import { requestsLimiter, offlineKycLimiter } from '../middleware/rateLimit';
+import * as aadhaarOfflineKycController from '../controllers/aadhaarOfflineKyc.controller';
 import { body, param } from 'express-validator';
 import { verifyJwt } from '../middleware/auth';
 import { validate } from '../middleware/validate';
@@ -19,6 +20,16 @@ export const kycDocumentRouter = Router();
 kycDocumentRouter.use(verifyJwt);
 
 kycDocumentRouter.get('/', kycDocumentController.listMyKycDocuments);
+
+// P4.1 — Aadhaar Paperless Offline e-KYC. Off unless AADHAAR_OFFLINE_EKYC_ENABLED.
+kycDocumentRouter.get('/aadhaar-offline', aadhaarOfflineKycController.offlineKycStatus);
+kycDocumentRouter.post(
+  '/aadhaar-offline',
+  offlineKycLimiter,
+  [body('fileBase64').isString().isLength({ min: 1, max: 2_000_000 }), body('shareCode').isString().isLength({ min: 1, max: 64 })],
+  validate,
+  aadhaarOfflineKycController.submitOfflineKyc
+);
 kycDocumentRouter.get(
   '/:id/url',
   requestsLimiter,

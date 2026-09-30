@@ -14,6 +14,8 @@ export function publicUser(user: { toObject: () => Record<string, unknown> }) {
   delete obj.claimCodeExpiresAt;
   delete obj.claimAttempts;
   delete obj.pendingClaim;
+  // P4.3 — the reset code's hash never leaves the server.
+  delete obj.pendingPasswordReset;
 
   /*
    * An avatar that was never actually stored.

@@ -59,12 +59,19 @@ import { ApiError } from './utils/ApiError';
 import { globalMutationLimiter } from './middleware/rateLimit';
 import { t } from './i18n/messages';
 import { resolveLocale } from './i18n/resolveLocale';
-import { describeChain, providerHealth } from './agents/providers';
+import { describeChain, providerHealth, providerChain } from './agents/providers';
 import { welfareRouter, federationWelfareRouter, adminWelfareRouter } from './routes/welfare.routes';
 import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
+import { ivrRouter, adminCallbackRouter } from './routes/ivr.routes';
+import { eShramRouter, policeVerificationRouter } from './routes/workerCredentials.routes';
+import { schemeRouter, adminSchemeRouter } from './routes/scheme.routes';
+import { digilockerRouter } from './routes/digilocker.routes';
+import { ondcRouter } from './routes/ondc.routes';
+import { chatRouter } from './routes/chat.routes';
 import { mlHealth } from './services/mlClient';
+import { redisHealth } from './infra/redis';
 import { proxyMemberRouter, proxyClaimRouter } from './routes/proxyMember.routes';
 
 export const app = express();
@@ -166,7 +173,7 @@ app.use('/api', (_req, res, next) => {
  * cannot get in.
  */
 app.get('/api/health', async (_req, res) =>
-  res.status(200).json({ ok: true, ai: describeChain(), aiProviders: providerHealth(), ml: await mlHealth() })
+  res.status(200).json({ ok: true, ai: describeChain(), activeProvider: providerChain()[0]?.name ?? 'rules', aiProviders: providerHealth(), ml: await mlHealth(), redis: await redisHealth() })
 );
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before
@@ -180,6 +187,14 @@ app.use('/api/auth', authRouter);
 // accidentally match a sub-resource path first. Keep this ordering for any
 // future /api/admin/<resource> router added in later phases.
 app.use('/api/admin/fare-rules', fareRuleRouter);
+app.use('/api/admin/scheme-plans', adminSchemeRouter);
+app.use('/api/schemes', schemeRouter);
+app.use('/api/admin/callback-requests', adminCallbackRouter);
+app.use('/api/ivr/exotel', ivrRouter);
+app.use('/api/ondc', ondcRouter);
+app.use('/api/digilocker', digilockerRouter);
+app.use('/api/eshram', eShramRouter);
+app.use('/api/police-verification', policeVerificationRouter);
 app.use('/api/admin/wage-floors', adminWageFloorRouter);
 app.use('/api/admin/promo-banners', adminPromoBannerRouter);
 app.use('/api/fare-rules', publishedRatesRouter);
@@ -207,6 +222,7 @@ app.use('/api/kyc/documents', kycDocumentRouter);
 app.use('/api/hamali-profile', hamaliProfileRouter);
 app.use('/api/agents', agentsRouter);
 app.use('/api/assistant', assistantRouter);
+app.use('/api/chat', chatRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/emergency', emergencyRouter);
 app.use('/api/pricing', pricingRouter);

@@ -48,6 +48,7 @@ export default function MuthaDashboardPage() {
   const tDisputes = useTranslations('disputeRouting');
   const tContracts = useTranslations('contracts');
   const tProxy = useTranslations('proxyMembers');
+  const tCreds = useTranslations('credentials');
   const { user } = useAuth();
   const { data, state } = usePolling(() => api.get<MuthaResponse>('/api/mutha/me'), 15000);
   const { data: bookingsData } = usePolling(() => api.get<{ bookings: Booking[] }>('/api/requests/mine'), 15000);
@@ -193,6 +194,9 @@ export default function MuthaDashboardPage() {
                   </Link>
                   <Link href="/mutha/proxy-members" className="font-body text-label font-semibold text-fy-green hover:underline">
                     {tProxy('manageLink')}
+                  </Link>
+                  <Link href="/mutha/police-verification" className="font-body text-label font-semibold text-fy-green hover:underline">
+                    {tCreds('reviewLink')}
                   </Link>
                 </div>
               }

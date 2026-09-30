@@ -19,6 +19,7 @@ import { Fleet } from '../models/Fleet';
 import { WarehouseHub } from '../models/WarehouseHub';
 import { getConsent, recordConsent, updateOptionalConsent, type ConsentChoice } from '../services/consent.service';
 import { exportMyData } from '../services/dataExport.service';
+import { resetAvailable, startPasswordReset, completePasswordReset } from '../services/passwordReset.service';
 import { detectRapidAccountCreation } from '../services/fraudDetection.service';
 import type { Role, AppLocale } from '@fyro/shared';
 import {
@@ -660,6 +661,22 @@ export const deleteMyAccount = asyncHandler(async (req: Request, res: Response) 
 
   res.clearCookie('accessToken', cookieOpts);
   res.clearCookie('refreshToken', cookieOpts);
+  res.status(200).json({ ok: true });
+});
+
+/** GET — can a reset code actually reach a phone right now? Lets the screen explain itself when it cannot. */
+export const forgotPasswordStatus = asyncHandler(async (_req: Request, res: Response) => {
+  res.status(200).json({ available: resetAvailable() });
+});
+
+/** POST — same answer whether or not the number has an account. */
+export const forgotPasswordStart = asyncHandler(async (req: Request, res: Response) => {
+  const { expiresAt, devOtp } = await startPasswordReset(req.body.phone);
+  res.status(200).json({ ok: true, ...(expiresAt ? { expiresAt } : {}), ...(devOtp ? { devOtp } : {}) });
+});
+
+export const forgotPasswordComplete = asyncHandler(async (req: Request, res: Response) => {
+  await completePasswordReset(req.body.phone, req.body.otp, req.body.newPassword);
   res.status(200).json({ ok: true });
 });
 

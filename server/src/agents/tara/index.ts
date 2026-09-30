@@ -5,6 +5,19 @@ import type { Role } from '@fyro/shared';
 import { buildTaraContext, TaraContext } from './context';
 import { diagnoseCategory, bookingPathFor } from './symptoms';
 import { adviseMode, ratesFor, describeAdvice, type ModeAdvice } from './pricing';
+import { retrieve, isConfident, MIN_VECTOR_SCORE, MIN_LEXICAL_SCORE, type Retrieved } from '../../services/knowledge.service';
+import {
+  detectHazard,
+  safetyAnswer,
+  citationOf,
+  knowledgeForPrompt,
+  looksLikeRecordQuestion,
+  excerpt,
+  ESCALATE,
+  UNCONFIRMED,
+  DONT_KNOW,
+  type Hazard,
+} from './knowledge';
 
 /**
  * TARA — one assistant, every role.
@@ -42,6 +55,12 @@ export interface TaraAnswer extends AgentResult {
   };
   /** True when TARA could not answer from the person's own records and a human should take over. */
   recommendEscalation: boolean;
+  /** The guide passages the answer rests on, each a "source › heading". Empty when the answer came from the person's own records or from a safety rule. */
+  citations: { source: string; heading: string; label: string }[];
+  /** Set when a safety rule answered instead of a model: gas, electrical or structural. */
+  guardrail?: Hazard;
+  /** How the guide passages were found; absent when none was used. */
+  knowledge?: { method: 'vector' | 'lexical'; topScore: number };
 }
 
 const ROLE_FRAMING: Record<string, string> = {
@@ -60,7 +79,7 @@ const ROLE_FRAMING: Record<string, string> = {
 
 /** Phrases that mean "TARA could not help" — used to decide whether to offer a human. */
 function looksUnanswered(summary: string, confidence: string): boolean {
-  return confidence === 'low' || /don't know|do not know|not in your records|no record|escalat/i.test(summary);
+  return confidence === 'low' || DONT_KNOW.test(summary) || /not in your records|no record|escalat/i.test(summary);
 }
 
 export async function askTara(
@@ -69,8 +88,43 @@ export async function askTara(
   question: string,
   locale: AgentLocale
 ): Promise<TaraAnswer> {
+  /*
+   * The safety check is the first thing that happens, before any lookup and
+   * before any model. A question about a gas leak, a spark or a cracking
+   * ceiling gets a fixed answer that says get safe and call the right person;
+   * the model is never asked, so it cannot talk itself into do-it-yourself
+   * advice.
+   */
+  const hazard = detectHazard(question);
+  if (hazard) {
+    const safe = safetyAnswer(hazard, locale);
+    return {
+      agentName: 'tara',
+      summary: safe.summary,
+      confidence: 'high',
+      evidence: [{ label: 'Safety rule', value: hazard }],
+      mock: true,
+      generatedAt: new Date().toISOString(),
+      guardrail: hazard,
+      suggestion: { categorySlug: safe.categorySlug, path: bookingPathFor(safe.categorySlug), matchedTerms: [hazard] },
+      recommendEscalation: false,
+      citations: [{ source: 'safety', heading: 'Safety', label: 'safety › Safety' }],
+    };
+  }
+
   const context = await buildTaraContext(userId, role);
   const symptom = diagnoseCategory(question);
+
+  // Passages from FYRO's own guides that are close enough to answer from.
+  let hits: Retrieved[] = [];
+  try {
+    hits = await retrieve(question, 4);
+  } catch {
+    hits = [];
+  }
+  const used = isConfident(hits)
+    ? hits.filter((h) => h.score >= (h.method === 'vector' ? MIN_VECTOR_SCORE : MIN_LEXICAL_SCORE)).slice(0, 3)
+    : [];
 
   /*
    * Pricing awareness.
@@ -103,17 +157,35 @@ Be brief. Two or three sentences at most, in plain everyday language — many re
 
 ${pricingLine ? `${pricingLine}\nWhen you mention a price, say in one short clause WHY this kind of job is priced that way — a fixed-price repair, measured work, by the hour, or quoted after a visit. Never state a rupee figure that is not in the range above, and never state any figure when the line above tells you there is no published rate.` : 'If the person asks what something costs and you have no published rate in front of you, say plainly that you cannot quote a price and offer to show who is available.'}
 
-Respond ONLY with JSON: {"summary": "<your answer>", "confidence": "low"|"moderate"|"high", "evidence": [{"label": "<what field this came from>", "value": "<the actual value from the context>"}]}.
-Use confidence "high" only when the context directly answers the question, and "low" whenever you had to say you do not know.`;
+${
+  used.length > 0
+    ? `You are also given KNOWLEDGE: passages from FYRO's own guides, each labelled [source › heading]. You may answer from them as well as from the context. When you use one, add an evidence item with label "Source" and the [source › heading] as its value. A passage marked "contains unconfirmed facts" means that fact has not been confirmed: say FYRO has not confirmed it, and never guess it.`
+    : ''
+}
+If neither the context nor any KNOWLEDGE answers the question, reply with the summary exactly "I don't know — escalate?", confidence "low" and no evidence. A wrong guess is worse than that.
 
-  const userPrompt = `Question: "${question}"\n\nContext:\n${JSON.stringify(context, null, 2)}`;
+Respond ONLY with JSON: {"summary": "<your answer>", "confidence": "low"|"moderate"|"high", "evidence": [{"label": "<what field this came from>", "value": "<the actual value from the context>"}]}.
+Use confidence "high" only when the context or a KNOWLEDGE passage directly answers the question, and "low" whenever you had to say you do not know.`;
+
+  const userPrompt = `Question: "${question}"\n\nContext:\n${JSON.stringify(context, null, 2)}${
+    used.length > 0 ? `\n\nKNOWLEDGE:\n${knowledgeForPrompt(used)}` : ''
+  }`;
 
   const result = await callAgent({ agentName: 'tara', systemPrompt, userPrompt, context: context as unknown as Record<string, unknown>, locale }, (ctx) =>
-    ruleBasedAnswer(ctx as unknown as TaraContext, symptom, locale)
+    ruleBasedAnswer(ctx as unknown as TaraContext, symptom, locale, used, question)
   );
+  const unknownAnswer = DONT_KNOW.test(result.summary) || result.confidence === 'low';
 
+  const citations = unknownAnswer ? [] : used.map(citationOf);
+  // Every cited passage shows up in the evidence the reader sees, whether or
+  // not the model remembered to add it itself.
+  const evidence = [
+    ...result.evidence,
+    ...citations.filter((c) => !result.evidence.some((e) => e.value.includes(c.heading))).map((c) => ({ label: 'Source', value: c.label })),
+  ];
   return {
     ...result,
+    evidence,
     suggestion: symptom
       ? {
           categorySlug: symptom.slug,
@@ -123,6 +195,8 @@ Use confidence "high" only when the context directly answers the question, and "
         }
       : undefined,
     recommendEscalation: looksUnanswered(result.summary, result.confidence),
+    citations,
+    ...(used.length > 0 && !unknownAnswer ? { knowledge: { method: used[0].method, topScore: Math.round(used[0].score * 1000) / 1000 } } : {}),
   };
 }
 
@@ -137,7 +211,9 @@ Use confidence "high" only when the context directly answers the question, and "
 function ruleBasedAnswer(
   ctx: TaraContext,
   symptom: { slug: string; matched: string[] } | null,
-  locale: AgentLocale
+  locale: AgentLocale,
+  used: Retrieved[],
+  question: string
 ): Pick<AgentResult, 'summary' | 'confidence' | 'evidence'> {
   if (symptom) {
     const summary: Record<AgentLocale, string> = {
@@ -151,6 +227,19 @@ function ruleBasedAnswer(
       evidence: [{ label: 'Matched from what you wrote', value: symptom.matched.slice(0, 4).join(', ') }],
     };
   }
+
+  // A guide passage answered it. When that passage still holds an unconfirmed
+  // fact, say so rather than quoting around the gap.
+  if (used.length > 0) {
+    const top = used[0];
+    const src = { label: 'Source', value: `${top.source} › ${top.heading}` };
+    if (top.hasPlaceholder) return { summary: UNCONFIRMED[locale], confidence: 'low', evidence: [src] };
+    return { summary: excerpt(top.text), confidence: 'moderate', evidence: [src] };
+  }
+
+  // Nothing in the guides and no sign this is about the person's own
+  // records: do not dress the latest booking up as an answer.
+  if (!looksLikeRecordQuestion(question)) return { summary: ESCALATE[locale], confidence: 'low', evidence: [] };
 
   if (ctx.recentBookings.length === 0) {
     const summary: Record<AgentLocale, string> = {

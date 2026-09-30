@@ -32,6 +32,16 @@ export interface IKycDocument {
   uploadedAt: Date;
   reviewedAt?: Date;
   reviewedByAdminId?: Types.ObjectId;
+  /** P4.4: where the document came from. A DigiLocker one was integrity-checked on arrival and still goes to review. */
+  source?: 'upload' | 'digilocker';
+  /** P2.4 OCR pre-check: a recommendation for the reviewer, never a decision. */
+  precheck?: {
+    recommendation: 'looks_ok' | 'needs_review' | 'unmasked_aadhaar';
+    checks: { key: string; status: string; detail?: string }[];
+    ocrConfidence: number;
+    engine: string;
+    at: Date;
+  };
 }
 
 export interface IUser {
@@ -56,6 +66,17 @@ export interface IUser {
   // the full reasoning on why these two are deliberately not auto-linked.
   kycStatus: KycStatus;
   kycDocs: IKycDocument[];
+  /** P4.4: the day this person's current police verification ends. The profile badge shows while it is in the future. */
+  policeVerifiedUntil?: Date;
+  /** P4.1: outcome of Aadhaar Paperless Offline e-KYC; never any content of the file. */
+  aadhaarOfflineKyc?: {
+    referenceId: string;
+    last4: string;
+    xmlTimestamp: Date;
+    nameMatch: 'match' | 'partial' | 'mismatch' | 'not_compared';
+    certificateFingerprint: string;
+    verifiedAt: Date;
+  };
   // Set by kyc.controller's reject action; cleared (unset) on a subsequent
   // approve. Not required for 'pending'/'verified' — only ever meaningful
   // alongside kycStatus === 'rejected'.
@@ -149,6 +170,13 @@ export interface IUser {
     expiresAt: Date;
     attempts: number;
   };
+  /** P4.3 forgot-password: a code sent by SMS. otpHash is bcrypt, like passwordHash. */
+  pendingPasswordReset?: {
+    otpHash: string;
+    expiresAt: Date;
+    attempts: number;
+    requestedAt: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
   // Phase 6 fraud detection — captured once at signup (req.ip, real, never
@@ -208,6 +236,21 @@ const userSchema = new Schema<IUser>(
     },
     region: { type: String, trim: true },
     kycStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    policeVerifiedUntil: { type: Date },
+    // P4.1: the outcome of Aadhaar Paperless Offline e-KYC, and nothing from the
+    // file itself. referenceId is unique so one file verifies one account.
+    aadhaarOfflineKyc: {
+      type: {
+        referenceId: { type: String },
+        last4: { type: String },
+        xmlTimestamp: { type: Date },
+        nameMatch: { type: String, enum: ['match', 'partial', 'mismatch', 'not_compared'] },
+        certificateFingerprint: { type: String },
+        verifiedAt: { type: Date },
+      },
+      _id: false,
+      default: undefined,
+    },
     kycDocs: {
       type: [
         {
@@ -223,6 +266,20 @@ const userSchema = new Schema<IUser>(
           uploadedAt: { type: Date, required: true, default: Date.now },
           reviewedAt: { type: Date },
           reviewedByAdminId: { type: Schema.Types.ObjectId, ref: 'User' },
+          source: { type: String, enum: ['upload', 'digilocker'], default: 'upload' },
+          // P2.4: what the OCR pre-check recommended. Statuses and a
+          // confidence only; never the text or any number read.
+          precheck: {
+            type: {
+              recommendation: { type: String, enum: ['looks_ok', 'needs_review', 'unmasked_aadhaar'] },
+              checks: [{ key: String, status: String, detail: String, _id: false }],
+              ocrConfidence: Number,
+              engine: String,
+              at: Date,
+            },
+            _id: false,
+            default: undefined,
+          },
         },
       ],
       default: [],
@@ -313,6 +370,13 @@ const userSchema = new Schema<IUser>(
       expiresAt: { type: Date },
       attempts: { type: Number },
     },
+    // No defaults on these paths, for the same reason as pendingPhoneChange above.
+    pendingPasswordReset: {
+      otpHash: { type: String },
+      expiresAt: { type: Date },
+      attempts: { type: Number },
+      requestedAt: { type: Date },
+    },
     signupIp: { type: String },
     preferredLocale: { type: String, enum: ['en', 'te', 'hi'], default: 'en' },
   },
@@ -324,5 +388,7 @@ const userSchema = new Schema<IUser>(
 // society leader over their own members. search.service.ts is where that is
 // enforced; an index is not an access grant.
 userSchema.index({ name: 'text' }, { name: 'user_search' });
+// One offline e-KYC file verifies one account.
+userSchema.index({ 'aadhaarOfflineKyc.referenceId': 1 }, { unique: true, sparse: true });
 
 export const User = model<IUser>('User', userSchema);

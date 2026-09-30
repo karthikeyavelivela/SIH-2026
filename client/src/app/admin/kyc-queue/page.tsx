@@ -1,5 +1,6 @@
 'use client';
 
+import { PrecheckNote, type DocPrecheck } from '@/components/kyc/PrecheckNote';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -18,6 +19,7 @@ interface KycDocument {
   status: 'under_review' | 'verified' | 'rejected';
   rejectionReason?: string;
   uploadedAt: string;
+  precheck?: DocPrecheck;
 }
 
 interface KycUser {
@@ -42,6 +44,7 @@ const docStatusTone: Record<KycDocument['status'], 'muted' | 'secondary' | 'succ
 // 'verify_kyc' MANAGER_PERMISSIONS slot, audit-logged server-side.
 export default function AdminKycQueuePage() {
   const t = useTranslations('adminKyc');
+  const tCreds = useTranslations('credentials');
   const { data, state, reload } = usePolling(() => api.get<{ users: KycUser[] }>('/api/admin/kyc-queue'), 15000);
   const [selected, setSelected] = useState<KycUser | null>(null);
   const [rejecting, setRejecting] = useState(false);
@@ -118,6 +121,10 @@ export default function AdminKycQueuePage() {
       <h1 className="font-heading text-heading font-extrabold mb-1">{t('title')}</h1>
       <p className="text-sm text-fy-ink-soft mb-7">{t('subtitle')}</p>
 
+      <a href="/admin/police-verification" className="inline-block mb-4 text-sm font-semibold text-fy-green hover:underline">
+        {tCreds('reviewLink')} →
+      </a>
+
       <div className="max-w-xs mb-8">
         <QueueCounter count={users.length} label={t('pendingReview')} tone={users.length > 0 ? 'primary' : 'muted'} />
       </div>
@@ -167,8 +174,8 @@ export default function AdminKycQueuePage() {
               {selected.kycDocs.length === 0 && <p className="text-sm text-fy-ink-soft">{t('noDocsOnFile')}</p>}
               <div className="space-y-2">
                 {selected.kycDocs.map((doc) => (
+                  <div key={doc._id} className="space-y-1.5">
                   <button
-                    key={doc._id}
                     type="button"
                     onClick={() => viewDocument(doc._id)}
                     disabled={openingDoc === doc._id}
@@ -180,6 +187,8 @@ export default function AdminKycQueuePage() {
                     </span>
                     <StatusChip tone={docStatusTone[doc.status]}>{t(`docStatus.${doc.status}`)}</StatusChip>
                   </button>
+                  {doc.precheck && <PrecheckNote precheck={doc.precheck} />}
+                  </div>
                 ))}
               </div>
             </div>

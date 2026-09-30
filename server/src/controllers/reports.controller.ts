@@ -1,3 +1,4 @@
+import { onSecondary } from '../infra/readPreference';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
@@ -56,7 +57,7 @@ export const exportReport = asyncHandler(async (req: Request, res: Response) => 
     if (Object.keys(range).length) filter.timestamp = range;
     if (region) filter.region = region;
 
-    const entries = await LedgerEntry.find(filter).sort({ timestamp: -1 }).limit(10000);
+    const entries = await onSecondary(LedgerEntry.find(filter)).sort({ timestamp: -1 }).limit(10000);
     header = ['Timestamp', 'Type', 'Entity type', 'Entity ID', 'Amount', 'Status', 'Description', 'Region'];
     rows = entries.map((e) => [
       e.timestamp.toISOString(),
@@ -75,7 +76,7 @@ export const exportReport = asyncHandler(async (req: Request, res: Response) => 
     if (Object.keys(range).length) filter.createdAt = range;
     if (region) filter.region = region;
 
-    const bookings = await Booking.find(filter).sort({ createdAt: -1 }).limit(10000);
+    const bookings = await onSecondary(Booking.find(filter)).sort({ createdAt: -1 }).limit(10000);
     header = ['Booking ID', 'Created', 'Type', 'Region', 'Status', 'Distance (km)', 'Fare total'];
     rows = bookings.map((b) => [
       b._id.toString(),

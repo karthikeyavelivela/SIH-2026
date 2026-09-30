@@ -52,6 +52,39 @@ const TEMPLATES: Record<NotificationType, Record<AppLocale, Template>> = {
     te: (v) => ({ title: 'ఇన్సూరెన్స్ పేఅవుట్ ట్రిగ్గర్ అయింది', body: `₹${v.amount} ఆటోమేటిక్‌గా చెల్లించబడింది — మీ ఆదాయం కవర్ చేసిన థ్రెషోల్డ్ కంటే తక్కువగా ఉంది.` }),
     hi: (v) => ({ title: 'बीमा भुगतान ट्रिगर हुआ', body: `₹${v.amount} अपने आप भुगतान हुआ — आपकी कमाई कवर की गई सीमा से कम थी।` }),
   },
+  // P4.4: kind is one of verified, rejected, expiring30, expiring7, expired.
+  police_verification: {
+    en: (v) => ({
+      title: 'Police verification',
+      body:
+        v.kind === 'verified' ? `Your police verification is approved until ${v.date}.`
+        : v.kind === 'rejected' ? `Your police verification was not approved: ${v.reason}. You can upload it again.`
+        : v.kind === 'expired' ? 'Your police verification has expired. Please upload a new one.'
+        : `Your police verification expires in ${v.days} days (${v.date}). Please upload a new one before then.`,
+    }),
+    te: (v) => ({
+      title: 'పోలీస్ ధృవీకరణ',
+      body:
+        v.kind === 'verified' ? `మీ పోలీస్ ధృవీకరణ ${v.date} వరకు ఆమోదించబడింది.`
+        : v.kind === 'rejected' ? `మీ పోలీస్ ధృవీకరణ ఆమోదించబడలేదు: ${v.reason}. మీరు మళ్ళీ అప్‌లోడ్ చేయవచ్చు.`
+        : v.kind === 'expired' ? 'మీ పోలీస్ ధృవీకరణ గడువు ముగిసింది. దయచేసి కొత్తది అప్‌లోడ్ చేయండి.'
+        : `మీ పోలీస్ ధృవీకరణ ${v.days} రోజుల్లో (${v.date}) ముగుస్తుంది. ఆలోపు కొత్తది అప్‌లోడ్ చేయండి.`,
+    }),
+    hi: (v) => ({
+      title: 'पुलिस सत्यापन',
+      body:
+        v.kind === 'verified' ? `आपका पुलिस सत्यापन ${v.date} तक मंज़ूर है।`
+        : v.kind === 'rejected' ? `आपका पुलिस सत्यापन मंज़ूर नहीं हुआ: ${v.reason}। आप फिर से अपलोड कर सकते हैं।`
+        : v.kind === 'expired' ? 'आपका पुलिस सत्यापन समाप्त हो गया है। कृपया नया अपलोड करें।'
+        : `आपका पुलिस सत्यापन ${v.days} दिन में (${v.date}) समाप्त हो रहा है। उससे पहले नया अपलोड करें।`,
+    }),
+  },
+  // P4.4: kind is one of enrolled, renewed, renewal_due, renewal_blocked.
+  insurance_scheme: {
+    en: (v) => ({ title: String(v.scheme), body: String(v.message) }),
+    te: (v) => ({ title: String(v.scheme), body: String(v.message) }),
+    hi: (v) => ({ title: String(v.scheme), body: String(v.message) }),
+  },
   contract_update: {
     en: (v) => ({ title: 'Contract update', body: `${v.org}: the contract for ${v.category} is now ${v.status}.` }),
     te: (v) => ({ title: 'ఒప్పందం అప్‌డేట్', body: `${v.org}: ${v.category} ఒప్పందం ఇప్పుడు ${v.status}.` }),

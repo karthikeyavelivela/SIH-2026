@@ -34,6 +34,56 @@ const envSchema = z.object({
   VERIFICATION_ENABLED: optionalFlag,
   // P2.1 — the fyro-ml service (ml/). Both unset means every ML call falls
   // back to the rule-based path, labelled source 'rules'.
+  // P4.4 — "Fetch from DigiLocker" (PAN and driving licence only). Off by
+  // default. The redirect URI must be exactly the one registered with
+  // DigiLocker / API Setu, and points at the web app's /digilocker/callback.
+  DIGILOCKER_ENABLED: optionalFlag,
+  DIGILOCKER_CLIENT_ID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  DIGILOCKER_CLIENT_SECRET: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  DIGILOCKER_REDIRECT_URI: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
+  // Override if the sandbox lives on a different host from DigiLocker's documented one.
+  DIGILOCKER_BASE_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
+  // P4.3 — SMS (OTP, password reset, confirmations) and the Exotel IVR.
+  // SMS_PROVIDER names the gateway; unset or 'none' means no SMS is sent.
+  SMS_PROVIDER: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['none', 'msg91', 'twilio']).optional()),
+  MSG91_AUTH_KEY: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  TWILIO_ACCOUNT_SID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  TWILIO_AUTH_TOKEN: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  TWILIO_FROM: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // JSON: { "otp": { "en": "<MSG91 flow id>", "te": "...", "hi": "..." }, ... }
+  // Each flow id is mapped to a DLT-registered template on the MSG91 panel.
+  SMS_TEMPLATE_IDS: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // The IVR answers Exotel's requests at /api/ivr/exotel/*. Off by default. The
+  // shared secret goes in the URL configured in Exotel, since Exotel does not
+  // sign its requests.
+  IVR_ENABLED: optionalFlag,
+  IVR_SHARED_SECRET: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(24).optional()),
+  EXOTEL_NUMBER: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // P4.2 — Bhashini (speech to text, text to speech, translation). Off by
+  // default; needs BHASHINI_ENABLED=true and both credentials from a ULCA account.
+  BHASHINI_ENABLED: optionalFlag,
+  BHASHINI_USER_ID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  BHASHINI_API_KEY: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // Overrides for the ULCA pipeline config URL and pipeline id, if they change.
+  BHASHINI_CONFIG_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
+  BHASHINI_PIPELINE_ID: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // P4.1 — Aadhaar Paperless Offline e-KYC. Off by default. The only keys that
+  // can verify a file are the certificates in server/certs/ (see its README).
+  AADHAAR_OFFLINE_EKYC_ENABLED: optionalFlag,
+  // Oldest offline XML accepted, in days, measured from its own timestamp.
+  AADHAAR_XML_MAX_AGE_DAYS: z.coerce.number().positive().max(365).default(7),
+  // TEST ONLY: a directory of test public keys that replaces server/certs/
+  // when NODE_ENV is 'test'. Ignored in every other environment.
+  UIDAI_TEST_CERT_DIR: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // P2.4 — OCR pre-check of KYC uploads (tesseract.js). Off by default: the
+  // engine is heavy and downloads its language data on first use.
+  DOC_OCR_ENABLED: optionalFlag,
+  // Directory or URL holding eng/tel/hin traineddata, to avoid the download.
+  OCR_LANG_PATH: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // P3.1 — set to run on more than one instance: shared rate limits, offer
+  // state, Socket.io rooms, and scheduled jobs that run once. Unset = all of
+  // that stays in memory (development, tests, a single instance).
+  REDIS_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   ML_SERVICE_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   ML_SERVICE_TOKEN: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(16).optional()),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
@@ -77,6 +127,10 @@ const envSchema = z.object({
    */
   GEMINI_MODEL: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+  // P2.3 — embedding model for the TARA knowledge base (Gemini), and an Atlas
+  // Vector Search index name if one has been created on KnowledgeChunk.
+  GEMINI_EMBEDDING_MODEL: z.string().optional(),
+  KNOWLEDGE_VECTOR_INDEX: z.string().optional(),
   // 'auto' (the default) tries Gemini, then Groq, then Anthropic, skipping
   // any without a key. Naming one provider pins the chain to it alone —
   // useful for proving which vendor answered, and for cutting a provider out

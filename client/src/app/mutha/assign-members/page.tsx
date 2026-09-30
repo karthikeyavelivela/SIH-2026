@@ -1,5 +1,6 @@
 'use client';
 
+import { RecommendedCrew } from '@/components/mutha/RecommendedCrew';
 import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -123,6 +124,15 @@ function AssignMembersInner() {
             <span>{t('selected', { count: activeSelection.size })}</span>
           </div>
         </div>
+
+        {required > currentIds.size && (
+          <div className="mb-4">
+            <RecommendedCrew
+              bookingId={booking._id}
+              onUse={(ids) => setSelected(new Set([...currentIds, ...ids].slice(0, required)))}
+            />
+          </div>
+        )}
 
         <p className="text-xs font-semibold text-fy-ink-soft uppercase tracking-wide mb-2">
           {t('availableMembers')}

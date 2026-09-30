@@ -1,3 +1,8 @@
+import { onSecondary } from '../infra/readPreference';
+import { Types } from 'mongoose';
+import { eShramCoverage } from '../services/eshram.service';
+import { policeVerifiedCoverage } from '../services/policeVerification.service';
+import { societyFairness, recommendationUptake } from '../services/allocation.service';
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -172,6 +177,21 @@ async function societyIdsInScope(federationId: string, federationType: 'state' |
  * fabricated. On zero societies in scope, returns real zeros/empty arrays
  * rather than a fabricated placeholder.
  */
+/**
+ * GET /api/federation/fairness — how evenly work is spread within each
+ * society in scope over the last four weeks, and how often leaders take the
+ * crew recommendation. Real counts from Booking and AllocationLog; nothing
+ * estimated.
+ */
+export const getFairness = asyncHandler(async (req: Request, res: Response) => {
+  const federationId = await getCallerFederationId(req.user!.id);
+  const federation = await Federation.findById(federationId);
+  if (!federation) throw new ApiError(404, 'Federation not found');
+  const societyIds = await societyIdsInScope(federation._id.toString(), federation.type);
+  const [societies, uptake] = await Promise.all([societyFairness(societyIds), recommendationUptake(societyIds)]);
+  res.status(200).json({ windowDays: 28, societies, recommendations: uptake });
+});
+
 export const getMyFederationDashboard = asyncHandler(async (req: Request, res: Response) => {
   const federationId = await getCallerFederationId(req.user!.id);
 
@@ -179,7 +199,7 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
   if (!federation) throw new ApiError(404, 'Federation not found');
 
   const societyIds = await societyIdsInScope(federation._id.toString(), federation.type);
-  const societies = await Mutha.find({ _id: { $in: societyIds } })
+  const societies = await onSecondary(Mutha.find({ _id: { $in: societyIds } }))
     .select('name region leaderId memberIds ratingAvg activeJobsCount commissionRatePct welfareDeductionRatePct districtFederationId')
     .lean();
 
@@ -187,7 +207,7 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
   // district is thin on affiliated societies without opening each one.
   let districts: { _id: string; name: string; region: string; societyCount: number }[] | undefined;
   if (federation.type === 'state') {
-    const districtDocs = await Federation.find({ parentFederationId: federation._id, type: 'district' })
+    const districtDocs = await onSecondary(Federation.find({ parentFederationId: federation._id, type: 'district' }))
       .select('name region')
       .lean();
     const countByDistrict = new Map<string, number>();
@@ -207,21 +227,21 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
   const uniqueMemberIds = [...new Set(memberIds)];
 
   const [completedBookings, trainingProgress, activePolicies, openDisputes, openComplaints] = await Promise.all([
-    Booking.find({ assignedMuthaId: { $in: societyIds }, status: 'completed' })
+    onSecondary(Booking.find({ assignedMuthaId: { $in: societyIds }, status: 'completed' }))
       .select('assignedMuthaId fareBreakdown.total fareBreakdown.workerRate')
       .lean(),
-    TrainingProgress.find({ userId: { $in: uniqueMemberIds } }).select('userId status').lean(),
-    InsurancePolicy.countDocuments({ userId: { $in: uniqueMemberIds }, status: 'active' }),
-    Dispute.countDocuments({ raisedBy: { $in: uniqueMemberIds }, status: { $in: ['open', 'investigating'] } }),
-    Complaint.countDocuments({ raisedByUserId: { $in: uniqueMemberIds }, status: { $in: ['open', 'investigating'] } }),
+    onSecondary(TrainingProgress.find({ userId: { $in: uniqueMemberIds } })).select('userId status').lean(),
+    onSecondary(InsurancePolicy.countDocuments({ userId: { $in: uniqueMemberIds }, status: 'active' })),
+    onSecondary(Dispute.countDocuments({ raisedBy: { $in: uniqueMemberIds }, status: { $in: ['open', 'investigating'] } })),
+    onSecondary(Complaint.countDocuments({ raisedByUserId: { $in: uniqueMemberIds }, status: { $in: ['open', 'investigating'] } })),
   ]);
 
   const jobsCompleted = completedBookings.length;
   const earningsDistributed = Math.round(completedBookings.reduce((s, b) => s + workerRateOf(b.fareBreakdown), 0) * 100) / 100;
 
-  const totalModulesTargetingMembers = await TrainingModule.countDocuments({
+  const totalModulesTargetingMembers = await onSecondary(TrainingModule.countDocuments({
     forRoles: { $in: ['mutha_leader', 'mutha_member'] },
-  });
+  }));
   const completedCount = trainingProgress.filter((p) => p.status === 'completed').length;
   const expectedCompletions = totalModulesTargetingMembers * uniqueMemberIds.length;
   const trainingCompletionRatePct =
@@ -230,10 +250,20 @@ export const getMyFederationDashboard = asyncHandler(async (req: Request, res: R
   const welfareEnrolmentRatePct =
     uniqueMemberIds.length > 0 ? Math.round((activePolicies / uniqueMemberIds.length) * 1000) / 10 : 0;
 
+  const [eShram, police] = await Promise.all([
+    eShramCoverage(uniqueMemberIds.map((m) => new Types.ObjectId(m))),
+    policeVerifiedCoverage(uniqueMemberIds.map((m) => new Types.ObjectId(m))),
+  ]);
+
   res.status(200).json({
     federation,
     districts,
     counts: {
+      // Recorded by members, not checked against the e-Shram portal.
+      eShramRecordedPct: eShram.pct,
+      eShramRecorded: eShram.registered,
+      policeVerifiedPct: police.pct,
+      policeVerified: police.verified,
       societies: societies.length,
       workers: uniqueMemberIds.length,
       jobsCompleted,
@@ -275,9 +305,9 @@ export const getDistrictFederationDashboard = asyncHandler(async (req: Request, 
   }
 
   const societyIds = await societyIdsInScope(target._id.toString(), 'district');
-  const societies = await Mutha.find({ _id: { $in: societyIds } }).select('name region memberIds').lean();
+  const societies = await onSecondary(Mutha.find({ _id: { $in: societyIds } })).select('name region memberIds').lean();
   const memberCount = societies.reduce((s, soc) => s + soc.memberIds.length + 1, 0);
-  const jobsCompleted = await Booking.countDocuments({ assignedMuthaId: { $in: societyIds }, status: 'completed' });
+  const jobsCompleted = await onSecondary(Booking.countDocuments({ assignedMuthaId: { $in: societyIds }, status: 'completed' }));
 
   res.status(200).json({
     federation: target,
@@ -361,7 +391,7 @@ export const getTrainingNeedsAssessment = asyncHandler(async (req: Request, res:
   if (!federation) throw new ApiError(404, 'Federation not found');
 
   const societyIds = await societyIdsInScope(federationId, federation.type);
-  const societies = await Mutha.find({ _id: { $in: societyIds } }).select('name region leaderId memberIds').lean();
+  const societies = await onSecondary(Mutha.find({ _id: { $in: societyIds } })).select('name region leaderId memberIds').lean();
 
   const refresherCutoff = new Date(Date.now() + REFRESHER_WINDOW_DAYS * 24 * 60 * 60 * 1000);
 
@@ -370,7 +400,7 @@ export const getTrainingNeedsAssessment = asyncHandler(async (req: Request, res:
       const memberIds = [society.leaderId.toString(), ...society.memberIds.map((m) => m.toString())];
       const [membersWithProgress, dueForRefresh] = await Promise.all([
         TrainingProgress.distinct('userId', { userId: { $in: memberIds }, status: 'completed' }),
-        Certification.countDocuments({ userId: { $in: memberIds }, validUntil: { $lte: refresherCutoff } }),
+        onSecondary(Certification.countDocuments({ userId: { $in: memberIds }, validUntil: { $lte: refresherCutoff } })),
       ]);
       const membersWithNoProgress = memberIds.length - membersWithProgress.length;
       const skillGapPct = memberIds.length > 0 ? Math.round((membersWithNoProgress / memberIds.length) * 1000) / 10 : 0;

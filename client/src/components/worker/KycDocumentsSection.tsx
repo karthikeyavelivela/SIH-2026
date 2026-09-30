@@ -1,5 +1,8 @@
 'use client';
 
+import { DigiLockerButton } from '@/components/kyc/DigiLockerButton';
+import { WorkerCredentialsSection } from '@/components/worker/WorkerCredentialsSection';
+import { AadhaarOfflineCard } from '@/components/kyc/AadhaarOfflineCard';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api, ApiClientError } from '@/lib/api';
@@ -120,6 +123,8 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
                   <p className="text-xs text-fy-muted">{tk('maskedAadhaarBody')}</p>
                 </div>
               )}
+              {type === 'aadhaar' && (!doc || doc.status !== 'verified') && <AadhaarOfflineCard />}
+              {(type === 'pan' || type === 'driving_licence') && (!doc || doc.status !== 'verified') && <DigiLockerButton docType={type} />}
               {doc && doc.status !== 'verified' && (
                 <div className="mt-1.5 ml-1">
                   {precheckResult ? (
@@ -141,6 +146,7 @@ export function KycDocumentsSection({ requiredTypes }: KycDocumentsSectionProps)
         })}
       </div>
       {error && <p className="text-xs text-fy-error mt-2">{error}</p>}
+      <WorkerCredentialsSection />
     </div>
   );
 }
