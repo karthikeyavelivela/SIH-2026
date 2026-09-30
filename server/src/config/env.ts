@@ -39,6 +39,10 @@ const envSchema = z.object({
   DOC_OCR_ENABLED: optionalFlag,
   // Directory or URL holding eng/tel/hin traineddata, to avoid the download.
   OCR_LANG_PATH: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  // P3.1 — set to run on more than one instance: shared rate limits, offer
+  // state, Socket.io rooms, and scheduled jobs that run once. Unset = all of
+  // that stays in memory (development, tests, a single instance).
+  REDIS_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   ML_SERVICE_URL: z.preprocess((v) => (v === '' ? undefined : v), z.string().url().optional()),
   ML_SERVICE_TOKEN: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(16).optional()),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),

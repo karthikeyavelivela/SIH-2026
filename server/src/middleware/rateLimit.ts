@@ -1,9 +1,10 @@
 import { clientIp } from './clientIp';
 import rateLimit from 'express-rate-limit';
+import { storeFor } from '../infra/limiterStore';
 
-// Uses the default in-memory store — fine for Phase 1's single-instance
-// dev/deploy. Before horizontal scaling, swap to a shared store (e.g.
-// rate-limit-redis) and set `app.set('trust proxy', ...)` so req.ip is
+// Counters live in Redis when REDIS_URL is set (shared by every instance), and
+// in each process's memory otherwise, which is fine for one instance and for
+// the tests. `app.set('trust proxy', ...)` is set in app.ts so req.ip is
 // correct behind a load balancer.
 //
 // Keyed by IP + route path (not just IP) so the limit applies per auth
@@ -11,6 +12,7 @@ import rateLimit from 'express-rate-limit';
 // from the same IP are tracked independently, rather than one shared
 // endpoint's traffic exhausting another endpoint's budget.
 export const authLimiter = rateLimit({
+  ...storeFor('authLimiter'),
   windowMs: 60 * 1000,
   max: 5,
   standardHeaders: true,
@@ -29,6 +31,7 @@ export const authLimiter = rateLimit({
 // fifteen minutes is the limit however many addresses they come from.
 // Generous enough that a person mistyping their own password never meets it.
 export const loginAccountLimiter = rateLimit({
+  ...storeFor('loginAccountLimiter'),
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
@@ -45,6 +48,7 @@ export const loginAccountLimiter = rateLimit({
 // — unbounded aggregate throughput from a single signup. Keyed by the
 // authenticated user's id instead, so the cap is actually per-account.
 export const geocodeLimiter = rateLimit({
+  ...storeFor('geocodeLimiter'),
   windowMs: 60 * 1000,
   max: 20,
   standardHeaders: true,
@@ -61,6 +65,7 @@ export const geocodeLimiter = rateLimit({
 // from rotating IPs. 10/min comfortably covers a customer retrying a
 // misfired address without capping legitimate use.
 export const bookingCreateLimiter = rateLimit({
+  ...storeFor('bookingCreateLimiter'),
   windowMs: 60 * 1000,
   max: 10,
   standardHeaders: true,
@@ -74,6 +79,7 @@ export const bookingCreateLimiter = rateLimit({
 // each weight/count change), so it needs real headroom over the create
 // limiter while still being bounded per-account.
 export const bookingQuoteLimiter = rateLimit({
+  ...storeFor('bookingQuoteLimiter'),
   windowMs: 60 * 1000,
   max: 40,
   standardHeaders: true,
@@ -88,6 +94,7 @@ export const bookingQuoteLimiter = rateLimit({
 // a runaway client or an accept/reject spam attempt against the same
 // booking id.
 export const requestsLimiter = rateLimit({
+  ...storeFor('requestsLimiter'),
   windowMs: 60 * 1000,
   max: 60,
   standardHeaders: true,
@@ -105,6 +112,7 @@ export const requestsLimiter = rateLimit({
 // this is the backstop against a client bypassing the cache (different
 // cache keys) or retrying aggressively.
 export const agentLimiter = rateLimit({
+  ...storeFor('agentLimiter'),
   windowMs: 60 * 1000,
   max: 10,
   standardHeaders: true,
@@ -129,6 +137,7 @@ export const agentLimiter = rateLimit({
 // per-route limiter above is 5/min); it exists to stop a scripted abuse
 // loop, not to be felt by a real user.
 export const globalMutationLimiter = rateLimit({
+  ...storeFor('globalMutationLimiter'),
   windowMs: 60 * 1000,
   max: 100,
   standardHeaders: true,
@@ -149,6 +158,7 @@ export const globalMutationLimiter = rateLimit({
 // account. A real customer makes a handful of these per booking; the cap
 // stops a script hammering signature verification.
 export const paymentLimiter = rateLimit({
+  ...storeFor('paymentLimiter'),
   windowMs: 60 * 1000,
   max: 20,
   standardHeaders: true,

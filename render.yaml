@@ -56,6 +56,11 @@ services:
         sync: false
       - key: ML_SERVICE_TOKEN
         sync: false
+      # P3.1 — set to run on more than one instance: shared rate limits, offer
+      # state and Socket.io rooms, and recurring jobs that run once (BullMQ).
+      # Unset = everything stays in memory on this single instance.
+      - key: REDIS_URL
+        sync: false
 
   # P2.1 — fyro-ml: demand forecast, crew allocation, price anomaly.
   # A second free-plan service; it sleeps when idle, so the first call after

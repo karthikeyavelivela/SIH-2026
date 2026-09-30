@@ -12,6 +12,8 @@ import { emitBookingOffer, emitOfferClosed, emitBookingMatched } from './emitter
 import { SEARCH_RADIUS_KM } from '../controllers/requests.controller';
 import { workerRateOf } from '../services/serviceFee.service';
 import { env } from '../config/env';
+import { randomUUID } from 'crypto';
+import { getRedis } from '../infra/redis';
 
 /** Spec: "~20 seconds (configurable constant)". */
 export const OFFER_TIMEOUT_MS = 20_000;
@@ -32,21 +34,138 @@ interface OfferState {
   ring: number;
   /** Everyone already offered this booking, so a wider ring never repeats them. */
   offered: Set<string>;
+  /** Bumped on every new offer. A timer that fires for an older number is stale and does nothing. */
+  seq: number;
+  /** The countdown's callback, kept so a test can fire it without waiting. Never stored in Redis. */
+  fire?: () => Promise<void>;
 }
 
-// In-memory, single-instance — same documented tradeoff as this codebase's
-// other Phase-2-era in-memory state (the rate limiters' default store).
-// Horizontal scaling needs a shared store (Redis) so a second instance
-// can see/advance the same offer; out of scope until that's needed.
+/*
+ * Where offer state lives.
+ *
+ * Always in this process's memory (the timer has to be here). When REDIS_URL
+ * is set it is ALSO written to Redis after every change, and Redis is treated
+ * as the truth whenever a response arrives: a worker's tap can land on a
+ * different instance from the one that sent the offer, so that instance reads
+ * the state from Redis, checks it really is this worker's turn, and carries on
+ * from there.
+ *
+ * Two guards make that safe. `seq` is bumped on every offer, so a countdown
+ * that fires on the instance that started it after another instance has
+ * already moved on sees a different number and does nothing. And any change to
+ * one booking's offer takes a short lock in Redis, so two instances cannot
+ * both advance it at once. Without Redis none of this runs and behaviour is
+ * exactly what it was.
+ *
+ * If the instance holding a countdown dies, the offer simply lapses when its
+ * Redis key expires and the booking stays open for anyone to take from the
+ * job list, the same honest outcome as running out of candidates.
+ */
 const activeOffers = new Map<string, OfferState>();
+
+const OFFER_TTL_SECONDS = 15 * 60;
+const LOCK_MS = 15_000;
 
 function key(bookingId: string, component: Component): string {
   return `${bookingId}:${component}`;
 }
 
-function clearState(state: OfferState): void {
+const redisKey = (bookingId: string, component: Component) => `offer:${key(bookingId, component)}`;
+
+type PersistedOffer = Omit<OfferState, 'timer' | 'fire' | 'offered'> & { offered: string[] };
+
+async function persist(state: OfferState): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  const { timer: _timer, fire: _fire, offered, ...rest } = state;
+  const body: PersistedOffer = { ...rest, offered: [...offered] };
+  await redis.set(redisKey(state.bookingId, state.component), JSON.stringify(body), 'EX', OFFER_TTL_SECONDS);
+}
+
+async function loadFromRedis(bookingId: string, component: Component): Promise<OfferState | null> {
+  const redis = getRedis();
+  if (!redis) return null;
+  const raw = await redis.get(redisKey(bookingId, component));
+  if (!raw) return null;
+  const p = JSON.parse(raw) as PersistedOffer;
+  return { ...p, offered: new Set(p.offered), timer: null };
+}
+
+/**
+ * The current state of a booking's offer. With Redis that is the stored state
+ * (adopting it here if this instance did not start the offer, or replacing a
+ * local copy that has fallen behind); without Redis it is the local one.
+ */
+async function lookup(bookingId: string, component: Component): Promise<OfferState | undefined> {
+  const local = activeOffers.get(key(bookingId, component));
+  if (!getRedis()) return local;
+  const fresh = await loadFromRedis(bookingId, component);
+  if (!fresh) {
+    if (local) {
+      if (local.timer) clearTimeout(local.timer);
+      activeOffers.delete(key(bookingId, component));
+    }
+    return undefined;
+  }
+  if (local && local.seq === fresh.seq) return local;
+  if (local?.timer) clearTimeout(local.timer);
+  activeOffers.set(key(bookingId, component), fresh);
+  return fresh;
+}
+
+async function clearState(state: OfferState): Promise<void> {
   if (state.timer) clearTimeout(state.timer);
   activeOffers.delete(key(state.bookingId, state.component));
+  await getRedis()?.del(redisKey(state.bookingId, state.component));
+}
+
+/** Runs fn holding the booking's offer lock. Returns false (and does not run fn) when another instance holds it. */
+async function withOfferLock<T>(bookingId: string, component: Component, fn: () => Promise<T>): Promise<{ ran: true; value: T } | { ran: false }> {
+  const redis = getRedis();
+  if (!redis) return { ran: true, value: await fn() };
+  const lockKey = `offerlock:${key(bookingId, component)}`;
+  const token = randomUUID();
+  if ((await redis.set(lockKey, token, 'PX', LOCK_MS, 'NX')) !== 'OK') return { ran: false };
+  try {
+    return { ran: true, value: await fn() };
+  } finally {
+    if ((await redis.get(lockKey)) === token) await redis.del(lockKey);
+  }
+}
+
+const BUSY = "This offer is being handled right now — please try again in a moment.";
+
+async function lockedOrBusy<T>(bookingId: string, component: Component, fn: () => Promise<T>): Promise<T> {
+  const r = await withOfferLock(bookingId, component, fn);
+  if (!r.ran) throw new ApiError(409, BUSY);
+  return r.value;
+}
+
+/** Starts the countdown for the offer just made. The handler runs only if this offer is still the current one. */
+function armTimer(state: OfferState, handler: (s: OfferState) => Promise<void>): void {
+  const seq = state.seq;
+  const fire = async () => {
+    // Whoever runs this (the timer, or a test), the pending countdown is spent.
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = null;
+    const redis = getRedis();
+    if (redis) {
+      const fresh = await loadFromRedis(state.bookingId, state.component);
+      if (!fresh || fresh.seq !== seq) {
+        // Another instance moved on, or the offer is gone. Drop our copy.
+        if (activeOffers.get(key(state.bookingId, state.component)) === state) activeOffers.delete(key(state.bookingId, state.component));
+        return;
+      }
+    }
+    await withOfferLock(state.bookingId, state.component, () => handler(state));
+  };
+  state.fire = fire;
+  state.timer = setTimeout(() => {
+    fire().catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('offer timeout handler failed:', err);
+    });
+  }, timeoutFor(state));
 }
 
 /**
@@ -77,6 +196,7 @@ function newState(booking: IBooking, component: Component): OfferState {
     radii: ringsFor(urgent),
     ring: 0,
     offered: new Set(),
+    seq: 0,
   };
 }
 
@@ -156,7 +276,7 @@ export async function startVehicleOffers(booking: IBooking): Promise<void> {
 async function advanceVehicleOffer(state: OfferState): Promise<void> {
   const booking = await Booking.findById(state.bookingId);
   if (!booking || !['requested', 'searching'].includes(booking.status) || booking.assignedDriverIds.length > 0) {
-    clearState(state);
+    await clearState(state);
     return;
   }
 
@@ -165,17 +285,17 @@ async function advanceVehicleOffer(state: OfferState): Promise<void> {
   if (!nextCandidateId) {
     // Queue exhausted, nobody accepted — booking stays 'searching', honest
     // per the product principle: no fake match, customer keeps waiting.
-    clearState(state);
+    await clearState(state);
     return;
   }
 
   state.currentCandidateId = nextCandidateId;
   state.offered.add(nextCandidateId);
+  state.seq += 1;
+  await persist(state);
   emitBookingOffer(nextCandidateId, offerPayload(booking, state));
 
-  state.timer = setTimeout(() => {
-    void handleVehicleOfferTimeout(state);
-  }, timeoutFor(state));
+  armTimer(state, handleVehicleOfferTimeout);
 }
 
 async function handleVehicleOfferTimeout(state: OfferState): Promise<void> {
@@ -183,8 +303,12 @@ async function handleVehicleOfferTimeout(state: OfferState): Promise<void> {
   await advanceVehicleOffer(state);
 }
 
-export async function respondToVehicleOffer(bookingId: string, userId: string, accept: boolean): Promise<void> {
-  const state = activeOffers.get(key(bookingId, 'vehicle'));
+export function respondToVehicleOffer(bookingId: string, userId: string, accept: boolean): Promise<void> {
+  return lockedOrBusy(bookingId, 'vehicle', () => respondToVehicleOfferLocked(bookingId, userId, accept));
+}
+
+async function respondToVehicleOfferLocked(bookingId: string, userId: string, accept: boolean): Promise<void> {
+  const state = await lookup(bookingId, 'vehicle');
   if (!state || state.currentCandidateId !== userId) {
     throw new ApiError(409, "This offer is no longer yours to respond to — it may have already expired.");
   }
@@ -197,7 +321,7 @@ export async function respondToVehicleOffer(bookingId: string, userId: string, a
 
   try {
     const booking = await acceptAsDriver(userId, bookingId);
-    clearState(state);
+    await clearState(state);
     await emitBookingMatched(booking);
   } catch (err) {
     // Booking was taken through another channel (browse-mode accept) or the
@@ -235,12 +359,12 @@ export async function startHamaliOffers(booking: IBooking): Promise<void> {
 async function advanceHamaliOffer(state: OfferState): Promise<void> {
   const booking = await Booking.findById(state.bookingId);
   if (!booking || !['requested', 'searching'].includes(booking.status)) {
-    clearState(state);
+    await clearState(state);
     return;
   }
   const remaining = booking.requiredHamaliCount - booking.assignedHamaliIds.length;
   if (remaining <= 0) {
-    clearState(state);
+    await clearState(state);
     return;
   }
 
@@ -272,17 +396,17 @@ async function advanceHamaliOffer(state: OfferState): Promise<void> {
   }
 
   if (!nextCandidateId) {
-    clearState(state); // exhausted both pools — booking stays 'searching', honestly
+    await clearState(state); // exhausted both pools — booking stays 'searching', honestly
     return;
   }
 
   state.currentCandidateId = nextCandidateId;
   state.offered.add(nextCandidateId);
+  state.seq += 1;
+  await persist(state);
   emitBookingOffer(nextCandidateId, offerPayload(booking, state));
 
-  state.timer = setTimeout(() => {
-    void handleHamaliOfferTimeout(state);
-  }, timeoutFor(state));
+  armTimer(state, handleHamaliOfferTimeout);
 }
 
 async function handleHamaliOfferTimeout(state: OfferState): Promise<void> {
@@ -291,8 +415,12 @@ async function handleHamaliOfferTimeout(state: OfferState): Promise<void> {
 }
 
 /** Solo-hamali accept/reject in response to a pushed offer (single tap, one slot). */
-export async function respondToHamaliOffer(bookingId: string, userId: string, accept: boolean): Promise<void> {
-  const state = activeOffers.get(key(bookingId, 'hamali'));
+export function respondToHamaliOffer(bookingId: string, userId: string, accept: boolean): Promise<void> {
+  return lockedOrBusy(bookingId, 'hamali', () => respondToHamaliOfferLocked(bookingId, userId, accept));
+}
+
+async function respondToHamaliOfferLocked(bookingId: string, userId: string, accept: boolean): Promise<void> {
+  const state = await lookup(bookingId, 'hamali');
   if (!state || state.currentCandidateId !== userId || state.phase !== 'solo') {
     throw new ApiError(409, "This offer is no longer yours to respond to — it may have already expired.");
   }
@@ -306,7 +434,7 @@ export async function respondToHamaliOffer(bookingId: string, userId: string, ac
   try {
     const booking = await acceptAsHamaliSolo(userId, bookingId);
     if (booking.status === 'accepted' || booking.assignedHamaliIds.length >= booking.requiredHamaliCount) {
-      clearState(state);
+      await clearState(state);
       await emitBookingMatched(booking);
     } else {
       // Slot filled, more still needed — keep offering for the rest.
@@ -332,8 +460,12 @@ export async function respondToHamaliOffer(bookingId: string, userId: string, ac
  * which is what actually clears/advances the queue via
  * notifyMuthaOfferSettled below).
  */
-export async function respondToMuthaHamaliOffer(bookingId: string, userId: string, accept: boolean): Promise<void> {
-  const state = activeOffers.get(key(bookingId, 'hamali'));
+export function respondToMuthaHamaliOffer(bookingId: string, userId: string, accept: boolean): Promise<void> {
+  return lockedOrBusy(bookingId, 'hamali', () => respondToMuthaHamaliOfferLocked(bookingId, userId, accept));
+}
+
+async function respondToMuthaHamaliOfferLocked(bookingId: string, userId: string, accept: boolean): Promise<void> {
+  const state = await lookup(bookingId, 'hamali');
   if (!state || state.currentCandidateId !== userId || state.phase !== 'mutha') {
     throw new ApiError(409, "This offer is no longer yours to respond to — it may have already expired.");
   }
@@ -347,6 +479,10 @@ export async function respondToMuthaHamaliOffer(bookingId: string, userId: strin
   // (via acceptAsMuthaLeader) is recognized as settling THIS offer.
   if (state.timer) clearTimeout(state.timer);
   state.timer = null;
+  // Countdown stopped: bump the number so a timer still pending on another
+  // instance is recognised as stale, and store that.
+  state.seq += 1;
+  await persist(state);
 }
 
 /**
@@ -356,13 +492,17 @@ export async function respondToMuthaHamaliOffer(bookingId: string, userId: strin
  * hanging forever once the countdown was already stopped by
  * respondToMuthaHamaliOffer above.
  */
-export async function notifyMuthaOfferSettled(bookingId: string, userId: string, booking: IBooking): Promise<void> {
-  const state = activeOffers.get(key(bookingId, 'hamali'));
+export function notifyMuthaOfferSettled(bookingId: string, userId: string, booking: IBooking): Promise<void> {
+  return lockedOrBusy(bookingId, 'hamali', () => notifyMuthaOfferSettledLocked(bookingId, userId, booking));
+}
+
+async function notifyMuthaOfferSettledLocked(bookingId: string, userId: string, booking: IBooking): Promise<void> {
+  const state = await lookup(bookingId, 'hamali');
   if (!state || state.currentCandidateId !== userId || state.phase !== 'mutha') return;
 
   const remaining = booking.requiredHamaliCount - booking.assignedHamaliIds.length;
   if (remaining <= 0) {
-    clearState(state);
+    await clearState(state);
   } else {
     await advanceHamaliOffer(state);
   }
@@ -388,4 +528,20 @@ export function _clearAllOffersForTests(): void {
     if (state.timer) clearTimeout(state.timer);
   }
   activeOffers.clear();
+}
+
+/**
+ * Test hook: forget everything held in this process WITHOUT touching Redis,
+ * which is what a second instance that never saw the offer looks like.
+ */
+export function _dropLocalOffersForTests(): void {
+  for (const state of activeOffers.values()) {
+    if (state.timer) clearTimeout(state.timer);
+  }
+  activeOffers.clear();
+}
+
+/** Test hook: run a booking's countdown callback now, as if its timer had just fired. */
+export async function _fireOfferTimerForTests(bookingId: string, component: Component): Promise<void> {
+  await activeOffers.get(key(bookingId, component))?.fire?.();
 }

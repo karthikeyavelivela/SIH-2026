@@ -1,3 +1,4 @@
+import { onSecondary } from '../infra/readPreference';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { Booking } from '../models/Booking';
@@ -24,15 +25,15 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
     heatmapAgg,
     revenueTrendAgg,
   ] = await Promise.all([
-    Booking.aggregate([
+    onSecondary(Booking.aggregate([
       { $match: { status: 'completed', isVerification: { $ne: true } } },
       { $group: { _id: null, total: { $sum: '$fareBreakdown.total' } } },
-    ]),
-    Booking.countDocuments({ status: { $in: ACTIVE_STATUSES }, isVerification: { $ne: true } }),
-    Booking.countDocuments({ status: 'completed', isVerification: { $ne: true } }),
+    ])),
+    onSecondary(Booking.countDocuments({ status: { $in: ACTIVE_STATUSES }, isVerification: { $ne: true } })),
+    onSecondary(Booking.countDocuments({ status: 'completed', isVerification: { $ne: true } })),
     // Avg delivery time: minutes between the first statusHistory entry and
     // the 'completed' entry, for bookings that actually have both.
-    Booking.aggregate([
+    onSecondary(Booking.aggregate([
       { $match: { status: 'completed', 'statusHistory.0': { $exists: true }, isVerification: { $ne: true } } },
       {
         $project: {
@@ -54,11 +55,11 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
       { $match: { completedAt: { $ne: null } } },
       { $project: { minutes: { $divide: [{ $subtract: ['$completedAt', '$startedAt'] }, 60000] } } },
       { $group: { _id: null, avgMinutes: { $avg: '$minutes' } } },
-    ]),
-    Vehicle.aggregate([{ $group: { _id: '$availabilityStatus', count: { $sum: 1 } } }]),
+    ])),
+    onSecondary(Vehicle.aggregate([{ $group: { _id: '$availabilityStatus', count: { $sum: 1 } } }])),
     // Demand hotspots: bucket pickup coordinates to ~0.02deg (~2km) grid
     // cells and count bookings in each — cheap, dependency-free clustering.
-    Booking.aggregate([
+    onSecondary(Booking.aggregate([
       { $match: { isVerification: { $ne: true } } },
       {
         $project: {
@@ -69,8 +70,8 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
       { $group: { _id: { lat: '$lat', lng: '$lng' }, count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 50 },
-    ]),
-    Booking.aggregate([
+    ])),
+    onSecondary(Booking.aggregate([
       { $match: { status: 'completed', createdAt: { $gte: fourteenDaysAgo }, isVerification: { $ne: true } } },
       {
         $group: {
@@ -79,7 +80,7 @@ export const getAnalyticsOverview = asyncHandler(async (_req: Request, res: Resp
         },
       },
       { $sort: { _id: 1 } },
-    ]),
+    ])),
   ]);
 
   const vehicleTotals = { online: 0, offline: 0, on_job: 0 };

@@ -1,3 +1,4 @@
+import { onSecondary } from '../infra/readPreference';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
 import { Booking } from '../models/Booking';
@@ -25,16 +26,16 @@ export const getAdminStats = asyncHandler(async (_req: Request, res: Response) =
 
   const [activeBookings, gmvAgg, openComplaints, totalCompletedBookings, workersOnline, vehiclesOnline, openDisputes] =
     await Promise.all([
-      Booking.countDocuments({ status: { $in: activeStatuses }, isVerification: { $ne: true } }),
-      Booking.aggregate([
+      onSecondary(Booking.countDocuments({ status: { $in: activeStatuses }, isVerification: { $ne: true } })),
+      onSecondary(Booking.aggregate([
         { $match: { status: 'completed', isVerification: { $ne: true } } },
         { $group: { _id: null, gmv: { $sum: '$fareBreakdown.total' } } },
-      ]),
-      Complaint.countDocuments({ status: { $in: ['open', 'in_review'] } }),
-      Booking.countDocuments({ status: 'completed', isVerification: { $ne: true } }),
-      HamaliProfile.countDocuments({ availabilityStatus: { $in: availableStatuses } }),
-      Vehicle.countDocuments({ availabilityStatus: { $in: availableStatuses } }),
-      Dispute.countDocuments({ status: { $in: ['open', 'investigating', 'escalated'] } }),
+      ])),
+      onSecondary(Complaint.countDocuments({ status: { $in: ['open', 'in_review'] } })),
+      onSecondary(Booking.countDocuments({ status: 'completed', isVerification: { $ne: true } })),
+      onSecondary(HamaliProfile.countDocuments({ availabilityStatus: { $in: availableStatuses } })),
+      onSecondary(Vehicle.countDocuments({ availabilityStatus: { $in: availableStatuses } })),
+      onSecondary(Dispute.countDocuments({ status: { $in: ['open', 'investigating', 'escalated'] } })),
     ]);
 
   res.status(200).json({

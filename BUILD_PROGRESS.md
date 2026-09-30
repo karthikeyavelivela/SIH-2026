@@ -28,8 +28,8 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | P2.2 | Allocation UI (recommended crew) + fairness panel | DONE | (this commit) | POST /api/mutha/allocation/recommend (ML or rules, labelled), AllocationLog recommendation-vs-final, RecommendedCrew on /mutha/requests + assign-members (covers contract visits), GET /api/federation/fairness + FairnessPanel; server 8, client 3 |
 | P2.3 | TARA: provider order, knowledge base, retrieval, citations | DONE | (this commit) | order Groq, Gemini, Anthropic, rules; /api/health activeProvider; server/knowledge/*.md (10 files) + KnowledgeChunk + buildKnowledge; Gemini embeddings or IDF-lexical fallback, optional Atlas vector index; citations in evidence; escalate line; hazard guardrail (gas/electrical/structural) runs before any model; 20 tests |
 | P2.4 | Document pre-check with OCR | DONE | (this commit) | tesseract.js (eng/tel/hin) behind DOC_OCR_ENABLED (off); pure analysis (masked/unmasked Aadhaar, PAN/GSTIN/DL shapes, fuzzy name, year); only an unmasked Aadhaar refuses an upload (422, nothing kept), everything else is a recommendation on the document for the admin; synthetic fixtures + make_fixtures.py; real-OCR test opt-in (RUN_OCR_TESTS=1), verified passing; 20 tests |
-| PHASE-2-TESTS | Full suites + pytest | TODO | | |
-| P3.1 | Redis scaling (adapter, rate-limit store, offer state, BullMQ, read prefs) | TODO | | |
+| PHASE-2-TESTS | Full suites + pytest | DONE | (this commit) | server 798 passed + 3 opt-in skipped (80 suites), client 86/86, pytest 19/19, tsc clean (server, client) |
+| P3.1 | Redis scaling (adapter, rate-limit store, offer state, BullMQ, read prefs) | DONE | (this commit) | active only when REDIS_URL set: @socket.io/redis-adapter, rate-limit-redis (9 limiters, own prefixes), offer state write-through to Redis with seq-guarded countdowns + per-booking lock, BullMQ repeatable jobs for scheduled-booking release / incentives / welfare check / contract visits, secondaryPreferred on analytics/federation-dashboard/report reads, /api/health redis; 18 tests (ioredis-mock, mocked bullmq) |
 | PHASE-3-TESTS | Full suites | TODO | | |
 | P4.1 | Aadhaar Paperless Offline e-KYC | TODO | | |
 | P4.2 | Bhashini ASR/TTS/translate | TODO | | |
@@ -61,6 +61,7 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 | URGENT_RADII_KM | Render API | 3,6,10 | Urgent search rings in km (then the ordinary 25 km) |
 | URGENT_OFFER_TIMEOUT_MS | Render API | 12000 | Countdown for an urgent offer (ordinary: 20000) |
 | DISPUTE_SLA_HOURS | Render API | 48 | Hours a dispute waits at one level before escalating by itself |
+| REDIS_URL | Render API | unset | Redis (Render Key Value or Upstash). Set it to run on more than one instance; unset = all in memory |
 | GROQ_API_KEY | Render API | unset | Primary TARA/agent model (Llama); with AI_PROVIDER=auto it is tried first |
 | GEMINI_API_KEY | Render API | unset | Second provider, and the knowledge-base embeddings; without it retrieval is lexical |
 | GEMINI_EMBEDDING_MODEL | Render API | gemini-embedding-001 | Embedding model name |
@@ -99,3 +100,6 @@ Status legend: TODO / IN PROGRESS / DONE / BLOCKED (reason).
 - P2.3: after deploying, run `npm run build:knowledge --workspace server` locally against the production MONGODB_URI with GEMINI_API_KEY set (Render's shell is paid-only). Optionally create an Atlas Vector Search index on KnowledgeChunk.embedding and set KNOWLEDGE_VECTOR_INDEX; otherwise retrieval is in-process.
 - P2.3: set AI_PROVIDER=auto (default) with GROQ_API_KEY to make Groq primary; AI_PROVIDER=groq pins to Groq alone with no fallback.
 - P2.4: decide whether to turn DOC_OCR_ENABLED on in production. Tesseract with Telugu and Hindi needs a few hundred MB of memory per recognition, which a free Render instance may not have; if it runs out, leave it off (uploads then simply have no pre-check) or host the traineddata files and set OCR_LANG_PATH.
+- P3.1: create a Redis (Render Key Value or Upstash) and set REDIS_URL. Until then FYRO runs exactly as before, on one instance, with everything in memory. After setting it, check `/api/health` shows `redis: { configured: true, connected: true }` and the boot log says `Recurring jobs: bullmq`. The shared rate-limit counting is rate-limit-redis's and could not be run against the test fake (it cannot execute Lua scripts), so confirm it once against the live Redis: exceed a limit from one instance and check the other refuses too.
+- P3.1: Redis must be reachable with a plain `redis://` or `rediss://` URL; BullMQ needs a Redis that allows `maxmemory-policy noeviction` (Upstash and Render Key Value do).
+- P3.1: the auto-confirm, dispute-SLA and wage-floor-alert runners are idempotent sweeps and still run on every instance; only the four jobs that must not repeat moved to BullMQ.

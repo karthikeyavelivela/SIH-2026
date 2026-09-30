@@ -65,6 +65,7 @@ import { reworkRouter } from './routes/rework.routes';
 import { disputeQueueRouter } from './routes/dispute.routes';
 import { contractRouter } from './routes/contract.routes';
 import { mlHealth } from './services/mlClient';
+import { redisHealth } from './infra/redis';
 import { proxyMemberRouter, proxyClaimRouter } from './routes/proxyMember.routes';
 
 export const app = express();
@@ -166,7 +167,7 @@ app.use('/api', (_req, res, next) => {
  * cannot get in.
  */
 app.get('/api/health', async (_req, res) =>
-  res.status(200).json({ ok: true, ai: describeChain(), activeProvider: providerChain()[0]?.name ?? 'rules', aiProviders: providerHealth(), ml: await mlHealth() })
+  res.status(200).json({ ok: true, ai: describeChain(), activeProvider: providerChain()[0]?.name ?? 'rules', aiProviders: providerHealth(), ml: await mlHealth(), redis: await redisHealth() })
 );
 app.use('/api/auth', authRouter);
 // More-specific /api/admin/* sub-resource routers MUST be mounted before
